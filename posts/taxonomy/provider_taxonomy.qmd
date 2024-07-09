@@ -153,15 +153,33 @@ htmltools::browsable(
         ),
       elementId = "taxonomy-table",
       columns = list(
+        grouping = reactable::colDef(
+          name = "Provider Grouping"
+          ),
+        classification = reactable::colDef(
+          name = "Classification"
+          ),
         specialization = reactable::colDef(
-          na = "No Specialization",
+          name = "Area of Specialization",
+          na = "None"
+          ),
+        code = reactable::colDef(
+          name = "Taxonomy Code",
+          style = list(fontFamily = "monospace", whiteSpace = "pre")
           )
         ),
-      compact = TRUE,
+      # compact = TRUE,
+      searchable = TRUE,
       pagination = FALSE,
       highlight = TRUE,
       bordered = TRUE,
-      theme = reactablefmtr::nytimes()
+      theme = reactableTheme(
+    borderColor = "#dfe2e5",
+    stripedColor = "#f6f8fa",
+    highlightColor = "#f0f5f9",
+    cellPadding = "28px 16px",
+    searchInputStyle = list(width = "100%")
+  )
       )
     )
   )
