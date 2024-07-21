@@ -1,0 +1,761 @@
+---
+title: "Medicare's Physician Fee Schedule"
+subtitle: "Taking Apart and Reassembling the MPFS into A Leaner, More User-Friendly Form"
+format:
+  html:
+    other-links:
+      - text: Novitas Fee Lookup
+        icon: bookmark-plus
+        href: https://www.novitas-solutions.com/webcenter/portal/MedicareJH/FeeLookup
+    mermaid:
+      theme: default
+    embed-resources: true
+    code-link: true
+---
+
+```{r setup}
+#| message: false
+#| warning: false
+#| echo: false
+#| cache: false
+
+library(tidyverse)
+library(downlit)
+library(gt)
+library(northstar)
+library(provider)
+
+knitr::opts_chunk$set(
+  comment   = "",
+  dev       = "ragg_png",
+  out.width = "100%",
+  fig.align = "center",
+  fig.width = 8
+)
+```
+
+## Overview
+
+This file contains information on services covered by the MPFS in 2024. For more than 10,000 physician services, the file contains the associated RVUs, a fee schedule status indicator, and various payment policy indicators needed for payment adjustment (i.e., payment of assistant at surgery, team surgery, bilateral surgery, etc.).
+
+The MPFS amounts are adjusted to reflect the variation in practice costs from area to area. A GPCI has been established for every Medicare payment locality for each of the three components of a procedure’s RVU: 
+
+  1. Physician Work
+  1. Practice Expense
+  1. Malpractice Expense (sometimes called Professional Liability Insurance)
+
+The GPCIs are applied in the calculation of a fee schedule payment amount by multiplying the RVU for each component times the GPCI for that component.
+
+## Payment Formulas
+
+|          |                                                   |
+|----------|---------------------------------------------------|
+| $RVU_w$  | *Work* Relative Value Unit                        |
+| $GPCI_w$ | *Work* Geographic Practice Cost Index             |
+| $RVU_p$  | *Practice Expense* Relative Value Unit            |
+| $GPCI_p$ | *Practice Expense* Geographic Practice Cost Index |
+| $RVU_m$  | *Malpractice* Relative Value Unit                 |
+| $GPCI_m$ | *Malpractice* Geographic Practice Cost Index      |
+| $CF$     | Conversion Factor                                 |
+
+<br>
+
+The formulas for the 2024 MPFS payment amounts are as follows:
+
+### Participating
+
+$$ x = [(RVU_w \times GPCI_w) + (RVU_p \times GPCI_p) + (RVU_m \times GPCI_m)] \times CF $$
+
+### Non-Participating
+
+$$ y = 0.95x $$
+
+### Limiting Charge
+
+$$ z = 0.95(1.15x) $$
+
+::: callout
+
+## Many Ways to Say the Same Thing
+
+As there is a corresponding GPCI value for each of the three components of an RVU, the formula is essentially the [dot product](https://www.toppr.com/guides/maths-formulas/dot-product-formula/) of the RVU and GPCI vectors, multiplied by the conversion factor:
+
+<br>
+
+$$ a \cdot b = a_1b_1 + a_2b_2 + a_3b_3$$
+<br>
+
+Setting up the variables:
+
+```{r}
+wrvu  = 6.26   # Work RVU
+wgpci = 1      # Work GPCI
+
+pgpci = 0.883  # Practice GPCI
+prvu  = 4.36   # Practice RVU
+
+mrvu  = 0.99   # Malpractice RVU
+mgpci = 1.125  # Malpractice GPCI
+
+cf    = 32.744 # Conversion Factor
+```
+
+<br>
+
+Basic Calculation:
+
+```{r}
+((wrvu * wgpci) + 
+   (prvu * pgpci) + 
+   (mrvu * mgpci)) * cf
+```
+<br>
+
+With base R's Matrix Multiplication Infix Operator:
+
+```{r}
+as.vector(
+  c(wrvu, prvu, mrvu) %*% 
+  c(wgpci, pgpci, mgpci) * cf)
+```
+<br>
+
+With the `pracma` package's `dot()` function:
+
+```{r}
+#| message: false
+#| warning: false
+
+pracma::dot(
+  c(wrvu, prvu, mrvu), 
+  c(wgpci, pgpci, mgpci)) * cf
+```
+<br>
+
+With the `northstar` package's `calculate_amounts()` function:
+
+```{r}
+calculate_amounts(
+  wrvu  = 6.26,
+  nprvu = 7.92,
+  fprvu = 4.36,
+  mrvu  = 0.99,
+  cf    = 32.744,
+  wgpci = 1,
+  pgpci = 0.883,
+  mgpci = 1.125
+)
+```
+
+::: 
+
+
+::: callout
+### Non-Facility vs. Facility
+
+Under the MPFS, many procedures have separate payment amounts for physician services when provided in facility and non-facility settings.
+
+The amount is determined by the **Place of Service (POS)** code. In general, the POS code reflects the *actual place* where the patient receives the face-to-face service and determines whether the facility or non-facility payment rate is paid.
+
+Services rendered to a patient who is an inpatient of a hospital (POS code 21) or an outpatient of a hospital (POS codes 19 or 22), the facility rate is paid, regardless of where the face-to-face encounter with the patient occurred.
+:::
+
+<br>
+
+::: callout-warning
+### Therapy Code Capitation
+
+Certain therapy codes will receive a 50% reduction to the Practice Expense.
+
+Section 5102(b) of the Deficit Reduction Act of 2005 requires a payment cap on the *Technical Component (TC)* of certain diagnostic imaging procedures and the TC portions of the global diagnostic imaging services.
+
+This cap is based on the *Outpatient Prospective Payment System (OPPS)* payment. To implement this provision, the Physician Fee Schedule amount is compared to the OPPS payment amount and **the lower amount is used in the formula to calculate payment.**
+:::
+
+## Accepting Assignment
+
+Accepting assignment means that a healthcare provider or facility is partnered with Medicare and is required by law to charge only the Medicare-approved amount for various services. This amount is preset by Medicare and is often less than many healthcare facilities would charge.
+
+Because of this, when patients receive care at a facility that accepts assignment, they will be required to pay lower out-of-pocket costs as Medicare will cover the full amount of the service cost. Personal costs only include the premium and any charges up to the deductible amount.
+
+Physicians or facilities that do not accept assignment are a <b>non-participating providers</b>. All physicians are required to file with Medicare, indicating that they either accept or do not accept assignment. If a provider does not accept assignment, it means that they are not required to charge only the Medicare-approved amount for services.
+
+### Limiting Charge
+
+One possible option for non-participating providers is to choose to accept assignment for some services but to decline assignment for others. For services that they accept assignment for, they are only able to bill the Medicare-approved amount. However, for other services, they are allowed to charge up to 15 percent more than the Medicare-approved amount.
+
+This limit cap is known as the limiting charge. Providers that do not fully participate only receive 95 percent of the Medicare-approved amount when Medicare reimburses them for the cost of care. In turn, the provider can charge the patient up to 15 percent more than this reimbursement amount. This extra charge will not be covered by Medicare, which causes Medicare recipients to incur greater out-of-pocket costs.
+
+The Medicare limiting charge is the maximum amount a Non-Participating Provider can charge for services submitted on a non-assigned claim. This is that maximum amount a beneficiary could legally be charged.
+
+### Calculation
+
+The Medicare limiting charge is, by law, set at $115\%$ of the payment amount for the service furnished by the Non-Participating Physician.
+
+However, the law sets the payment amount for Non-Participating Physicians at $95\%$ of the payment amount for Participating Physicians (i.e., the Fee Schedule amount).
+
+Calculating $95\%$ of $115\%$ of an amount, $x$, is equivalent to $x \times 1.0925$ (or $109.25\%$):
+
+```{r}
+# 95% of 115% of 10
+(10 * 1.15) * 0.95 
+
+# 109.25% of 10
+10 * 1.0925 
+
+# using the northstar package
+limiting_charge(10)
+```
+
+## Relative Value File
+
+This file contains information on services covered by the Medicare Physician Fee Schedule (MPFS). For more than 10,000 physician services, the file contains the associated relative value units (RVUs), a fee schedule status indicator, and various payment policy indicators needed for payment adjustment (i.e., payment of assistant at surgery, team surgery, bilateral surgery, etc.).
+
+The Medicare physician fee schedule amounts are adjusted to reflect the variation in practice costs from area to area. A geographic practice cost index (GPCI) has been established for every Medicare payment locality for each of the three components of a procedure’s relative value unit (i.e., the RVUs for work, practice expense, and malpractice). The GPCIs are applied in the calculation of a fee schedule payment amount by multiplying the RVU for each component times the GPCI for that component.
+
+
+### Modifiers
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| eval: false
+
+foot_53 <- "Not used to report the elective cancellation of a procedure prior to the patient's anesthesia induction and/or surgical preparation in the operating suite. For outpatient hospital/ambulatory surgery center (ASC) reporting of a previously scheduled procedure/service that is partially reduced or cancelled as a result of extenuating circumstances or those that threaten the well being of the patient prior to or after administration of anesthesia, see modifiers 73 and 74 (see modifiers approved for ASC hospital outpatient use)."
+
+foot_mod <- "For services other than those with a professional and/or technical component, a blank will appear in this field with one exception: the presence of CPT modifier 53 indicates that separate RVUs and a fee schedule amount have been established for procedures which the physician terminated before completion. This modifier is used only with colonoscopy CPT codes 44388 and 45378, or with G0105 and G0121. Any other codes billed with modifier 53 are subject to carrier medical review and priced by individual consideration."
+
+mod_join <- dplyr::tibble(
+  mod = c("26", "TC", "53"),
+  name = c("Professional Component", "Technical Component", "Discontinued Procedure"),
+  description = c(
+    "Certain procedures are a combination of a physician or other qualified health care professional component and a technical component. When the physician or other qualified health care professional component is reported separately, the service may be identified by adding modifier 26 to the usual procedure number.",
+    "Under certain circumstances, a charge may be made for the technical component alone. Under those circumstances the technical component charge is identified by adding modifier TC to the usual procedure number. Technical component charges are institutional charges and not billed separately by physicians; however, portable x-ray suppliers only bill for technical component and should utilize modifier TC. The charge data from portable x-ray suppliers will then be used to build customary and prevailing profiles.",
+    "Under certain circumstances, the physician or other qualified health care professional may elect to terminate a surgical or diagnostic procedure. Due to extenuating circumstances or those that threaten the well being of the patient, it may be necessary to indicate that a surgical or diagnostic procedure was started but discontinued. This circumstance may be reported by adding modifier 53 to the code reported by the individual for the discontinued procedure."
+  )
+)
+
+rvu |> 
+  count(mod, sort = TRUE) |> 
+  filter(!is.na(mod)) |> 
+  left_join(mod_join) |> 
+  gt(rowname_col = "mod") |> 
+  cols_label(n = "# of Codes") |> 
+  cols_align(align = "left") |> 
+  opt_table_font(font = google_font(name = "Hack")) |>
+  opt_all_caps() |>
+  opt_stylize() |> 
+  tab_header(title = "For diagnostic tests, a blank in this field denotes the Global Service & the following modifiers identify the components:") |> 
+  tab_footnote(
+    footnote = foot_53,
+    locations = cells_stub(rows = 3)
+  ) |> 
+  tab_footnote(
+    footnote = foot_mod
+  ) |> 
+  tab_options(
+    table.font.size = px(14),
+    table.width = pct(100),
+    heading.title.font.size = px(16),
+    heading.subtitle.font.size = px(16),
+    heading.align = "left",
+    source_notes.font.size = px(16),
+    row_group.as_column = TRUE
+    )
+```
+
+### Status Codes
+
+Indicates whether the code is in the fee schedule and whether it is separately payable if the service is covered. See Attachment A for description of values.
+
+Only RVUs associated with status codes of **A**, **R**, or **T**, are used for Medicare payment.
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| eval: false
+
+status_lookup <- c(
+  "A" = "**Active Code**",
+  "B" = "**Payment Bundled**",
+  "C" = "**Carrier Priced**",
+  "D" = "**Deleted Codes**",
+  "E" = "**Regulatory Exclusion**",
+  "F" = "**Deleted/Discontinued Codes**",
+  "X" = "**Statutory Exclusion**",
+  "I" = "**Not Valid for Medicare Purposes**",
+  "M" = "**Measurement Code**",
+  "R" = "**Restricted Coverage**",
+  "N" = "**Non-Covered Service**",
+  "J" = "**Anesthesia Service**",
+  "P" = "**Bundled/Excluded Code**",
+  "T" = "**No Other Services Payable**"
+)
+
+status_lookup2 <- c(
+  "A" = "These codes are separately paid under the Physician Fee Schedule if covered. There will be RVUs and payment amounts for codes with this status. The presence of an A indicator does not mean that Medicare has made a National Coverage Determination regarding the service. Carriers remain responsible for coverage decisions in the absence of a national Medicare policy.",
+  "X" = "These codes represent an item or service that is not in the statutory definition of “physician services” for fee schedule payment purposes. No RVUs or payment amounts are shown for these codes and no payment may be made under the physician fee schedule. Ex: Ambulance services and Clinical Diagnostic Laboratory Services.",
+  "I" = "Medicare uses another code for reporting of, and payment for, these services. (Code NOT subject to a 90 day grace period.)",
+  "E" = "These codes are for items and/or services that CMS chose to exclude from the fee schedule payment by regulation. No RVUs or payment amounts are shown and no payment may be made under the fee schedule for these codes. Payment for them, when covered, continues under reasonable charge procedures.",
+  "M" = "Used for reporting purposes only.",
+  "C" = "Carriers will establish RVUs and payment amounts for these services, generally on an individual case basis following review of documentation such as an operative report.",
+  "R" = "Special coverage instructions apply.",
+  "N" = "These codes are carried on the HCPCS tape as noncovered services.",
+  "J" = "No relative Status units or payment amounts for anesthesia codes on the database, only used to facilitate the identification of anesthesia services.",
+  "P" = "There are no RVUs and no payment amounts for these services. No separate payment is made for them under the fee schedule. If the item or service is covered as incident to a physician service and is provided on the same day as a physician service, payment for it is bundled into the payment for the physician service to which it is incident (an example is an elastic bandage furnished by a physician incident to a physician service). If the item or service is covered as other than incident to a physician service, it is excluded from the fee schedule (for example, colostomy supplies) and is paid under the other payment provision of the Act.",
+  "B" = "Payment for covered services are always bundled into payment for other services not specified: There will be no RVUs or payment amounts for these codes and no separate payment is ever made. When these services are covered, payment for them is subsumed by the payment for the services to which they are incident (an example is a telephone call from a hospital nurse regarding care of a patient).",
+  "T" = "There are RVUs and payment amounts for these services, but they are only paid if there are no other services payable under the physician fee schedule billed on the same date by the same provider. If any other services payable under the physician fee schedule are billed on the same date by the same provider, these services are bundled into the physician services for which payment is made."
+)
+
+rvu |> 
+  count(status, sort = TRUE) |> 
+  filter(!is.na(status)) |> 
+  mutate(name = status_lookup[status],
+         description = status_lookup2[status]) |>  
+  gt(rowname_col = "status") |> 
+  cols_align(align = "left") |> 
+  cols_label(n = "# of Codes") |> 
+  fmt_markdown() |> 
+  fmt_integer() |> 
+  opt_table_font(font = google_font(name = "Rubik")) |>
+  opt_all_caps() |>
+  opt_stylize() |> 
+  tab_style(
+    style = cell_fill(color = "yellow", alpha = 0.3),
+    locations = cells_body(
+      columns = everything(),
+      rows = c(1, 7, 12)
+    )
+  ) |> 
+  tab_options(
+    table.font.size = px(14),
+    table.width = pct(100),
+    heading.title.font.size = px(16),
+    heading.subtitle.font.size = px(16),
+    heading.align = "left",
+    source_notes.font.size = px(16),
+    row_group.as_column = TRUE,
+    row_group.font.size = px(24)
+    )
+```
+
+### PC/TC Indicator
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| eval: false
+
+pctc_lookup <- c(
+  "0" = "**Physician Services**",
+  "1" = "**Diagnostic Tests for Radiology Services**",
+  "2" = "**Professional Component Only**",
+  "3" = "**Technical Component Only**",
+  "4" = "**Global Test Only**",
+  "5" = "**Incident To**",
+  "6" = "**Laboratory Physician Interpretation**",
+  "7" = "**Physical Therapy Service**",
+  "8" = "**Physician Interpretation**",
+  "9" = "**Not Applicable**"
+)
+
+pctc_lookup2 <- c(
+  "0" = "Modifiers 26 and TC <b><u>cannot</u></b> be used since Physician Services cannot be split into Professional and Technical components.<br><br>Examples: Visits, Consultations, Surgical Procedures.<br><br>RVU Components: **PW**, **PE**, **MP**.",
+  
+  "1" = "Modifiers 26 and TC <b><u>can</u></b> be used with these codes.<br><br>Examples: Pulmonary Function Tests, Therapeutic Radiology Procedures, e.g., Radiation Therapy.<br><br>These codes have both a Professional and Technical component.<br><br>Total RVUs for codes reported with a 26 modifier include values for physician work, practice expense, and malpractice expense.<br><br>Total RVUs for codes reported with a TC modifier include values for practice expense and malpractice expense only.<br><br>Total RVUs for codes reported without a modifier include values for physician work, practice expense, and malpractice expense.",
+  
+  "2" = "Modifiers 26 and TC <b><u>cannot</u></b> be used with these codes.<br><br>Stand-alone codes that describe the physician work portion of selected diagnostic tests for which there is an associated code that describes the technical component of the diagnostic test only and another associated code that describes the global test.<br><br>Example Code: **93010**: *Electrocardiogram; Interpretation and Report.*<br><br>RVU Components: **PW**, **PE**, **MP**.",
+  
+  "3" = "Modifiers 26 and TC <b><u>cannot</u></b> be used with these codes.<br><br>Stand-alone codes that describe the technical component (i.e., staff and equipment costs) of selected diagnostic tests for which there is an associated code that describes the professional component of the diagnostic test only. Also identifies codes that are covered only as diagnostic tests and therefore do not have a related professional 
+code.<br><br>Example Code: **93005** *Electrocardiogram; Tracing Only, without interpretation and report*.<br><br>RVU Components: **PE** and **MP** only.",
+
+  "4" = "Modifiers 26 and TC <b><u>cannot</u></b> be used with these codes.<br><br>Stand-alone codes that describe selected diagnostic tests for which there are associated codes that describe *(a)* the professional component of the test only, and *(b)* the technical component of the test only.<br><br>RVU Components: **PW**, **PE**, **MP**.<br><br>Total RVUs = Sum of the total RVUs for the professional and technical components only codes combined.",
+
+  "5" = "Modifiers 26 and TC <b><u>cannot</u></b> be used with these codes.<br><br>Services covered <b><u>incident to</u></b> a physician's service when they are provided by auxiliary personnel employed by the physician and working under his or her direct personal supervision.<br><br>Payment may not be made by carriers for these services when they are provided to hospital inpatients or patients in a hospital outpatient department.",
+
+  "6" = "Modifier TC <b><u>cannot</u></b> be used with these codes.<br><br>Clinical laboratory codes for which separate payment for interpretations by laboratory physicians may be made. Actual performance of the tests is paid for under the lab fee schedule. <br><br>RVU Components: **PW**, **PE**, **MP**.",
+
+  "7" = "Payment may not be made if the service is provided to either a patient in a hospital outpatient department or to an inpatient of the hospital by an independently practicing physical or occupational therapist.",
+
+  "8" = "Identifies the professional component of clinical laboratory codes for which separate payment may be made only if the physician interprets an abnormal smear for hospital inpatient. This applies to CPT codes 88141, 85060 and HCPCS code P3001-26. No TC billing is recognized because payment for the underlying clinical laboratory test is made to the hospital, generally through the PPS rate. No payment is recognized for CPT codes 88141, 85060 or HCPCS code P3001-26 furnished to hospital outpatients or non-hospital patients. The physician interpretation is paid through the clinical laboratory fee schedule payment for the clinical laboratory test.",
+
+  "9" = "Concept of a professional/technical component does not apply."
+)
+
+rvu |> 
+  filter(!is.na(pctc)) |> 
+  count(pctc) |> 
+  mutate(
+    category = pctc_lookup[pctc],
+    description = pctc_lookup2[pctc]
+    ) |> 
+  gt(rowname_col = "pctc") |> 
+  cols_align(align = "left") |> 
+  cols_label(n = "# of Codes") |> 
+  fmt_markdown() |> 
+  fmt_integer() |> 
+  opt_table_font(font = google_font(name = "Rubik")) |>
+  opt_all_caps() |>
+  opt_row_striping() |> 
+  opt_table_outline(style = "none") |> 
+  opt_table_lines(extent = "none") |> 
+  tab_style(
+    style = list(
+      cell_text(align = "center", 
+                size = px(18), 
+                color = "white")
+      # cell_fill(color = grayteal$g),
+      # cell_borders(color = grayteal$g)
+      ),
+    locations = cells_stub()) |> 
+  tab_options(
+    # table.font.color = grayteal$i,
+    # table_body.vlines.color = grayteal$a,
+    table_body.vlines.style = "solid",
+    table_body.vlines.width = px(2),
+    table.font.size = px(14),
+    table.width = pct(100),
+    heading.title.font.size = px(16),
+    heading.subtitle.font.size = px(16),
+    heading.align = "left",
+    source_notes.font.size = px(16),
+    row_group.as_column = TRUE
+    )
+```
+
+## Global Surgery Days
+
+Provides time frames that apply to each surgical procedure.
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| eval: false
+
+glob_join <- dplyr::tibble(
+  global = c("000", "010", "090", "MMM", "XXX", "YYY", "ZZZ"),
+  description = c(
+    "Endoscopic or minor procedure with related preoperative and postoperative relative values on the day of the procedure only included in the fee schedule payment amount<br><br>Evaluation and Management services on the day of the procedure generally not payable.",
+    "Minor procedure with preoperative relative values on the day of the procedure and postoperative relative values during a 10-day postoperative period included in the fee schedule amount<br><br>Evaluation and Management services on the day of the procedure and during the 10-day postoperative period generally not payable.",
+    "Major surgery with a 1-day preoperative period and 90-day postoperative period included in the fee schedule amount.",
+    "Maternity codes; usual global period does not apply.",
+    "Global concept does not apply.",
+    "Carrier determines whether the global concept applies and establishes postoperative period, if appropriate, at time of pricing.",
+    "Code is related to another service and is always included in the global period of the other service."
+  )
+)
+
+rvu |> 
+  filter(!is.na(global)) |>
+  count(global, sort = TRUE) |> 
+  left_join(glob_join) |> 
+  gt(rowname_col = "global") |> 
+  fmt_markdown() |> 
+  fmt_integer() |> 
+  cols_align(align = "left") |> 
+  cols_label(n = "# of Codes") |> 
+  opt_table_font(font = google_font(name = "Rubik")) |>
+  opt_all_caps() |>
+  opt_stylize() |> 
+  tab_style(
+    style = cell_text(align = "center", size = px(16)),
+    locations = cells_stub()
+  ) |> 
+  tab_options(
+    table.font.size = px(14),
+    table.width = pct(100),
+    heading.title.font.size = px(16),
+    heading.subtitle.font.size = px(16),
+    heading.align = "left",
+    source_notes.font.size = px(16),
+    row_group.as_column = TRUE
+    )
+```
+
+### Operative Percentages
+
+::: panel-tabset
+## Preoperative
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| eval: false
+
+rvu |>
+  filter(!is.na(op_pre), op_pre > 0.00) |> 
+  count(op_pre, sort = TRUE) |> 
+  gt() |> 
+  cols_label(op_pre = "Percentage",
+             n = "# of HCPCS") |> 
+  fmt_percent(columns = op_pre, drop_trailing_zeros = TRUE) |> 
+  fmt_integer(columns = n) |> 
+  opt_table_font(font = google_font(name = "Rubik")) |>
+  tab_header(title = md("Percentages for **Preoperative** Portion of the Global Package")) |> 
+  opt_all_caps() |>
+  opt_stylize() |> 
+  tab_options(
+    table.font.size = px(14),
+    table.width = pct(100),
+    heading.title.font.size = px(18),
+    heading.subtitle.font.size = px(16),
+    heading.align = "left",
+    source_notes.font.size = px(16))
+```
+
+## Intraoperative
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| eval: false
+
+rvu |>
+  filter(!is.na(op_intra), op_intra > 0.00) |> 
+  count(op_intra, sort = TRUE) |> 
+  gt() |> 
+  cols_label(op_intra = "Percentage",
+             n = "# of HCPCS") |> 
+  fmt_percent(columns = op_intra, drop_trailing_zeros = TRUE) |> 
+  fmt_integer(columns = n) |> 
+  opt_table_font(font = google_font(name = "Rubik")) |>
+  tab_header(
+    title = md("Percentages for **Intraoperative** Portion of the Global Package"),
+    subtitle = md("*Includes Postoperative Work in the Hospital*")
+    ) |> 
+  opt_all_caps() |>
+  opt_stylize() |> 
+  tab_options(
+    table.font.size = px(14),
+    table.width = pct(100),
+    heading.title.font.size = px(18),
+    heading.subtitle.font.size = px(16),
+    heading.align = "left",
+    source_notes.font.size = px(16))
+```
+
+## Postoperative
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| eval: false
+
+rvu |>
+  filter(!is.na(op_post), op_post > 0.00) |> 
+  count(op_post, sort = TRUE) |> 
+  gt() |> 
+  cols_label(op_post = "Percentage",
+             n = "# of HCPCS") |> 
+  fmt_percent(columns = op_post, drop_trailing_zeros = TRUE) |> 
+  fmt_integer(columns = n) |> 
+  opt_table_font(font = google_font(name = "Rubik")) |>
+  tab_header(
+    title = md("Percentages for **Postoperative** Portion of the Global Package"),
+    subtitle = md("*Provided in the office after discharge from the hospital*")
+    ) |> 
+  opt_all_caps() |>
+  opt_stylize() |> 
+  tab_options(
+    table.font.size = px(14),
+    table.width = pct(100),
+    heading.title.font.size = px(18),
+    heading.subtitle.font.size = px(16),
+    heading.align = "left",
+    source_notes.font.size = px(16))
+```
+:::
+
+## Indicators
+
+### Procedures Rarely/Never Performed
+
+::: panel-tabset
+## Facility
+
+An `NA` in this field indicates that this procedure is rarely or never performed in the *Facility* setting:
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| eval: false
+
+rvu |> 
+  filter(!is.na(rare)) |>
+  select(hcpcs, description) |> 
+  distinct() |> 
+  slice(1:20)
+```
+
+## Non-Facility
+
+An `NA` in this field indicates that this procedure is rarely or never performed in the *Non-Facility* setting:
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| eval: false
+
+rvu |> 
+  filter(!is.na(rare)) |>
+  select(hcpcs, description) |> 
+  distinct() |> 
+  slice(1:20)
+```
+:::
+
+### Multiple Procedures
+
+Indicates applicable payment adjustment rule for multiple procedures (modifier 51).
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| eval: false
+
+mult_pro_lookup <- c(
+  "0" = "No payment adjustment rules.<br><br>If the procedure is reported on the same day as another procedure, base the payment on the lower of (a) the actual charge, or (b) the fee schedule amount for the procedure.",
+  "1" = "Standard payment adjustment rules.<br><br>If the procedure is reported on the same day as another procedure that has an indicator of 1, 2 or 3, rank the procedures by fee schedule amount and apply the appropriate reduction to this code (100%, 50%, 25%, 25%, 25%, and by report).<br><br>Base the payment on the lower of (a) the actual charge, or (b) the fee schedule amount reduced by the appropriate percentage.",
+  "2" = "Standard payment adjustment rules.<br><br>If the procedure is reported on the same day as another procedure with an indicator of 1, 2 or 3, rank the procedures by fee schedule amount and apply the appropriate reduction to this code (100%, 50%, 50%, 50%, 50% and by report).<br><br>Base the payment on the lower of (a) the actual charge, or (b) the fee schedule amount reduced by the appropriate percentage.",
+  "3" = "Special rules for Multiple Endoscopic Procedures apply if procedure is billed with another endoscopy in the same family (i.e., another endoscopy that has the same base procedure).<br><br>The base procedure for each code with this indicator is identified in the Endobase field.<br><br>Apply the multiple endoscopy rules to a family before ranking the family with the other procedures performed on the same day.<br><br><b>Example:</b> Multiple endoscopies in the same family are reported on the same day as endoscopies in another family or on the same day as a non-endoscopic procedure.<br><br>If an endoscopic procedure is reported with only its base procedure, do not pay separately for the base procedure. Payment for the base procedure is included in the payment for the other endoscopy.",
+  "4" = "Special rules for the technical component (TC) of diagnostic imaging procedures apply if procedure is billed with another diagnostic imaging procedure in the same family (per the diagnostic imaging family indicator).<br><br>If the procedure is reported in the same session on the same day as another procedure with the same family indicator, rank the procedures by fee schedule amount for the TC. Pay 100% for the highest priced procedure, and 50% for each subsequent procedure. Base the payment for subsequent procedures on the lower of (a) the actual charge, or (b) the fee schedule amount reduced by the appropriate percentage.<br><br>Subject to 50% reduction of the TC diagnostic imaging. Subject to 5% reduction of the PC of diagnostic imaging.",
+  "5" = "Subject to 50% of the practice expense component for certain therapy services.",
+  "6" = "Subject to 25% reduction of the second highest and subsequent procedures to the TC of diagnostic cardiovascular services.",
+  "7" = "Subject to 20% reduction of the second highest and subsequent procedures to the TC of diagnostic ophthalmology services.",
+  "9" = "Missing"
+)
+
+rvu |> 
+  count(mult_proc) |> 
+  filter(!is.na(mult_proc)) |> 
+  mutate(description = mult_pro_lookup[mult_proc]) |> 
+  gt(rowname_col = "mult_proc") |>
+  fmt_markdown() |> 
+  fmt_integer() |> 
+  tab_style(
+    style = cell_text(align = "center", size = px(18)),
+    locations = cells_stub()
+  ) |> 
+  cols_align(align = "left") |> 
+  cols_label(n = "# of Codes") |> 
+  opt_table_font(font = google_font(name = "Rubik")) |>
+  opt_all_caps() |>
+  opt_stylize() |> 
+  tab_options(
+    table.font.size = px(14),
+    table.width = pct(100),
+    heading.title.font.size = px(16),
+    heading.subtitle.font.size = px(16),
+    heading.align = "left",
+    source_notes.font.size = px(16),
+    row_group.as_column = TRUE
+    )
+```
+
+{{< pagebreak >}}
+
+# Payment Amount File
+
+This file contains locality-specific physician fee schedule payment amounts for services covered by the Medicare Physician Fee Schedule (MPFS) with one record for each unique combination of carrier, locality, procedure code and modifier.
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+data_dict("md", "pfs") |> 
+  gt(rowname_col = "var",
+     process_md = TRUE) |>
+  gt_theme_northstar() |> 
+  fmt_markdown()
+```
+
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| eval: false
+
+pfs_pay |> 
+  filter(!is.na(flat_vis), flat_vis > 0.00) |> 
+  count(flat_vis, sort = TRUE)
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| eval: false
+
+pfs_pay |> 
+  select(!where(is.numeric)) |> 
+  names() |> 
+  map(~ count(pfs_pay, .data[[.x]], sort = TRUE))
+```
+
+# GPCIs
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+search_gpcis()[1:7] |> 
+  gt(rowname_col = "mac", groupname_col = "state") |> 
+  tab_stubhead(label = "MAC") |> 
+  cols_label(
+    mac = "MAC",
+    state = "State",
+    locality = "Locality",
+    locality_name = "Name",
+    gpci_work = "Work",
+    gpci_pe = "Practice",
+    gpci_mp = "Malpractice") |> 
+  cols_merge(
+    columns = c(locality, locality_name),
+    pattern = "<b>{1}</b><< {2}>>") |> 
+  cols_align(align = "left") |> 
+  opt_table_font(font = google_font(name = "Rubik")) |>
+  opt_all_caps() |>
+  fmt_number(decimals = 3, drop_trailing_zeros = TRUE) |> 
+  tab_header(
+    title = md("**2024 Geographic Practice Cost Indices** // by State & Medicare Locality")) |> 
+  tab_footnote(
+    footnote = "MAC assignments as of November 22, 2023",
+    locations = cells_stubhead()) |> 
+  tab_footnote(
+    footnote = md("Work GPCI reflects a 1.5 floor in Alaska established by [**MIPPA**](https://en.wikipedia.org/wiki/Medicare_Improvements_for_Patients_and_Providers_Act_of_2008)."),
+    cells_body(columns = locality, rows = 1)) |> 
+  tab_footnote(
+    footnote = "PE GPCI reflects a 1.0 floor for Frontier States established by the ACA.",
+    cells_body(columns = locality, rows = c(68, 70, 81, 91, 109))) |> 
+  tab_footnote(
+    footnote = md("**Note**: The *Further Continuing Appropriations and Other Extensions Act, 2024* (Section 501) extended the 1.0 Work GPCI floor through January 19, 2024. Therefore, the Work GPCIs for 2023 reflect the 1.0 Work GPCI floor. Work GPCIs for 2024 are shown both with and without a 1.0 floor and Work GPCIs for 2025 do not reflect a 1.0 floor.")) |>
+  tab_style(
+    style = cell_text(align = "center", size = px(14)),
+    locations = cells_stub()
+  ) |> 
+  opt_stylize() |> 
+  tab_options(
+    quarto.disable_processing = TRUE,
+    table.font.size = px(14),
+    table.width = pct(100),
+    heading.title.font.size = px(16),
+    heading.subtitle.font.size = px(16),
+    heading.align = "left",
+    source_notes.font.size = px(16),
+    row_group.as_column = TRUE,
+    row_group.default_label = "MAC"
+    )
+```
