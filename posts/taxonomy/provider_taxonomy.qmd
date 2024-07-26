@@ -1,6 +1,6 @@
 ---
 title: "Provider Taxonomy Codes"
-subtitle: "Understanding the Health Care Provider Taxonomy Code Set"
+subtitle: "A Guide to the Health Care Provider Taxonomy Code Set"
 format:
   html:
     other-links:
@@ -31,42 +31,40 @@ library(htmltools)
 library(provider)
 ```
 
-
 > A standardized system of codes used to classify and identify health care providers.
-
-<br>
 
 ## Key Points
 
-   * Purpose: Categorize health care providers by their type, classification, and specialization.
-   * Maintenance: National Uniform Claim Committee (NUCC). Updated twice a year, in January and July.
-   * Application: Used in various healthcare processes, including:
-   
-      * Electronic healthcare transactions
-      * NPI enumeration
-      * Medicare provider enrollment
-      * Insurance credentialing
-      * Claims processing
-      * Determining network adequacy
+-   **Purpose**: Categorize health care providers by their type, classification, and specialization.
+-   **Maintenance**: National Uniform Claim Committee (NUCC). Updated twice a year, in January and July.
+-   **Application**: Used in various healthcare processes, including:
+    -   Electronic healthcare transactions
+
+    -   NPI enumeration
+
+    -   Medicare provider enrollment
+
+    -   Insurance credentialing
+
+    -   Claims processing
+
+    -   Determining network adequacy
 
 ## Overview
 
-The **Health Care Provider Taxonomy Code Set** is an external, non-medical data code set designed for use in an electronic environment, specifically within the *ASC X12N* Health Care transactions. This includes those mandated under HIPAA.
+The **Health Care Provider Taxonomy Code Set** is an external, non-medical data code set designed for use in an electronic environment, specifically within the ASC X12N Health Care transactions, including those mandated under [HIPAA](https://aspe.hhs.gov/reports/health-insurance-portability-accountability-act-1996 "Health Insurance Portability and Accountability Act of 1996").
 
-A taxonomy code is a unique alphanumeric code, ten characters in length.
+A taxonomy code is a unique alphanumeric code, ten characters in length, that describes a health care service provider's type, classification, and the area of specialization.
+
+Taxonomy codes are selected by the provider at the time of NPI registration. When providers apply for NPIs, the National Plan and Provider Enumeration System (NPPES) does not verify the accuracy of the selected taxonomy codes. It only validates that the codes exist within the current version of the code set.
 
 The code set is structured into 3 distinct levels:
 
-   1. Provider Grouping
-   2. Classification
-   3. Area of Specialization
-
-A taxonomy code describes a health care service provider's type, classification, and the area of specialization. The primary specialty for this provider is indicated as "Primary".
-
-Taxonomy codes are selected by the provider at the time of NPI registration. When providers apply for NPIs, the National Plan and Provider Enumeration System (NPPES) does not verify the accuracy of the selected taxonomy codes. It only validates that the codes exist within the current version of the code set. 
+1.  Provider Grouping
+2.  Classification
+3.  Area of Specialization
 
 It is important for healthcare providers to select the most appropriate taxonomy code(s) as it can affect various aspects of their practice, including billing and claims processing. Selection of a taxonomy code does not replace any credentialing or validation process that the provider requesting the code should complete.
-
 
 ## Hierarchy
 
@@ -87,19 +85,17 @@ flowchart LR
   L>Addiction Medicine] --o M[[207LA0401X]]
 ```
 
-
 ::: callout
 ## Level I: **Provider Grouping**
 
 A major grouping of service(s) or occupation(s) of health care providers.
 
-**Examples:** 
+**Examples:**
 
-   * Allopathic & Osteopathic Physicians 
-   * Dental Providers 
-   * Hospitals
+-   Allopathic & Osteopathic Physicians
+-   Dental Providers
+-   Hospitals
 :::
-
 
 ::: callout
 ## Level II: **Classification**
@@ -110,13 +106,13 @@ For example, the Classification for Allopathic & Osteopathic Physicians is based
 
 The following boards, however, will have their general certificates appear as **Level III** Areas strictly due to display limitations of the code set for Boards that have multiple general certificates:
 
-   * Medical Genetics
-   * Preventive Medicine
-   * Psychiatry & Neurology
-   * Radiology
-   * Surgery
-   * Otolaryngology
-   * Pathology
+-   Medical Genetics
+-   Preventive Medicine
+-   Psychiatry & Neurology
+-   Radiology
+-   Surgery
+-   Otolaryngology
+-   Pathology
 :::
 
 ::: callout
@@ -156,17 +152,17 @@ htmltools::browsable(
       elementId = "taxonomy-table",
       columns = list(
         grouping = reactable::colDef(
-          name = "Provider Grouping"
+          name = "Provider\nGrouping"
           ),
         classification = reactable::colDef(
           name = "Classification"
           ),
         specialization = reactable::colDef(
-          name = "Area of Specialization",
+          name = "Area of\nSpecialization",
           na = "None"
           ),
         code = reactable::colDef(
-          name = "Taxonomy Code",
+          name = "Taxonomy\nCode",
           style = list(fontFamily = "monospace", whiteSpace = "pre")
           )
         ),
@@ -194,7 +190,6 @@ htmltools::browsable(
 > Providers and suppliers with the proper taxonomy code eligible for Medicare programs.
 
 The [Medicare Provider and Supplier Taxonomy Crosswalk](https://data.cms.gov/provider-characteristics/medicare-provider-supplier-enrollment/medicare-provider-and-supplier-taxonomy-crosswalk) dataset lists the providers and suppliers eligible to enroll in Medicare programs with the proper healthcare provider taxonomy code. This data includes the Medicare specialty codes, if available, provider/supplier type description, taxonomy code, and the taxonomy description.
-
 
 ### Footnotes
 
@@ -239,7 +234,6 @@ dplyr::tibble(
 ```
 
 <br>
-
 
 ```{r}
 #| message: false
@@ -321,10 +315,9 @@ xwalk |>
   )
 ```
 
-
 ## Sources
 
-   * [Health Care Provider Taxonomy Code Set v24.0 (PDF)](https://www.nucc.org/images/stories/PDF/taxonomy_24_0.pdf)
-   * [taxonomy.NUCC.org](https://taxonomy.nucc.org)
-   * [CMS.gov](https://www.cms.gov/medicare/enrollment-renewal/providers-suppliers/health-care-taxonomy)
-   * [ASAM.org](https://www.asam.org/docs/default-source/advocacy/taxonomy-one-pager.pdf?sfvrsn=b5e848c2_2)
+-   [Health Care Provider Taxonomy Code Set v24.0 (PDF)](https://www.nucc.org/images/stories/PDF/taxonomy_24_0.pdf)
+-   [taxonomy.NUCC.org](https://taxonomy.nucc.org)
+-   [CMS.gov](https://www.cms.gov/medicare/enrollment-renewal/providers-suppliers/health-care-taxonomy)
+-   [ASAM.org](https://www.asam.org/docs/default-source/advocacy/taxonomy-one-pager.pdf?sfvrsn=b5e848c2_2)

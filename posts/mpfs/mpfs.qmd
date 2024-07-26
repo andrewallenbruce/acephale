@@ -24,6 +24,12 @@ library(downlit)
 library(gt)
 library(northstar)
 library(provider)
+library(rvu)
+library(hacksaw)
+library(armgin)
+library(skimr)
+
+p <- function(...) {paste0(...)}
 
 knitr::opts_chunk$set(
   comment   = "",
@@ -36,6 +42,109 @@ knitr::opts_chunk$set(
 
 ## Overview
 
+This is an overview of the general format of the [Medicare Physician Fee Schedule (MPFS)](https://www.cms.gov/medicare/payment/fee-schedules/physician), specifically the [PFS Relative Value File](https://www.cms.gov/medicare/payment/fee-schedules/physician/pfs-relative-value-files). 
+
+
+The "file" is a zip archive and typically contains six files. Updates are released on the first day of each quarter. If required, a correction notice may be issued. The following naming convention is used:
+
+```{r}
+dplyr::tibble(
+  naming_convention = c(
+    p("<b>RVU[</b>",
+      "<i><small>YY</small></i>",
+      "<b>]A</b>",
+      ".zip"
+      ),
+    p("RVU[YY]AR.zip"),
+    p("RVU[YY]B.zip"),
+    p("RVU[YY]C.zip"),
+    p("RVU[YY]D.zip")
+  ),
+  release_schedule = c(
+    p("Q1: January 1<sup>st</sup>"),
+    p("Q1: January ??",
+      "<br><br>",
+      # "<ul><li>",
+      "<small><b>Correction Notice</b><br>(If Required)</small>" #,
+      # "</li></ul>"
+      ),
+    p("Q2: April 1<sup>st</sup>"),
+    p("Q3: July 1<sup>st</sup>"),
+    p("Q4: October 1<sup>st</sup>")
+  )
+) |> 
+  gt::gt(process_md = TRUE) |> 
+  gt::fmt_markdown() |> 
+  gt::opt_table_font(font = gt::google_font(name = "Roboto Mono")) |> 
+  gt::tab_header(
+    title = "File Naming Convention and Release Schedule"
+  ) |>
+  gt::tab_options(
+    quarto.disable_processing = TRUE
+  )
+```
+
+
+```{r}
+dplyr::tibble(
+  n = 1:6,
+  file = c(
+    p(
+      "<b>RVU</b>",
+      "<b>[</b>",
+      "<small>YY</small>",
+      "<b>][</b>",
+      "<small>VER</small>",
+      "<b>]</b>"
+      ), 
+    p(
+      "<b>PPRRVU</b>",
+      "<b>[</b>",
+      "<small>YY</small>",
+      "<b>]</b>"
+      ), 
+    p("<b>GPCI[</b>", 
+      "<small>YYYY</small>",
+      "<b>]</b>"
+      ), 
+    p("<b>[</b>",
+      "<small>YY</small>",
+      "<b>]LOCCO</b>"), 
+    p(
+      "<b>ANES</b>",
+      "<b>[</b>",
+      "<small>YYYY</small>",
+      "<b>]</b>"
+           ), 
+    p("<b>OPPSCAP</b>")
+    ),
+  contents = c(
+    "Data Dictionary, Record Layout and File Documentation",
+    "Physician Fee Schedule RVUs and Policy Indicators",
+    "Geographic Practice Cost Index Components for each Carrier/Locality combination",
+    "Locality to County Crosswalk",
+    "Anesthesia Conversion Factors",
+    "OPPS-based capitation-adjusted payment amounts. Carrier-priced codes contain the OPPS-based payment capitation only. Carrier prices cannot exceed this capitation."
+  )
+) |> 
+  gt::gt(
+    rowname_col = "n",
+    process_md = TRUE
+    ) |> 
+  gt::cols_width(file ~ gt::px(200)) |> 
+  gt::fmt_markdown() |> 
+  gt::opt_all_caps() |> 
+  gt::opt_table_font(font = gt::google_font(name = "Roboto Mono")) |> 
+  gt::tab_options(
+    quarto.disable_processing = TRUE,
+    data_row.padding.horizontal = gt::px(20),
+    column_labels.padding.horizontal = gt::px(20)
+  )
+```
+
+
+The MPFS is a listing of the relative value units (RVUs) for each CPT code, as well as the geographic practice cost index (GPCI) for each code. The RVUs are used to calculate the payment amount for each service, while the GPCI is used to adjust the payment amount based on the location where the service is provided.
+
 This file contains information on services covered by the MPFS in 2024. For more than 10,000 physician services, the file contains the associated RVUs, a fee schedule status indicator, and various payment policy indicators needed for payment adjustment (i.e., payment of assistant at surgery, team surgery, bilateral surgery, etc.).
 
 The MPFS amounts are adjusted to reflect the variation in practice costs from area to area. A GPCI has been established for every Medicare payment locality for each of the three components of a procedure’s RVU: 
@@ -46,21 +155,7 @@ The MPFS amounts are adjusted to reflect the variation in practice costs from ar
 
 The GPCIs are applied in the calculation of a fee schedule payment amount by multiplying the RVU for each component times the GPCI for that component.
 
-## Payment Formulas
-
-|          |                                                   |
-|----------|---------------------------------------------------|
-| $RVU_w$  | *Work* Relative Value Unit                        |
-| $GPCI_w$ | *Work* Geographic Practice Cost Index             |
-| $RVU_p$  | *Practice Expense* Relative Value Unit            |
-| $GPCI_p$ | *Practice Expense* Geographic Practice Cost Index |
-| $RVU_m$  | *Malpractice* Relative Value Unit                 |
-| $GPCI_m$ | *Malpractice* Geographic Practice Cost Index      |
-| $CF$     | Conversion Factor                                 |
-
-<br>
-
-The formulas for the 2024 MPFS payment amounts are as follows:
+NATIONAL PHYSICIAN FEE SCHEDULE RELATIVE VALUE FILE CALENDAR YEAR 2024
 
 ### Participating
 
@@ -77,6 +172,8 @@ $$ z = 0.95(1.15x) $$
 ::: callout
 
 ## Many Ways to Say the Same Thing
+
+<br>
 
 As there is a corresponding GPCI value for each of the three components of an RVU, the formula is essentially the [dot product](https://www.toppr.com/guides/maths-formulas/dot-product-formula/) of the RVU and GPCI vectors, multiplied by the conversion factor:
 
@@ -236,9 +333,9 @@ mod_join <- dplyr::tibble(
   )
 )
 
-rvu |> 
-  count(mod, sort = TRUE) |> 
+search_rvus() |> 
   filter(!is.na(mod)) |> 
+  count(mod, sort = TRUE) |> 
   left_join(mod_join) |> 
   gt(rowname_col = "mod") |> 
   cols_label(n = "# of Codes") |> 
@@ -665,6 +762,12 @@ rvu |>
 {{< pagebreak >}}
 
 # Payment Amount File
+
+
+```{r}
+# northstar::search_payment()
+```
+
 
 This file contains locality-specific physician fee schedule payment amounts for services covered by the Medicare Physician Fee Schedule (MPFS) with one record for each unique combination of carrier, locality, procedure code and modifier.
 
