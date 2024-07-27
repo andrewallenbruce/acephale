@@ -18,6 +18,13 @@ format:
 #| warning: false
 #| echo: false
 #| cache: false
+knitr::opts_chunk$set(
+  comment   = "",
+  dev       = "ragg_png",
+  out.width = "100%",
+  fig.align = "center",
+  fig.width = 8
+)
 
 library(tidyverse)
 library(downlit)
@@ -28,16 +35,9 @@ library(rvu)
 library(hacksaw)
 library(armgin)
 library(skimr)
+library(hacksaw)
 
 p <- function(...) {paste0(...)}
-
-knitr::opts_chunk$set(
-  comment   = "",
-  dev       = "ragg_png",
-  out.width = "100%",
-  fig.align = "center",
-  fig.width = 8
-)
 ```
 
 ## Overview
@@ -48,6 +48,10 @@ This is an overview of the general format of the [Medicare Physician Fee Schedul
 The "file" is a zip archive and typically contains six files. Updates are released on the first day of each quarter. If required, a correction notice may be issued. The following naming convention is used:
 
 ```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
 dplyr::tibble(
   naming_convention = c(
     p("<b>RVU[</b>",
@@ -64,9 +68,7 @@ dplyr::tibble(
     p("Q1: January 1<sup>st</sup>"),
     p("Q1: January ??",
       "<br><br>",
-      # "<ul><li>",
-      "<small><b>Correction Notice</b><br>(If Required)</small>" #,
-      # "</li></ul>"
+      "<small><b>Correction Notice</b><br>(If Required)</small>"
       ),
     p("Q2: April 1<sup>st</sup>"),
     p("Q3: July 1<sup>st</sup>"),
@@ -75,17 +77,29 @@ dplyr::tibble(
 ) |> 
   gt::gt(process_md = TRUE) |> 
   gt::fmt_markdown() |> 
-  gt::opt_table_font(font = gt::google_font(name = "Roboto Mono")) |> 
+  gt::opt_table_font(font = gt::google_font(name = "Roboto Slab")) |> 
   gt::tab_header(
-    title = "File Naming Convention and Release Schedule"
+    title = "File Naming Convention Release Schedule"
   ) |>
   gt::tab_options(
-    quarto.disable_processing = TRUE
+    heading.align = "left",
+    heading.border.bottom.color = "#4758AB",
+    heading.title.font.weight = "bold",
+    heading.background.color = "#4758AB", # "#f8f9fa",
+    quarto.disable_processing = TRUE,
+    data_row.padding.horizontal = gt::px(20),
+    column_labels.padding.horizontal = gt::px(20),
+    table.border.top.color = "#4758AB",
+    table.width = gt::pct(100)
   )
 ```
 
 
 ```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
 dplyr::tibble(
   n = 1:6,
   file = c(
@@ -131,14 +145,155 @@ dplyr::tibble(
     rowname_col = "n",
     process_md = TRUE
     ) |> 
-  gt::cols_width(file ~ gt::px(200)) |> 
+  gt::cols_width(
+    n ~ gt::px(50),
+    file ~ gt::px(200)
+    ) |> 
   gt::fmt_markdown() |> 
   gt::opt_all_caps() |> 
-  gt::opt_table_font(font = gt::google_font(name = "Roboto Mono")) |> 
+  gt::opt_table_font(font = gt::google_font(name = "Roboto Slab")) |> 
   gt::tab_options(
+    heading.align = "left",
+    heading.border.bottom.color = "#4758AB",
+    heading.title.font.weight = "bold",
+    heading.background.color = "#4758AB", # "#f8f9fa",
     quarto.disable_processing = TRUE,
     data_row.padding.horizontal = gt::px(20),
-    column_labels.padding.horizontal = gt::px(20)
+    column_labels.padding.horizontal = gt::px(20),
+    table.border.top.color = "#4758AB",
+    table.width = gt::pct(100)
+  )
+```
+
+
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+rvu24a <- rvu::get_source("pprvu")$rvu24a_jan
+rvu_skim <- rvu24a |> skimr::skim()
+```
+
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+skimr::yank(rvu_skim, "numeric") |> 
+  dplyr::select(
+    var = skim_variable,
+    mean,
+    sd,
+    p75,
+    p100
+  ) |>
+  gt::gt(rowname_col = "var") |> 
+  gt::fmt_markdown() |> 
+  gt::fmt_number(
+    columns = c(mean, sd, p75, p100),
+    decimals = 2
+  ) |> 
+  gt::opt_all_caps() |> 
+  gt::opt_table_font(font = gt::google_font(name = "Roboto Slab")) |> 
+  gt::tab_options(
+    heading.align = "left",
+    heading.border.bottom.color = "#4758AB",
+    heading.title.font.weight = "bold",
+    heading.background.color = "#4758AB", # "#f8f9fa",
+    quarto.disable_processing = TRUE,
+    data_row.padding.horizontal = gt::px(20),
+    column_labels.padding.horizontal = gt::px(20),
+    table.border.top.color = "#4758AB",
+    table.width = gt::pct(100)
+  )
+```
+
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+skimr::yank(rvu_skim, "character") |> 
+  dplyr::select(
+    var = skim_variable,
+    na = n_missing,
+    pct_cmp = complete_rate,
+    min,
+    max,
+    unique = n_unique
+  ) |>
+  gt::gt(rowname_col = "var") |> 
+  gt::fmt_markdown() |> 
+  gt::fmt_percent(
+    columns = c(pct_cmp),
+    decimals = 0
+  ) |> 
+  gt::opt_all_caps() |> 
+  gt::opt_table_font(font = gt::google_font(name = "Roboto Slab")) |> 
+  gt::tab_options(
+    heading.align = "left",
+    heading.border.bottom.color = "#4758AB",
+    heading.title.font.weight = "bold",
+    heading.background.color = "#4758AB", # "#f8f9fa",
+    quarto.disable_processing = TRUE,
+    data_row.padding.horizontal = gt::px(20),
+    column_labels.padding.horizontal = gt::px(20),
+    table.border.top.color = "#4758AB",
+    table.width = gt::pct(100)
+  )
+```
+
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+cdbk <- datawizard::data_codebook(
+  rvu24a, 
+  range_at = 20000,
+  max_values = 20) |> 
+  dplyr::tibble() |> 
+  dplyr::select(
+    Name,
+    # Missing = Missings,
+    Values,
+    N,
+    Prop
+  ) |> 
+  dplyr::mutate(
+    dplyr::across(
+      dplyr::where(is.character), ~dplyr::na_if(., ""))) |> 
+  dplyr::filter(!is.na(N)) |>
+  tidyr::fill(Name, .direction = "down") |>
+  fuimus::remove_quiet() |> 
+  dplyr::filter(!Name %in% c("hcpcs", "description"))
+
+cdbk |> 
+  gt::gt(
+    groupname_col = "Name",
+    row_group_as_column = TRUE
+    
+         ) |> 
+  gt::fmt_markdown() |> 
+  gt::opt_all_caps() |> 
+  gt::opt_table_font(font = gt::google_font(name = "Roboto Slab")) |> 
+  gt::sub_missing(missing_text = "") |> 
+  # gt::cols_width(Missing ~ gt::px(150)) |>
+  gt::tab_options(
+    heading.align = "left",
+    heading.border.bottom.color = "#4758AB",
+    heading.title.font.weight = "bold",
+    heading.background.color = "#4758AB", # "#f8f9fa",
+    quarto.disable_processing = TRUE,
+    data_row.padding.horizontal = gt::px(20),
+    column_labels.padding.horizontal = gt::px(20),
+    table.border.top.color = "#4758AB",
+    table.width = gt::pct(100)
   )
 ```
 
