@@ -157,12 +157,12 @@ dplyr::tibble(
     ) |> 
   gt::cols_width(
     n ~ gt::px(70),
-    file ~ gt::px(200)
+    file ~ gt::px(100)
     ) |> 
   gt::fmt_markdown() |> 
   gt::opt_all_caps() |> 
   gt::opt_table_font(font = gt::google_font(name = "Recursive")) |> 
-  gt::opt_table_lines("none") |> 
+  # gt::opt_table_lines("none") |> 
   gt::tab_options(
     heading.align = "left",
     heading.border.bottom.color = "#4758AB",
@@ -183,7 +183,12 @@ What follows is a thorough dissection of each file in the archive, starting with
 
 The pdf labeled "RVU" is a comprehensive guide to the structure and contents of each file in the Relative Value zip file. It describes the methodology, that contains a data dictionary, record layout, and documentation
 
-Throughout the rest of this document, I'll
+```{r}
+rvu24a <- rvu::get_source("pprvu")$rvu24a_jan
+
+cheapr::overview(rvu24a, hist = TRUE)
+```
+
 
 ## Indicators
 
@@ -191,8 +196,6 @@ Throughout the rest of this document, I'll
 #| echo: false
 #| message: false
 #| warning: false
-rvu24a <- rvu::get_source("pprvu")$rvu24a_jan
-
 rvu_splits <- rvu24a |>  
   hacksaw::count_split(
     mod,
@@ -230,20 +233,50 @@ process_splits <- function(split) {
 }
 
 rvu_vars <- process_splits(rvu_splits)
+
+vars <- rvu_vars |> 
+  dplyr::mutate(
+    variable = stringr::str_replace_all(
+      variable, "_", " ") |> 
+      stringr::str_to_upper(),
+  )
+
+idx <- c(
+  "MOD" = "For diagnostic tests, a blank in this field denotes the global service and the following modifiers identify the components:<br>26 = Professional component<br>TC = Technical component <i>For services other than those with a professional and/or technical component, a blank will appear in this field with one exception: the presence of CPT modifier -53 indicates that separate RVUs and a fee schedule amount have been established for procedures which the physician terminated before completion. This modifier is used only with colonoscopy CPT codes 44388 and 45378, or with G0105 and G0121. Any other codes billed with modifier -53 are subject to carrier medical review and priced by individual consideration.<br>53 = Discontinued Procedure - Under certain circumstances, the physician may elect to terminate a surgical or diagnostic procedure. Due to extenuating circumstances, or those that threaten the well being of the patient, it may be necessary to indicate that a surgical or diagnostic procedure was started but discontinued.",
+  "STATUS CODE" = "Indicates whether the code is in the fee schedule and whether it is separately payable if the service is covered. Only RVUs associated with status codes of A, R, or T, are used for Medicare payment.",
+  "NOT USED FOR MEDICARE PAYMENT" = "The name says it all",
+  "NON FAC INDICATOR" = "An NA in this field indicates that this procedure is rarely or never performed in the non-facility setting.",
+  "FACILITY INDICATOR" = "An NA in this field indicates that this procedure is rarely or never performed in the facility setting.",
+  "PCTC IND" = "Professional Component (PC) or Technical Component (TC) Indicator",
+  "GLOB DAYS" = "Global Surgery postoperative timeframes that apply to payment for each surgical procedure or another indicator that describes how the global concept applies to the service.",
+  "MULT PROC" = "Multiple Procedure (CPT Modifier 51) indicator shows which payment adjustment rule for multiple procedures applies to the service.",
+  "BILAT SURG" = "Bilateral Surgery Indicator (CPT Modifier 50) for services subject to a payment adjustment.",
+  "ASST SURG" = "Assistant at Surgery (Modifiers AS, 80, 81, and 82) indicator for services where Medicare never pays an assistant at surgery.",
+  "CO SURG" = "Co-Surgeons (Modifier 62) This field gives an indicator for services for which Medicare may pay 2 surgeons, each in a different specialty.",
+  "TEAM SURG" = "Team Surgeons (Modifier 66) This field gives an indicator for services for which Medicare may pay team surgeons.",
+  "ENDO BASE" = "Endoscopic Base Code for each code with a multiple surgery indicator of 3.",
+  "PHYSICIAN SUPERVISION OF DIAGNOSTIC PROCEDURES" = "Medicare uses this field in post payment review.",
+  "DIAGNOSTIC IMAGING FAMILY INDICATOR" = "Identifies the applicable Diagnostic Service family for HCPCS codes with a Multiple Procedure indicator of 4. For services effective January 1, 2011, and after, family indicators 01 - 11 won’t populate.")
 ```
 
 
 ```{r}
-rvu_vars |> 
-  dplyr::mutate(
-    variable = stringr::str_replace_all(
-      variable, "_", " ") |> 
-      stringr::str_to_title(),
+dplyr::left_join(
+  vars,
+  dplyr::tibble(
+    variable = names(idx[collapse::funique(vars$variable)]),
+    description = idx[collapse::funique(vars$variable)]),
+  by = dplyr::join_by(variable)
   ) |> 
+  fuimus::combine(
+    name = variable, 
+    columns = c('variable', 'description'), 
+    sep = "<br><br>"
+    ) |>
   gt::gt(
     groupname_col = "variable",
-    row_group_as_column = TRUE
-    ) |> 
+    row_group_as_column = TRUE,
+    process_md = TRUE) |> 
   gt::fmt_percent(columns = pct) |> 
   gt::fmt_integer(columns = n) |>
   gt::opt_table_font(font = gt::google_font(name = "Recursive")) |> 
@@ -257,8 +290,16 @@ rvu_vars |>
     column_labels.padding.horizontal = gt::px(20),
     table.border.top.color = "#4758AB",
     table.width = gt::pct(100),
-    column_labels.hidden = TRUE
+    column_labels.hidden = FALSE
   )
+
+# gt_pprvu |> 
+#   gt::tab_style(
+#     style = "",
+#     locations = gt::cells_stub()
+#   )
+# 
+# gt::text_replace()
 ```
 
 
