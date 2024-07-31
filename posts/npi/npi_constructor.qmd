@@ -425,6 +425,30 @@ construct_npi_1("1000000000")
 
 ## Second Draft
 
+```{r}
+cli_npi <- npi_test <- "1234567891"
+
+
+npi_msg <- function(x, msg) {
+  
+  arg  <- rlang::caller_arg(x)
+  call <- rlang::caller_env()
+  
+  rlang::inform(
+    message = (
+      c(">" = glue::glue_col("{msg}:"), 
+        " " = glue::glue_col("     {blue {x}}"))),
+    use_cli_format = TRUE,
+    arg = arg,
+    call = call
+  )
+}
+
+npi_msg(x = npi_test, "Testing NPI")
+```
+
+
+
 ```{r filename="construct_npi_2.R"}
 construct_npi_2 <- function(npi) {
   
@@ -435,125 +459,78 @@ construct_npi_2 <- function(npi) {
   
   npi_test <- npi
   
-  #---
-  cli_npi <- rlang::sym(npi_test)
-  cli::cli_alert("Testing NPI: {.strong {.val {cli_npi}}}")
-  #---
+  npi_msg(npi_test, "Testing NPI")
   
   # Remove the 10th digit to create the 9-position identifier part of the NPI
   id_9 <- unlist(strsplit(npi_test, ""), use.names = FALSE)[1:9]
   
-  #---
-  cli_id_9 <- rlang::sym(paste0(c(id_9, "_"), collapse = ""))
-  cli::cli_alert("Keep first 9 digits: {.strong {.val {cli_id_9}}}")
-  #---
+  npi_msg(paste0(id_9, collapse = ""), "Remove 10th digit")
   
   # Reverse order of digits
   x_rev <- rev(id_9)
   
-  #---
-  cli_x_rev <- rlang::sym(paste0(x_rev, collapse = ""))
-  cli::cli_alert("Reverse digit order:  {.strong {.val {cli_x_rev}}}")
-  #---
+  npi_msg(paste0(x_rev, collapse = ""), "Reverse order")
   
   # Select index of every other digit
   x_idx <- seq(1, length(x_rev), 2)
   
-  #---
-  cli_x_idx <- rlang::sym(paste0(x_rev[x_idx], collapse = " "))
-  cli::cli_alert("Select every other digit: {.strong {.val {cli_x_idx}}}")
-  #---
+  npi_msg(paste0(x_rev[x_idx], collapse = " "), "Select every other digit")
   
   # Double the value of the alternate digits
   x_rev[x_idx] <- as.numeric(x_rev[x_idx]) * 2
   
-  #---
-  cli_dbl <- rlang::sym(paste0(x_rev[x_idx], collapse = " "))
-  cli_ins <- rlang::sym(paste0(x_rev, collapse = " "))
-  cli::cli_alert("Double each: {.strong {.val {cli_dbl}}}")
-  cli::cli_alert("Replace original with doubles: {.strong {.val {cli_ins}}}")
-  #---
+  npi_msg(paste0(x_rev[x_idx], collapse = " "), "Double each")
+  npi_msg(paste0(x_rev, collapse = " "), "Replace original with doubles")
   
   # Split and unlist to separate digits
   x_split <- unlist(strsplit(x_rev, ""), use.names = FALSE)
-  
   x_add <- sum(as.numeric(x_split))
-
-  #---
-  cli_x_add <- rlang::sym(paste0(paste0(x_split, collapse = " + "), paste0(" = ", x_add)))
-  cli::cli_alert("Sum individual digits: {.strong {.val {cli_x_add}}}")
-  #---
   
+  npi_msg(paste0(paste0(x_split, collapse = " + "), paste0(" = ", x_add)), "Sum individual digits")
+
   # Add constant 24 to the sum of the digits
   x_24 <- x_add + 24
   
-  #---
-  sym_24 <- rlang::sym("24")
-  cli_x_24 <- rlang::sym(paste0(paste0(c(x_add, 24), collapse = " + "), paste0(" = ", x_24)))
-  cli::cli_alert("Add {.strong {.val {sym_24}}} to the sum: {.strong {.val {cli_x_24}}}")
-  #---
-
+  npi_msg(paste0(paste0(c(x_add, 24), collapse = " + "), paste0(" = ", x_24)), "Add 24 to the sum")
+  
   x_divide <- x_24 / 10
-  cli_x_divide <- rlang::sym(paste0(paste0(x_24, " / ", 10), paste0(" = ", x_divide)))
-  cli::cli_alert("Divide by 10: {.strong {.val {cli_x_divide}}}")
+  npi_msg(paste0(paste0(x_24, " / ", 10), paste0(" = ", x_divide)), "Divide by 10")
   
   x_divide_first <- as.numeric(unlist(strsplit(as.character(x_divide), ""), use.names = FALSE)[1])
-  cli_x_first <- rlang::sym(paste0(paste0(x_divide), paste0(" = ", x_divide_first)))
-  cli::cli_alert("Take first digit: {.strong {.val {cli_x_first}}}")
+  npi_msg(paste0(paste0(x_divide), paste0(" = ", x_divide_first)), "Take first digit")
   
   x_plus_one <- x_divide_first + 1
-  cli_x_plus <- rlang::sym(paste0(paste0(x_divide_first, " + ", 1), paste0(" = ", x_plus_one)))
-  cli::cli_alert("Add one: {.strong {.val {cli_x_plus}}}")
+  npi_msg(paste0(paste0(x_divide_first, " + ", 1), paste0(" = ", x_plus_one)), "Add one")
   
   x_paste_zero <- paste0(x_plus_one, "0")
-  cli_x_zero <- rlang::sym(paste0(paste0(x_plus_one, " * ", 10), paste0(" = ", x_paste_zero)))
-  cli::cli_alert("Multiply by 10: {.strong {.val {cli_x_zero}}}")
-  
+  npi_msg(paste0(paste0(x_plus_one, " * ", 10), paste0(" = ", x_paste_zero)), "Multiply by 10")
   
   # Find the next higher number ending in zero
   x_next <- ceiling(x_24 / 10) * 10
-  
-  #---
-  cli_x_next <- rlang::sym(paste0(paste0("⌈", x_24,"⌉"), paste0(" = " , x_next)))
-  cli::cli_alert("This is the next largest integer divisible by 10: {.strong {.val {cli_x_next}}}")
-  #---
+  npi_msg(paste0(paste0("⌈", x_24,"⌉"), paste0(" = " , x_next)), "Next multiple of 10")
   
   # Find the check digit by subtracting x from y
   x_check <- x_next - x_24
-  
-  #---
-  cli_x_check <- rlang::sym(paste0(paste0(c(x_next, x_24), collapse = " - "), paste0(" = ", x_check)))
-  cli::cli_alert(c("Find the check digit: {.strong {.val {cli_x_check}}}"))
-  #---
+  npi_msg(paste0(paste0(c(x_next, x_24), collapse = " - "), paste0(" = ", x_check)), "Find the check digit")
   
   # Append the check digit to the end of the 9-digit identifier
   id_10 <- id_9
   id_10[10] <- x_check
   
-  #---
-  cli_id_10 <- rlang::sym(paste0(id_10, collapse = ""))
-  cli::cli_alert(c("Append check digit to the original value: {.strong {.val {cli_id_10}}}"))
-  #---
+  npi_msg(paste0(id_10, collapse = ""), "Append check digit")
   
   # Collapse the vector into a single string
   npi_valid <- paste0(id_10, collapse = "")
   
   # Is the syntactically valid NPI identical to the test NPI?
   if (identical(npi_valid, npi_test)) {
-    
-    #---
-    identical <- rlang::sym(paste0(c(npi_test, npi_valid), collapse = " = "))
-    cli::cli_alert_success(c("NPI {.strong is} syntactically valid: {.strong {.val {identical}}}"))
-    #---
+    npi_msg(paste0(c(npi_test, npi_valid), collapse = " == "), "NPI is syntactically valid")
   }
   
   if (!identical(npi_valid, npi_test)) {
-    
-    #---
-    not_identical <- rlang::sym(paste0(c(npi_test, npi_valid), collapse = " != "))
-    cli::cli_alert_danger(c("NPI {.strong is not} syntactically valid: {.strong {.val {not_identical}}}"))
-    #---
+    npi_msg(paste0(c(npi_test, npi_valid), collapse = " != "), "NPI is not syntactically valid")
   }
+  invisible(npi_valid)
 }
 ```
 
@@ -576,4 +553,70 @@ construct_npi_2("1043477615")
 construct_npi_2("1000000000")
 ```
 
+
+
+
+```{r}
+x <- "1234567891"
+x <- "1043477615"
+
+base_npi <- function(x) {
+  
+  xa <- xb <- as.integer(unlist(strsplit(x, ""), use.names = FALSE)[1:9])
+  
+  x <- rev(xb)
+  
+  even <- x[seq(1, length(x), 2)] * 2
+  odd  <- x[seq(2, length(x), 2)]
+  
+  even_less <- even[which(even < 9)]
+  even_more <- as.integer(unlist(strsplit(as.character(even[which(even > 9)]), ""), use.names = FALSE))
+  
+  sumup <- sum(odd) + sum(even_less) + sum(even_more) + 24
+  
+  xb[10] <- (ceiling(sumup / 10) * 10) - sumup
+  
+  identical(as.integer(paste0(xb, collapse = "")), xa)
+}
+
+# base_npi("1043477615")
+```
+
+
+
+```{r}
+x <- "1234567891"
+x <- "1043477615"
+
+luhn <- function(x) {
+  
+  xa <- x
+  
+  x <- rev(
+    as.integer(
+      unlist(
+        strsplit(x, ""), use.names = FALSE)[1:9]
+      )
+    )
+  
+  idx_odd  <- seq_along(x) %% 2 == 1
+  idx_even <- seq_along(x) %% 2 == 0
+  
+  x[idx_even] <- x[idx_even] * 2
+  x[idx_even] <- ifelse(x[idx_even] > 9, x[idx_even] - 9, x[idx_even])
+  
+  sumx <- collapse::fsum(c(x[idx_odd], x[idx_even], 24))
+  x <- rev(x)
+  x[10] <- (ceiling(sumx / 10) * 10) - sumx
+  x
+  
+  # sum_x %% 10 == 0
+}
+```
+
+
+```{r}
+# luhn("123456789")
+# luhn("104347761")
+```
 
