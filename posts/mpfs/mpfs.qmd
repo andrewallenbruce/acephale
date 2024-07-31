@@ -39,9 +39,10 @@ library(tidyverse)
 library(downlit)
 library(gt)
 library(northstar)
-library(provider)
+# library(provider)
 library(rvu)
 library(hacksaw)
+library(cheapr)
 # library(armgin)
 
 p <- function(...) {paste0(...)}
@@ -184,9 +185,26 @@ What follows is a thorough dissection of each file in the archive, starting with
 The pdf labeled "RVU" is a comprehensive guide to the structure and contents of each file in the Relative Value zip file. It describes the methodology, that contains a data dictionary, record layout, and documentation
 
 ```{r}
-rvu24a <- rvu::get_source("pprvu")$rvu24a_jan
+rvu24a <- rvu::get_source("pprvu")$rvu24a_jan |> 
+  dplyr::mutate(
+    mod = cheapr::factor_(mod),
+    status_code = cheapr::factor_(status_code),
+    pctc_ind = cheapr::factor_(pctc_ind),
+    glob_days = cheapr::factor_(glob_days),
+    mult_proc = cheapr::factor_(mult_proc),
+    bilat_surg = cheapr::factor_(bilat_surg),
+    asst_surg = cheapr::factor_(asst_surg),
+    co_surg = cheapr::factor_(co_surg),
+    team_surg = cheapr::factor_(team_surg),
+    physician_supervision_of_diagnostic_procedures = cheapr::factor_(physician_supervision_of_diagnostic_procedures),
+    diagnostic_imaging_family_indicator = cheapr::factor_(diagnostic_imaging_family_indicator),
+    )
 
-cheapr::overview(rvu24a, hist = TRUE)
+over <- cheapr::overview(rvu24a, hist = TRUE)
+
+hcpcs_row <- over$categorical |> 
+  dplyr::select(variable = col, value = n_unique) |> 
+  dplyr::filter(variable == "hcpcs")
 ```
 
 
@@ -262,7 +280,7 @@ idx <- c(
 
 ```{r}
 dplyr::left_join(
-  vars,
+  vars |> dplyr::filter(!is.na(value)),
   dplyr::tibble(
     variable = names(idx[collapse::funique(vars$variable)]),
     description = idx[collapse::funique(vars$variable)]),
@@ -273,12 +291,67 @@ dplyr::left_join(
     columns = c('variable', 'description'), 
     sep = "<br><br>"
     ) |>
+  dplyr::add_row(
+    variable = toupper(hcpcs_row$variable),
+    value = as.character(format(hcpcs_row$value, big.mark = ",")),
+    n = 18499,
+    pct = 1.0,
+    .before = 1
+    ) |> 
+  gt::gt(
+    groupname_col = "variable",
+    # rowname_col = "value",
+    row_group_as_column = TRUE,
+    process_md = TRUE) |> 
+  gt::tab_stubhead(label = "Variable") |> 
+  gt::cols_label(
+    value = "Unique\nValues",
+    n = "Total",
+    pct = "Percentage"
+    ) |>
+  gt::fmt_percent(columns = pct) |> 
+  gt::fmt_integer(columns = n) |>
+  gt::opt_table_font(font = gt::google_font(name = "Recursive")) |> 
+  gt::opt_all_caps() |> 
+  gt::tab_options(
+    heading.align = "left",
+    heading.border.bottom.color = "#4758AB",
+    heading.title.font.weight = "bold",
+    heading.background.color = "#4758AB", # "#f8f9fa",
+    quarto.disable_processing = TRUE,
+    data_row.padding.horizontal = gt::px(20),
+    column_labels.padding.horizontal = gt::px(20),
+    table.border.top.color = "#4758AB",
+    table.width = gt::pct(100),
+    column_labels.hidden = FALSE,
+    # stub.font.weight = "bold",
+    # stub_row_group.font.weight = "bold",
+    column_labels.font.weight = "bold"
+  )
+```
+
+
+```{r}
+over$numeric |> 
+  dplyr::select(
+    variable = col, 
+    unique = n_unique,
+    # min = p0, 
+    # p25,
+    # median = p50,
+    p75,
+    max = p100,
+    iqr, 
+    mean,
+    sd,
+    hist
+    ) |>
   gt::gt(
     groupname_col = "variable",
     row_group_as_column = TRUE,
     process_md = TRUE) |> 
-  gt::fmt_percent(columns = pct) |> 
-  gt::fmt_integer(columns = n) |>
+  gt::fmt_integer(columns = unique) |>
+  gt::fmt_number(columns = p75:sd) |>
   gt::opt_table_font(font = gt::google_font(name = "Recursive")) |> 
   gt::tab_options(
     heading.align = "left",
@@ -292,15 +365,8 @@ dplyr::left_join(
     table.width = gt::pct(100),
     column_labels.hidden = FALSE
   )
-
-# gt_pprvu |> 
-#   gt::tab_style(
-#     style = "",
-#     locations = gt::cells_stub()
-#   )
-# 
-# gt::text_replace()
 ```
+
 
 
 ## PPRVU
