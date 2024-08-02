@@ -15,8 +15,6 @@ format:
       - text: CMS-10114 NPI Application
         icon: bookmark-plus
         href: https://www.cms.gov/medicare/cms-forms/cms-forms/downloads/cms10114.pdf
-    mermaid:
-      theme: default
 ---
 
 ```{r setup}
@@ -232,7 +230,7 @@ check_is_character <- function(x) {
   
   if (any(!rlang::is_character(x))) {
     cli::cli_abort(
-      "{.arg {arg}} must be a {.cls character} vector.", 
+      "An {.arg {arg}} must be a {.cls character} vector.", 
       arg = arg, 
       call = call)
   }
@@ -246,7 +244,7 @@ check_characters_numeric <- function(x) {
   
   if (any(!stringfish::sf_grepl(x, "^[[:digit:]]+$"), na.rm = TRUE)) {
     cli::cli_abort(
-      "{.arg {arg}} must contain numbers only.", 
+      "An {.arg {arg}} must contain numbers only.", 
       arg = arg, 
       call = call)
   }
@@ -260,7 +258,7 @@ check_nchars_10 <- function(x) {
   
   if (any(stringfish::sf_nchar(x) != 10L)) {
     cli::cli_abort(
-      "{.arg {arg}} must be 10 characters long.", 
+      "An {.arg {arg}} must be 10 characters long.", 
       arg = arg, 
       call = call)
   }
@@ -276,7 +274,7 @@ check_first_char <- function(x) {
   
   if (any(!stringfish::sf_substr(x, 1, 1) %in% c("1", "2"))) {
     cli::cli_abort(
-      "{.arg {arg}} must start with 1 or 2.", 
+      "An {.arg {arg}} must start with a 1 or 2.", 
       arg = arg, 
       call = call)
   }
@@ -425,25 +423,21 @@ construct_npi_1("1000000000")
 
 ## Second Draft
 
-```{r}
-cli_npi <- npi_test <- "1234567891"
-
-
+```{r filename="npi_msg.R"}
 npi_msg <- function(x, msg) {
   
   arg  <- rlang::caller_arg(x)
   call <- rlang::caller_env()
   
   rlang::inform(
-    message = (
-      c(">" = glue::glue_col("{msg}:"), 
-        " " = glue::glue_col("     {blue {x}}"))),
+    message = (c(">" = glue::glue("{msg}:     {x}"))),
     use_cli_format = TRUE,
     arg = arg,
     call = call
   )
 }
 
+npi_test <- "1234567891"
 npi_msg(x = npi_test, "Testing NPI")
 ```
 
@@ -583,6 +577,67 @@ base_npi <- function(x) {
 ```
 
 
+```{r}
+npi <- "1234567891" # invalid
+npi <- "1043477615" # valid
+```
+
+
+
+```{r}
+#| eval: false
+luhn <- function(npi) {
+  
+  check_is_character(npi)
+  check_characters_numeric(npi)
+  check_nchars_10(npi)
+  check_first_char(npi)
+  
+  npi_msg(npi, "Validating NPI")
+  
+  x <- npi
+  
+  x <- rev(as.integer(unlist(strsplit(x, ""))[1:9]))
+  
+  xprint <- x
+  
+  npi_msg(paste0(x, collapse = " "), "Reverse 9-position identifier")
+  
+  idx_odd  <- seq_along(x) %% 2 == 1
+  # idx_even <- seq_along(x) %% 2 == 0
+  
+  x[idx_odd] <- x[idx_odd] * 2
+  
+  npi_msg(paste0(x[idx_odd], collapse = " "), "Double every other digit")
+  
+  x[idx_odd] <- ifelse(x[idx_odd] > 9, x[idx_odd] - 9, x[idx_odd])
+  
+  # xprint
+  # 
+  # xprint[idx_odd] <- as.integer(unlist(strsplit(as.character(x[idx_odd]), "")))
+  # 
+  npi_msg(paste0(x[idx_odd], collapse = " "), "Subtract 9 from doubled digits > 9")
+  
+  sum_odd  <- sum(x[idx_odd])
+  sum_even <- sum(x[idx_even])
+  sum_x <- sum_odd + sum_even + 24
+  
+  npi_msg(paste0((sum_odd + sum_even), " + ", 24, " = ", sum_x, collapse = " "), "Add 24 to sum of digits")
+  
+  m10 <- ceiling(sum_x / 10) * 10
+  chk <- m10 - sum_x
+  
+  npi_msg(paste0(m10, " - ", sum_x, " = ", chk, collapse = " "), "Calculate check digit")
+  
+  x[10] <- chk # Append check digit
+  paste0(x, collapse = "")
+  
+  npi
+  x
+}
+```
+
+
 
 ```{r}
 x <- "1234567891"
@@ -610,7 +665,7 @@ luhn <- function(x) {
   x[10] <- (ceiling(sumx / 10) * 10) - sumx
   x
   
-  # sum_x %% 10 == 0
+  sum_x %% 10 == 0
 }
 ```
 
