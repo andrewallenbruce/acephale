@@ -42,15 +42,13 @@ p <- function(...) {paste0(...)}
 ```
 
 
-# Introduction {#sec-introduction}
-
 The National Provider Identifier (NPI) is a unique 10-digit identification number assigned to health care providers in the United States through NPPES. The Centers for Medicare & Medicaid Services (CMS) developed the NPI as a way to standardize the identification of health care providers across the health care industry. [NPPES](https://npiregistry.cms.hhs.gov/search) is the National Plan and Provider Enumeration System (NPPES) NPI Registry, a free directory of all active NPI records.
 
-# The CMS Standard for NPI Validation {#sec-cmsstandard}
+# CMS NPI Standard {#sec-cmsstandard}
 
 The following is an excerpt from the CMS document on the NPI check digit calculation, [Requirements for National Provider Identifier (NPI) and NPI Check Digit (2004-01-23)](https://www.cms.gov/Regulations-and-Guidance/Administrative-Simplification/NationalProvIdentStand/Downloads/NPIcheckdigit.pdf).
 
-## Requirements for the NPI {#sec-requirements}
+## NPI Requirements {#sec-requirements}
    
    * Consist of 10 numeric digits. The 10<sup>th</sup> digit is the check digit.
    
@@ -63,10 +61,9 @@ The following is an excerpt from the CMS document on the NPI check digit calcula
    
    * Be unique, without requiring database access for verification.
 
-## Requirements for the NPI Check Digit {#sec-checkdigit}
+## NPI Check Digit {#sec-checkdigit}
 
-   * Calculated using the Luhn formula for computing the modulus 10 “double-add-double” check digit. 
-[This algorithm is recognized as an ISO standard and is the specified check digit algorithm to be used for the card issuer identifier on a standard health identification card.]{.aside}
+The check digit is calculated using the Luhn formula for computing the modulus 10 “double-add-double” check digit. [This algorithm is recognized as an ISO standard and is the specified check digit algorithm to be used for the card issuer identifier on a standard health identification card.]{.aside}
 
 ### Prefix 80840
 
@@ -76,15 +73,15 @@ To enable this feature for any NPI, the check digit will always be calculated as
 
 For a non-prefixed NPI, this is accomplished by adding the constant **24** in step 2 of the check digit calculation.
 
-## Luhn Formula for Modulus 10 "double-add-double" Check Digit
+## Check Digit Calculation
 
-The Luhn check digit formula is calculated as follows:
+The check digit formula (Luhn Modulus 10 "double-add-double") is calculated as follows:
 
-   1. Double the value of alternate digits, beginning with the rightmost digit.
+   1. Beginning with the rightmost digit, double the value of the alternate digits.
    
-   1. Add the individual digits of the products resulting from step 1 to the unaffected digits from the original number.
+   1. Add the individual digits of the products from Step 1 to the unaffected digits from the original number.
    
-   1. Subtract the total obtained in step 2 from the next highest number ending in zero. This is the check digit. If the total obtained in step 2 is a number ending in zero, the check digit is zero.
+   1. Subtract the result of step 2 from the next highest number ending in zero. This is the check digit.
 
 <br>
 
@@ -96,7 +93,22 @@ The *next highest number ending in zero* is simply the next multiple of ten.
 
 Specifically, for some number $n$, the next multiple of ten would be $n + (10 - (n \mod 10))$ if $n$ is not already a multiple of ten. 
 
-For example, if $n$ is `23`, the next multiple of ten `30`. If $n$ is a multiple of ten, such as `50`, the next multiple of 10 is `60`.
+```{r}
+next_multiple_10 <- \(n) n + (10 - (n %% 10))
+```
+
+For example, if $n$ is `23`, the next multiple of ten is `30`:
+
+```{r}
+next_multiple_10(23)
+```
+
+If $n$ is a multiple of ten, such as `50`, the next multiple of 10 is `60`:
+
+```{r}
+next_multiple_10(50)
+```
+
 
 ::: 
 
@@ -108,106 +120,119 @@ For example, if $n$ is `23`, the next multiple of ten `30`. If $n$ is a multiple
 
 ## With Prefix
 
-> Assume the 9-position identifier part of the NPI is `123456789`:
+> Assume the prefixed 9-position identifier is `12345678980840`:
 
 ```{r}
-identifier <- 123456789
+make_identifier <- \(x, y) {
+  as.integer(
+    unlist(
+      strsplit(
+        paste0(x, y), 
+        "")
+    )
+  )
+}
 
-identifier
+(x <- make_identifier(80840, 123456789))
 ```
 
-
-> If used as a card issuer identifier on a standard health identification card the full number is `80840123456789`:
+> Beginning on the right, double the alternate digits:
+>
+> `8 0 8 4 0 1 2 3 4  5 6  7 8  9`
+> `  |   |   |   |    |    |    |`
+> `  V   V   V   V    V    V    V`
+> `8 0 8 8 0 2 2 6 4 10 6 14 8 18`
 
 ```{r}
-prefix <- 80840
+double_alternates <- \(x) {
+  x <- rev(x)
+  
+  idx <- seq(1, length(x), 2)
+  
+  x[idx] <- x[idx] * 2
+  
+  rev(x)
+}
 
-prefixed <- paste0(prefix, identifier)
-
-prefixed
+(x <- double_alternates(x))
 ```
 
-
-> Card issuer identifier without check digit: `8 0 8 4 0 1 2 3 4 5 6 7 8 9`
-
-```{r}
-id_split <- unlist(strsplit(prefixed, ""), use.names = FALSE)
-
-id_split
-```
-
-
-> **Step 1:** Double the value of alternate digits, beginning with the rightmost digit: `0 8 2 6 10 14 18`
-
-```{r}
-# Reverse order of digits
-reversed <- rev(id_split)
-
-# Select index of every other digit
-idx_even <- seq(1, length(id_split), 2)
-
-# Double the value of the alternate digits
-reversed[idx_even] <- as.numeric(reversed[idx_even]) * 2
-
-# Reverse the order back
-original <- rev(reversed)
-
-original
-```
-
-
-> **Step 2:** Add the individual digits of products of doubling, plus unaffected digits: 
+> Add the individual digits of products of doubling, plus unaffected digits: 
+> 
 > `8 + 0 + 8 + 8 + 0 + 2 + 2 + 6 + 4 + 1 + 0 + 6 + 1 + 4 + 8 + 1 + 8 = 67`
 
 
 ```{r}
-# Split and unlist to separate digits
-resplit <- unlist(strsplit(original, ""), use.names = FALSE)
+sum_individual_digits <- \(x) {
+  sum(
+    as.integer(
+      unlist(
+        strsplit(
+          as.character(x), "")
+        )
+      )
+    )
+}
 
-# Add constant 24 to the sum of the digits
-added <- sum(as.numeric(resplit))
-
-added
+(x <- sum_individual_digits(x))
 ```
 
-
-> **Step 3:** Subtract from next higher number ending in zero: `70 – 67 = 3`
+> Subtract from the next multiple of 10 to find the check digit: `70 – 67 = 3`
 
 
 ```{r}
-# Find the next highest multiple of 10
-mod10 <- ceiling(added / 10) * 10
+get_check_digit <- \(x) {
+  ceiling(x / 10) * 10 - x
+}
 
-# Subtract the sum from the next highest multiple of 10
-check <- mod10 - added
-
-check
+(x <- get_check_digit(x))
 ```
 
-> Therefore, the check digit is `3`
+> Append the check digit to the the card issuer identifier: `808401234567893`
 
 ```{r}
-paste0(prefixed, check)
+paste0(80840123456789, x)
 ```
-
-> and the card issuer identifier with the check digit appended is `808401234567893`.
 
 
 ## Without Prefix
 
-Assume the 9-position identifier part of the NPI is 123456789. Using the Luhn formula on the identifier portion, the check digit is calculated as follows: 
+> Assume the 9-position identifier is `123456789`
 
-NPI without check digit:
-1 2 3 4 5 6 7 8 9
+```{r}
+(x <- 123456789)
+```
+
+> Beginning on the right, double the alternate digits:
+
+```{r}
+(x <- double_alternates(x))
+```
+
 
 Step 1: Double the value of alternate digits, beginning with the rightmost digit.
-2 6 10 14 18
+2 4 6 9 10 14 18
+
+```{r}
+
+```
+
 
 Step 2: Add constant 24, to account for the 80840 prefix that would be present on a card issuer identifier, plus the individual digits of products of doubling, plus unaffected digits.
 24 + 2 + 2 + 6 + 4 + 1 + 0 + 6 + 1 + 4 + 8 + 1 + 8 = 67
 
+```{r}
+
+```
+
+
 Step 3: Subtract from next higher number ending in zero.
 70 – 67 = 3
+
+```{r}
+
+```
+
 
 Check digit = 3
 
@@ -221,14 +246,13 @@ NPI with check digit = 1234567893
 ## Input Validation
 
 ```{r filename="input_validation.R"}
-# Must be a character vector as R drops leading zeros
-# ---This won't be needed if NPIs must start with a 1 or 2
+# Must be a character vector
 check_is_character <- function(x) {
   
   arg  <- rlang::caller_arg(x)
   call <- rlang::caller_env()
   
-  if (any(!rlang::is_character(x))) {
+  if (!rlang::is_character(x)) {
     cli::cli_abort(
       "An {.arg {arg}} must be a {.cls character} vector.", 
       arg = arg, 
@@ -242,7 +266,7 @@ check_characters_numeric <- function(x) {
   arg  <- rlang::caller_arg(x)
   call <- rlang::caller_env()
   
-  if (any(!stringfish::sf_grepl(x, "^[[:digit:]]+$"), na.rm = TRUE)) {
+  if (!stringfish::sf_grepl(x, "^[[:digit:]]+$")) {
     cli::cli_abort(
       "An {.arg {arg}} must contain numbers only.", 
       arg = arg, 
@@ -256,7 +280,7 @@ check_nchars_10 <- function(x) {
   arg  <- rlang::caller_arg(x)
   call <- rlang::caller_env()
   
-  if (any(stringfish::sf_nchar(x) != 10L)) {
+  if (stringfish::sf_nchar(x) != 10L) {
     cli::cli_abort(
       "An {.arg {arg}} must be 10 characters long.", 
       arg = arg, 
@@ -272,7 +296,7 @@ check_first_char <- function(x) {
   arg  <- rlang::caller_arg(x)
   call <- rlang::caller_env()
   
-  if (any(!stringfish::sf_substr(x, 1, 1) %in% c("1", "2"))) {
+  if (!stringfish::sf_substr(x, 1, 1) %in% c("1", "2")) {
     cli::cli_abort(
       "An {.arg {arg}} must start with a 1 or 2.", 
       arg = arg, 
@@ -550,128 +574,6 @@ construct_npi_2("1000000000")
 
 
 
-```{r}
-x <- "1234567891"
-x <- "1043477615"
-
-base_npi <- function(x) {
-  
-  xa <- xb <- as.integer(unlist(strsplit(x, ""), use.names = FALSE)[1:9])
-  
-  x <- rev(xb)
-  
-  even <- x[seq(1, length(x), 2)] * 2
-  odd  <- x[seq(2, length(x), 2)]
-  
-  even_less <- even[which(even < 9)]
-  even_more <- as.integer(unlist(strsplit(as.character(even[which(even > 9)]), ""), use.names = FALSE))
-  
-  sumup <- sum(odd) + sum(even_less) + sum(even_more) + 24
-  
-  xb[10] <- (ceiling(sumup / 10) * 10) - sumup
-  
-  identical(as.integer(paste0(xb, collapse = "")), xa)
-}
-
-# base_npi("1043477615")
-```
 
 
-```{r}
-npi <- "1234567891" # invalid
-npi <- "1043477615" # valid
-```
-
-
-
-```{r}
-#| eval: false
-luhn <- function(npi) {
-  
-  check_is_character(npi)
-  check_characters_numeric(npi)
-  check_nchars_10(npi)
-  check_first_char(npi)
-  
-  npi_msg(npi, "Validating NPI")
-  
-  x <- npi
-  
-  x <- rev(as.integer(unlist(strsplit(x, ""))[1:9]))
-  
-  xprint <- x
-  
-  npi_msg(paste0(x, collapse = " "), "Reverse 9-position identifier")
-  
-  idx_odd  <- seq_along(x) %% 2 == 1
-  # idx_even <- seq_along(x) %% 2 == 0
-  
-  x[idx_odd] <- x[idx_odd] * 2
-  
-  npi_msg(paste0(x[idx_odd], collapse = " "), "Double every other digit")
-  
-  x[idx_odd] <- ifelse(x[idx_odd] > 9, x[idx_odd] - 9, x[idx_odd])
-  
-  # xprint
-  # 
-  # xprint[idx_odd] <- as.integer(unlist(strsplit(as.character(x[idx_odd]), "")))
-  # 
-  npi_msg(paste0(x[idx_odd], collapse = " "), "Subtract 9 from doubled digits > 9")
-  
-  sum_odd  <- sum(x[idx_odd])
-  sum_even <- sum(x[idx_even])
-  sum_x <- sum_odd + sum_even + 24
-  
-  npi_msg(paste0((sum_odd + sum_even), " + ", 24, " = ", sum_x, collapse = " "), "Add 24 to sum of digits")
-  
-  m10 <- ceiling(sum_x / 10) * 10
-  chk <- m10 - sum_x
-  
-  npi_msg(paste0(m10, " - ", sum_x, " = ", chk, collapse = " "), "Calculate check digit")
-  
-  x[10] <- chk # Append check digit
-  paste0(x, collapse = "")
-  
-  npi
-  x
-}
-```
-
-
-
-```{r}
-x <- "1234567891"
-x <- "1043477615"
-
-luhn <- function(x) {
-  
-  xa <- x
-  
-  x <- rev(
-    as.integer(
-      unlist(
-        strsplit(x, ""), use.names = FALSE)[1:9]
-      )
-    )
-  
-  idx_odd  <- seq_along(x) %% 2 == 1
-  idx_even <- seq_along(x) %% 2 == 0
-  
-  x[idx_even] <- x[idx_even] * 2
-  x[idx_even] <- ifelse(x[idx_even] > 9, x[idx_even] - 9, x[idx_even])
-  
-  sumx <- collapse::fsum(c(x[idx_odd], x[idx_even], 24))
-  x <- rev(x)
-  x[10] <- (ceiling(sumx / 10) * 10) - sumx
-  x
-  
-  sum_x %% 10 == 0
-}
-```
-
-
-```{r}
-# luhn("123456789")
-# luhn("104347761")
-```
 

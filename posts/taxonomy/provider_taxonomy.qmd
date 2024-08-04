@@ -22,12 +22,13 @@ format:
 #| fig.align: "center"
 #| fig.width: 8
 
+# library(reactable)
+# library(reactablefmtr)
 library(tidyverse)
 library(downlit)
-library(reactable)
-library(reactablefmtr)
 library(htmltools)
 library(provider)
+library(collapsibleTree)
 ```
 
 ## Key Points
@@ -50,20 +51,50 @@ A taxonomy code is a unique alphanumeric code, ten characters in length, that de
 
 Taxonomy codes are selected by the provider at the time of NPI registration. When providers apply for NPIs, the National Plan and Provider Enumeration System (NPPES) does not verify the accuracy of the selected taxonomy codes. It only validates that the codes exist within the current version of the code set.
 
-The code set is structured into 3 distinct levels:
-
-1.  Provider Grouping
-2.  Classification
-3.  Area of Specialization
-
 It is important for healthcare providers to select the most appropriate taxonomy code(s) as it can affect various aspects of their practice, including billing and claims processing. Selection of a taxonomy code does not replace any credentialing or validation process that the provider requesting the code should complete.
 
-## Hierarchy
+## Taxonomy Hierarchy
+
+The code set is structured into 3 distinct levels:
+
+   1.  Provider Grouping
+   2.  Classification
+   3.  Area of Specialization
+
+
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+#| fig.cap: "Interactive Provider Taxonomy Hierarchy"
+Taxonomy <- provider::taxonomies(shape = "wide") |>
+  dplyr::reframe(
+    section,
+    grouping,
+    classification,
+    specialization,
+    code,
+    display_name,
+    definition
+    )
+
+collapsibleTree::collapsibleTree(
+  df = Taxonomy,
+  hierarchy = c("section", "grouping", "classification", "specialization", "code"),
+  # attribute = "display_name",
+  # nodeSize = "leafCount",
+  width = 800,
+  height = 800,
+  tooltip = TRUE
+)
+```
+
 
 ```{mermaid}
 %%| label: tx-mermaid
-%%| fig-cap: "Example of Taxonomy Hierarchy"
 %%| echo: false
+%%| eval: false
 flowchart LR
   A{{Group}} -.- D(Multi-Specialty)
   A{{Group}} -.- E(Single-Specialty)
@@ -115,12 +146,12 @@ A more specialized area of the Classification in which a provider chooses to pra
 For example, the Area of Specialization for provider grouping Allopathic & Osteopathic Physicians is based upon the Subspecialty Certificates as issued by the appropriate national boards.
 :::
 
-<br>
 
 ```{r}
 #| message: false
 #| warning: false
-#| code-fold: true
+#| eval: false
+#| echo: false
 
 taxonomy <- provider::taxonomies(shape = "wide") |> 
   select(grouping,
@@ -175,7 +206,6 @@ htmltools::browsable(
   )
 ```
 
-<br>
 
 ## Medicare Crosswalk
 
@@ -188,7 +218,8 @@ The [Medicare Provider and Supplier Taxonomy Crosswalk](https://data.cms.gov/pro
 ```{r}
 #| message: false
 #| warning: false
-#| code-fold: true
+#| code-fold: false
+#| echo: false
 
 dplyr::tibble(
   ind = c(1:14),
@@ -230,7 +261,8 @@ dplyr::tibble(
 ```{r}
 #| message: false
 #| warning: false
-#| code-fold: true
+#| code-fold: false
+#| echo: false
 
 xwalk <- provider::taxonomy_crosswalk(tidy = FALSE) |> 
   janitor::clean_names() |> 
