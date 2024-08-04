@@ -1,0 +1,43 @@
+---
+title: "Claims Analysis"
+subtitle: "Validating National Provider Identifiers with Luhn's Algorithm"
+description: "A guide to National Provider Identifiers and the CMS standard for NPI validation."
+format:
+  html:
+    reference-location: block
+    other-links:
+      - text: Luhn Algorithm
+        icon: bookmark-plus
+        href: https://en.wikipedia.org/wiki/Luhn_algorithm
+      - text: CMS NPI Standard
+        icon: bookmark-plus
+        href: https://www.cms.gov/Regulations-and-Guidance/Administrative-Simplification/NationalProvIdentStand/Downloads/NPIcheckdigit.pdf
+      - text: CMS-10114 NPI Application
+        icon: bookmark-plus
+        href: https://www.cms.gov/medicare/cms-forms/cms-forms/downloads/cms10114.pdf
+---
+
+```{r setup}
+#| message: false
+#| warning: false
+#| echo: false
+#| cache: false
+
+knitr::opts_chunk$set(
+  comment   = "",
+  dev       = "ragg_png",
+  out.width = "100%",
+  fig.align = "center",
+  fig.width = 8
+)
+
+library(tidyverse)
+library(downlit)
+library(gt)
+```
+
+```{r}
+readr::read_csv(here::here("posts/claims/data", "clean_rpt.csv"))
+```
+
+
