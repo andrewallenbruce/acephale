@@ -65,8 +65,6 @@ The following is an excerpt from the CMS document on the NPI check digit calcula
 
 The check digit is calculated using the Luhn formula for computing the modulus 10 “double-add-double” check digit. [This algorithm is recognized as an ISO standard and is the specified check digit algorithm to be used for the card issuer identifier on a standard health identification card.]{.aside}
 
-### Prefix 80840
-
 When an NPI is used as a card issuer identifier on a standard health identification card, it is preceded by the prefix **80840**, in which **80** indicates *health applications* and **840** indicates the *United States*.
 
 To enable this feature for any NPI, the check digit will always be calculated as if the prefix is present. 
@@ -83,7 +81,6 @@ The check digit formula (Luhn Modulus 10 "double-add-double") is calculated as f
    
    1. Subtract the result of step 2 from the next highest number ending in zero. This is the check digit.
 
-<br>
 
 ::: {#note-mod .callout-note}
 
@@ -94,19 +91,19 @@ The *next highest number ending in zero* is simply the next multiple of ten.
 Specifically, for some number $n$, the next multiple of ten would be $n + (10 - (n \mod 10))$ if $n$ is not already a multiple of ten. 
 
 ```{r}
-next_multiple_10 <- \(n) n + (10 - (n %% 10))
+next_mult_10 <- \(n) n + (10 - (n %% 10))
 ```
 
 For example, if $n$ is `23`, the next multiple of ten is `30`:
 
 ```{r}
-next_multiple_10(23)
+next_mult_10(23)
 ```
 
 If $n$ is a multiple of ten, such as `50`, the next multiple of 10 is `60`:
 
 ```{r}
-next_multiple_10(50)
+next_mult_10(50)
 ```
 
 
@@ -120,7 +117,7 @@ next_multiple_10(50)
 
 ## With Prefix
 
-> Assume the prefixed 9-position identifier is `12345678980840`:
+> Assume the prefixed 9-position identifier is `80840123456789`:
 
 ```{r}
 make_identifier <- \(x, y) {
@@ -138,9 +135,6 @@ make_identifier <- \(x, y) {
 
 > Beginning on the right, double the alternate digits:
 >
-> `8 0 8 4 0 1 2 3 4  5 6  7 8  9`
-> `  |   |   |   |    |    |    |`
-> `  V   V   V   V    V    V    V`
 > `8 0 8 8 0 2 2 6 4 10 6 14 8 18`
 
 ```{r}
@@ -159,7 +153,8 @@ double_alternates <- \(x) {
 
 > Add the individual digits of products of doubling, plus unaffected digits: 
 > 
-> `8 + 0 + 8 + 8 + 0 + 2 + 2 + 6 + 4 + 1 + 0 + 6 + 1 + 4 + 8 + 1 + 8 = 67`
+> `8 + 0 + 8 + 8 + 0 + 2 + 2 + 6 +` 
+> `4 + 1 + 0 + 6 + 1 + 4 + 8 + 1 + 8 = 67`
 
 
 ```{r}
@@ -177,7 +172,8 @@ sum_individual_digits <- \(x) {
 (x <- sum_individual_digits(x))
 ```
 
-> Subtract from the next multiple of 10 to find the check digit: `70 – 67 = 3`
+> Subtract result from the next multiple of 10: `70 – 67 = 3`
+> This is the check digit.
 
 
 ```{r}
@@ -200,43 +196,62 @@ paste0(80840123456789, x)
 > Assume the 9-position identifier is `123456789`
 
 ```{r}
-(x <- 123456789)
+make_id <- \(x) {
+  as.integer(unlist(strsplit(as.character(x), "")))
+}
+
+(xx <- make_id(123456789))
 ```
 
 > Beginning on the right, double the alternate digits:
+> `2 4 6 9 10 14 18`
+> `2  2  6  4 10  6 14  8 18`
 
 ```{r}
-(x <- double_alternates(x))
+double_alts <- \(x) {
+  x <- rev(x)
+  
+  idx <- seq(1, length(x), 2)
+  
+  x[idx] <- x[idx] * 2
+  
+  rev(x)
+}
+
+(xx <- double_alternates(xx))
 ```
 
+> Add constant 24 to the sum of the individual digits: 
+> `24 + 2 + 2 + 6 + 4 + 1 + 0 + 6 + 1 + 4 + 8 + 1 + 8 = 67`
 
-Step 1: Double the value of alternate digits, beginning with the rightmost digit.
-2 4 6 9 10 14 18
 
 ```{r}
+sum_digits_constant <- \(x) {
+  sum(
+    as.integer(
+      unlist(
+        strsplit(
+          as.character(x), "")
+        )
+      )
+    ) + 24
+}
 
+(xx <- sum_digits_constant(xx))
 ```
 
-
-Step 2: Add constant 24, to account for the 80840 prefix that would be present on a card issuer identifier, plus the individual digits of products of doubling, plus unaffected digits.
-24 + 2 + 2 + 6 + 4 + 1 + 0 + 6 + 1 + 4 + 8 + 1 + 8 = 67
+> Subtract result from the next multiple of 10: `70 – 67 = 3`
+> This is the check digit.
 
 ```{r}
-
+(xx <- get_check_digit(xx))
 ```
 
-
-Step 3: Subtract from next higher number ending in zero.
-70 – 67 = 3
+> Append the check digit to the identifier: `1234567893`
 
 ```{r}
-
+paste0(123456789, xx)
 ```
-
-
-Check digit = 3
-
-NPI with check digit = 1234567893 
 
 ::: 
 
