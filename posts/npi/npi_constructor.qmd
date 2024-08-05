@@ -310,8 +310,6 @@ check_nchars_10 <- function(x) {
   }
 }
 
-x <- "123456789"
-
 # Must begin with 1 or 2
 check_first_char <- function(x) {
   
@@ -461,6 +459,7 @@ construct_npi_1("0000000000")
 ### Does it Work?
 
 ```{r}
+#| message: true
 construct_npi_1("1234567891")
 construct_npi_1("1043477615")
 construct_npi_1("1000000000")
@@ -470,6 +469,7 @@ construct_npi_1("1000000000")
 ## Second Draft
 
 ```{r filename="npi_msg.R"}
+#| message: true
 npi_msg <- function(x, msg) {
   
   arg  <- rlang::caller_arg(x)
@@ -588,6 +588,7 @@ construct_npi_2("0000000000")
 ### Does it Work?
 
 ```{r}
+#| message: true
 construct_npi_2("1234567891")
 construct_npi_2("1043477615")
 construct_npi_2("1000000000")

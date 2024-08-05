@@ -42,6 +42,7 @@ library(gtExtras)
 #| warning: false
 #| echo: false
 claims_spec <- cols(
+  rendering_provider = col_character(),
   id = col_character(),
   enc = col_integer(),
   dos = col_date(format = ""),
@@ -69,16 +70,13 @@ claims_spec <- cols(
   adj_code_3 = col_character()
 )
 
-claims <- read_csv(here::here("posts/claims/data", "clean_rpt.csv"), col_types = claims_spec)
+claims <- read_csv(here::here("posts/claims/data", "clean_rpt_rend.csv"), col_types = claims_spec)
 ```
 
 
 ```{r}
-#| message: false
 #| warning: false
-claims |> 
-  select(dob, age) |> 
-  gt_plt_summary(title = "Patient Demographics")
+claims |> skimr::skim()
 ```
 
 

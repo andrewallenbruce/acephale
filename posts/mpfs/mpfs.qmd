@@ -190,7 +190,7 @@ What follows is a thorough dissection of each file in the archive, starting with
 The pdf labeled "RVU" is a comprehensive guide to the structure and contents of each file in the Relative Value zip file. It describes the methodology, that contains a data dictionary, record layout, and documentation
 
 ```{r}
-rvu24a <- rvu::get_source("pprvu")$rvu24a_jan |> 
+rvu24a <- rvu::get_source(year = 2024, source = "pprrvu")$rvu24a_jan |> 
   dplyr::mutate(
     mod = cheapr::factor_(mod),
     status_code = cheapr::factor_(status_code),
@@ -383,16 +383,6 @@ over$numeric |>
 
 ## PPRVU
 
-```{r}
-#| echo: false
-#| message: false
-#| warning: false
-#| eval: false
-
-rvu24a <- rvu::get_source("pprvu")$rvu24a_jan
-```
-
-
 The MPFS is a listing of the relative value units (RVUs) for each CPT code, as well as the geographic practice cost index (GPCI) for each code. The RVUs are used to calculate the payment amount for each service, while the GPCI is used to adjust the payment amount based on the location where the service is provided.
 
 This file contains information on services covered by the MPFS in 2024. For more than 10,000 physician services, the file contains the associated RVUs, a fee schedule status indicator, and various payment policy indicators needed for payment adjustment (i.e., payment of assistant at surgery, team surgery, bilateral surgery, etc.).
@@ -404,8 +394,6 @@ The MPFS amounts are adjusted to reflect the variation in practice costs from ar
   1. Malpractice Expense (sometimes called Professional Liability Insurance)
 
 The GPCIs are applied in the calculation of a fee schedule payment amount by multiplying the RVU for each component times the GPCI for that component.
-
-NATIONAL PHYSICIAN FEE SCHEDULE RELATIVE VALUE FILE CALENDAR YEAR 2024
 
 ### Participating
 
@@ -487,6 +475,7 @@ With the `northstar` package's `calculate_amounts()` function:
 
 ```{r}
 #| code-fold: false
+#| message: true
 calculate_amounts(
   wrvu  = 6.26,
   nprvu = 7.92,
