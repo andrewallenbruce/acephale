@@ -1,7 +1,6 @@
 ---
 title: "Medicare Physician Fee Schedule"
-subtitle: "Resource-Based Relative Value Scales and the Medicare Physician Fee Schedule"
-description: "A guide to the MPFS' Quarterly Relative Value File and its underlying RBRVS-based structure."
+description: "A Guide to the Medicare Physician Fee Schedule's Quarterly Relative Value File and its underlying Resource-Based Relative Value Scale structure."
 format:
   html:
     other-links:
@@ -26,12 +25,20 @@ format:
 #| cache: false
 
 knitr::opts_chunk$set(
+  collapse  = FALSE,
+  echo      = TRUE, 
+  message   = FALSE, 
+  warning   = FALSE,
+  error     = TRUE,
   comment   = "",
+  dpi       = 600, 
   dev       = "ragg_png",
   out.width = "100%",
   fig.align = "center",
   fig.width = 8
 )
+options(scipen = 999)
+
 
 library(tidyverse)
 library(downlit)
@@ -273,6 +280,13 @@ idx <- c(
   "ENDO BASE" = "Endoscopic Base Code for each code with a multiple surgery indicator of 3.",
   "PHYSICIAN SUPERVISION OF DIAGNOSTIC PROCEDURES" = "Medicare uses this field in post payment review.",
   "DIAGNOSTIC IMAGING FAMILY INDICATOR" = "Identifies the applicable Diagnostic Service family for HCPCS codes with a Multiple Procedure indicator of 4. For services effective January 1, 2011, and after, family indicators 01 - 11 won’t populate.")
+
+# idx[collapse::funique(vars$variable)]
+# 
+# dplyr::tibble(
+#   variable = names(idx[collapse::funique(vars$variable)]),
+#   description = idx[collapse::funique(vars$variable)]
+# )
 ```
 
 
