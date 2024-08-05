@@ -1,6 +1,5 @@
 ---
 title: "Claims Analysis"
-subtitle: "Validating National Provider Identifiers with Luhn's Algorithm"
 description: "A guide to National Provider Identifiers and the CMS standard for NPI validation."
 format:
   html:
@@ -9,12 +8,6 @@ format:
       - text: Luhn Algorithm
         icon: bookmark-plus
         href: https://en.wikipedia.org/wiki/Luhn_algorithm
-      - text: CMS NPI Standard
-        icon: bookmark-plus
-        href: https://www.cms.gov/Regulations-and-Guidance/Administrative-Simplification/NationalProvIdentStand/Downloads/NPIcheckdigit.pdf
-      - text: CMS-10114 NPI Application
-        icon: bookmark-plus
-        href: https://www.cms.gov/medicare/cms-forms/cms-forms/downloads/cms10114.pdf
 ---
 
 ```{r setup}
@@ -34,10 +27,53 @@ knitr::opts_chunk$set(
 library(tidyverse)
 library(downlit)
 library(gt)
+library(gtExtras)
 ```
 
 ```{r}
-readr::read_csv(here::here("posts/claims/data", "clean_rpt.csv"))
+#| message: false
+#| warning: false
+#| echo: false
+claims_spec <- cols(
+  id = col_character(),
+  enc = col_integer(),
+  dos = col_date(format = ""),
+  dob = col_date(format = ""),
+  age = col_integer(),
+  dor = col_date(format = ""),
+  icd_code = col_character(),
+  hcpcs_order = col_integer(),
+  hcpcs_code = col_character(),
+  hcpcs_desc = col_character(),
+  hcpcs_unit = col_integer(),
+  hcpcs_mod_1 = col_character(),
+  hcpcs_mod_2 = col_character(),
+  pos = col_character(),
+  pos_name = col_character(),
+  ins_class = col_character(),
+  ins_prim = col_character(),
+  ins_sec = col_character(),
+  charges = col_double(),
+  payments = col_double(),
+  adjustments = col_double(),
+  allowed = col_double(),
+  adj_code_1 = col_character(),
+  adj_code_2 = col_character(),
+  adj_code_3 = col_character()
+)
+
+claims <- read_csv(here::here("posts/claims/data", "clean_rpt.csv"), col_types = claims_spec)
 ```
+
+
+```{r}
+#| message: false
+#| warning: false
+claims |> 
+  select(dob, age) |> 
+  gt_plt_summary(title = "Patient Demographics")
+```
+
+
 
 
