@@ -96,11 +96,14 @@ claims
 ## Find Date Range of the Claims
 
 ```{r}
-claims |> 
-  summarise(
-    start_date = min(dos),
-    end_date = max(dos)
-  )
+date_range <- timeplyr::calendar(
+  timeplyr::time_completev(
+    collapse::funique(claims$dos), 
+    time_by = "days"), 
+  name = "dos") |> 
+  dplyr::select(-dplyr::matches("^[iso|epi]"))
+
+date_range
 ```
 
 ## Get Unique HCPCS Codes
@@ -122,164 +125,75 @@ yq
 ## Iterate Through RVU Sources
 
 ```{r}
+yqi <- claims |> 
+  distinct(y = year, q = quarter) |> 
+  as.list()
+
+yqs <- as.character(str_glue("{.yq$y}.{.yq$q}"))
+```
+
+
+```{r}
 rvu_22.2 <- source$rvu22b_apr |> 
-  filter(
-    hcpcs %in% c(
-      filter(yq, yq == "2022.2") |> 
-        pull(hcpcs_code) |> 
-        pluck(1))) |> 
-  select(hcpcs, 
-         work_rvu, 
-         facility_pe_rvu, 
-         non_fac_pe_rvu, 
-         mp_rvu, 
-         conv_factor
-         ) |> 
-  mutate(year = as.integer(2022), 
-         quarter = as.integer(2), 
-         .before = 1)
+  filter(hcpcs %in% c(filter(yq, yq == yqs[1]) |> pull(hcpcs_code) |> pluck(1))) |> 
+  select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
+  mutate(year = yqi$y[1], quarter = yqi$q[1], .before = 1)
 ```
 
 
 ```{r}
 rvu_22.3 <- source$rvu22c_jul |> 
-  filter(
-    hcpcs %in% c(
-      filter(yq, yq == "2022.3") |> 
-        pull(hcpcs_code) |> 
-        pluck(1))) |> 
-  select(hcpcs, 
-         work_rvu, 
-         facility_pe_rvu, 
-         non_fac_pe_rvu, 
-         mp_rvu, 
-         conv_factor
-         ) |> 
-  mutate(year = as.integer(2022), 
-         quarter = as.integer(3), 
-         .before = 1)
+  filter(hcpcs %in% c(filter(yq, yq == yqs[2]) |> pull(hcpcs_code) |> pluck(1))) |> 
+  select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
+  mutate(year = yqi$y[2], quarter = yqi$q[2], .before = 1)
 ```
 
 
 ```{r}
 rvu_22.4 <- source$rvu22d_oct |> 
-  filter(
-    hcpcs %in% c(
-      filter(yq, yq == "2022.4") |> 
-        pull(hcpcs_code) |> 
-        pluck(1))) |> 
-  select(hcpcs, 
-         work_rvu, 
-         facility_pe_rvu, 
-         non_fac_pe_rvu, 
-         mp_rvu, 
-         conv_factor
-         ) |> 
-  mutate(year = as.integer(2022), 
-         quarter = as.integer(4), 
-         .before = 1)
+  filter(hcpcs %in% c(filter(yq, yq == yqs[3]) |> pull(hcpcs_code) |> pluck(1))) |> 
+  select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
+  mutate(year = yqi$y[3], quarter = yqi$q[3], .before = 1)
 ```
 
 
 ```{r}
 rvu_23.1 <- source$rvu23a_jan |> 
-  filter(
-    hcpcs %in% c(
-      filter(yq, yq == "2023.1") |> 
-        pull(hcpcs_code) |> 
-        pluck(1))) |> 
-  select(hcpcs, 
-         work_rvu, 
-         facility_pe_rvu, 
-         non_fac_pe_rvu, 
-         mp_rvu, 
-         conv_factor
-         ) |> 
-  mutate(year = as.integer(2023), 
-         quarter = as.integer(1), 
-         .before = 1)
+  filter(hcpcs %in% c(filter(yq, yq == yqs[4]) |> pull(hcpcs_code) |> pluck(1))) |> 
+  select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
+  mutate(year = yqi$y[4], quarter = yqi$q[4], .before = 1)
 ```
 
 
 ```{r}
 rvu_23.2 <- source$rvu23b_apr |> 
-  filter(
-    hcpcs %in% c(
-      filter(yq, yq == "2023.2") |> 
-        pull(hcpcs_code) |> 
-        pluck(1))) |> 
-  select(hcpcs, 
-         work_rvu, 
-         facility_pe_rvu, 
-         non_fac_pe_rvu, 
-         mp_rvu, 
-         conv_factor
-         ) |> 
-  mutate(year = as.integer(2023), 
-         quarter = as.integer(2), 
-         .before = 1)
+  filter(hcpcs %in% c(filter(yq, yq == yqs[5]) |> pull(hcpcs_code) |> pluck(1))) |> 
+  select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
+  mutate(year = yqi$y[5], quarter = yqi$q[5], .before = 1)
 ```
 
 
 ```{r}
 rvu_23.3 <- source$rvu23c_jul |> 
-  filter(
-    hcpcs %in% c(
-      filter(yq, yq == "2023.3") |> 
-        pull(hcpcs_code) |> 
-        pluck(1))) |> 
-  select(hcpcs, 
-         work_rvu, 
-         facility_pe_rvu, 
-         non_fac_pe_rvu, 
-         mp_rvu, 
-         conv_factor
-         ) |> 
-  mutate(year = as.integer(2023), 
-         quarter = as.integer(3), 
-         .before = 1)
+  filter(hcpcs %in% c(filter(yq, yq == yqs[6]) |> pull(hcpcs_code) |> pluck(1))) |> 
+  select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
+  mutate(year = yqi$y[6], quarter = yqi$q[6], .before = 1)
 ```
-
 
 
 ```{r}
-rvu_23.3 <- source$rvu23d_oct |> 
-  filter(
-    hcpcs %in% c(
-      filter(yq, yq == "2023.4") |> 
-        pull(hcpcs_code) |> 
-        pluck(1))) |> 
-  select(hcpcs, 
-         work_rvu, 
-         facility_pe_rvu, 
-         non_fac_pe_rvu, 
-         mp_rvu, 
-         conv_factor
-         ) |> 
-  mutate(year = as.integer(2023), 
-         quarter = as.integer(4), 
-         .before = 1)
+rvu_23.4 <- source$rvu23d_oct |> 
+  filter(hcpcs %in% c(filter(yq, yq == yqs[7]) |> pull(hcpcs_code) |> pluck(1))) |> 
+  select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
+  mutate(year = yqi$y[7], quarter = yqi$q[7], .before = 1)
 ```
-
 
 
 ```{r}
 rvu_24.1 <- source$rvu24a_jan |> 
-  filter(
-    hcpcs %in% c(
-      filter(yq, yq == "2024.1") |> 
-        pull(hcpcs_code) |> 
-        pluck(1))) |> 
-  select(hcpcs, 
-         work_rvu, 
-         facility_pe_rvu, 
-         non_fac_pe_rvu, 
-         mp_rvu, 
-         conv_factor
-         ) |> 
-  mutate(year = as.integer(2024), 
-         quarter = as.integer(1), 
-         .before = 1)
+  filter(hcpcs %in% c(filter(yq, yq == yqs[8]) |> pull(hcpcs_code) |> pluck(1))) |> 
+  select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
+  mutate(year = yqi$y[8], quarter = yqi$q[8], .before = 1)
 ```
 
 
@@ -298,7 +212,8 @@ vctrs::vec_rbind(
   dplyr::mutate(
     tot_fac_rvu = work_rvu + facility_pe_rvu + mp_rvu,
     tot_non_rvu = work_rvu + non_fac_pe_rvu + mp_rvu
-  )
+  ) |> 
+  gt::gt()
 ```
 
 
