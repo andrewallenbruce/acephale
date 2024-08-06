@@ -129,7 +129,7 @@ yqi <- claims |>
   distinct(y = year, q = quarter) |> 
   as.list()
 
-yqs <- as.character(str_glue("{.yq$y}.{.yq$q}"))
+yqs <- as.character(str_glue("{yqi$y}.{yqi$q}"))
 ```
 
 
@@ -211,9 +211,19 @@ vctrs::vec_rbind(
   ) |> 
   dplyr::mutate(
     tot_fac_rvu = work_rvu + facility_pe_rvu + mp_rvu,
-    tot_non_rvu = work_rvu + non_fac_pe_rvu + mp_rvu
+    tot_non_rvu = work_rvu + non_fac_pe_rvu + mp_rvu,
+    par_non_amt = tot_non_rvu * conv_factor,
+    par_fac_amt = tot_fac_rvu * conv_factor
   ) |> 
-  gt::gt()
+  dplyr::filter(par_fac_amt > 0) |> 
+  gt::gt(
+    rowname_col = "year", 
+    groupname_col = "hcpcs",
+    row_group_as_column = TRUE
+    ) |> 
+  gt::tab_options(
+    quarto.disable_processing = TRUE
+  )
 ```
 
 
