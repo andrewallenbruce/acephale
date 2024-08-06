@@ -85,8 +85,12 @@ source <- c(
   rvu::get_source(year = 2023, source = "pprrvu"),
   rvu::get_source(year = 2024, source = "pprrvu")
   )
+
+pos <- northstar::search_pos() |> select(-c(pos_name, pos_description))
 ```
 
+
+# Claims Example
 
 ```{r}
 claims
@@ -163,13 +167,8 @@ rvu_24.1 <- source$rvu24a_jan |>
   filter(hcpcs %in% c(filter(yq, yq == yqs[8]) |> pull(hcpcs_code) |> pluck(1))) |> 
   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
   mutate(year = yqi$y[8], quarter = yqi$q[8], .before = 1)
-```
 
-
-## Combine RVU Data
-
-```{r}
-vctrs::vec_rbind(
+rvu_join <- vctrs::vec_rbind(
   rvu_22.2,
   rvu_22.3,
   rvu_22.4,
@@ -177,7 +176,13 @@ vctrs::vec_rbind(
   rvu_23.2,
   rvu_23.3,
   rvu_24.1
-  ) |> 
+  )
+```
+
+
+
+```{r}
+rvu_join |> 
   dplyr::mutate(
     tot_fac_rvu = work_rvu + facility_pe_rvu + mp_rvu,
     tot_non_rvu = work_rvu + non_fac_pe_rvu + mp_rvu,
@@ -235,6 +240,68 @@ vctrs::vec_rbind(
     quarto.disable_processing = TRUE,
     table.width = "100%"
   )
+```
+
+# Comparing Reimbursement to Medicare Baseline
+
+```{r}
+claims_unajusted <- claims |> 
+  left_join(
+    pos, 
+    by = join_by(pos == pos_code)) |> 
+  left_join(
+    rvu_join,
+    by = join_by(
+      hcpcs_code == hcpcs, 
+      year, 
+      quarter)) |> 
+  mutate(
+    pe_rvu = case_when(
+      pos_type == "Non-Facility" ~ non_fac_pe_rvu,
+      pos_type == "Facility" ~ facility_pe_rvu,
+      .default = NA_real_
+      ),
+    facility_pe_rvu = NULL,
+    non_fac_pe_rvu = NULL,
+    total_rvu = work_rvu + pe_rvu + mp_rvu,
+    par_amt = total_rvu * conv_factor * hcpcs_unit,
+    nonpar_amt = par_amt * 1.15,
+    limit_chrg = nonpar_amt * 0.95,
+    .after = work_rvu) |> 
+  filter(
+    ins_class != "SELF", 
+    !is.na(hcpcs_code),
+    !is.na(work_rvu),
+    !(work_rvu == 0.0 & 
+        pe_rvu == 0.0 & 
+        mp_rvu == 0.0),
+    charges > 0) |> 
+  select(
+    pt_id = id,
+    pt_enc = enc,
+    dos_dt = dos,
+    dos_yr = year,
+    dos_qt = quarter,
+    prov_rend = rendering,
+    hcpcs_ord = hcpcs_order,
+    hcpcs_code,
+    hcpcs_uos = hcpcs_unit,
+    pos_type,
+    ins_class,
+    charges,
+    allowed,
+    payments,
+    adjustments,
+    par_unadj = par_amt,
+    non_unadj = nonpar_amt,
+    lim_unadj = limit_chrg,
+    work_rvu,
+    pe_rvu,
+    mp_rvu,
+    sum_rvu = total_rvu,
+    cf = conv_factor)
+
+claims_unajusted |> skimr::skim()
 ```
 
 
