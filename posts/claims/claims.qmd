@@ -118,78 +118,47 @@ yq <- split(yq$hcpcs_code, yq[c("year", "quarter")]) |>
   cheapr::enframe_(name = "yq", value = "hcpcs_code") |> 
   arrange(yq)
 
-yq
-```
-
-
-## Iterate Through RVU Sources
-
-```{r}
 yqi <- claims |> 
   distinct(y = year, q = quarter) |> 
   as.list()
 
 yqs <- as.character(str_glue("{yqi$y}.{yqi$q}"))
-```
 
-
-```{r}
 rvu_22.2 <- source$rvu22b_apr |> 
   filter(hcpcs %in% c(filter(yq, yq == yqs[1]) |> pull(hcpcs_code) |> pluck(1))) |> 
   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
   mutate(year = yqi$y[1], quarter = yqi$q[1], .before = 1)
-```
 
-
-```{r}
 rvu_22.3 <- source$rvu22c_jul |> 
   filter(hcpcs %in% c(filter(yq, yq == yqs[2]) |> pull(hcpcs_code) |> pluck(1))) |> 
   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
   mutate(year = yqi$y[2], quarter = yqi$q[2], .before = 1)
-```
 
-
-```{r}
 rvu_22.4 <- source$rvu22d_oct |> 
   filter(hcpcs %in% c(filter(yq, yq == yqs[3]) |> pull(hcpcs_code) |> pluck(1))) |> 
   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
   mutate(year = yqi$y[3], quarter = yqi$q[3], .before = 1)
-```
 
-
-```{r}
 rvu_23.1 <- source$rvu23a_jan |> 
   filter(hcpcs %in% c(filter(yq, yq == yqs[4]) |> pull(hcpcs_code) |> pluck(1))) |> 
   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
   mutate(year = yqi$y[4], quarter = yqi$q[4], .before = 1)
-```
 
-
-```{r}
 rvu_23.2 <- source$rvu23b_apr |> 
   filter(hcpcs %in% c(filter(yq, yq == yqs[5]) |> pull(hcpcs_code) |> pluck(1))) |> 
   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
   mutate(year = yqi$y[5], quarter = yqi$q[5], .before = 1)
-```
 
-
-```{r}
 rvu_23.3 <- source$rvu23c_jul |> 
   filter(hcpcs %in% c(filter(yq, yq == yqs[6]) |> pull(hcpcs_code) |> pluck(1))) |> 
   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
   mutate(year = yqi$y[6], quarter = yqi$q[6], .before = 1)
-```
 
-
-```{r}
 rvu_23.4 <- source$rvu23d_oct |> 
   filter(hcpcs %in% c(filter(yq, yq == yqs[7]) |> pull(hcpcs_code) |> pluck(1))) |> 
   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
   mutate(year = yqi$y[7], quarter = yqi$q[7], .before = 1)
-```
 
-
-```{r}
 rvu_24.1 <- source$rvu24a_jan |> 
   filter(hcpcs %in% c(filter(yq, yq == yqs[8]) |> pull(hcpcs_code) |> pluck(1))) |> 
   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
@@ -213,7 +182,11 @@ vctrs::vec_rbind(
     tot_fac_rvu = work_rvu + facility_pe_rvu + mp_rvu,
     tot_non_rvu = work_rvu + non_fac_pe_rvu + mp_rvu,
     par_non_amt = tot_non_rvu * conv_factor,
-    par_fac_amt = tot_fac_rvu * conv_factor
+    par_fac_amt = tot_fac_rvu * conv_factor,
+    nonpar_non_amt = par_non_amt * 1.15,
+    nonpar_fac_amt = par_non_amt * 1.15,
+    limiting_non = nonpar_non_amt * 0.95,
+    limiting_fac = nonpar_fac_amt * 0.95,
   ) |> 
   dplyr::filter(par_fac_amt > 0) |> 
   gt::gt(
@@ -221,8 +194,46 @@ vctrs::vec_rbind(
     groupname_col = "hcpcs",
     row_group_as_column = TRUE
     ) |> 
+  gt::opt_table_font(font = gt::google_font(name = "Atkinson Hyperlegible")) |> 
+  gt::fmt_currency(
+    columns = c("par_non_amt", 
+                "par_fac_amt", 
+                "nonpar_non_amt", 
+                "nonpar_fac_amt", 
+                "limiting_non", 
+                "limiting_fac")
+    ) |>
+  gt::cols_label(
+    quarter = gt::md("**Qtr**"),
+    work_rvu = gt::md("<b><small>RVU</small></b><i><sub>wk</sub></i>"),
+    facility_pe_rvu = gt::md("<i>f</i><b><small>RVU</small></b><i><sub>pe</sub></i>"),
+    non_fac_pe_rvu = gt::md("<i>nf</i><b><small>RVU</small></b><i><sub>pe</sub></i>"),
+    mp_rvu = gt::md("<b><small>RVU</small></b><i><sub>mp</sub></i>"),
+    conv_factor = gt::md("<b>CF</b>"),
+    tot_fac_rvu = gt::md("<i>f</i><b><small>RVU</small></b><i>s</i>"),
+    tot_non_rvu = gt::md("<i>nf</i><b><small>RVU</small></b><i>s</i>"),
+    par_non_amt = gt::md("<i>nf</i><b><small>PAR</small></b>"),
+    par_fac_amt = gt::md("<i>f</i><b><small>PAR</small></b>"),
+    nonpar_non_amt = gt::md("<i>nf</i><b><small>NPAR</small></b>"),
+    nonpar_fac_amt = gt::md("<i>f</i><b><small>NPAR</small></b>"),
+    limiting_non = gt::md("<i>nf</i><b><small>LC</small></b>"),
+    limiting_fac = gt::md("<i>f</i><b><small>LC</small></b>")
+  ) |> 
+  gt::cols_align(align = "center") |>
+  gt::tab_style(
+      style = gt::cell_text(
+        align = 'center',
+        size = gt::px(16),
+        font = gt::google_font(name = "Fira Code"),
+        weight = "bold"),
+      locations = gt::cells_row_groups()) |> 
+  gt::tab_style(
+      style = gt::cell_text(
+      font = gt::google_font(name = "Fira Code")),
+      locations = gt::cells_body()) |> 
   gt::tab_options(
-    quarto.disable_processing = TRUE
+    quarto.disable_processing = TRUE,
+    table.width = "100%"
   )
 ```
 

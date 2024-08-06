@@ -80,7 +80,7 @@ For a non-prefixed NPI, this is accomplished by adding the constant **24** in st
 
 ## Check Digit Calculation
 
-The check digit formula (Luhn Modulus 10 "double-add-double") is calculated as follows:
+The check digit formula (Luhn Modulus 10 *double-add-double*) is calculated as follows:
 
    1. Beginning with the rightmost digit, double the value of the alternate digits.
    
@@ -95,7 +95,7 @@ The check digit formula (Luhn Modulus 10 "double-add-double") is calculated as f
 
 The *next highest number ending in zero* is simply the next multiple of ten. 
 
-Specifically, for some number $n$, the next multiple of ten would be $n + (10 - (n \mod 10))$ if $n$ is not already a multiple of ten. 
+Specifically, for some number $n$, the next multiple of ten would be $n + (10 - (n \mod 10))$:
 
 ```{r}
 next_mult_10 <- \(n) n + (10 - (n %% 10))
@@ -325,6 +325,26 @@ check_first_char <- function(x) {
 }
 ```
 
+
+```{r filename="npi_msg.R"}
+#| message: true
+npi_msg <- function(x, msg) {
+  
+  arg  <- rlang::caller_arg(x)
+  call <- rlang::caller_env()
+  
+  rlang::inform(
+    message = (c(">" = glue::glue("{msg}:     {x}"))),
+    use_cli_format = TRUE,
+    arg = arg,
+    call = call
+  )
+}
+
+npi_test <- "1234567891"
+npi_msg(x = npi_test, "Testing NPI")
+```
+
 ## First Draft
 
 ```{r filename="construct_npi_1.R"}
@@ -337,112 +357,64 @@ construct_npi_1 <- function(npi) {
   
   npi_test <- npi
   
-  # Remove the 10th digit to create the 9-position identifier part of the NPI
+  npi_msg(npi_test, "Testing NPI")
+  
+  # Create the 9-position identifier part of the NPI
   id <- unlist(strsplit(npi_test, ""), use.names = FALSE)[1:9]
   
-  #---
-  id_print <- rlang::sym(paste0(c(id, "_"), collapse = ""))
-  cli::cli_alert("01. Keep first 9 digits: {.strong {.val {id_print}}}")
-  #---
+  npi_msg(paste0(id, collapse = ""), "Remove 10th digit")
   
   # Reverse order of digits
   x <- rev(id)
   
-  #---
-  rev_print <- rlang::sym(paste0(x, collapse = ""))
-  cli::cli_alert("02. Reverse order of digits:  {.strong {.val {rev_print}}}")
-  #---
+  npi_msg(paste0(x, collapse = ""), "Reverse order")
   
   # Select index of every other digit
   idx <- seq(1, length(x), 2)
   
-  #---
-  idx_print <- rlang::sym(paste0(x[idx], collapse = " "))
-  cli::cli_alert("03. Select every other digit: {.strong {.val {idx_print}}}")
-  #---
+  npi_msg(paste0(x[idx], collapse = " "), "Select every other digit")
   
   # Double the value of the alternate digits
   x[idx] <- as.numeric(x[idx]) * 2
   
-  #---
-  dbl_print <- rlang::sym(paste0(x[idx], collapse = " "))
-  cli::cli_alert("04. Double each alternate digit: {.strong {.val {dbl_print}}}")
-  ins_print <- rlang::sym(paste0(x, collapse = " "))
-  cli::cli_alert("05. Insert alternates back into original string: {.strong {.val {ins_print}}}")
-  #---
-  
-  # Reverse order of digits again
-  x <- rev(x)
-  
-  #---
-  rev2 <- x
-  rev2_print <- rlang::sym(paste0(x, collapse = " "))
-  cli::cli_alert("06. Reverse order again: {.strong {.val {rev2_print}}}")
-  #---
-  
+  npi_msg(paste0(x[idx], collapse = " "), "Double each")
+  npi_msg(paste0(x, collapse = " "), "Replace original with doubles")
   
   # Split and unlist to separate digits
   x <- unlist(strsplit(x, ""), use.names = FALSE)
   
-  #---
-  rev2 <- unlist(strsplit(rev2, ""), use.names = FALSE)
-  add <- sum(as.numeric(x))
-  add_print <- rlang::sym(paste0(paste0(rev2, collapse = " + "), paste0(" = ", add)))
-  cli::cli_alert("07. Sum the individual digits: {.strong {.val {add_print}}}")
-  #---
-  
   # Add constant 24 to the sum of the digits
-  x <- sum(as.numeric(x)) + 24
+  xc <- sum(as.numeric(x)) + 24
   
-  #---
-  const_print <- rlang::sym(paste0(paste0(c(add, 24), collapse = " + "), paste0(" = ", add + 24)))
-  cli::cli_alert("08. Add {.emph constant} {.strong 24} to the sum: {.strong {.val {const_print}}}")
-  #---
+  npi_msg(paste0(paste0(c(x, 24), collapse = " + "), paste0(" = ", xc)), "Sum individual digits")
   
   # Find the next higher number ending in zero
-  y <- ceiling(x / 10) * 10
+  y <- ceiling(xc / 10) * 10
   
-  #---
-  int_print <- rlang::sym(paste0(paste0("⌈", add + 24,"⌉"), paste0(" = ", y)))
-  cli::cli_alert("09. Find next largest integer divisible by 10: {.strong {.val {int_print}}}")
-  #---
+  npi_msg(paste0(paste0("⌈", xc, "⌉"), paste0(" = ", y)), "Next multiple of 10")
   
   # Find the check digit by subtracting x from y
-  z <- y - x
+  z <- y - xc
   
-  #---
-  check_print <- rlang::sym(paste0(paste0(c(y, (add + 24)), collapse = " - "), paste0(" = ", z)))
-  cli::cli_alert(c("10. Find the check digit by subtracting {.emph step 08} from {.emph step 09}: 
-{.strong {.val {check_print}}}"))
-  #---
+  npi_msg(paste0(paste0(c(y, xc), collapse = " - "), paste0(" = ", z)), "Find the check digit")
   
   # Append the check digit to the end of the 9-digit identifier
   id[10] <- z
   
-  #---
-  append_print <- rlang::sym(paste0(id, collapse = ""))
-  cli::cli_alert(c("11. Append the check digit to the number from step 01: {.strong {.val {append_print}}}"))
-  #---
+  npi_msg(paste0(id, collapse = ""), "Append check digit")
   
   # Collapse the vector into a single string
   npi_valid <- paste0(id, collapse = "")
   
   # Is the syntactically valid NPI identical to the test NPI?
   if (identical(npi_valid, npi_test)) {
-    
-    #---
-    identical <- rlang::sym(paste0(c(npi_test, npi_valid), collapse = " = "))
-    cli::cli_alert_success(c("NPI {.strong is} syntactically valid: {.strong {.val {identical}}}"))
-    #---
+    npi_msg(paste0(c(npi_test, npi_valid), collapse = " == "), "NPI is syntactically valid")
   }
   
   if (!identical(npi_valid, npi_test)) {
-    
-    #---
-    not_identical <- rlang::sym(paste0(c(npi_test, npi_valid), collapse = " != "))
-    cli::cli_alert_danger(c("NPI {.strong is not} syntactically valid: {.strong {.val {not_identical}}}"))
-    #---
+    npi_msg(paste0(c(npi_test, npi_valid), collapse = " != "), "NPI is not syntactically valid")
   }
+  invisible(npi_valid)
 }
 ```
 
@@ -467,27 +439,6 @@ construct_npi_1("1000000000")
 
 
 ## Second Draft
-
-```{r filename="npi_msg.R"}
-#| message: true
-npi_msg <- function(x, msg) {
-  
-  arg  <- rlang::caller_arg(x)
-  call <- rlang::caller_env()
-  
-  rlang::inform(
-    message = (c(">" = glue::glue("{msg}:     {x}"))),
-    use_cli_format = TRUE,
-    arg = arg,
-    call = call
-  )
-}
-
-npi_test <- "1234567891"
-npi_msg(x = npi_test, "Testing NPI")
-```
-
-
 
 ```{r filename="construct_npi_2.R"}
 construct_npi_2 <- function(npi) {
