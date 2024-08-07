@@ -90,27 +90,56 @@ pos <- northstar::search_pos() |> select(-c(pos_name, pos_description))
 ```
 
 
-# Claims Example
+# Trends & Demographics
 
 ```{r}
-claims
+# FIXME id needs to be padded to 4 digits
+max(nchar(claims$id))
 ```
-
 
 ## Find Date Range of the Claims
 
 ```{r}
-date_range <- timeplyr::calendar(
-  timeplyr::time_completev(
-    collapse::funique(claims$dos), 
-    time_by = "days"), 
-  name = "dos") |> 
-  dplyr::select(-dplyr::matches("^[iso|epi]"))
+expand_date_range <- function(x, nm) {
+  
+  collapse::funique(collapse::na_rm(x)) |> 
+    timeplyr::time_completev(time_by = "days") |> 
+    timeplyr::calendar(name = nm) |> 
+    collapse::get_vars("^[^iso|epi]", regex = TRUE)
+  
+}
 
-date_range
+claims |> 
+  select(id:dos, 
+         dob:age, 
+         rendering, 
+         pos, 
+         ins_class, 
+         ins_prim) |>
+  distinct() |> 
+  full_join(expand_date_range(claims$dos, "dos"), by = join_by(dos)) |> 
+  arrange(dos, id, enc)
 ```
 
-## Get Unique HCPCS Codes
+
+```{r}
+claims |> 
+  select(id:dos, 
+         dob:age, 
+         rendering, 
+         pos, 
+         ins_class, 
+         ins_prim) |>
+  distinct(id, dos, .keep_all = TRUE) |> 
+  arrange(dos, id, enc) |> 
+  full_join(expand_date_range(claims$dos, "dos"), by = join_by(dos)) |> 
+  filter(!is.na(id)) |>
+  timeplyr::fcount(year, month_l, .by = dos, sort = TRUE) |> 
+  arrange(year, month_l, dos) |> 
+  fuimus::sorted_bars(var = month_l)
+```
+
+# Reimbursement
 
 ```{r}
 yq <- claims |> 
@@ -189,7 +218,7 @@ rvu_join |>
     par_non_amt = tot_non_rvu * conv_factor,
     par_fac_amt = tot_fac_rvu * conv_factor,
     nonpar_non_amt = par_non_amt * 1.15,
-    nonpar_fac_amt = par_non_amt * 1.15,
+    nonpar_fac_amt = par_fac_amt * 1.15,
     limiting_non = nonpar_non_amt * 0.95,
     limiting_fac = nonpar_fac_amt * 0.95,
   ) |> 
@@ -242,7 +271,7 @@ rvu_join |>
   )
 ```
 
-# Comparing Reimbursement to Medicare Baseline
+# Calculate Unadjusted Allowed Amounts
 
 ```{r}
 claims_unajusted <- claims |> 

@@ -40,10 +40,10 @@ options(scipen = 999)
 
 library(tidyverse)
 library(downlit)
-library(gt)
-library(provider)
 library(rlang)
 library(cli)
+library(charcuterie)
+
 
 p <- function(...) {paste0(...)}
 ```
@@ -127,7 +127,7 @@ next_mult_10(50)
 > Assume the prefixed 9-position identifier is `80840123456789`:
 
 ```{r}
-make_identifier <- \(x, y) {
+make_prefix <- \(x, y) {
   as.integer(
     unlist(
       strsplit(
@@ -137,7 +137,7 @@ make_identifier <- \(x, y) {
   )
 }
 
-(x <- make_identifier(80840, 123456789))
+(x <- make_prefix(80840, 123456789))
 ```
 
 > Beginning on the right, double the alternate digits:
@@ -145,7 +145,7 @@ make_identifier <- \(x, y) {
 > `8 0 8 8 0 2 2 6 4 10 6 14 8 18`
 
 ```{r}
-double_alternates <- \(x) {
+double_alts <- \(x) {
   x <- rev(x)
   
   idx <- seq(1, length(x), 2)
@@ -155,7 +155,7 @@ double_alternates <- \(x) {
   rev(x)
 }
 
-(x <- double_alternates(x))
+(x <- double_alts(x))
 ```
 
 > Add the individual digits of products of doubling, plus unaffected digits: 
@@ -165,7 +165,7 @@ double_alternates <- \(x) {
 
 
 ```{r}
-sum_individual_digits <- \(x) {
+sum_digits <- \(x) {
   sum(
     as.integer(
       unlist(
@@ -176,7 +176,7 @@ sum_individual_digits <- \(x) {
     )
 }
 
-(x <- sum_individual_digits(x))
+(x <- sum_digits(x))
 ```
 
 > Subtract result from the next multiple of 10: `70 – 67 = 3`
@@ -184,19 +184,25 @@ sum_individual_digits <- \(x) {
 
 
 ```{r}
-get_check_digit <- \(x) {
+get_check <- \(x) {
   ceiling(x / 10) * 10 - x
 }
 
-(x <- get_check_digit(x))
+(x <- get_check(x))
 ```
 
 > Append the check digit to the the card issuer identifier: `808401234567893`
 
 ```{r}
-paste0(80840123456789, x)
+prefix_check <- \(pre, check) {
+  paste0(pre, check)
+}
+
+prefix_check(80840123456789, x)
 ```
 
+
+-----------------------------------------------------------------
 
 ## Without Prefix
 
@@ -204,7 +210,13 @@ paste0(80840123456789, x)
 
 ```{r}
 make_id <- \(x) {
-  as.integer(unlist(strsplit(as.character(x), "")))
+  as.integer(
+    unlist(
+      strsplit(
+        as.character(x), ""
+        )
+      )
+    )
 }
 
 (xx <- make_id(123456789))
@@ -225,7 +237,7 @@ double_alts <- \(x) {
   rev(x)
 }
 
-(xx <- double_alternates(xx))
+(xx <- double_alts(xx))
 ```
 
 > Add constant 24 to the sum of the individual digits: 
@@ -233,7 +245,7 @@ double_alts <- \(x) {
 
 
 ```{r}
-sum_digits_constant <- \(x) {
+sum_digits_24 <- \(x) {
   sum(
     as.integer(
       unlist(
@@ -244,20 +256,27 @@ sum_digits_constant <- \(x) {
     ) + 24
 }
 
-(xx <- sum_digits_constant(xx))
+(xx <- sum_digits_24(xx))
 ```
 
 > Subtract result from the next multiple of 10: `70 – 67 = 3`
 > This is the check digit.
 
 ```{r}
-(xx <- get_check_digit(xx))
+get_check <- \(x) {
+  ceiling(x / 10) * 10 - x
+}
+
+(xx <- get_check(xx))
 ```
 
 > Append the check digit to the identifier: `1234567893`
 
 ```{r}
-paste0(123456789, xx)
+prefix_check <- \(pre, check) {
+  paste0(pre, check)
+}
+prefix_check(123456789, xx)
 ```
 
 ::: 
@@ -265,9 +284,14 @@ paste0(123456789, xx)
 
 # NPI Constructor {#sec-constructor}
 
+I want to build a function that constructs a valid NPI from a 10-digit NPI candidate. The function should show the validation process step-by-step. If the input is valid it should return the original NPI invisibly along with a `success!` message. If invalid, it should return the valid NPI with a `warning!` message.
+
 ## Input Validation
 
 ```{r filename="input_validation.R"}
+#| error: true
+#| message: true
+
 # Must be a character vector
 check_is_character <- function(x) {
   
@@ -278,7 +302,8 @@ check_is_character <- function(x) {
     cli::cli_abort(
       "An {.arg {arg}} must be a {.cls character} vector.", 
       arg = arg, 
-      call = call)
+      call = call
+      )
   }
 }
 
@@ -292,7 +317,8 @@ check_characters_numeric <- function(x) {
     cli::cli_abort(
       "An {.arg {arg}} must contain numbers only.", 
       arg = arg, 
-      call = call)
+      call = call
+      )
   }
 }
 
@@ -306,7 +332,8 @@ check_nchars_10 <- function(x) {
     cli::cli_abort(
       "An {.arg {arg}} must be 10 characters long.", 
       arg = arg, 
-      call = call)
+      call = call
+      )
   }
 }
 
@@ -320,29 +347,60 @@ check_first_char <- function(x) {
     cli::cli_abort(
       "An {.arg {arg}} must start with a 1 or 2.", 
       arg = arg, 
-      call = call)
+      call = call
+      )
   }
 }
-```
 
-
-```{r filename="npi_msg.R"}
-#| message: true
-npi_msg <- function(x, msg) {
+npi_inform <- function(x, msg) {
   
   arg  <- rlang::caller_arg(x)
   call <- rlang::caller_env()
   
   rlang::inform(
-    message = (c(">" = glue::glue("{msg}:     {x}"))),
+    message = (
+      c(">" = glue::glue("{msg}: {x}"))),
     use_cli_format = TRUE,
     arg = arg,
-    call = call
+    call = call,
+    class = "npi_inform"
   )
 }
 
-npi_test <- "1234567891"
-npi_msg(x = npi_test, "Testing NPI")
+npi_warn <- function(x, msg) {
+  
+  arg  <- rlang::caller_arg(x)
+  call <- rlang::caller_env()
+  
+  rlang::inform(
+    message = (
+      c("x" = glue::glue("{msg}: {x}"))),
+    use_cli_format = TRUE,
+    arg = arg,
+    call = call,
+    class = "npi_warn"
+  )
+}
+
+npi_success <- function(x, msg) {
+  
+  arg  <- rlang::caller_arg(x)
+  call <- rlang::caller_env()
+  
+  rlang::inform(
+    message = (
+      c("v" = glue::glue("{msg}: {x}"))),
+    use_cli_format = TRUE,
+    arg = arg,
+    call = call,
+    class = "npi_success"
+  )
+}
+
+npi <- 123456789
+npi_inform(x = npi, msg = "Testing NPI")
+npi_warn(x = npi, msg = "NPI is invalid")
+npi_success(x = npi, msg = "NPI is valid")
 ```
 
 ## First Draft
@@ -357,28 +415,28 @@ construct_npi_1 <- function(npi) {
   
   npi_test <- npi
   
-  npi_msg(npi_test, "Testing NPI")
+  npi_inform(npi_test, "Testing NPI")
   
   # Create the 9-position identifier part of the NPI
   id <- unlist(strsplit(npi_test, ""), use.names = FALSE)[1:9]
   
-  npi_msg(paste0(id, collapse = ""), "Remove 10th digit")
+  npi_inform(paste0(id, collapse = ""), "Remove 10th digit")
   
   # Reverse order of digits
   x <- rev(id)
   
-  npi_msg(paste0(x, collapse = ""), "Reverse order")
+  npi_inform(paste0(x, collapse = ""), "Reverse order")
   
   # Select index of every other digit
   idx <- seq(1, length(x), 2)
   
-  npi_msg(paste0(x[idx], collapse = " "), "Select every other digit")
+  npi_inform(paste0(x[idx], collapse = " "), "Select every other digit")
   
   # Double the value of the alternate digits
   x[idx] <- as.numeric(x[idx]) * 2
   
-  npi_msg(paste0(x[idx], collapse = " "), "Double each")
-  npi_msg(paste0(x, collapse = " "), "Replace original with doubles")
+  npi_inform(paste0(x[idx], collapse = " "), "Double each")
+  npi_inform(paste0(x, collapse = " "), "Replace original with doubles")
   
   # Split and unlist to separate digits
   x <- unlist(strsplit(x, ""), use.names = FALSE)
@@ -386,33 +444,34 @@ construct_npi_1 <- function(npi) {
   # Add constant 24 to the sum of the digits
   xc <- sum(as.numeric(x)) + 24
   
-  npi_msg(paste0(paste0(c(x, 24), collapse = " + "), paste0(" = ", xc)), "Sum individual digits")
+  npi_inform(paste0(paste0(c(x, 24), collapse = " + "), paste0(" = ", xc)), "Sum individual digits")
   
   # Find the next higher number ending in zero
   y <- ceiling(xc / 10) * 10
   
-  npi_msg(paste0(paste0("⌈", xc, "⌉"), paste0(" = ", y)), "Next multiple of 10")
+  npi_inform(paste0(paste0("⌈", xc, "⌉"), paste0(" = ", y)), "Next multiple of 10")
   
   # Find the check digit by subtracting x from y
   z <- y - xc
   
-  npi_msg(paste0(paste0(c(y, xc), collapse = " - "), paste0(" = ", z)), "Find the check digit")
+  npi_inform(paste0(paste0(c(y, xc), collapse = " - "), paste0(" = ", z)), "Find the check digit")
   
   # Append the check digit to the end of the 9-digit identifier
   id[10] <- z
   
-  npi_msg(paste0(id, collapse = ""), "Append check digit")
+  npi_inform(paste0(id, collapse = ""), "Append check digit")
   
   # Collapse the vector into a single string
   npi_valid <- paste0(id, collapse = "")
   
   # Is the syntactically valid NPI identical to the test NPI?
   if (identical(npi_valid, npi_test)) {
-    npi_msg(paste0(c(npi_test, npi_valid), collapse = " == "), "NPI is syntactically valid")
+    npi_success(paste0(c(npi_test, npi_valid), collapse = " == "), "NPI is syntactically valid")
   }
   
   if (!identical(npi_valid, npi_test)) {
-    npi_msg(paste0(c(npi_test, npi_valid), collapse = " != "), "NPI is not syntactically valid")
+    npi_warn(paste0(c(npi_test, npi_valid), collapse = " != "), "NPI is not syntactically valid")
+    npi_inform(paste0(npi_valid, collapse = ""), "Did you mean?")
   }
   invisible(npi_valid)
 }
@@ -422,6 +481,7 @@ construct_npi_1 <- function(npi) {
 
 ```{r}
 #| error: true
+#| message: true
 construct_npi_1(123456789)
 construct_npi_1("123456789")
 construct_npi_1("O123456789")
@@ -431,6 +491,7 @@ construct_npi_1("0000000000")
 ### Does it Work?
 
 ```{r}
+#| error: true
 #| message: true
 construct_npi_1("1234567891")
 construct_npi_1("1043477615")
@@ -450,76 +511,77 @@ construct_npi_2 <- function(npi) {
   
   npi_test <- npi
   
-  npi_msg(npi_test, "Testing NPI")
+  npi_inform(npi_test, "Testing NPI")
   
   # Remove the 10th digit to create the 9-position identifier part of the NPI
   id_9 <- unlist(strsplit(npi_test, ""), use.names = FALSE)[1:9]
   
-  npi_msg(paste0(id_9, collapse = ""), "Remove 10th digit")
+  npi_inform(paste0(id_9, collapse = ""), "Remove 10th digit")
   
   # Reverse order of digits
   x_rev <- rev(id_9)
   
-  npi_msg(paste0(x_rev, collapse = ""), "Reverse order")
+  npi_inform(paste0(x_rev, collapse = ""), "Reverse order")
   
   # Select index of every other digit
   x_idx <- seq(1, length(x_rev), 2)
   
-  npi_msg(paste0(x_rev[x_idx], collapse = " "), "Select every other digit")
+  npi_inform(paste0(x_rev[x_idx], collapse = " "), "Select every other digit")
   
   # Double the value of the alternate digits
   x_rev[x_idx] <- as.numeric(x_rev[x_idx]) * 2
   
-  npi_msg(paste0(x_rev[x_idx], collapse = " "), "Double each")
-  npi_msg(paste0(x_rev, collapse = " "), "Replace original with doubles")
+  npi_inform(paste0(x_rev[x_idx], collapse = " "), "Double each")
+  npi_inform(paste0(x_rev, collapse = " "), "Replace original with doubles")
   
   # Split and unlist to separate digits
   x_split <- unlist(strsplit(x_rev, ""), use.names = FALSE)
   x_add <- sum(as.numeric(x_split))
   
-  npi_msg(paste0(paste0(x_split, collapse = " + "), paste0(" = ", x_add)), "Sum individual digits")
+  npi_inform(paste0(paste0(x_split, collapse = " + "), paste0(" = ", x_add)), "Sum individual digits")
 
   # Add constant 24 to the sum of the digits
   x_24 <- x_add + 24
   
-  npi_msg(paste0(paste0(c(x_add, 24), collapse = " + "), paste0(" = ", x_24)), "Add 24 to the sum")
+  npi_inform(paste0(paste0(c(x_add, 24), collapse = " + "), paste0(" = ", x_24)), "Add 24 to the sum")
   
   x_divide <- x_24 / 10
-  npi_msg(paste0(paste0(x_24, " / ", 10), paste0(" = ", x_divide)), "Divide by 10")
+  npi_inform(paste0(paste0(x_24, " / ", 10), paste0(" = ", x_divide)), "Divide by 10")
   
   x_divide_first <- as.numeric(unlist(strsplit(as.character(x_divide), ""), use.names = FALSE)[1])
-  npi_msg(paste0(paste0(x_divide), paste0(" = ", x_divide_first)), "Take first digit")
+  npi_inform(paste0(paste0(x_divide), paste0(" = ", x_divide_first)), "Take first digit")
   
   x_plus_one <- x_divide_first + 1
-  npi_msg(paste0(paste0(x_divide_first, " + ", 1), paste0(" = ", x_plus_one)), "Add one")
+  npi_inform(paste0(paste0(x_divide_first, " + ", 1), paste0(" = ", x_plus_one)), "Add one")
   
   x_paste_zero <- paste0(x_plus_one, "0")
-  npi_msg(paste0(paste0(x_plus_one, " * ", 10), paste0(" = ", x_paste_zero)), "Multiply by 10")
+  npi_inform(paste0(paste0(x_plus_one, " * ", 10), paste0(" = ", x_paste_zero)), "Multiply by 10")
   
   # Find the next higher number ending in zero
   x_next <- ceiling(x_24 / 10) * 10
-  npi_msg(paste0(paste0("⌈", x_24,"⌉"), paste0(" = " , x_next)), "Next multiple of 10")
+  npi_inform(paste0(paste0("⌈", x_24,"⌉"), paste0(" = " , x_next)), "Next multiple of 10")
   
   # Find the check digit by subtracting x from y
   x_check <- x_next - x_24
-  npi_msg(paste0(paste0(c(x_next, x_24), collapse = " - "), paste0(" = ", x_check)), "Find the check digit")
+  npi_inform(paste0(paste0(c(x_next, x_24), collapse = " - "), paste0(" = ", x_check)), "Find the check digit")
   
   # Append the check digit to the end of the 9-digit identifier
   id_10 <- id_9
   id_10[10] <- x_check
   
-  npi_msg(paste0(id_10, collapse = ""), "Append check digit")
+  npi_inform(paste0(id_10, collapse = ""), "Append check digit")
   
   # Collapse the vector into a single string
   npi_valid <- paste0(id_10, collapse = "")
   
   # Is the syntactically valid NPI identical to the test NPI?
   if (identical(npi_valid, npi_test)) {
-    npi_msg(paste0(c(npi_test, npi_valid), collapse = " == "), "NPI is syntactically valid")
+    npi_success(paste0(c(npi_test, npi_valid), collapse = " == "), "NPI is syntactically valid")
   }
   
   if (!identical(npi_valid, npi_test)) {
-    npi_msg(paste0(c(npi_test, npi_valid), collapse = " != "), "NPI is not syntactically valid")
+    npi_warn(paste0(c(npi_test, npi_valid), collapse = " != "), "NPI is not syntactically valid")
+    npi_inform(paste0(npi_valid, collapse = ""), "Did you mean?")
   }
   invisible(npi_valid)
 }
