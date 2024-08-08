@@ -290,18 +290,15 @@ There should also be a `verbose` option to silence the messages and return only 
 #| message: true
 
 # Must be a character vector
-check_is_character <- function(x) {
-  
-  arg  <- rlang::caller_arg(x)
-  call <- rlang::caller_env()
+warn_not_char <- function(x) {
   
   if (!rlang::is_character(x)) {
-    cli::cli_abort(
-      "An {.arg {arg}} must be a {.cls character} vector.", 
-      arg = arg, 
-      call = call
+    cli::cli_alert_warning(
+      "Coercing `npi` to a {.cls character} vector.",
+      class = "warn_not_char"
       )
   }
+  as.character(x)
 }
 
 # Characters must all be numbers
@@ -314,7 +311,8 @@ check_characters_numeric <- function(x) {
     cli::cli_abort(
       "An {.arg {arg}} must contain numbers only.", 
       arg = arg, 
-      call = call
+      call = call,
+      class = "check_characters_numeric"
       )
   }
 }
@@ -329,7 +327,8 @@ check_nchars_10 <- function(x) {
     cli::cli_abort(
       "An {.arg {arg}} must be 10 characters long.", 
       arg = arg, 
-      call = call
+      call = call,
+      class = "check_nchars_10"
       )
   }
 }
@@ -344,7 +343,8 @@ check_first_char <- function(x) {
     cli::cli_abort(
       "An {.arg {arg}} must start with a 1 or 2.", 
       arg = arg, 
-      call = call
+      call = call,
+      class = "check_first_char"
       )
   }
 }
@@ -368,21 +368,22 @@ npi_inform <- function(x, msg) {
   )
 }
 
-npi_warn <- function(x) {
-  
-  arg  <- rlang::caller_arg(x)
-  call <- rlang::caller_env()
-  
-  rlang::inform(
-    message = (
-      c("x" = glue::glue("NPI is invalid: {x}"))),
-    use_cli_format = TRUE,
-    arg = arg,
-    call = call,
-    class = "npi_warn"
+npi_alert_invalid <- function(x, y) {
+  cli::cli_alert_danger(
+    "NPI is invalid: {.pkg {x}} != {.pkg {y}}",
+    class = "npi_alert_invalid",
+    wrap = TRUE
   )
 }
 
+npi_alert_valid <- function(x, y) {
+  cli::cli_alert_success(
+    "NPI is valid: {.pkg {x}} == {.pkg {y}}",
+    class = "npi_alert_valid",
+    wrap = TRUE
+  )
+}
+  
 npi_suggest <- function(x) {
   
   arg  <- rlang::caller_arg(x)
@@ -397,21 +398,6 @@ npi_suggest <- function(x) {
     class = "npi_suggest"
   )
 }
-
-npi_success <- function(x) {
-  
-  arg  <- rlang::caller_arg(x)
-  call <- rlang::caller_env()
-  
-  rlang::inform(
-    message = (
-      c("v" = glue::glue("NPI is valid: {x}"))),
-    use_cli_format = TRUE,
-    arg = arg,
-    call = call,
-    class = "npi_success"
-  )
-}
 ```
 
 ## Constructor Function
@@ -419,19 +405,17 @@ npi_success <- function(x) {
 ```{r filename="npi_constructor.R"}
 npi_constructor <- function(npi) {
   
-  check_is_character(npi)
+  npi <- warn_not_char(npi)
   check_characters_numeric(npi)
   check_nchars_10(npi)
   check_first_char(npi)
   
-  p       <- \(...) paste0(...)
-  s       <- \(x) unlist(strsplit(x, ""), use.names = FALSE)
+  p <- \(...) paste0(...)
+  s <- \(x) unlist(strsplit(x, ""), use.names = FALSE)
   
-  npi_inform(
-    npi, 
-    "Testing NPI candidate")
+  npi_inform(npi, "Testing NPI candidate")
   
-  id      <- rev(s(npi)[1:9])
+  id <- rev(s(npi)[1:9])
   
   npi_inform(
     p(id, collapse = ""), 
@@ -473,11 +457,11 @@ npi_constructor <- function(npi) {
     "Append check digit")
   
   if (identical(test, npi)) {
-    npi_success(p(c(test, npi), collapse = " == "))
+    npi_alert_valid(test, npi)
   }
   
   if (!identical(test, npi)) {
-    npi_warn(p(c(test, npi), collapse = " != "))
+    npi_alert_invalid(test, npi)
     npi_suggest(p(test, collapse = ""))
   }
   invisible(test)
@@ -489,7 +473,7 @@ npi_constructor <- function(npi) {
 ```{r}
 #| error: true
 #| message: true
-npi_constructor(123456789)
+npi_constructor(1234567891)
 npi_constructor("123456789")
 npi_constructor("O123456789")
 npi_constructor("0000000000")
@@ -500,9 +484,9 @@ npi_constructor("0000000000")
 ```{r}
 #| error: true
 #| message: true
-npi_constructor("1234567891")
-npi_constructor("1043477615")
-npi_constructor("1000000000")
+npi_constructor(1234567891)
+npi_constructor(1043477615)
+npi_constructor(1000000000)
 ```
 
 

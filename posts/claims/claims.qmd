@@ -32,9 +32,14 @@ knitr::opts_chunk$set(
 options(scipen = 999)
 
 library(tidyverse)
+library(here)
 library(downlit)
 library(gt)
 library(gtExtras)
+library(rvu)
+library(northstar)
+library(fuimus)
+library(ggstatsplot)
 ```
 
 ```{r}
@@ -42,13 +47,14 @@ library(gtExtras)
 #| warning: false
 #| echo: false
 claims_spec <- cols(
-  rendering = col_character(),
-  id = col_character(),
-  enc = col_integer(),
+  rendid = col_character(),
+  ptid = col_character(),
+  ptenc = col_integer(),
   dos = col_date(format = ""),
   dob = col_date(format = ""),
-  age = col_integer(),
+  ptage = col_integer(),
   dor = col_date(format = ""),
+  dor_lag = col_double(),
   icd_code = col_character(),
   hcpcs_order = col_integer(),
   hcpcs_code = col_character(),
@@ -71,75 +77,42 @@ claims_spec <- cols(
 )
 
 claims <- read_csv(
-  here::here(
-    "posts/claims/data", 
-    "clean_rpt_rend.csv"
-    ), 
-  col_types = claims_spec) |> 
-  mutate(year = clock::get_year(dos),
-         quarter = quarter(dos, with_year = FALSE),
-         .after = dos)
+  here("posts/claims/data", "clean_rpt_rend.csv"), 
+  col_types = claims_spec)
 
-source <- c(
-  rvu::get_source(year = 2022, source = "pprrvu"),
-  rvu::get_source(year = 2023, source = "pprrvu"),
-  rvu::get_source(year = 2024, source = "pprrvu")
-  )
+claims <- claims |> 
+  left_join(search_pos() |> select(-c(pos_name, pos_description)), by = join_by(pos == pos_code)) |> 
+  full_join(expand_date_range(claims$dos, "dos"), by = join_by(dos))
 
-pos <- northstar::search_pos() |> select(-c(pos_name, pos_description))
+rvus <- c(
+  get_source(2021, "pprrvu"),
+  get_source(2022, "pprrvu"),
+  get_source(2023, "pprrvu"),
+  get_source(2024, "pprrvu"))
 ```
 
 
 # Trends & Demographics
 
-```{r}
-# FIXME id needs to be padded to 4 digits
-max(nchar(claims$id))
-```
-
-## Find Date Range of the Claims
-
-```{r}
-expand_date_range <- function(x, nm) {
-  
-  collapse::funique(collapse::na_rm(x)) |> 
-    timeplyr::time_completev(time_by = "days") |> 
-    timeplyr::calendar(name = nm) |> 
-    collapse::get_vars("^[^iso|epi]", regex = TRUE)
-  
-}
-
-claims |> 
-  select(id:dos, 
-         dob:age, 
-         rendering, 
-         pos, 
-         ins_class, 
-         ins_prim) |>
-  distinct() |> 
-  full_join(expand_date_range(claims$dos, "dos"), by = join_by(dos)) |> 
-  arrange(dos, id, enc)
-```
-
 
 ```{r}
 claims |> 
-  select(id:dos, 
-         dob:age, 
-         rendering, 
-         pos, 
-         ins_class, 
-         ins_prim) |>
-  distinct(id, dos, .keep_all = TRUE) |> 
-  arrange(dos, id, enc) |> 
-  full_join(expand_date_range(claims$dos, "dos"), by = join_by(dos)) |> 
-  filter(!is.na(id)) |>
-  timeplyr::fcount(year, month_l, .by = dos, sort = TRUE) |> 
-  arrange(year, month_l, dos) |> 
-  fuimus::sorted_bars(var = month_l)
+  sorted_bars(month_l) +
+  gg_theme()
 ```
+
+```{r}
+ggstatsplot::ggscatterstats(
+  claims |> filter(payments > 0),
+  x = charges,
+  y = payments,
+  title = "Charges vs Payments"
+)
+```
+
 
 # Reimbursement
+
 
 ```{r}
 yq <- claims |> 
@@ -157,42 +130,49 @@ yqi <- claims |>
 
 yqs <- as.character(str_glue("{yqi$y}.{yqi$q}"))
 
-rvu_22.2 <- source$rvu22b_apr |> 
+# get_rvus <- \(rvu, yq, yqi, yqs) {
+#   rvu |> 
+#   filter(hcpcs %in% c(filter(yq, yq == yqs) |> pull(hcpcs_code) |> pluck(1))) |> 
+#   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
+#   mutate(year = yqi$y, quarter = yqi$q, .before = 1)
+# }
+
+rvu_22.2 <- rvus$rvu22b_apr |> 
   filter(hcpcs %in% c(filter(yq, yq == yqs[1]) |> pull(hcpcs_code) |> pluck(1))) |> 
   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
   mutate(year = yqi$y[1], quarter = yqi$q[1], .before = 1)
 
-rvu_22.3 <- source$rvu22c_jul |> 
+rvu_22.3 <- rvus$rvu22c_jul |> 
   filter(hcpcs %in% c(filter(yq, yq == yqs[2]) |> pull(hcpcs_code) |> pluck(1))) |> 
   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
   mutate(year = yqi$y[2], quarter = yqi$q[2], .before = 1)
 
-rvu_22.4 <- source$rvu22d_oct |> 
+rvu_22.4 <- rvus$rvu22d_oct |> 
   filter(hcpcs %in% c(filter(yq, yq == yqs[3]) |> pull(hcpcs_code) |> pluck(1))) |> 
   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
   mutate(year = yqi$y[3], quarter = yqi$q[3], .before = 1)
 
-rvu_23.1 <- source$rvu23a_jan |> 
+rvu_23.1 <- rvus$rvu23a_jan |> 
   filter(hcpcs %in% c(filter(yq, yq == yqs[4]) |> pull(hcpcs_code) |> pluck(1))) |> 
   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
   mutate(year = yqi$y[4], quarter = yqi$q[4], .before = 1)
 
-rvu_23.2 <- source$rvu23b_apr |> 
+rvu_23.2 <- rvus$rvu23b_apr |> 
   filter(hcpcs %in% c(filter(yq, yq == yqs[5]) |> pull(hcpcs_code) |> pluck(1))) |> 
   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
   mutate(year = yqi$y[5], quarter = yqi$q[5], .before = 1)
 
-rvu_23.3 <- source$rvu23c_jul |> 
+rvu_23.3 <- rvus$rvu23c_jul |> 
   filter(hcpcs %in% c(filter(yq, yq == yqs[6]) |> pull(hcpcs_code) |> pluck(1))) |> 
   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
   mutate(year = yqi$y[6], quarter = yqi$q[6], .before = 1)
 
-rvu_23.4 <- source$rvu23d_oct |> 
+rvu_23.4 <- rvus$rvu23d_oct |> 
   filter(hcpcs %in% c(filter(yq, yq == yqs[7]) |> pull(hcpcs_code) |> pluck(1))) |> 
   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
   mutate(year = yqi$y[7], quarter = yqi$q[7], .before = 1)
 
-rvu_24.1 <- source$rvu24a_jan |> 
+rvu_24.1 <- rvus$rvu24a_jan |> 
   filter(hcpcs %in% c(filter(yq, yq == yqs[8]) |> pull(hcpcs_code) |> pluck(1))) |> 
   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
   mutate(year = yqi$y[8], quarter = yqi$q[8], .before = 1)
@@ -274,6 +254,7 @@ rvu_join |>
 # Calculate Unadjusted Allowed Amounts
 
 ```{r}
+#| error: true
 claims_unajusted <- claims |> 
   left_join(
     pos, 
