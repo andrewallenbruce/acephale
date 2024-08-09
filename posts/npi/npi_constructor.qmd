@@ -290,15 +290,12 @@ There should also be a `verbose` option to silence the messages and return only 
 #| message: true
 
 # Must be a character vector
-warn_not_char <- function(x) {
-  
-  if (!rlang::is_character(x)) {
-    cli::cli_alert_warning(
-      "Coercing `npi` to a {.cls character} vector.",
-      class = "warn_not_char"
-      )
+num_to_char <- function(x) {
+  if (!rlang::is_character(x)) { 
+    as.character(x)
+  } else {
+    x  
   }
-  as.character(x)
 }
 
 # Characters must all be numbers
@@ -360,7 +357,7 @@ npi_inform <- function(x, msg) {
   
   rlang::inform(
     message = (
-      c(">" = glue::glue("{msg}: {x}"))),
+      c("*" = glue::glue("{msg}: {x}"))),
     use_cli_format = TRUE,
     arg = arg,
     call = call,
@@ -368,34 +365,36 @@ npi_inform <- function(x, msg) {
   )
 }
 
-npi_alert_invalid <- function(x, y) {
-  cli::cli_alert_danger(
-    "NPI is invalid: {.pkg {x}} != {.pkg {y}}",
-    class = "npi_alert_invalid",
-    wrap = TRUE
-  )
-}
 
-npi_alert_valid <- function(x, y) {
-  cli::cli_alert_success(
-    "NPI is valid: {.pkg {x}} == {.pkg {y}}",
-    class = "npi_alert_valid",
-    wrap = TRUE
-  )
-}
-  
-npi_suggest <- function(x) {
+# x <- y <- 1234567891
+npi_alert_invalid <- function(x, y) {
   
   arg  <- rlang::caller_arg(x)
   call <- rlang::caller_env()
   
   rlang::inform(
-    message = (
-      c("i" = glue::glue("Did you mean? {x}"))),
+    message = (c("x" = "NPI is invalid")),
+    body = (c("!" = glue::glue("{x} != {y}"))),
+    # footer = (c(">" = glue::glue("Did you mean {x}?"))),
     use_cli_format = TRUE,
     arg = arg,
     call = call,
-    class = "npi_suggest"
+    class = "npi_alert_invalid"
+  )
+}
+
+npi_alert_valid <- function(x, y) {
+  
+  arg  <- rlang::caller_arg(x)
+  call <- rlang::caller_env()
+  
+  rlang::inform(
+    message = (c("v" = "NPI is valid")),
+    body = (c(">" = glue::glue("{x} == {y}"))),
+    use_cli_format = TRUE,
+    arg = arg,
+    call = call,
+    class = "npi_alert_valid"
   )
 }
 ```
@@ -405,7 +404,7 @@ npi_suggest <- function(x) {
 ```{r filename="npi_constructor.R"}
 npi_constructor <- function(npi) {
   
-  npi <- warn_not_char(npi)
+  npi <- num_to_char(npi)
   check_characters_numeric(npi)
   check_nchars_10(npi)
   check_first_char(npi)
@@ -417,53 +416,30 @@ npi_constructor <- function(npi) {
   
   id <- rev(s(npi)[1:9])
   
-  npi_inform(
-    p(id, collapse = ""), 
-    "Reverse 9-digit identifier")
+  npi_inform(p(id, collapse = ""), "Reverse 9-digit identifier")
   
   idx     <- seq(1, length(id), 2)
   id      <- as.numeric(id)
   id[idx] <- as.numeric(id[idx]) * 2
   id[idx] <- ifelse(id[idx] > 9, id[idx] - 9, id[idx])
   
-  npi_inform(
-    p(id, collapse = " "), 
-    "Double & reduce alternates")
+  npi_inform(p(id, collapse = " "), "Double & reduce alternates")
   
-  id      <- sum(id)
-  cn      <- id + 24
-  
-  npi_inform(
-    p(p(c(id, 24), collapse = " + "), p(" = ", cn)), 
-    "Add 24 to sum digits")
-  
-  ml      <- ceiling(cn / 10) * 10
-  
-  npi_inform(
-    p(p("⌈", cn, "⌉"), p(" = ", ml)),
-    "Next multiple of 10")
-  
-  ck <- ml - cn
-  
-  npi_inform(
-    p(p(c(ml, cn), collapse = " - "), p(" = ", ck)), 
-    "Find check digit")
-  
+  id   <- sum(id)
+  cn   <- id + 24
+  ml   <- ceiling(cn / 10) * 10
+  ck   <- ml - cn
   test <- substr(npi, 1, 9)
   test <- p(test, ck)
   
-  npi_inform(
-    p(test, collapse = ""), 
-    "Append check digit")
+  npi_inform(p(p(c(id, 24), collapse = " + "), p(" = ", cn)), "Add 24 to sum digits")
+  npi_inform(p(p("⌈", cn, "⌉"), p(" = ", ml)) ,"Next multiple of 10")
+  npi_inform(p(p(c(ml, cn), collapse = " - "), p(" = ", ck)), "Find check digit")
+  npi_inform(p(test, collapse = ""), "Append check digit")
   
-  if (identical(test, npi)) {
-    npi_alert_valid(test, npi)
-  }
+  if (identical(test, npi)) npi_alert_valid(test, npi)
+  if (!identical(test, npi)) npi_alert_invalid(test, npi)
   
-  if (!identical(test, npi)) {
-    npi_alert_invalid(test, npi)
-    npi_suggest(p(test, collapse = ""))
-  }
   invisible(test)
 }
 ```
@@ -473,7 +449,7 @@ npi_constructor <- function(npi) {
 ```{r}
 #| error: true
 #| message: true
-npi_constructor(1234567891)
+#| warning: true
 npi_constructor("123456789")
 npi_constructor("O123456789")
 npi_constructor("0000000000")
@@ -484,8 +460,23 @@ npi_constructor("0000000000")
 ```{r}
 #| error: true
 #| message: true
+#| warning: true
 npi_constructor(1234567891)
+```
+
+
+```{r}
+#| error: true
+#| message: true
+#| warning: true
 npi_constructor(1043477615)
+```
+
+
+```{r}
+#| error: true
+#| message: true
+#| warning: true
 npi_constructor(1000000000)
 ```
 
