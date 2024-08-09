@@ -23,11 +23,11 @@ knitr::opts_chunk$set(
   warning   = FALSE,
   error     = TRUE,
   comment   = "",
-  dpi       = 600, 
+  dpi       = 300, 
   dev       = "ragg_png",
   out.width = "100%",
   fig.align = "center",
-  fig.width = 8
+  fig.width = 10
 )
 options(scipen = 999)
 
@@ -47,38 +47,45 @@ library(ggstatsplot)
 #| warning: false
 #| echo: false
 claims_spec <- cols(
-  rendid = col_character(),
-  ptid = col_character(),
-  ptenc = col_integer(),
+  id = col_character(),
+  enc = col_integer(),
   dos = col_date(format = ""),
   dob = col_date(format = ""),
-  ptage = col_integer(),
+  age = col_integer(),
   dor = col_date(format = ""),
-  dor_lag = col_double(),
-  icd_code = col_character(),
-  hcpcs_order = col_integer(),
-  hcpcs_code = col_character(),
-  hcpcs_desc = col_character(),
-  hcpcs_unit = col_integer(),
-  hcpcs_mod_1 = col_character(),
-  hcpcs_mod_2 = col_character(),
+  lag = col_double(),
+  ref = col_character(),
+  ref_cred = col_character(),
+  ref_tax = col_logical(),
+  ren = col_character(),
+  ren_cred = col_character(),
+  ren_tax = col_logical(),
+  icd = col_character(),
+  ord = col_integer(),
+  hcpcs = col_character(),
+  desc = col_character(),
+  units = col_integer(),
+  mod1 = col_character(),
+  mod2 = col_character(),
   pos = col_character(),
   pos_name = col_character(),
+  loc = col_character(),
   ins_class = col_character(),
   ins_prim = col_character(),
   ins_sec = col_character(),
   charges = col_double(),
+  allowed = col_double(),
   payments = col_double(),
   adjustments = col_double(),
-  allowed = col_double(),
-  adj_code_1 = col_character(),
-  adj_code_2 = col_character(),
-  adj_code_3 = col_character()
+  adj1 = col_character(),
+  adj2 = col_character(),
+  adj3 = col_character()
 )
 
 claims <- read_csv(
   here("posts/claims/data", "clean_rpt_rend.csv"), 
-  col_types = claims_spec)
+  col_types = claims_spec) |> 
+  fuimus::remove_quiet()
 
 claims <- claims |> 
   left_join(search_pos() |> select(-c(pos_name, pos_description)), by = join_by(pos == pos_code)) |> 
@@ -97,17 +104,21 @@ rvus <- c(
 
 ```{r}
 claims |> 
+  filter(ord == 1) |> 
   sorted_bars(month_l) +
   gg_theme()
 ```
 
 ```{r}
 ggstatsplot::ggscatterstats(
-  claims |> filter(payments > 0),
+  claims |> filter(
+    payments > 0,
+    payments < 1000,
+    charges < 1000
+    ),
   x = charges,
   y = payments,
-  title = "Charges vs Payments"
-)
+  title = "Charges vs Payments")
 ```
 
 
@@ -116,12 +127,12 @@ ggstatsplot::ggscatterstats(
 
 ```{r}
 yq <- claims |> 
-  filter(!is.na(hcpcs_code)) |> 
-  distinct(year, quarter, hcpcs_code)
+  filter(!is.na(hcpcs)) |> 
+  distinct(year, quarter, hcpcs)
 
-yq <- split(yq$hcpcs_code, yq[c("year", "quarter")]) |> 
+yq <- split(yq$hcpcs, yq[c("year", "quarter")]) |> 
   purrr::compact() |> 
-  cheapr::enframe_(name = "yq", value = "hcpcs_code") |> 
+  cheapr::enframe_(name = "yq", value = "hcpcs") |> 
   arrange(yq)
 
 yqi <- claims |> 
@@ -138,42 +149,42 @@ yqs <- as.character(str_glue("{yqi$y}.{yqi$q}"))
 # }
 
 rvu_22.2 <- rvus$rvu22b_apr |> 
-  filter(hcpcs %in% c(filter(yq, yq == yqs[1]) |> pull(hcpcs_code) |> pluck(1))) |> 
+  filter(hcpcs %in% c(filter(yq, yq == yqs[1]) |> pull(hcpcs) |> pluck(1))) |> 
   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
   mutate(year = yqi$y[1], quarter = yqi$q[1], .before = 1)
 
 rvu_22.3 <- rvus$rvu22c_jul |> 
-  filter(hcpcs %in% c(filter(yq, yq == yqs[2]) |> pull(hcpcs_code) |> pluck(1))) |> 
+  filter(hcpcs %in% c(filter(yq, yq == yqs[2]) |> pull(hcpcs) |> pluck(1))) |> 
   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
   mutate(year = yqi$y[2], quarter = yqi$q[2], .before = 1)
 
 rvu_22.4 <- rvus$rvu22d_oct |> 
-  filter(hcpcs %in% c(filter(yq, yq == yqs[3]) |> pull(hcpcs_code) |> pluck(1))) |> 
+  filter(hcpcs %in% c(filter(yq, yq == yqs[3]) |> pull(hcpcs) |> pluck(1))) |> 
   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
   mutate(year = yqi$y[3], quarter = yqi$q[3], .before = 1)
 
 rvu_23.1 <- rvus$rvu23a_jan |> 
-  filter(hcpcs %in% c(filter(yq, yq == yqs[4]) |> pull(hcpcs_code) |> pluck(1))) |> 
+  filter(hcpcs %in% c(filter(yq, yq == yqs[4]) |> pull(hcpcs) |> pluck(1))) |> 
   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
   mutate(year = yqi$y[4], quarter = yqi$q[4], .before = 1)
 
 rvu_23.2 <- rvus$rvu23b_apr |> 
-  filter(hcpcs %in% c(filter(yq, yq == yqs[5]) |> pull(hcpcs_code) |> pluck(1))) |> 
+  filter(hcpcs %in% c(filter(yq, yq == yqs[5]) |> pull(hcpcs) |> pluck(1))) |> 
   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
   mutate(year = yqi$y[5], quarter = yqi$q[5], .before = 1)
 
 rvu_23.3 <- rvus$rvu23c_jul |> 
-  filter(hcpcs %in% c(filter(yq, yq == yqs[6]) |> pull(hcpcs_code) |> pluck(1))) |> 
+  filter(hcpcs %in% c(filter(yq, yq == yqs[6]) |> pull(hcpcs) |> pluck(1))) |> 
   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
   mutate(year = yqi$y[6], quarter = yqi$q[6], .before = 1)
 
 rvu_23.4 <- rvus$rvu23d_oct |> 
-  filter(hcpcs %in% c(filter(yq, yq == yqs[7]) |> pull(hcpcs_code) |> pluck(1))) |> 
+  filter(hcpcs %in% c(filter(yq, yq == yqs[7]) |> pull(hcpcs) |> pluck(1))) |> 
   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
   mutate(year = yqi$y[7], quarter = yqi$q[7], .before = 1)
 
 rvu_24.1 <- rvus$rvu24a_jan |> 
-  filter(hcpcs %in% c(filter(yq, yq == yqs[8]) |> pull(hcpcs_code) |> pluck(1))) |> 
+  filter(hcpcs %in% c(filter(yq, yq == yqs[8]) |> pull(hcpcs) |> pluck(1))) |> 
   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |> 
   mutate(year = yqi$y[8], quarter = yqi$q[8], .before = 1)
 
@@ -208,7 +219,8 @@ rvu_join |>
     groupname_col = "hcpcs",
     row_group_as_column = TRUE
     ) |> 
-  gt::opt_table_font(font = gt::google_font(name = "Atkinson Hyperlegible")) |> 
+  gt::opt_table_font(
+    font = gt::google_font(name = "Atkinson Hyperlegible")) |> 
   gt::fmt_currency(
     columns = c("par_non_amt", 
                 "par_fac_amt", 
@@ -256,15 +268,7 @@ rvu_join |>
 ```{r}
 #| error: true
 claims_unajusted <- claims |> 
-  left_join(
-    pos, 
-    by = join_by(pos == pos_code)) |> 
-  left_join(
-    rvu_join,
-    by = join_by(
-      hcpcs_code == hcpcs, 
-      year, 
-      quarter)) |> 
+  left_join(rvu_join, by = join_by(hcpcs, year, quarter)) |> 
   mutate(
     pe_rvu = case_when(
       pos_type == "Non-Facility" ~ non_fac_pe_rvu,
@@ -274,42 +278,18 @@ claims_unajusted <- claims |>
     facility_pe_rvu = NULL,
     non_fac_pe_rvu = NULL,
     total_rvu = work_rvu + pe_rvu + mp_rvu,
-    par_amt = total_rvu * conv_factor * hcpcs_unit,
+    par_amt = total_rvu * conv_factor * units,
     nonpar_amt = par_amt * 1.15,
     limit_chrg = nonpar_amt * 0.95,
     .after = work_rvu) |> 
   filter(
     ins_class != "SELF", 
-    !is.na(hcpcs_code),
+    !is.na(hcpcs),
     !is.na(work_rvu),
     !(work_rvu == 0.0 & 
         pe_rvu == 0.0 & 
         mp_rvu == 0.0),
-    charges > 0) |> 
-  select(
-    pt_id = id,
-    pt_enc = enc,
-    dos_dt = dos,
-    dos_yr = year,
-    dos_qt = quarter,
-    prov_rend = rendering,
-    hcpcs_ord = hcpcs_order,
-    hcpcs_code,
-    hcpcs_uos = hcpcs_unit,
-    pos_type,
-    ins_class,
-    charges,
-    allowed,
-    payments,
-    adjustments,
-    par_unadj = par_amt,
-    non_unadj = nonpar_amt,
-    lim_unadj = limit_chrg,
-    work_rvu,
-    pe_rvu,
-    mp_rvu,
-    sum_rvu = total_rvu,
-    cf = conv_factor)
+    charges > 0)
 
 claims_unajusted |> skimr::skim()
 ```

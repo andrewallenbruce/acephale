@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Andrew Allen Bruce">
-<meta name="dcterms.date" content="2024-08-08">
+<meta name="dcterms.date" content="2024-08-09">
 <meta name="description" content="A guide to National Provider Identifiers and the CMS standard for NPI validation.">
 
 <title>Claims Analysis – acéphale</title>
@@ -181,7 +181,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div>
       <div class="quarto-title-meta-heading">Last updated</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">August 8, 2024</p>
+        <p class="date">August 9, 2024</p>
       </div>
     </div>
     
@@ -214,8 +214,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1 data-number="1"><span class="header-section-number">1</span> Trends &amp; Demographics</h1>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>claims <span class="sc">|&gt;</span> </span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sorted_bars</span>(month_l) <span class="sc">+</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gg_theme</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ord <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sorted_bars</span>(month_l) <span class="sc">+</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gg_theme</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -226,11 +227,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>ggstatsplot<span class="sc">::</span><span class="fu">ggscatterstats</span>(</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  claims <span class="sc">|&gt;</span> <span class="fu">filter</span>(payments <span class="sc">&gt;</span> <span class="dv">0</span>),</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> charges,</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> payments,</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">title =</span> <span class="st">"Charges vs Payments"</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  claims <span class="sc">|&gt;</span> <span class="fu">filter</span>(</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    payments <span class="sc">&gt;</span> <span class="dv">0</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    payments <span class="sc">&lt;</span> <span class="dv">1000</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    charges <span class="sc">&lt;</span> <span class="dv">1000</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> charges,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> payments,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">title =</span> <span class="st">"Charges vs Payments"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -244,12 +248,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1 data-number="2"><span class="header-section-number">2</span> Reimbursement</h1>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>yq <span class="ot">&lt;-</span> claims <span class="sc">|&gt;</span> </span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(hcpcs_code)) <span class="sc">|&gt;</span> </span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(year, quarter, hcpcs_code)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(hcpcs)) <span class="sc">|&gt;</span> </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(year, quarter, hcpcs)</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>yq <span class="ot">&lt;-</span> <span class="fu">split</span>(yq<span class="sc">$</span>hcpcs_code, yq[<span class="fu">c</span>(<span class="st">"year"</span>, <span class="st">"quarter"</span>)]) <span class="sc">|&gt;</span> </span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>yq <span class="ot">&lt;-</span> <span class="fu">split</span>(yq<span class="sc">$</span>hcpcs, yq[<span class="fu">c</span>(<span class="st">"year"</span>, <span class="st">"quarter"</span>)]) <span class="sc">|&gt;</span> </span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">compact</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  cheapr<span class="sc">::</span><span class="fu">enframe_</span>(<span class="at">name =</span> <span class="st">"yq"</span>, <span class="at">value =</span> <span class="st">"hcpcs_code"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  cheapr<span class="sc">::</span><span class="fu">enframe_</span>(<span class="at">name =</span> <span class="st">"yq"</span>, <span class="at">value =</span> <span class="st">"hcpcs"</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(yq)</span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>yqi <span class="ot">&lt;-</span> claims <span class="sc">|&gt;</span> </span>
@@ -266,42 +270,42 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co"># }</span></span>
 <span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>rvu_22<span class="fl">.2</span> <span class="ot">&lt;-</span> rvus<span class="sc">$</span>rvu22b_apr <span class="sc">|&gt;</span> </span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">1</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs_code) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">1</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
 <span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) <span class="sc">|&gt;</span> </span>
 <span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> yqi<span class="sc">$</span>y[<span class="dv">1</span>], <span class="at">quarter =</span> yqi<span class="sc">$</span>q[<span class="dv">1</span>], <span class="at">.before =</span> <span class="dv">1</span>)</span>
 <span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>rvu_22<span class="fl">.3</span> <span class="ot">&lt;-</span> rvus<span class="sc">$</span>rvu22c_jul <span class="sc">|&gt;</span> </span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">2</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs_code) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">2</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
 <span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) <span class="sc">|&gt;</span> </span>
 <span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> yqi<span class="sc">$</span>y[<span class="dv">2</span>], <span class="at">quarter =</span> yqi<span class="sc">$</span>q[<span class="dv">2</span>], <span class="at">.before =</span> <span class="dv">1</span>)</span>
 <span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>rvu_22<span class="fl">.4</span> <span class="ot">&lt;-</span> rvus<span class="sc">$</span>rvu22d_oct <span class="sc">|&gt;</span> </span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">3</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs_code) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">3</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
 <span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) <span class="sc">|&gt;</span> </span>
 <span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> yqi<span class="sc">$</span>y[<span class="dv">3</span>], <span class="at">quarter =</span> yqi<span class="sc">$</span>q[<span class="dv">3</span>], <span class="at">.before =</span> <span class="dv">1</span>)</span>
 <span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>rvu_23<span class="fl">.1</span> <span class="ot">&lt;-</span> rvus<span class="sc">$</span>rvu23a_jan <span class="sc">|&gt;</span> </span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">4</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs_code) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">4</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
 <span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) <span class="sc">|&gt;</span> </span>
 <span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> yqi<span class="sc">$</span>y[<span class="dv">4</span>], <span class="at">quarter =</span> yqi<span class="sc">$</span>q[<span class="dv">4</span>], <span class="at">.before =</span> <span class="dv">1</span>)</span>
 <span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>rvu_23<span class="fl">.2</span> <span class="ot">&lt;-</span> rvus<span class="sc">$</span>rvu23b_apr <span class="sc">|&gt;</span> </span>
-<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">5</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs_code) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">5</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
 <span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) <span class="sc">|&gt;</span> </span>
 <span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> yqi<span class="sc">$</span>y[<span class="dv">5</span>], <span class="at">quarter =</span> yqi<span class="sc">$</span>q[<span class="dv">5</span>], <span class="at">.before =</span> <span class="dv">1</span>)</span>
 <span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>rvu_23<span class="fl">.3</span> <span class="ot">&lt;-</span> rvus<span class="sc">$</span>rvu23c_jul <span class="sc">|&gt;</span> </span>
-<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">6</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs_code) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">6</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
 <span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) <span class="sc">|&gt;</span> </span>
 <span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> yqi<span class="sc">$</span>y[<span class="dv">6</span>], <span class="at">quarter =</span> yqi<span class="sc">$</span>q[<span class="dv">6</span>], <span class="at">.before =</span> <span class="dv">1</span>)</span>
 <span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>rvu_23<span class="fl">.4</span> <span class="ot">&lt;-</span> rvus<span class="sc">$</span>rvu23d_oct <span class="sc">|&gt;</span> </span>
-<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">7</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs_code) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">7</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
 <span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) <span class="sc">|&gt;</span> </span>
 <span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> yqi<span class="sc">$</span>y[<span class="dv">7</span>], <span class="at">quarter =</span> yqi<span class="sc">$</span>q[<span class="dv">7</span>], <span class="at">.before =</span> <span class="dv">1</span>)</span>
 <span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>rvu_24<span class="fl">.1</span> <span class="ot">&lt;-</span> rvus<span class="sc">$</span>rvu24a_jan <span class="sc">|&gt;</span> </span>
-<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">8</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs_code) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">8</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
 <span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) <span class="sc">|&gt;</span> </span>
 <span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> yqi<span class="sc">$</span>y[<span class="dv">8</span>], <span class="at">quarter =</span> yqi<span class="sc">$</span>q[<span class="dv">8</span>], <span class="at">.before =</span> <span class="dv">1</span>)</span>
 <span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a></span>
@@ -333,68 +337,69 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">groupname_col =</span> <span class="st">"hcpcs"</span>,</span>
 <span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">row_group_as_column =</span> <span class="cn">TRUE</span></span>
 <span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span> </span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">opt_table_font</span>(<span class="at">font =</span> gt<span class="sc">::</span><span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Atkinson Hyperlegible"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">fmt_currency</span>(</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">"par_non_amt"</span>, </span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>                <span class="st">"par_fac_amt"</span>, </span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>                <span class="st">"nonpar_non_amt"</span>, </span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>                <span class="st">"nonpar_fac_amt"</span>, </span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>                <span class="st">"limiting_non"</span>, </span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>                <span class="st">"limiting_fac"</span>)</span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">cols_label</span>(</span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">quarter =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"**Qtr**"</span>),</span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">work_rvu =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;wk&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">facility_pe_rvu =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;f&lt;/i&gt;&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;pe&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">non_fac_pe_rvu =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;nf&lt;/i&gt;&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;pe&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">mp_rvu =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;mp&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">conv_factor =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;b&gt;CF&lt;/b&gt;"</span>),</span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">tot_fac_rvu =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;f&lt;/i&gt;&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;s&lt;/i&gt;"</span>),</span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">tot_non_rvu =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;nf&lt;/i&gt;&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;s&lt;/i&gt;"</span>),</span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">par_non_amt =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;nf&lt;/i&gt;&lt;b&gt;&lt;small&gt;PAR&lt;/small&gt;&lt;/b&gt;"</span>),</span>
-<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">par_fac_amt =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;f&lt;/i&gt;&lt;b&gt;&lt;small&gt;PAR&lt;/small&gt;&lt;/b&gt;"</span>),</span>
-<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">nonpar_non_amt =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;nf&lt;/i&gt;&lt;b&gt;&lt;small&gt;NPAR&lt;/small&gt;&lt;/b&gt;"</span>),</span>
-<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">nonpar_fac_amt =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;f&lt;/i&gt;&lt;b&gt;&lt;small&gt;NPAR&lt;/small&gt;&lt;/b&gt;"</span>),</span>
-<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">limiting_non =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;nf&lt;/i&gt;&lt;b&gt;&lt;small&gt;LC&lt;/small&gt;&lt;/b&gt;"</span>),</span>
-<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">limiting_fac =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;f&lt;/i&gt;&lt;b&gt;&lt;small&gt;LC&lt;/small&gt;&lt;/b&gt;"</span>)</span>
-<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">cols_align</span>(<span class="at">align =</span> <span class="st">"center"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">tab_style</span>(</span>
-<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>      <span class="at">style =</span> gt<span class="sc">::</span><span class="fu">cell_text</span>(</span>
-<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>        <span class="at">align =</span> <span class="st">'center'</span>,</span>
-<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>        <span class="at">size =</span> gt<span class="sc">::</span><span class="fu">px</span>(<span class="dv">16</span>),</span>
-<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>        <span class="at">font =</span> gt<span class="sc">::</span><span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>),</span>
-<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>        <span class="at">weight =</span> <span class="st">"bold"</span>),</span>
-<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>      <span class="at">locations =</span> gt<span class="sc">::</span><span class="fu">cells_row_groups</span>()) <span class="sc">|&gt;</span> </span>
-<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">tab_style</span>(</span>
-<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>      <span class="at">style =</span> gt<span class="sc">::</span><span class="fu">cell_text</span>(</span>
-<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>      <span class="at">font =</span> gt<span class="sc">::</span><span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>)),</span>
-<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>      <span class="at">locations =</span> gt<span class="sc">::</span><span class="fu">cells_body</span>()) <span class="sc">|&gt;</span> </span>
-<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">tab_options</span>(</span>
-<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>    <span class="at">quarto.disable_processing =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">table.width =</span> <span class="st">"100%"</span></span>
-<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">opt_table_font</span>(</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">font =</span> gt<span class="sc">::</span><span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Atkinson Hyperlegible"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">fmt_currency</span>(</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">"par_non_amt"</span>, </span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>                <span class="st">"par_fac_amt"</span>, </span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>                <span class="st">"nonpar_non_amt"</span>, </span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>                <span class="st">"nonpar_fac_amt"</span>, </span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>                <span class="st">"limiting_non"</span>, </span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>                <span class="st">"limiting_fac"</span>)</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">cols_label</span>(</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">quarter =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"**Qtr**"</span>),</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">work_rvu =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;wk&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">facility_pe_rvu =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;f&lt;/i&gt;&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;pe&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">non_fac_pe_rvu =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;nf&lt;/i&gt;&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;pe&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">mp_rvu =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;mp&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">conv_factor =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;b&gt;CF&lt;/b&gt;"</span>),</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">tot_fac_rvu =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;f&lt;/i&gt;&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;s&lt;/i&gt;"</span>),</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">tot_non_rvu =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;nf&lt;/i&gt;&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;s&lt;/i&gt;"</span>),</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">par_non_amt =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;nf&lt;/i&gt;&lt;b&gt;&lt;small&gt;PAR&lt;/small&gt;&lt;/b&gt;"</span>),</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">par_fac_amt =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;f&lt;/i&gt;&lt;b&gt;&lt;small&gt;PAR&lt;/small&gt;&lt;/b&gt;"</span>),</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">nonpar_non_amt =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;nf&lt;/i&gt;&lt;b&gt;&lt;small&gt;NPAR&lt;/small&gt;&lt;/b&gt;"</span>),</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">nonpar_fac_amt =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;f&lt;/i&gt;&lt;b&gt;&lt;small&gt;NPAR&lt;/small&gt;&lt;/b&gt;"</span>),</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">limiting_non =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;nf&lt;/i&gt;&lt;b&gt;&lt;small&gt;LC&lt;/small&gt;&lt;/b&gt;"</span>),</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">limiting_fac =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;f&lt;/i&gt;&lt;b&gt;&lt;small&gt;LC&lt;/small&gt;&lt;/b&gt;"</span>)</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">cols_align</span>(<span class="at">align =</span> <span class="st">"center"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">tab_style</span>(</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>      <span class="at">style =</span> gt<span class="sc">::</span><span class="fu">cell_text</span>(</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>        <span class="at">align =</span> <span class="st">'center'</span>,</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>        <span class="at">size =</span> gt<span class="sc">::</span><span class="fu">px</span>(<span class="dv">16</span>),</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>        <span class="at">font =</span> gt<span class="sc">::</span><span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>),</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>        <span class="at">weight =</span> <span class="st">"bold"</span>),</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>      <span class="at">locations =</span> gt<span class="sc">::</span><span class="fu">cells_row_groups</span>()) <span class="sc">|&gt;</span> </span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">tab_style</span>(</span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>      <span class="at">style =</span> gt<span class="sc">::</span><span class="fu">cell_text</span>(</span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>      <span class="at">font =</span> gt<span class="sc">::</span><span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>)),</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>      <span class="at">locations =</span> gt<span class="sc">::</span><span class="fu">cells_body</span>()) <span class="sc">|&gt;</span> </span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">tab_options</span>(</span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">quarto.disable_processing =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>    <span class="at">table.width =</span> <span class="st">"100%"</span></span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="cdrlehlgat" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="risspsxsav" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>@import url("https://fonts.googleapis.com/css2?family=Fira+Code:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Fira+Code:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-#cdrlehlgat table {
+#risspsxsav table {
   font-family: 'Atkinson Hyperlegible', system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#cdrlehlgat thead, #cdrlehlgat tbody, #cdrlehlgat tfoot, #cdrlehlgat tr, #cdrlehlgat td, #cdrlehlgat th {
+#risspsxsav thead, #risspsxsav tbody, #risspsxsav tfoot, #risspsxsav tr, #risspsxsav td, #risspsxsav th {
   border-style: none;
 }
 
-#cdrlehlgat p {
+#risspsxsav p {
   margin: 0;
   padding: 0;
 }
 
-#cdrlehlgat .gt_table {
+#risspsxsav .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -420,12 +425,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-left-color: #D3D3D3;
 }
 
-#cdrlehlgat .gt_caption {
+#risspsxsav .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#cdrlehlgat .gt_title {
+#risspsxsav .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -437,7 +442,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 0;
 }
 
-#cdrlehlgat .gt_subtitle {
+#risspsxsav .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -449,7 +454,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-width: 0;
 }
 
-#cdrlehlgat .gt_heading {
+#risspsxsav .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -461,13 +466,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#cdrlehlgat .gt_bottom_border {
+#risspsxsav .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#cdrlehlgat .gt_col_headings {
+#risspsxsav .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -482,7 +487,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#cdrlehlgat .gt_col_heading {
+#risspsxsav .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -502,7 +507,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   overflow-x: hidden;
 }
 
-#cdrlehlgat .gt_column_spanner_outer {
+#risspsxsav .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -514,15 +519,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 4px;
 }
 
-#cdrlehlgat .gt_column_spanner_outer:first-child {
+#risspsxsav .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#cdrlehlgat .gt_column_spanner_outer:last-child {
+#risspsxsav .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#cdrlehlgat .gt_column_spanner {
+#risspsxsav .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -534,11 +539,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   width: 100%;
 }
 
-#cdrlehlgat .gt_spanner_row {
+#risspsxsav .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#cdrlehlgat .gt_group_heading {
+#risspsxsav .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -564,7 +569,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   text-align: left;
 }
 
-#cdrlehlgat .gt_empty_group_heading {
+#risspsxsav .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -579,15 +584,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: middle;
 }
 
-#cdrlehlgat .gt_from_md > :first-child {
+#risspsxsav .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#cdrlehlgat .gt_from_md > :last-child {
+#risspsxsav .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#cdrlehlgat .gt_row {
+#risspsxsav .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -606,7 +611,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   overflow-x: hidden;
 }
 
-#cdrlehlgat .gt_stub {
+#risspsxsav .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -619,7 +624,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#cdrlehlgat .gt_stub_row_group {
+#risspsxsav .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -633,15 +638,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: top;
 }
 
-#cdrlehlgat .gt_row_group_first td {
+#risspsxsav .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#cdrlehlgat .gt_row_group_first th {
+#risspsxsav .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#cdrlehlgat .gt_summary_row {
+#risspsxsav .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -651,16 +656,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#cdrlehlgat .gt_first_summary_row {
+#risspsxsav .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#cdrlehlgat .gt_first_summary_row.thick {
+#risspsxsav .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#cdrlehlgat .gt_last_summary_row {
+#risspsxsav .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -670,7 +675,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
 }
 
-#cdrlehlgat .gt_grand_summary_row {
+#risspsxsav .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -680,7 +685,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#cdrlehlgat .gt_first_grand_summary_row {
+#risspsxsav .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -690,7 +695,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-color: #D3D3D3;
 }
 
-#cdrlehlgat .gt_last_grand_summary_row_top {
+#risspsxsav .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -700,11 +705,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
 }
 
-#cdrlehlgat .gt_striped {
+#risspsxsav .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#cdrlehlgat .gt_table_body {
+#risspsxsav .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -713,7 +718,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
 }
 
-#cdrlehlgat .gt_footnotes {
+#risspsxsav .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -727,7 +732,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#cdrlehlgat .gt_footnote {
+#risspsxsav .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -736,7 +741,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#cdrlehlgat .gt_sourcenotes {
+#risspsxsav .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -750,7 +755,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#cdrlehlgat .gt_sourcenote {
+#risspsxsav .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -758,72 +763,72 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#cdrlehlgat .gt_left {
+#risspsxsav .gt_left {
   text-align: left;
 }
 
-#cdrlehlgat .gt_center {
+#risspsxsav .gt_center {
   text-align: center;
 }
 
-#cdrlehlgat .gt_right {
+#risspsxsav .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#cdrlehlgat .gt_font_normal {
+#risspsxsav .gt_font_normal {
   font-weight: normal;
 }
 
-#cdrlehlgat .gt_font_bold {
+#risspsxsav .gt_font_bold {
   font-weight: bold;
 }
 
-#cdrlehlgat .gt_font_italic {
+#risspsxsav .gt_font_italic {
   font-style: italic;
 }
 
-#cdrlehlgat .gt_super {
+#risspsxsav .gt_super {
   font-size: 65%;
 }
 
-#cdrlehlgat .gt_footnote_marks {
+#risspsxsav .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#cdrlehlgat .gt_asterisk {
+#risspsxsav .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#cdrlehlgat .gt_indent_1 {
+#risspsxsav .gt_indent_1 {
   text-indent: 5px;
 }
 
-#cdrlehlgat .gt_indent_2 {
+#risspsxsav .gt_indent_2 {
   text-indent: 10px;
 }
 
-#cdrlehlgat .gt_indent_3 {
+#risspsxsav .gt_indent_3 {
   text-indent: 15px;
 }
 
-#cdrlehlgat .gt_indent_4 {
+#risspsxsav .gt_indent_4 {
   text-indent: 20px;
 }
 
-#cdrlehlgat .gt_indent_5 {
+#risspsxsav .gt_indent_5 {
   text-indent: 25px;
 }
 
-#cdrlehlgat .katex-display {
+#risspsxsav .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#cdrlehlgat div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#risspsxsav div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -2883,66 +2888,741 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1 data-number="3"><span class="header-section-number">3</span> Calculate Unadjusted Allowed Amounts</h1>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>claims_unajusted <span class="ot">&lt;-</span> claims <span class="sc">|&gt;</span> </span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    pos, </span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="fu">join_by</span>(pos <span class="sc">==</span> pos_code)) <span class="sc">|&gt;</span> </span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    rvu_join,</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="fu">join_by</span>(</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>      hcpcs_code <span class="sc">==</span> hcpcs, </span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>      year, </span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>      quarter)) <span class="sc">|&gt;</span> </span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">pe_rvu =</span> <span class="fu">case_when</span>(</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>      pos_type <span class="sc">==</span> <span class="st">"Non-Facility"</span> <span class="sc">~</span> non_fac_pe_rvu,</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>      pos_type <span class="sc">==</span> <span class="st">"Facility"</span> <span class="sc">~</span> facility_pe_rvu,</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">.default =</span> <span class="cn">NA_real_</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>      ),</span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">facility_pe_rvu =</span> <span class="cn">NULL</span>,</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">non_fac_pe_rvu =</span> <span class="cn">NULL</span>,</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_rvu =</span> work_rvu <span class="sc">+</span> pe_rvu <span class="sc">+</span> mp_rvu,</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">par_amt =</span> total_rvu <span class="sc">*</span> conv_factor <span class="sc">*</span> hcpcs_unit,</span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">nonpar_amt =</span> par_amt <span class="sc">*</span> <span class="fl">1.15</span>,</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">limit_chrg =</span> nonpar_amt <span class="sc">*</span> <span class="fl">0.95</span>,</span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">.after =</span> work_rvu) <span class="sc">|&gt;</span> </span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    ins_class <span class="sc">!=</span> <span class="st">"SELF"</span>, </span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(hcpcs_code),</span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(work_rvu),</span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span>(work_rvu <span class="sc">==</span> <span class="fl">0.0</span> <span class="sc">&amp;</span> </span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>        pe_rvu <span class="sc">==</span> <span class="fl">0.0</span> <span class="sc">&amp;</span> </span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>        mp_rvu <span class="sc">==</span> <span class="fl">0.0</span>),</span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>    charges <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">pt_id =</span> id,</span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">pt_enc =</span> enc,</span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">dos_dt =</span> dos,</span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">dos_yr =</span> year,</span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">dos_qt =</span> quarter,</span>
-<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">prov_rend =</span> rendering,</span>
-<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">hcpcs_ord =</span> hcpcs_order,</span>
-<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>    hcpcs_code,</span>
-<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">hcpcs_uos =</span> hcpcs_unit,</span>
-<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>    pos_type,</span>
-<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>    ins_class,</span>
-<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>    charges,</span>
-<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>    allowed,</span>
-<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>    payments,</span>
-<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>    adjustments,</span>
-<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>    <span class="at">par_unadj =</span> par_amt,</span>
-<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>    <span class="at">non_unadj =</span> nonpar_amt,</span>
-<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>    <span class="at">lim_unadj =</span> limit_chrg,</span>
-<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>    work_rvu,</span>
-<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>    pe_rvu,</span>
-<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>    mp_rvu,</span>
-<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">sum_rvu =</span> total_rvu,</span>
-<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">cf =</span> conv_factor)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in eval(expr, envir, enclos): object 'pos' not found</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>claims_unajusted <span class="sc">|&gt;</span> skimr<span class="sc">::</span><span class="fu">skim</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in eval(expr, envir, enclos): object 'claims_unajusted' not found</code></pre>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(rvu_join, <span class="at">by =</span> <span class="fu">join_by</span>(hcpcs, year, quarter)) <span class="sc">|&gt;</span> </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">pe_rvu =</span> <span class="fu">case_when</span>(</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>      pos_type <span class="sc">==</span> <span class="st">"Non-Facility"</span> <span class="sc">~</span> non_fac_pe_rvu,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>      pos_type <span class="sc">==</span> <span class="st">"Facility"</span> <span class="sc">~</span> facility_pe_rvu,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">.default =</span> <span class="cn">NA_real_</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">facility_pe_rvu =</span> <span class="cn">NULL</span>,</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">non_fac_pe_rvu =</span> <span class="cn">NULL</span>,</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_rvu =</span> work_rvu <span class="sc">+</span> pe_rvu <span class="sc">+</span> mp_rvu,</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">par_amt =</span> total_rvu <span class="sc">*</span> conv_factor <span class="sc">*</span> units,</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">nonpar_amt =</span> par_amt <span class="sc">*</span> <span class="fl">1.15</span>,</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">limit_chrg =</span> nonpar_amt <span class="sc">*</span> <span class="fl">0.95</span>,</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">.after =</span> work_rvu) <span class="sc">|&gt;</span> </span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    ins_class <span class="sc">!=</span> <span class="st">"SELF"</span>, </span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(hcpcs),</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(work_rvu),</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span>(work_rvu <span class="sc">==</span> <span class="fl">0.0</span> <span class="sc">&amp;</span> </span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>        pe_rvu <span class="sc">==</span> <span class="fl">0.0</span> <span class="sc">&amp;</span> </span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>        mp_rvu <span class="sc">==</span> <span class="fl">0.0</span>),</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    charges <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>claims_unajusted <span class="sc">|&gt;</span> skimr<span class="sc">::</span><span class="fu">skim</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Name</td>
+<td style="text-align: left;">claims_unajusted</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Number of rows</td>
+<td style="text-align: left;">33000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Number of columns</td>
+<td style="text-align: left;">49</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">_______________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Column type frequency:</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">character</td>
+<td style="text-align: left;">19</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Date</td>
+<td style="text-align: left;">3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">factor</td>
+<td style="text-align: left;">3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">24</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">________________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Group variables</td>
+<td style="text-align: left;">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: character</strong></p>
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 13%">
+<col style="width: 19%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 12%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">min</th>
+<th style="text-align: right;">max</th>
+<th style="text-align: right;">empty</th>
+<th style="text-align: right;">n_unique</th>
+<th style="text-align: right;">whitespace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">id</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">5420</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ref</td>
+<td style="text-align: right;">23515</td>
+<td style="text-align: right;">0.29</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">206</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ref_cred</td>
+<td style="text-align: right;">30964</td>
+<td style="text-align: right;">0.06</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ren</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">59</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ren_cred</td>
+<td style="text-align: right;">31907</td>
+<td style="text-align: right;">0.03</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">icd</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">28</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1250</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">hcpcs</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">29</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">desc</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">37</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">57</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">mod1</td>
+<td style="text-align: right;">23934</td>
+<td style="text-align: right;">0.27</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">mod2</td>
+<td style="text-align: right;">32901</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">pos</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">pos_name</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">51</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">loc</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ins_class</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ins_prim</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ins_sec</td>
+<td style="text-align: right;">28838</td>
+<td style="text-align: right;">0.13</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">adj1</td>
+<td style="text-align: right;">2901</td>
+<td style="text-align: right;">0.91</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">29</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">adj2</td>
+<td style="text-align: right;">28436</td>
+<td style="text-align: right;">0.14</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">adj3</td>
+<td style="text-align: right;">32398</td>
+<td style="text-align: right;">0.02</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: Date</strong></p>
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 12%">
+<col style="width: 17%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: left;">min</th>
+<th style="text-align: left;">max</th>
+<th style="text-align: left;">median</th>
+<th style="text-align: right;">n_unique</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">dos</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: left;">2022-08-16</td>
+<td style="text-align: left;">2024-03-12</td>
+<td style="text-align: left;">2023-04-03</td>
+<td style="text-align: right;">408</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">dob</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: left;">1929-08-22</td>
+<td style="text-align: left;">2019-04-08</td>
+<td style="text-align: left;">1993-10-12</td>
+<td style="text-align: right;">4806</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">dor</td>
+<td style="text-align: right;">281</td>
+<td style="text-align: right;">0.99</td>
+<td style="text-align: left;">2022-08-16</td>
+<td style="text-align: left;">2024-03-12</td>
+<td style="text-align: left;">2023-04-05</td>
+<td style="text-align: right;">508</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: factor</strong></p>
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 10%">
+<col style="width: 14%">
+<col style="width: 8%">
+<col style="width: 9%">
+<col style="width: 43%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: left;">ordered</th>
+<th style="text-align: right;">n_unique</th>
+<th style="text-align: left;">top_counts</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">pos_type</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">Non: 25068, Fac: 7932, Una: 0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">month_l</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: left;">Sep: 4076, Jan: 3779, Feb: 3688, Aug: 3612</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">wday_l</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: left;">Tue: 8154, Wed: 7104, Thu: 7100, Mon: 5475</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 10%">
+<col style="width: 14%">
+<col style="width: 8%">
+<col style="width: 7%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 6%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">p0</th>
+<th style="text-align: right;">p25</th>
+<th style="text-align: right;">p50</th>
+<th style="text-align: right;">p75</th>
+<th style="text-align: right;">p100</th>
+<th style="text-align: left;">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">enc</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">7.06</td>
+<td style="text-align: right;">8.93</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">3.00</td>
+<td style="text-align: right;">9.00</td>
+<td style="text-align: right;">80.00</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">age</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">34.37</td>
+<td style="text-align: right;">21.68</td>
+<td style="text-align: right;">3.00</td>
+<td style="text-align: right;">16.00</td>
+<td style="text-align: right;">29.00</td>
+<td style="text-align: right;">50.00</td>
+<td style="text-align: right;">93.00</td>
+<td style="text-align: left;">▇▅▃▃▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">lag</td>
+<td style="text-align: right;">281</td>
+<td style="text-align: right;">0.99</td>
+<td style="text-align: right;">3.90</td>
+<td style="text-align: right;">15.88</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">2.00</td>
+<td style="text-align: right;">316.00</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ord</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.52</td>
+<td style="text-align: right;">1.11</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">12.00</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">units</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.23</td>
+<td style="text-align: right;">0.96</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">11.00</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">charges</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">258.28</td>
+<td style="text-align: right;">227.16</td>
+<td style="text-align: right;">50.00</td>
+<td style="text-align: right;">175.00</td>
+<td style="text-align: right;">200.00</td>
+<td style="text-align: right;">225.00</td>
+<td style="text-align: right;">3500.00</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">allowed</td>
+<td style="text-align: right;">4743</td>
+<td style="text-align: right;">0.86</td>
+<td style="text-align: right;">101.55</td>
+<td style="text-align: right;">53.26</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">70.72</td>
+<td style="text-align: right;">97.12</td>
+<td style="text-align: right;">114.84</td>
+<td style="text-align: right;">1639.33</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">payments</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">89.42</td>
+<td style="text-align: right;">60.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">64.00</td>
+<td style="text-align: right;">86.40</td>
+<td style="text-align: right;">111.94</td>
+<td style="text-align: right;">1020.62</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">adjustments</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">147.94</td>
+<td style="text-align: right;">185.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">82.78</td>
+<td style="text-align: right;">104.00</td>
+<td style="text-align: right;">142.42</td>
+<td style="text-align: right;">1933.24</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">year</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2022.81</td>
+<td style="text-align: right;">0.60</td>
+<td style="text-align: right;">2022.00</td>
+<td style="text-align: right;">2022.00</td>
+<td style="text-align: right;">2023.00</td>
+<td style="text-align: right;">2023.00</td>
+<td style="text-align: right;">2024.00</td>
+<td style="text-align: left;">▃▁▇▁▂</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">quarter</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2.36</td>
+<td style="text-align: right;">1.11</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2.00</td>
+<td style="text-align: right;">3.00</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: left;">▇▅▁▇▅</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">month</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">6.11</td>
+<td style="text-align: right;">3.49</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">3.00</td>
+<td style="text-align: right;">6.00</td>
+<td style="text-align: right;">9.00</td>
+<td style="text-align: right;">12.00</td>
+<td style="text-align: left;">▇▃▃▆▅</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">week</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">24.79</td>
+<td style="text-align: right;">15.16</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">10.00</td>
+<td style="text-align: right;">26.00</td>
+<td style="text-align: right;">38.00</td>
+<td style="text-align: right;">53.00</td>
+<td style="text-align: left;">▇▅▅▇▅</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">day</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">15.86</td>
+<td style="text-align: right;">8.71</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">8.00</td>
+<td style="text-align: right;">16.00</td>
+<td style="text-align: right;">23.00</td>
+<td style="text-align: right;">31.00</td>
+<td style="text-align: left;">▇▇▇▇▆</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">yday</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">169.62</td>
+<td style="text-align: right;">106.53</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">65.00</td>
+<td style="text-align: right;">176.00</td>
+<td style="text-align: right;">260.00</td>
+<td style="text-align: right;">364.00</td>
+<td style="text-align: left;">▇▅▅▇▅</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">wday</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2.96</td>
+<td style="text-align: right;">1.34</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2.00</td>
+<td style="text-align: right;">3.00</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">7.00</td>
+<td style="text-align: left;">▇▅▅▃▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">work_rvu</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2.49</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">1.96</td>
+<td style="text-align: right;">2.24</td>
+<td style="text-align: right;">3.31</td>
+<td style="text-align: right;">4.16</td>
+<td style="text-align: left;">▂▁▇▆▃</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">pe_rvu</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">0.77</td>
+<td style="text-align: right;">0.37</td>
+<td style="text-align: right;">0.06</td>
+<td style="text-align: right;">0.56</td>
+<td style="text-align: right;">0.69</td>
+<td style="text-align: right;">0.95</td>
+<td style="text-align: right;">2.71</td>
+<td style="text-align: left;">▅▇▂▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">total_rvu</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">3.33</td>
+<td style="text-align: right;">1.19</td>
+<td style="text-align: right;">0.53</td>
+<td style="text-align: right;">2.62</td>
+<td style="text-align: right;">3.10</td>
+<td style="text-align: right;">4.34</td>
+<td style="text-align: right;">6.52</td>
+<td style="text-align: left;">▃▅▇▇▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">par_amt</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">124.08</td>
+<td style="text-align: right;">51.83</td>
+<td style="text-align: right;">17.96</td>
+<td style="text-align: right;">99.97</td>
+<td style="text-align: right;">120.30</td>
+<td style="text-align: right;">149.64</td>
+<td style="text-align: right;">841.53</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">nonpar_amt</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">142.69</td>
+<td style="text-align: right;">59.61</td>
+<td style="text-align: right;">20.65</td>
+<td style="text-align: right;">114.96</td>
+<td style="text-align: right;">138.34</td>
+<td style="text-align: right;">172.09</td>
+<td style="text-align: right;">967.75</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">limit_chrg</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">135.56</td>
+<td style="text-align: right;">56.63</td>
+<td style="text-align: right;">19.62</td>
+<td style="text-align: right;">109.21</td>
+<td style="text-align: right;">131.43</td>
+<td style="text-align: right;">163.48</td>
+<td style="text-align: right;">919.37</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">mp_rvu</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">0.08</td>
+<td style="text-align: right;">0.04</td>
+<td style="text-align: right;">0.01</td>
+<td style="text-align: right;">0.06</td>
+<td style="text-align: right;">0.08</td>
+<td style="text-align: right;">0.10</td>
+<td style="text-align: right;">0.32</td>
+<td style="text-align: left;">▅▇▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">conv_factor</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">33.98</td>
+<td style="text-align: right;">0.53</td>
+<td style="text-align: right;">32.74</td>
+<td style="text-align: right;">33.89</td>
+<td style="text-align: right;">33.89</td>
+<td style="text-align: right;">34.61</td>
+<td style="text-align: right;">34.61</td>
+<td style="text-align: left;">▂▁▁▇▃</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 
@@ -3423,322 +4103,302 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb9" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Claims Analysis"</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> "A guide to National Provider Identifiers and the CMS standard for NPI validation."</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">    reference-location: block</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">    other-links:</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">      - text: Luhn Algorithm</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">        icon: bookmark-plus</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co">        href: https://en.wikipedia.org/wiki/Luhn_algorithm</span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="in">```{r setup}</span></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="in">#| message: false</span></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="in">#| warning: false</span></span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="in">#| echo: false</span></span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="in">#| cache: false</span></span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="in">knitr::opts_chunk$set(</span></span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="in">  collapse  = FALSE,</span></span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="in">  echo      = TRUE, </span></span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="in">  message   = FALSE, </span></span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a><span class="in">  warning   = FALSE,</span></span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="in">  error     = TRUE,</span></span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="in">  comment   = "",</span></span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a><span class="in">  dpi       = 600, </span></span>
-<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a><span class="in">  dev       = "ragg_png",</span></span>
-<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a><span class="in">  out.width = "100%",</span></span>
-<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a><span class="in">  fig.align = "center",</span></span>
-<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a><span class="in">  fig.width = 8</span></span>
-<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a><span class="in">)</span></span>
-<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a><span class="in">options(scipen = 999)</span></span>
-<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a><span class="in">library(tidyverse)</span></span>
-<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a><span class="in">library(here)</span></span>
-<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a><span class="in">library(downlit)</span></span>
-<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a><span class="in">library(gt)</span></span>
-<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a><span class="in">library(gtExtras)</span></span>
-<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a><span class="in">library(rvu)</span></span>
-<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a><span class="in">library(northstar)</span></span>
-<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a><span class="in">library(fuimus)</span></span>
-<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a><span class="in">library(ggstatsplot)</span></span>
-<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
-<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>claims_spec <span class="ot">&lt;-</span> <span class="fu">cols</span>(</span>
-<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>  <span class="at">rendid =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>  <span class="at">ptid =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>  <span class="at">ptenc =</span> <span class="fu">col_integer</span>(),</span>
-<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>  <span class="at">dos =</span> <span class="fu">col_date</span>(<span class="at">format =</span> <span class="st">""</span>),</span>
-<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>  <span class="at">dob =</span> <span class="fu">col_date</span>(<span class="at">format =</span> <span class="st">""</span>),</span>
-<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>  <span class="at">ptage =</span> <span class="fu">col_integer</span>(),</span>
-<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>  <span class="at">dor =</span> <span class="fu">col_date</span>(<span class="at">format =</span> <span class="st">""</span>),</span>
-<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>  <span class="at">dor_lag =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a>  <span class="at">icd_code =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a>  <span class="at">hcpcs_order =</span> <span class="fu">col_integer</span>(),</span>
-<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>  <span class="at">hcpcs_code =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a>  <span class="at">hcpcs_desc =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a>  <span class="at">hcpcs_unit =</span> <span class="fu">col_integer</span>(),</span>
-<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>  <span class="at">hcpcs_mod_1 =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a>  <span class="at">hcpcs_mod_2 =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a>  <span class="at">pos =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a>  <span class="at">pos_name =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a>  <span class="at">ins_class =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a>  <span class="at">ins_prim =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a>  <span class="at">ins_sec =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb9-72"><a href="#cb9-72" aria-hidden="true" tabindex="-1"></a>  <span class="at">charges =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb9-73"><a href="#cb9-73" aria-hidden="true" tabindex="-1"></a>  <span class="at">payments =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb9-74"><a href="#cb9-74" aria-hidden="true" tabindex="-1"></a>  <span class="at">adjustments =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb9-75"><a href="#cb9-75" aria-hidden="true" tabindex="-1"></a>  <span class="at">allowed =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb9-76"><a href="#cb9-76" aria-hidden="true" tabindex="-1"></a>  <span class="at">adj_code_1 =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb9-77"><a href="#cb9-77" aria-hidden="true" tabindex="-1"></a>  <span class="at">adj_code_2 =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb9-78"><a href="#cb9-78" aria-hidden="true" tabindex="-1"></a>  <span class="at">adj_code_3 =</span> <span class="fu">col_character</span>()</span>
-<span id="cb9-79"><a href="#cb9-79" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb9-80"><a href="#cb9-80" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-81"><a href="#cb9-81" aria-hidden="true" tabindex="-1"></a>claims <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
-<span id="cb9-82"><a href="#cb9-82" aria-hidden="true" tabindex="-1"></a>  <span class="fu">here</span>(<span class="st">"posts/claims/data"</span>, <span class="st">"clean_rpt_rend.csv"</span>), </span>
-<span id="cb9-83"><a href="#cb9-83" aria-hidden="true" tabindex="-1"></a>  <span class="at">col_types =</span> claims_spec)</span>
-<span id="cb9-84"><a href="#cb9-84" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-85"><a href="#cb9-85" aria-hidden="true" tabindex="-1"></a>claims <span class="ot">&lt;-</span> claims <span class="sc">|&gt;</span> </span>
-<span id="cb9-86"><a href="#cb9-86" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(<span class="fu">search_pos</span>() <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(pos_name, pos_description)), <span class="at">by =</span> <span class="fu">join_by</span>(pos <span class="sc">==</span> pos_code)) <span class="sc">|&gt;</span> </span>
-<span id="cb9-87"><a href="#cb9-87" aria-hidden="true" tabindex="-1"></a>  <span class="fu">full_join</span>(<span class="fu">expand_date_range</span>(claims<span class="sc">$</span>dos, <span class="st">"dos"</span>), <span class="at">by =</span> <span class="fu">join_by</span>(dos))</span>
-<span id="cb9-88"><a href="#cb9-88" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-89"><a href="#cb9-89" aria-hidden="true" tabindex="-1"></a>rvus <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb9-90"><a href="#cb9-90" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_source</span>(<span class="dv">2021</span>, <span class="st">"pprrvu"</span>),</span>
-<span id="cb9-91"><a href="#cb9-91" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_source</span>(<span class="dv">2022</span>, <span class="st">"pprrvu"</span>),</span>
-<span id="cb9-92"><a href="#cb9-92" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_source</span>(<span class="dv">2023</span>, <span class="st">"pprrvu"</span>),</span>
-<span id="cb9-93"><a href="#cb9-93" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_source</span>(<span class="dv">2024</span>, <span class="st">"pprrvu"</span>))</span>
-<span id="cb9-94"><a href="#cb9-94" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb9-95"><a href="#cb9-95" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-96"><a href="#cb9-96" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-97"><a href="#cb9-97" aria-hidden="true" tabindex="-1"></a><span class="fu"># Trends &amp; Demographics</span></span>
-<span id="cb9-98"><a href="#cb9-98" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-99"><a href="#cb9-99" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-102"><a href="#cb9-102" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb9-103"><a href="#cb9-103" aria-hidden="true" tabindex="-1"></a>claims <span class="sc">|&gt;</span> </span>
-<span id="cb9-104"><a href="#cb9-104" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sorted_bars</span>(month_l) <span class="sc">+</span></span>
-<span id="cb9-105"><a href="#cb9-105" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gg_theme</span>()</span>
-<span id="cb9-106"><a href="#cb9-106" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb9-107"><a href="#cb9-107" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-110"><a href="#cb9-110" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb9-111"><a href="#cb9-111" aria-hidden="true" tabindex="-1"></a>ggstatsplot<span class="sc">::</span><span class="fu">ggscatterstats</span>(</span>
-<span id="cb9-112"><a href="#cb9-112" aria-hidden="true" tabindex="-1"></a>  claims <span class="sc">|&gt;</span> <span class="fu">filter</span>(payments <span class="sc">&gt;</span> <span class="dv">0</span>),</span>
-<span id="cb9-113"><a href="#cb9-113" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> charges,</span>
-<span id="cb9-114"><a href="#cb9-114" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> payments,</span>
-<span id="cb9-115"><a href="#cb9-115" aria-hidden="true" tabindex="-1"></a>  <span class="at">title =</span> <span class="st">"Charges vs Payments"</span></span>
-<span id="cb9-116"><a href="#cb9-116" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb9-117"><a href="#cb9-117" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb9-118"><a href="#cb9-118" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-119"><a href="#cb9-119" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-120"><a href="#cb9-120" aria-hidden="true" tabindex="-1"></a><span class="fu"># Reimbursement</span></span>
-<span id="cb9-121"><a href="#cb9-121" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-122"><a href="#cb9-122" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-125"><a href="#cb9-125" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb9-126"><a href="#cb9-126" aria-hidden="true" tabindex="-1"></a>yq <span class="ot">&lt;-</span> claims <span class="sc">|&gt;</span> </span>
-<span id="cb9-127"><a href="#cb9-127" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(hcpcs_code)) <span class="sc">|&gt;</span> </span>
-<span id="cb9-128"><a href="#cb9-128" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(year, quarter, hcpcs_code)</span>
-<span id="cb9-129"><a href="#cb9-129" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-130"><a href="#cb9-130" aria-hidden="true" tabindex="-1"></a>yq <span class="ot">&lt;-</span> <span class="fu">split</span>(yq<span class="sc">$</span>hcpcs_code, yq[<span class="fu">c</span>(<span class="st">"year"</span>, <span class="st">"quarter"</span>)]) <span class="sc">|&gt;</span> </span>
-<span id="cb9-131"><a href="#cb9-131" aria-hidden="true" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">compact</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb9-132"><a href="#cb9-132" aria-hidden="true" tabindex="-1"></a>  cheapr<span class="sc">::</span><span class="fu">enframe_</span>(<span class="at">name =</span> <span class="st">"yq"</span>, <span class="at">value =</span> <span class="st">"hcpcs_code"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb9-133"><a href="#cb9-133" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(yq)</span>
-<span id="cb9-134"><a href="#cb9-134" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-135"><a href="#cb9-135" aria-hidden="true" tabindex="-1"></a>yqi <span class="ot">&lt;-</span> claims <span class="sc">|&gt;</span> </span>
-<span id="cb9-136"><a href="#cb9-136" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(<span class="at">y =</span> year, <span class="at">q =</span> quarter) <span class="sc">|&gt;</span> </span>
-<span id="cb9-137"><a href="#cb9-137" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.list</span>()</span>
-<span id="cb9-138"><a href="#cb9-138" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-139"><a href="#cb9-139" aria-hidden="true" tabindex="-1"></a>yqs <span class="ot">&lt;-</span> <span class="fu">as.character</span>(<span class="fu">str_glue</span>(<span class="st">"{yqi$y}.{yqi$q}"</span>))</span>
-<span id="cb9-140"><a href="#cb9-140" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-141"><a href="#cb9-141" aria-hidden="true" tabindex="-1"></a><span class="co"># get_rvus &lt;- \(rvu, yq, yqi, yqs) {</span></span>
-<span id="cb9-142"><a href="#cb9-142" aria-hidden="true" tabindex="-1"></a><span class="co">#   rvu |&gt; </span></span>
-<span id="cb9-143"><a href="#cb9-143" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(hcpcs %in% c(filter(yq, yq == yqs) |&gt; pull(hcpcs_code) |&gt; pluck(1))) |&gt; </span></span>
-<span id="cb9-144"><a href="#cb9-144" aria-hidden="true" tabindex="-1"></a><span class="co">#   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |&gt; </span></span>
-<span id="cb9-145"><a href="#cb9-145" aria-hidden="true" tabindex="-1"></a><span class="co">#   mutate(year = yqi$y, quarter = yqi$q, .before = 1)</span></span>
-<span id="cb9-146"><a href="#cb9-146" aria-hidden="true" tabindex="-1"></a><span class="co"># }</span></span>
-<span id="cb9-147"><a href="#cb9-147" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-148"><a href="#cb9-148" aria-hidden="true" tabindex="-1"></a>rvu_22<span class="fl">.2</span> <span class="ot">&lt;-</span> rvus<span class="sc">$</span>rvu22b_apr <span class="sc">|&gt;</span> </span>
-<span id="cb9-149"><a href="#cb9-149" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">1</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs_code) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
-<span id="cb9-150"><a href="#cb9-150" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) <span class="sc">|&gt;</span> </span>
-<span id="cb9-151"><a href="#cb9-151" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> yqi<span class="sc">$</span>y[<span class="dv">1</span>], <span class="at">quarter =</span> yqi<span class="sc">$</span>q[<span class="dv">1</span>], <span class="at">.before =</span> <span class="dv">1</span>)</span>
-<span id="cb9-152"><a href="#cb9-152" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-153"><a href="#cb9-153" aria-hidden="true" tabindex="-1"></a>rvu_22<span class="fl">.3</span> <span class="ot">&lt;-</span> rvus<span class="sc">$</span>rvu22c_jul <span class="sc">|&gt;</span> </span>
-<span id="cb9-154"><a href="#cb9-154" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">2</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs_code) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
-<span id="cb9-155"><a href="#cb9-155" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) <span class="sc">|&gt;</span> </span>
-<span id="cb9-156"><a href="#cb9-156" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> yqi<span class="sc">$</span>y[<span class="dv">2</span>], <span class="at">quarter =</span> yqi<span class="sc">$</span>q[<span class="dv">2</span>], <span class="at">.before =</span> <span class="dv">1</span>)</span>
-<span id="cb9-157"><a href="#cb9-157" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-158"><a href="#cb9-158" aria-hidden="true" tabindex="-1"></a>rvu_22<span class="fl">.4</span> <span class="ot">&lt;-</span> rvus<span class="sc">$</span>rvu22d_oct <span class="sc">|&gt;</span> </span>
-<span id="cb9-159"><a href="#cb9-159" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">3</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs_code) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
-<span id="cb9-160"><a href="#cb9-160" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) <span class="sc">|&gt;</span> </span>
-<span id="cb9-161"><a href="#cb9-161" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> yqi<span class="sc">$</span>y[<span class="dv">3</span>], <span class="at">quarter =</span> yqi<span class="sc">$</span>q[<span class="dv">3</span>], <span class="at">.before =</span> <span class="dv">1</span>)</span>
-<span id="cb9-162"><a href="#cb9-162" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-163"><a href="#cb9-163" aria-hidden="true" tabindex="-1"></a>rvu_23<span class="fl">.1</span> <span class="ot">&lt;-</span> rvus<span class="sc">$</span>rvu23a_jan <span class="sc">|&gt;</span> </span>
-<span id="cb9-164"><a href="#cb9-164" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">4</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs_code) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
-<span id="cb9-165"><a href="#cb9-165" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) <span class="sc">|&gt;</span> </span>
-<span id="cb9-166"><a href="#cb9-166" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> yqi<span class="sc">$</span>y[<span class="dv">4</span>], <span class="at">quarter =</span> yqi<span class="sc">$</span>q[<span class="dv">4</span>], <span class="at">.before =</span> <span class="dv">1</span>)</span>
-<span id="cb9-167"><a href="#cb9-167" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-168"><a href="#cb9-168" aria-hidden="true" tabindex="-1"></a>rvu_23<span class="fl">.2</span> <span class="ot">&lt;-</span> rvus<span class="sc">$</span>rvu23b_apr <span class="sc">|&gt;</span> </span>
-<span id="cb9-169"><a href="#cb9-169" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">5</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs_code) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
-<span id="cb9-170"><a href="#cb9-170" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) <span class="sc">|&gt;</span> </span>
-<span id="cb9-171"><a href="#cb9-171" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> yqi<span class="sc">$</span>y[<span class="dv">5</span>], <span class="at">quarter =</span> yqi<span class="sc">$</span>q[<span class="dv">5</span>], <span class="at">.before =</span> <span class="dv">1</span>)</span>
-<span id="cb9-172"><a href="#cb9-172" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-173"><a href="#cb9-173" aria-hidden="true" tabindex="-1"></a>rvu_23<span class="fl">.3</span> <span class="ot">&lt;-</span> rvus<span class="sc">$</span>rvu23c_jul <span class="sc">|&gt;</span> </span>
-<span id="cb9-174"><a href="#cb9-174" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">6</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs_code) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
-<span id="cb9-175"><a href="#cb9-175" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) <span class="sc">|&gt;</span> </span>
-<span id="cb9-176"><a href="#cb9-176" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> yqi<span class="sc">$</span>y[<span class="dv">6</span>], <span class="at">quarter =</span> yqi<span class="sc">$</span>q[<span class="dv">6</span>], <span class="at">.before =</span> <span class="dv">1</span>)</span>
-<span id="cb9-177"><a href="#cb9-177" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-178"><a href="#cb9-178" aria-hidden="true" tabindex="-1"></a>rvu_23<span class="fl">.4</span> <span class="ot">&lt;-</span> rvus<span class="sc">$</span>rvu23d_oct <span class="sc">|&gt;</span> </span>
-<span id="cb9-179"><a href="#cb9-179" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">7</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs_code) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
-<span id="cb9-180"><a href="#cb9-180" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) <span class="sc">|&gt;</span> </span>
-<span id="cb9-181"><a href="#cb9-181" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> yqi<span class="sc">$</span>y[<span class="dv">7</span>], <span class="at">quarter =</span> yqi<span class="sc">$</span>q[<span class="dv">7</span>], <span class="at">.before =</span> <span class="dv">1</span>)</span>
-<span id="cb9-182"><a href="#cb9-182" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-183"><a href="#cb9-183" aria-hidden="true" tabindex="-1"></a>rvu_24<span class="fl">.1</span> <span class="ot">&lt;-</span> rvus<span class="sc">$</span>rvu24a_jan <span class="sc">|&gt;</span> </span>
-<span id="cb9-184"><a href="#cb9-184" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">8</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs_code) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
-<span id="cb9-185"><a href="#cb9-185" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) <span class="sc">|&gt;</span> </span>
-<span id="cb9-186"><a href="#cb9-186" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> yqi<span class="sc">$</span>y[<span class="dv">8</span>], <span class="at">quarter =</span> yqi<span class="sc">$</span>q[<span class="dv">8</span>], <span class="at">.before =</span> <span class="dv">1</span>)</span>
-<span id="cb9-187"><a href="#cb9-187" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-188"><a href="#cb9-188" aria-hidden="true" tabindex="-1"></a>rvu_join <span class="ot">&lt;-</span> vctrs<span class="sc">::</span><span class="fu">vec_rbind</span>(</span>
-<span id="cb9-189"><a href="#cb9-189" aria-hidden="true" tabindex="-1"></a>  rvu_22<span class="fl">.2</span>,</span>
-<span id="cb9-190"><a href="#cb9-190" aria-hidden="true" tabindex="-1"></a>  rvu_22<span class="fl">.3</span>,</span>
-<span id="cb9-191"><a href="#cb9-191" aria-hidden="true" tabindex="-1"></a>  rvu_22<span class="fl">.4</span>,</span>
-<span id="cb9-192"><a href="#cb9-192" aria-hidden="true" tabindex="-1"></a>  rvu_23<span class="fl">.1</span>,</span>
-<span id="cb9-193"><a href="#cb9-193" aria-hidden="true" tabindex="-1"></a>  rvu_23<span class="fl">.2</span>,</span>
-<span id="cb9-194"><a href="#cb9-194" aria-hidden="true" tabindex="-1"></a>  rvu_23<span class="fl">.3</span>,</span>
-<span id="cb9-195"><a href="#cb9-195" aria-hidden="true" tabindex="-1"></a>  rvu_24<span class="fl">.1</span></span>
-<span id="cb9-196"><a href="#cb9-196" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb9-197"><a href="#cb9-197" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb9-198"><a href="#cb9-198" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-199"><a href="#cb9-199" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-200"><a href="#cb9-200" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-203"><a href="#cb9-203" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb9-204"><a href="#cb9-204" aria-hidden="true" tabindex="-1"></a>rvu_join <span class="sc">|&gt;</span> </span>
-<span id="cb9-205"><a href="#cb9-205" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
-<span id="cb9-206"><a href="#cb9-206" aria-hidden="true" tabindex="-1"></a>    <span class="at">tot_fac_rvu =</span> work_rvu <span class="sc">+</span> facility_pe_rvu <span class="sc">+</span> mp_rvu,</span>
-<span id="cb9-207"><a href="#cb9-207" aria-hidden="true" tabindex="-1"></a>    <span class="at">tot_non_rvu =</span> work_rvu <span class="sc">+</span> non_fac_pe_rvu <span class="sc">+</span> mp_rvu,</span>
-<span id="cb9-208"><a href="#cb9-208" aria-hidden="true" tabindex="-1"></a>    <span class="at">par_non_amt =</span> tot_non_rvu <span class="sc">*</span> conv_factor,</span>
-<span id="cb9-209"><a href="#cb9-209" aria-hidden="true" tabindex="-1"></a>    <span class="at">par_fac_amt =</span> tot_fac_rvu <span class="sc">*</span> conv_factor,</span>
-<span id="cb9-210"><a href="#cb9-210" aria-hidden="true" tabindex="-1"></a>    <span class="at">nonpar_non_amt =</span> par_non_amt <span class="sc">*</span> <span class="fl">1.15</span>,</span>
-<span id="cb9-211"><a href="#cb9-211" aria-hidden="true" tabindex="-1"></a>    <span class="at">nonpar_fac_amt =</span> par_fac_amt <span class="sc">*</span> <span class="fl">1.15</span>,</span>
-<span id="cb9-212"><a href="#cb9-212" aria-hidden="true" tabindex="-1"></a>    <span class="at">limiting_non =</span> nonpar_non_amt <span class="sc">*</span> <span class="fl">0.95</span>,</span>
-<span id="cb9-213"><a href="#cb9-213" aria-hidden="true" tabindex="-1"></a>    <span class="at">limiting_fac =</span> nonpar_fac_amt <span class="sc">*</span> <span class="fl">0.95</span>,</span>
-<span id="cb9-214"><a href="#cb9-214" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb9-215"><a href="#cb9-215" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(par_fac_amt <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb9-216"><a href="#cb9-216" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">gt</span>(</span>
-<span id="cb9-217"><a href="#cb9-217" aria-hidden="true" tabindex="-1"></a>    <span class="at">rowname_col =</span> <span class="st">"year"</span>, </span>
-<span id="cb9-218"><a href="#cb9-218" aria-hidden="true" tabindex="-1"></a>    <span class="at">groupname_col =</span> <span class="st">"hcpcs"</span>,</span>
-<span id="cb9-219"><a href="#cb9-219" aria-hidden="true" tabindex="-1"></a>    <span class="at">row_group_as_column =</span> <span class="cn">TRUE</span></span>
-<span id="cb9-220"><a href="#cb9-220" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span> </span>
-<span id="cb9-221"><a href="#cb9-221" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">opt_table_font</span>(<span class="at">font =</span> gt<span class="sc">::</span><span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Atkinson Hyperlegible"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb9-222"><a href="#cb9-222" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">fmt_currency</span>(</span>
-<span id="cb9-223"><a href="#cb9-223" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">"par_non_amt"</span>, </span>
-<span id="cb9-224"><a href="#cb9-224" aria-hidden="true" tabindex="-1"></a>                <span class="st">"par_fac_amt"</span>, </span>
-<span id="cb9-225"><a href="#cb9-225" aria-hidden="true" tabindex="-1"></a>                <span class="st">"nonpar_non_amt"</span>, </span>
-<span id="cb9-226"><a href="#cb9-226" aria-hidden="true" tabindex="-1"></a>                <span class="st">"nonpar_fac_amt"</span>, </span>
-<span id="cb9-227"><a href="#cb9-227" aria-hidden="true" tabindex="-1"></a>                <span class="st">"limiting_non"</span>, </span>
-<span id="cb9-228"><a href="#cb9-228" aria-hidden="true" tabindex="-1"></a>                <span class="st">"limiting_fac"</span>)</span>
-<span id="cb9-229"><a href="#cb9-229" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb9-230"><a href="#cb9-230" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">cols_label</span>(</span>
-<span id="cb9-231"><a href="#cb9-231" aria-hidden="true" tabindex="-1"></a>    <span class="at">quarter =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"**Qtr**"</span>),</span>
-<span id="cb9-232"><a href="#cb9-232" aria-hidden="true" tabindex="-1"></a>    <span class="at">work_rvu =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;wk&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
-<span id="cb9-233"><a href="#cb9-233" aria-hidden="true" tabindex="-1"></a>    <span class="at">facility_pe_rvu =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;f&lt;/i&gt;&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;pe&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
-<span id="cb9-234"><a href="#cb9-234" aria-hidden="true" tabindex="-1"></a>    <span class="at">non_fac_pe_rvu =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;nf&lt;/i&gt;&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;pe&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
-<span id="cb9-235"><a href="#cb9-235" aria-hidden="true" tabindex="-1"></a>    <span class="at">mp_rvu =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;mp&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
-<span id="cb9-236"><a href="#cb9-236" aria-hidden="true" tabindex="-1"></a>    <span class="at">conv_factor =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;b&gt;CF&lt;/b&gt;"</span>),</span>
-<span id="cb9-237"><a href="#cb9-237" aria-hidden="true" tabindex="-1"></a>    <span class="at">tot_fac_rvu =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;f&lt;/i&gt;&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;s&lt;/i&gt;"</span>),</span>
-<span id="cb9-238"><a href="#cb9-238" aria-hidden="true" tabindex="-1"></a>    <span class="at">tot_non_rvu =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;nf&lt;/i&gt;&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;s&lt;/i&gt;"</span>),</span>
-<span id="cb9-239"><a href="#cb9-239" aria-hidden="true" tabindex="-1"></a>    <span class="at">par_non_amt =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;nf&lt;/i&gt;&lt;b&gt;&lt;small&gt;PAR&lt;/small&gt;&lt;/b&gt;"</span>),</span>
-<span id="cb9-240"><a href="#cb9-240" aria-hidden="true" tabindex="-1"></a>    <span class="at">par_fac_amt =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;f&lt;/i&gt;&lt;b&gt;&lt;small&gt;PAR&lt;/small&gt;&lt;/b&gt;"</span>),</span>
-<span id="cb9-241"><a href="#cb9-241" aria-hidden="true" tabindex="-1"></a>    <span class="at">nonpar_non_amt =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;nf&lt;/i&gt;&lt;b&gt;&lt;small&gt;NPAR&lt;/small&gt;&lt;/b&gt;"</span>),</span>
-<span id="cb9-242"><a href="#cb9-242" aria-hidden="true" tabindex="-1"></a>    <span class="at">nonpar_fac_amt =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;f&lt;/i&gt;&lt;b&gt;&lt;small&gt;NPAR&lt;/small&gt;&lt;/b&gt;"</span>),</span>
-<span id="cb9-243"><a href="#cb9-243" aria-hidden="true" tabindex="-1"></a>    <span class="at">limiting_non =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;nf&lt;/i&gt;&lt;b&gt;&lt;small&gt;LC&lt;/small&gt;&lt;/b&gt;"</span>),</span>
-<span id="cb9-244"><a href="#cb9-244" aria-hidden="true" tabindex="-1"></a>    <span class="at">limiting_fac =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;f&lt;/i&gt;&lt;b&gt;&lt;small&gt;LC&lt;/small&gt;&lt;/b&gt;"</span>)</span>
-<span id="cb9-245"><a href="#cb9-245" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb9-246"><a href="#cb9-246" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">cols_align</span>(<span class="at">align =</span> <span class="st">"center"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb9-247"><a href="#cb9-247" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">tab_style</span>(</span>
-<span id="cb9-248"><a href="#cb9-248" aria-hidden="true" tabindex="-1"></a>      <span class="at">style =</span> gt<span class="sc">::</span><span class="fu">cell_text</span>(</span>
-<span id="cb9-249"><a href="#cb9-249" aria-hidden="true" tabindex="-1"></a>        <span class="at">align =</span> <span class="st">'center'</span>,</span>
-<span id="cb9-250"><a href="#cb9-250" aria-hidden="true" tabindex="-1"></a>        <span class="at">size =</span> gt<span class="sc">::</span><span class="fu">px</span>(<span class="dv">16</span>),</span>
-<span id="cb9-251"><a href="#cb9-251" aria-hidden="true" tabindex="-1"></a>        <span class="at">font =</span> gt<span class="sc">::</span><span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>),</span>
-<span id="cb9-252"><a href="#cb9-252" aria-hidden="true" tabindex="-1"></a>        <span class="at">weight =</span> <span class="st">"bold"</span>),</span>
-<span id="cb9-253"><a href="#cb9-253" aria-hidden="true" tabindex="-1"></a>      <span class="at">locations =</span> gt<span class="sc">::</span><span class="fu">cells_row_groups</span>()) <span class="sc">|&gt;</span> </span>
-<span id="cb9-254"><a href="#cb9-254" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">tab_style</span>(</span>
-<span id="cb9-255"><a href="#cb9-255" aria-hidden="true" tabindex="-1"></a>      <span class="at">style =</span> gt<span class="sc">::</span><span class="fu">cell_text</span>(</span>
-<span id="cb9-256"><a href="#cb9-256" aria-hidden="true" tabindex="-1"></a>      <span class="at">font =</span> gt<span class="sc">::</span><span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>)),</span>
-<span id="cb9-257"><a href="#cb9-257" aria-hidden="true" tabindex="-1"></a>      <span class="at">locations =</span> gt<span class="sc">::</span><span class="fu">cells_body</span>()) <span class="sc">|&gt;</span> </span>
-<span id="cb9-258"><a href="#cb9-258" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">tab_options</span>(</span>
-<span id="cb9-259"><a href="#cb9-259" aria-hidden="true" tabindex="-1"></a>    <span class="at">quarto.disable_processing =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb9-260"><a href="#cb9-260" aria-hidden="true" tabindex="-1"></a>    <span class="at">table.width =</span> <span class="st">"100%"</span></span>
-<span id="cb9-261"><a href="#cb9-261" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb9-262"><a href="#cb9-262" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb9-263"><a href="#cb9-263" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-264"><a href="#cb9-264" aria-hidden="true" tabindex="-1"></a><span class="fu"># Calculate Unadjusted Allowed Amounts</span></span>
-<span id="cb9-265"><a href="#cb9-265" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-268"><a href="#cb9-268" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb9-269"><a href="#cb9-269" aria-hidden="true" tabindex="-1"></a><span class="co">#| error: true</span></span>
-<span id="cb9-270"><a href="#cb9-270" aria-hidden="true" tabindex="-1"></a>claims_unajusted <span class="ot">&lt;-</span> claims <span class="sc">|&gt;</span> </span>
-<span id="cb9-271"><a href="#cb9-271" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(</span>
-<span id="cb9-272"><a href="#cb9-272" aria-hidden="true" tabindex="-1"></a>    pos, </span>
-<span id="cb9-273"><a href="#cb9-273" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="fu">join_by</span>(pos <span class="sc">==</span> pos_code)) <span class="sc">|&gt;</span> </span>
-<span id="cb9-274"><a href="#cb9-274" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(</span>
-<span id="cb9-275"><a href="#cb9-275" aria-hidden="true" tabindex="-1"></a>    rvu_join,</span>
-<span id="cb9-276"><a href="#cb9-276" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="fu">join_by</span>(</span>
-<span id="cb9-277"><a href="#cb9-277" aria-hidden="true" tabindex="-1"></a>      hcpcs_code <span class="sc">==</span> hcpcs, </span>
-<span id="cb9-278"><a href="#cb9-278" aria-hidden="true" tabindex="-1"></a>      year, </span>
-<span id="cb9-279"><a href="#cb9-279" aria-hidden="true" tabindex="-1"></a>      quarter)) <span class="sc">|&gt;</span> </span>
-<span id="cb9-280"><a href="#cb9-280" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb9-281"><a href="#cb9-281" aria-hidden="true" tabindex="-1"></a>    <span class="at">pe_rvu =</span> <span class="fu">case_when</span>(</span>
-<span id="cb9-282"><a href="#cb9-282" aria-hidden="true" tabindex="-1"></a>      pos_type <span class="sc">==</span> <span class="st">"Non-Facility"</span> <span class="sc">~</span> non_fac_pe_rvu,</span>
-<span id="cb9-283"><a href="#cb9-283" aria-hidden="true" tabindex="-1"></a>      pos_type <span class="sc">==</span> <span class="st">"Facility"</span> <span class="sc">~</span> facility_pe_rvu,</span>
-<span id="cb9-284"><a href="#cb9-284" aria-hidden="true" tabindex="-1"></a>      <span class="at">.default =</span> <span class="cn">NA_real_</span></span>
-<span id="cb9-285"><a href="#cb9-285" aria-hidden="true" tabindex="-1"></a>      ),</span>
-<span id="cb9-286"><a href="#cb9-286" aria-hidden="true" tabindex="-1"></a>    <span class="at">facility_pe_rvu =</span> <span class="cn">NULL</span>,</span>
-<span id="cb9-287"><a href="#cb9-287" aria-hidden="true" tabindex="-1"></a>    <span class="at">non_fac_pe_rvu =</span> <span class="cn">NULL</span>,</span>
-<span id="cb9-288"><a href="#cb9-288" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_rvu =</span> work_rvu <span class="sc">+</span> pe_rvu <span class="sc">+</span> mp_rvu,</span>
-<span id="cb9-289"><a href="#cb9-289" aria-hidden="true" tabindex="-1"></a>    <span class="at">par_amt =</span> total_rvu <span class="sc">*</span> conv_factor <span class="sc">*</span> hcpcs_unit,</span>
-<span id="cb9-290"><a href="#cb9-290" aria-hidden="true" tabindex="-1"></a>    <span class="at">nonpar_amt =</span> par_amt <span class="sc">*</span> <span class="fl">1.15</span>,</span>
-<span id="cb9-291"><a href="#cb9-291" aria-hidden="true" tabindex="-1"></a>    <span class="at">limit_chrg =</span> nonpar_amt <span class="sc">*</span> <span class="fl">0.95</span>,</span>
-<span id="cb9-292"><a href="#cb9-292" aria-hidden="true" tabindex="-1"></a>    <span class="at">.after =</span> work_rvu) <span class="sc">|&gt;</span> </span>
-<span id="cb9-293"><a href="#cb9-293" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
-<span id="cb9-294"><a href="#cb9-294" aria-hidden="true" tabindex="-1"></a>    ins_class <span class="sc">!=</span> <span class="st">"SELF"</span>, </span>
-<span id="cb9-295"><a href="#cb9-295" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(hcpcs_code),</span>
-<span id="cb9-296"><a href="#cb9-296" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(work_rvu),</span>
-<span id="cb9-297"><a href="#cb9-297" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span>(work_rvu <span class="sc">==</span> <span class="fl">0.0</span> <span class="sc">&amp;</span> </span>
-<span id="cb9-298"><a href="#cb9-298" aria-hidden="true" tabindex="-1"></a>        pe_rvu <span class="sc">==</span> <span class="fl">0.0</span> <span class="sc">&amp;</span> </span>
-<span id="cb9-299"><a href="#cb9-299" aria-hidden="true" tabindex="-1"></a>        mp_rvu <span class="sc">==</span> <span class="fl">0.0</span>),</span>
-<span id="cb9-300"><a href="#cb9-300" aria-hidden="true" tabindex="-1"></a>    charges <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb9-301"><a href="#cb9-301" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
-<span id="cb9-302"><a href="#cb9-302" aria-hidden="true" tabindex="-1"></a>    <span class="at">pt_id =</span> id,</span>
-<span id="cb9-303"><a href="#cb9-303" aria-hidden="true" tabindex="-1"></a>    <span class="at">pt_enc =</span> enc,</span>
-<span id="cb9-304"><a href="#cb9-304" aria-hidden="true" tabindex="-1"></a>    <span class="at">dos_dt =</span> dos,</span>
-<span id="cb9-305"><a href="#cb9-305" aria-hidden="true" tabindex="-1"></a>    <span class="at">dos_yr =</span> year,</span>
-<span id="cb9-306"><a href="#cb9-306" aria-hidden="true" tabindex="-1"></a>    <span class="at">dos_qt =</span> quarter,</span>
-<span id="cb9-307"><a href="#cb9-307" aria-hidden="true" tabindex="-1"></a>    <span class="at">prov_rend =</span> rendering,</span>
-<span id="cb9-308"><a href="#cb9-308" aria-hidden="true" tabindex="-1"></a>    <span class="at">hcpcs_ord =</span> hcpcs_order,</span>
-<span id="cb9-309"><a href="#cb9-309" aria-hidden="true" tabindex="-1"></a>    hcpcs_code,</span>
-<span id="cb9-310"><a href="#cb9-310" aria-hidden="true" tabindex="-1"></a>    <span class="at">hcpcs_uos =</span> hcpcs_unit,</span>
-<span id="cb9-311"><a href="#cb9-311" aria-hidden="true" tabindex="-1"></a>    pos_type,</span>
-<span id="cb9-312"><a href="#cb9-312" aria-hidden="true" tabindex="-1"></a>    ins_class,</span>
-<span id="cb9-313"><a href="#cb9-313" aria-hidden="true" tabindex="-1"></a>    charges,</span>
-<span id="cb9-314"><a href="#cb9-314" aria-hidden="true" tabindex="-1"></a>    allowed,</span>
-<span id="cb9-315"><a href="#cb9-315" aria-hidden="true" tabindex="-1"></a>    payments,</span>
-<span id="cb9-316"><a href="#cb9-316" aria-hidden="true" tabindex="-1"></a>    adjustments,</span>
-<span id="cb9-317"><a href="#cb9-317" aria-hidden="true" tabindex="-1"></a>    <span class="at">par_unadj =</span> par_amt,</span>
-<span id="cb9-318"><a href="#cb9-318" aria-hidden="true" tabindex="-1"></a>    <span class="at">non_unadj =</span> nonpar_amt,</span>
-<span id="cb9-319"><a href="#cb9-319" aria-hidden="true" tabindex="-1"></a>    <span class="at">lim_unadj =</span> limit_chrg,</span>
-<span id="cb9-320"><a href="#cb9-320" aria-hidden="true" tabindex="-1"></a>    work_rvu,</span>
-<span id="cb9-321"><a href="#cb9-321" aria-hidden="true" tabindex="-1"></a>    pe_rvu,</span>
-<span id="cb9-322"><a href="#cb9-322" aria-hidden="true" tabindex="-1"></a>    mp_rvu,</span>
-<span id="cb9-323"><a href="#cb9-323" aria-hidden="true" tabindex="-1"></a>    <span class="at">sum_rvu =</span> total_rvu,</span>
-<span id="cb9-324"><a href="#cb9-324" aria-hidden="true" tabindex="-1"></a>    <span class="at">cf =</span> conv_factor)</span>
-<span id="cb9-325"><a href="#cb9-325" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-326"><a href="#cb9-326" aria-hidden="true" tabindex="-1"></a>claims_unajusted <span class="sc">|&gt;</span> skimr<span class="sc">::</span><span class="fu">skim</span>()</span>
-<span id="cb9-327"><a href="#cb9-327" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb9-328"><a href="#cb9-328" aria-hidden="true" tabindex="-1"></a></span>
+<div class="sourceCode" id="cb6" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Claims Analysis"</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> "A guide to National Provider Identifiers and the CMS standard for NPI validation."</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">    reference-location: block</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">    other-links:</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">      - text: Luhn Algorithm</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">        icon: bookmark-plus</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">        href: https://en.wikipedia.org/wiki/Luhn_algorithm</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="in">```{r setup}</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="in">#| message: false</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="in">#| warning: false</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="in">#| echo: false</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="in">#| cache: false</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="in">knitr::opts_chunk$set(</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="in">  collapse  = FALSE,</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="in">  echo      = TRUE, </span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="in">  message   = FALSE, </span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="in">  warning   = FALSE,</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="in">  error     = TRUE,</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="in">  comment   = "",</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="in">  dpi       = 300, </span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="in">  dev       = "ragg_png",</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="in">  out.width = "100%",</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a><span class="in">  fig.align = "center",</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a><span class="in">  fig.width = 10</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a><span class="in">)</span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a><span class="in">options(scipen = 999)</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a><span class="in">library(tidyverse)</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a><span class="in">library(here)</span></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a><span class="in">library(downlit)</span></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a><span class="in">library(gt)</span></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a><span class="in">library(gtExtras)</span></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a><span class="in">library(rvu)</span></span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a><span class="in">library(northstar)</span></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a><span class="in">library(fuimus)</span></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a><span class="in">library(ggstatsplot)</span></span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>claims_spec <span class="ot">&lt;-</span> <span class="fu">cols</span>(</span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>  <span class="at">id =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>  <span class="at">enc =</span> <span class="fu">col_integer</span>(),</span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>  <span class="at">dos =</span> <span class="fu">col_date</span>(<span class="at">format =</span> <span class="st">""</span>),</span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>  <span class="at">dob =</span> <span class="fu">col_date</span>(<span class="at">format =</span> <span class="st">""</span>),</span>
+<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a>  <span class="at">age =</span> <span class="fu">col_integer</span>(),</span>
+<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>  <span class="at">dor =</span> <span class="fu">col_date</span>(<span class="at">format =</span> <span class="st">""</span>),</span>
+<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a>  <span class="at">lag =</span> <span class="fu">col_double</span>(),</span>
+<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a>  <span class="at">ref =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a>  <span class="at">ref_cred =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a>  <span class="at">ref_tax =</span> <span class="fu">col_logical</span>(),</span>
+<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>  <span class="at">ren =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a>  <span class="at">ren_cred =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a>  <span class="at">ren_tax =</span> <span class="fu">col_logical</span>(),</span>
+<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a>  <span class="at">icd =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a>  <span class="at">ord =</span> <span class="fu">col_integer</span>(),</span>
+<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>  <span class="at">hcpcs =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a>  <span class="at">desc =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="fu">col_integer</span>(),</span>
+<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a>  <span class="at">mod1 =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a>  <span class="at">mod2 =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a>  <span class="at">pos =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a>  <span class="at">pos_name =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a>  <span class="at">loc =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a>  <span class="at">ins_class =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb6-76"><a href="#cb6-76" aria-hidden="true" tabindex="-1"></a>  <span class="at">ins_prim =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a>  <span class="at">ins_sec =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a>  <span class="at">charges =</span> <span class="fu">col_double</span>(),</span>
+<span id="cb6-79"><a href="#cb6-79" aria-hidden="true" tabindex="-1"></a>  <span class="at">allowed =</span> <span class="fu">col_double</span>(),</span>
+<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a>  <span class="at">payments =</span> <span class="fu">col_double</span>(),</span>
+<span id="cb6-81"><a href="#cb6-81" aria-hidden="true" tabindex="-1"></a>  <span class="at">adjustments =</span> <span class="fu">col_double</span>(),</span>
+<span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a>  <span class="at">adj1 =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a>  <span class="at">adj2 =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a>  <span class="at">adj3 =</span> <span class="fu">col_character</span>()</span>
+<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-86"><a href="#cb6-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a>claims <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a>  <span class="fu">here</span>(<span class="st">"posts/claims/data"</span>, <span class="st">"clean_rpt_rend.csv"</span>), </span>
+<span id="cb6-89"><a href="#cb6-89" aria-hidden="true" tabindex="-1"></a>  <span class="at">col_types =</span> claims_spec) <span class="sc">|&gt;</span> </span>
+<span id="cb6-90"><a href="#cb6-90" aria-hidden="true" tabindex="-1"></a>  fuimus<span class="sc">::</span><span class="fu">remove_quiet</span>()</span>
+<span id="cb6-91"><a href="#cb6-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-92"><a href="#cb6-92" aria-hidden="true" tabindex="-1"></a>claims <span class="ot">&lt;-</span> claims <span class="sc">|&gt;</span> </span>
+<span id="cb6-93"><a href="#cb6-93" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(<span class="fu">search_pos</span>() <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(pos_name, pos_description)), <span class="at">by =</span> <span class="fu">join_by</span>(pos <span class="sc">==</span> pos_code)) <span class="sc">|&gt;</span> </span>
+<span id="cb6-94"><a href="#cb6-94" aria-hidden="true" tabindex="-1"></a>  <span class="fu">full_join</span>(<span class="fu">expand_date_range</span>(claims<span class="sc">$</span>dos, <span class="st">"dos"</span>), <span class="at">by =</span> <span class="fu">join_by</span>(dos))</span>
+<span id="cb6-95"><a href="#cb6-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-96"><a href="#cb6-96" aria-hidden="true" tabindex="-1"></a>rvus <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb6-97"><a href="#cb6-97" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_source</span>(<span class="dv">2021</span>, <span class="st">"pprrvu"</span>),</span>
+<span id="cb6-98"><a href="#cb6-98" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_source</span>(<span class="dv">2022</span>, <span class="st">"pprrvu"</span>),</span>
+<span id="cb6-99"><a href="#cb6-99" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_source</span>(<span class="dv">2023</span>, <span class="st">"pprrvu"</span>),</span>
+<span id="cb6-100"><a href="#cb6-100" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_source</span>(<span class="dv">2024</span>, <span class="st">"pprrvu"</span>))</span>
+<span id="cb6-101"><a href="#cb6-101" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb6-102"><a href="#cb6-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-103"><a href="#cb6-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-104"><a href="#cb6-104" aria-hidden="true" tabindex="-1"></a><span class="fu"># Trends &amp; Demographics</span></span>
+<span id="cb6-105"><a href="#cb6-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-106"><a href="#cb6-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-109"><a href="#cb6-109" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb6-110"><a href="#cb6-110" aria-hidden="true" tabindex="-1"></a>claims <span class="sc">|&gt;</span> </span>
+<span id="cb6-111"><a href="#cb6-111" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ord <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb6-112"><a href="#cb6-112" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sorted_bars</span>(month_l) <span class="sc">+</span></span>
+<span id="cb6-113"><a href="#cb6-113" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gg_theme</span>()</span>
+<span id="cb6-114"><a href="#cb6-114" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb6-115"><a href="#cb6-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-118"><a href="#cb6-118" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb6-119"><a href="#cb6-119" aria-hidden="true" tabindex="-1"></a>ggstatsplot<span class="sc">::</span><span class="fu">ggscatterstats</span>(</span>
+<span id="cb6-120"><a href="#cb6-120" aria-hidden="true" tabindex="-1"></a>  claims <span class="sc">|&gt;</span> <span class="fu">filter</span>(</span>
+<span id="cb6-121"><a href="#cb6-121" aria-hidden="true" tabindex="-1"></a>    payments <span class="sc">&gt;</span> <span class="dv">0</span>,</span>
+<span id="cb6-122"><a href="#cb6-122" aria-hidden="true" tabindex="-1"></a>    payments <span class="sc">&lt;</span> <span class="dv">1000</span>,</span>
+<span id="cb6-123"><a href="#cb6-123" aria-hidden="true" tabindex="-1"></a>    charges <span class="sc">&lt;</span> <span class="dv">1000</span></span>
+<span id="cb6-124"><a href="#cb6-124" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb6-125"><a href="#cb6-125" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> charges,</span>
+<span id="cb6-126"><a href="#cb6-126" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> payments,</span>
+<span id="cb6-127"><a href="#cb6-127" aria-hidden="true" tabindex="-1"></a>  <span class="at">title =</span> <span class="st">"Charges vs Payments"</span>)</span>
+<span id="cb6-128"><a href="#cb6-128" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb6-129"><a href="#cb6-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-130"><a href="#cb6-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-131"><a href="#cb6-131" aria-hidden="true" tabindex="-1"></a><span class="fu"># Reimbursement</span></span>
+<span id="cb6-132"><a href="#cb6-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-133"><a href="#cb6-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-136"><a href="#cb6-136" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb6-137"><a href="#cb6-137" aria-hidden="true" tabindex="-1"></a>yq <span class="ot">&lt;-</span> claims <span class="sc">|&gt;</span> </span>
+<span id="cb6-138"><a href="#cb6-138" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(hcpcs)) <span class="sc">|&gt;</span> </span>
+<span id="cb6-139"><a href="#cb6-139" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(year, quarter, hcpcs)</span>
+<span id="cb6-140"><a href="#cb6-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-141"><a href="#cb6-141" aria-hidden="true" tabindex="-1"></a>yq <span class="ot">&lt;-</span> <span class="fu">split</span>(yq<span class="sc">$</span>hcpcs, yq[<span class="fu">c</span>(<span class="st">"year"</span>, <span class="st">"quarter"</span>)]) <span class="sc">|&gt;</span> </span>
+<span id="cb6-142"><a href="#cb6-142" aria-hidden="true" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">compact</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb6-143"><a href="#cb6-143" aria-hidden="true" tabindex="-1"></a>  cheapr<span class="sc">::</span><span class="fu">enframe_</span>(<span class="at">name =</span> <span class="st">"yq"</span>, <span class="at">value =</span> <span class="st">"hcpcs"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb6-144"><a href="#cb6-144" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(yq)</span>
+<span id="cb6-145"><a href="#cb6-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-146"><a href="#cb6-146" aria-hidden="true" tabindex="-1"></a>yqi <span class="ot">&lt;-</span> claims <span class="sc">|&gt;</span> </span>
+<span id="cb6-147"><a href="#cb6-147" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(<span class="at">y =</span> year, <span class="at">q =</span> quarter) <span class="sc">|&gt;</span> </span>
+<span id="cb6-148"><a href="#cb6-148" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.list</span>()</span>
+<span id="cb6-149"><a href="#cb6-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-150"><a href="#cb6-150" aria-hidden="true" tabindex="-1"></a>yqs <span class="ot">&lt;-</span> <span class="fu">as.character</span>(<span class="fu">str_glue</span>(<span class="st">"{yqi$y}.{yqi$q}"</span>))</span>
+<span id="cb6-151"><a href="#cb6-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-152"><a href="#cb6-152" aria-hidden="true" tabindex="-1"></a><span class="co"># get_rvus &lt;- \(rvu, yq, yqi, yqs) {</span></span>
+<span id="cb6-153"><a href="#cb6-153" aria-hidden="true" tabindex="-1"></a><span class="co">#   rvu |&gt; </span></span>
+<span id="cb6-154"><a href="#cb6-154" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(hcpcs %in% c(filter(yq, yq == yqs) |&gt; pull(hcpcs_code) |&gt; pluck(1))) |&gt; </span></span>
+<span id="cb6-155"><a href="#cb6-155" aria-hidden="true" tabindex="-1"></a><span class="co">#   select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) |&gt; </span></span>
+<span id="cb6-156"><a href="#cb6-156" aria-hidden="true" tabindex="-1"></a><span class="co">#   mutate(year = yqi$y, quarter = yqi$q, .before = 1)</span></span>
+<span id="cb6-157"><a href="#cb6-157" aria-hidden="true" tabindex="-1"></a><span class="co"># }</span></span>
+<span id="cb6-158"><a href="#cb6-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-159"><a href="#cb6-159" aria-hidden="true" tabindex="-1"></a>rvu_22<span class="fl">.2</span> <span class="ot">&lt;-</span> rvus<span class="sc">$</span>rvu22b_apr <span class="sc">|&gt;</span> </span>
+<span id="cb6-160"><a href="#cb6-160" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">1</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb6-161"><a href="#cb6-161" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) <span class="sc">|&gt;</span> </span>
+<span id="cb6-162"><a href="#cb6-162" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> yqi<span class="sc">$</span>y[<span class="dv">1</span>], <span class="at">quarter =</span> yqi<span class="sc">$</span>q[<span class="dv">1</span>], <span class="at">.before =</span> <span class="dv">1</span>)</span>
+<span id="cb6-163"><a href="#cb6-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-164"><a href="#cb6-164" aria-hidden="true" tabindex="-1"></a>rvu_22<span class="fl">.3</span> <span class="ot">&lt;-</span> rvus<span class="sc">$</span>rvu22c_jul <span class="sc">|&gt;</span> </span>
+<span id="cb6-165"><a href="#cb6-165" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">2</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb6-166"><a href="#cb6-166" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) <span class="sc">|&gt;</span> </span>
+<span id="cb6-167"><a href="#cb6-167" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> yqi<span class="sc">$</span>y[<span class="dv">2</span>], <span class="at">quarter =</span> yqi<span class="sc">$</span>q[<span class="dv">2</span>], <span class="at">.before =</span> <span class="dv">1</span>)</span>
+<span id="cb6-168"><a href="#cb6-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-169"><a href="#cb6-169" aria-hidden="true" tabindex="-1"></a>rvu_22<span class="fl">.4</span> <span class="ot">&lt;-</span> rvus<span class="sc">$</span>rvu22d_oct <span class="sc">|&gt;</span> </span>
+<span id="cb6-170"><a href="#cb6-170" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">3</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb6-171"><a href="#cb6-171" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) <span class="sc">|&gt;</span> </span>
+<span id="cb6-172"><a href="#cb6-172" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> yqi<span class="sc">$</span>y[<span class="dv">3</span>], <span class="at">quarter =</span> yqi<span class="sc">$</span>q[<span class="dv">3</span>], <span class="at">.before =</span> <span class="dv">1</span>)</span>
+<span id="cb6-173"><a href="#cb6-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-174"><a href="#cb6-174" aria-hidden="true" tabindex="-1"></a>rvu_23<span class="fl">.1</span> <span class="ot">&lt;-</span> rvus<span class="sc">$</span>rvu23a_jan <span class="sc">|&gt;</span> </span>
+<span id="cb6-175"><a href="#cb6-175" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">4</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb6-176"><a href="#cb6-176" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) <span class="sc">|&gt;</span> </span>
+<span id="cb6-177"><a href="#cb6-177" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> yqi<span class="sc">$</span>y[<span class="dv">4</span>], <span class="at">quarter =</span> yqi<span class="sc">$</span>q[<span class="dv">4</span>], <span class="at">.before =</span> <span class="dv">1</span>)</span>
+<span id="cb6-178"><a href="#cb6-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-179"><a href="#cb6-179" aria-hidden="true" tabindex="-1"></a>rvu_23<span class="fl">.2</span> <span class="ot">&lt;-</span> rvus<span class="sc">$</span>rvu23b_apr <span class="sc">|&gt;</span> </span>
+<span id="cb6-180"><a href="#cb6-180" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">5</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb6-181"><a href="#cb6-181" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) <span class="sc">|&gt;</span> </span>
+<span id="cb6-182"><a href="#cb6-182" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> yqi<span class="sc">$</span>y[<span class="dv">5</span>], <span class="at">quarter =</span> yqi<span class="sc">$</span>q[<span class="dv">5</span>], <span class="at">.before =</span> <span class="dv">1</span>)</span>
+<span id="cb6-183"><a href="#cb6-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-184"><a href="#cb6-184" aria-hidden="true" tabindex="-1"></a>rvu_23<span class="fl">.3</span> <span class="ot">&lt;-</span> rvus<span class="sc">$</span>rvu23c_jul <span class="sc">|&gt;</span> </span>
+<span id="cb6-185"><a href="#cb6-185" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">6</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb6-186"><a href="#cb6-186" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) <span class="sc">|&gt;</span> </span>
+<span id="cb6-187"><a href="#cb6-187" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> yqi<span class="sc">$</span>y[<span class="dv">6</span>], <span class="at">quarter =</span> yqi<span class="sc">$</span>q[<span class="dv">6</span>], <span class="at">.before =</span> <span class="dv">1</span>)</span>
+<span id="cb6-188"><a href="#cb6-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-189"><a href="#cb6-189" aria-hidden="true" tabindex="-1"></a>rvu_23<span class="fl">.4</span> <span class="ot">&lt;-</span> rvus<span class="sc">$</span>rvu23d_oct <span class="sc">|&gt;</span> </span>
+<span id="cb6-190"><a href="#cb6-190" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">7</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb6-191"><a href="#cb6-191" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) <span class="sc">|&gt;</span> </span>
+<span id="cb6-192"><a href="#cb6-192" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> yqi<span class="sc">$</span>y[<span class="dv">7</span>], <span class="at">quarter =</span> yqi<span class="sc">$</span>q[<span class="dv">7</span>], <span class="at">.before =</span> <span class="dv">1</span>)</span>
+<span id="cb6-193"><a href="#cb6-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-194"><a href="#cb6-194" aria-hidden="true" tabindex="-1"></a>rvu_24<span class="fl">.1</span> <span class="ot">&lt;-</span> rvus<span class="sc">$</span>rvu24a_jan <span class="sc">|&gt;</span> </span>
+<span id="cb6-195"><a href="#cb6-195" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(hcpcs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fu">filter</span>(yq, yq <span class="sc">==</span> yqs[<span class="dv">8</span>]) <span class="sc">|&gt;</span> <span class="fu">pull</span>(hcpcs) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb6-196"><a href="#cb6-196" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor) <span class="sc">|&gt;</span> </span>
+<span id="cb6-197"><a href="#cb6-197" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> yqi<span class="sc">$</span>y[<span class="dv">8</span>], <span class="at">quarter =</span> yqi<span class="sc">$</span>q[<span class="dv">8</span>], <span class="at">.before =</span> <span class="dv">1</span>)</span>
+<span id="cb6-198"><a href="#cb6-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-199"><a href="#cb6-199" aria-hidden="true" tabindex="-1"></a>rvu_join <span class="ot">&lt;-</span> vctrs<span class="sc">::</span><span class="fu">vec_rbind</span>(</span>
+<span id="cb6-200"><a href="#cb6-200" aria-hidden="true" tabindex="-1"></a>  rvu_22<span class="fl">.2</span>,</span>
+<span id="cb6-201"><a href="#cb6-201" aria-hidden="true" tabindex="-1"></a>  rvu_22<span class="fl">.3</span>,</span>
+<span id="cb6-202"><a href="#cb6-202" aria-hidden="true" tabindex="-1"></a>  rvu_22<span class="fl">.4</span>,</span>
+<span id="cb6-203"><a href="#cb6-203" aria-hidden="true" tabindex="-1"></a>  rvu_23<span class="fl">.1</span>,</span>
+<span id="cb6-204"><a href="#cb6-204" aria-hidden="true" tabindex="-1"></a>  rvu_23<span class="fl">.2</span>,</span>
+<span id="cb6-205"><a href="#cb6-205" aria-hidden="true" tabindex="-1"></a>  rvu_23<span class="fl">.3</span>,</span>
+<span id="cb6-206"><a href="#cb6-206" aria-hidden="true" tabindex="-1"></a>  rvu_24<span class="fl">.1</span></span>
+<span id="cb6-207"><a href="#cb6-207" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-208"><a href="#cb6-208" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb6-209"><a href="#cb6-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-210"><a href="#cb6-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-211"><a href="#cb6-211" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-214"><a href="#cb6-214" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb6-215"><a href="#cb6-215" aria-hidden="true" tabindex="-1"></a>rvu_join <span class="sc">|&gt;</span> </span>
+<span id="cb6-216"><a href="#cb6-216" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb6-217"><a href="#cb6-217" aria-hidden="true" tabindex="-1"></a>    <span class="at">tot_fac_rvu =</span> work_rvu <span class="sc">+</span> facility_pe_rvu <span class="sc">+</span> mp_rvu,</span>
+<span id="cb6-218"><a href="#cb6-218" aria-hidden="true" tabindex="-1"></a>    <span class="at">tot_non_rvu =</span> work_rvu <span class="sc">+</span> non_fac_pe_rvu <span class="sc">+</span> mp_rvu,</span>
+<span id="cb6-219"><a href="#cb6-219" aria-hidden="true" tabindex="-1"></a>    <span class="at">par_non_amt =</span> tot_non_rvu <span class="sc">*</span> conv_factor,</span>
+<span id="cb6-220"><a href="#cb6-220" aria-hidden="true" tabindex="-1"></a>    <span class="at">par_fac_amt =</span> tot_fac_rvu <span class="sc">*</span> conv_factor,</span>
+<span id="cb6-221"><a href="#cb6-221" aria-hidden="true" tabindex="-1"></a>    <span class="at">nonpar_non_amt =</span> par_non_amt <span class="sc">*</span> <span class="fl">1.15</span>,</span>
+<span id="cb6-222"><a href="#cb6-222" aria-hidden="true" tabindex="-1"></a>    <span class="at">nonpar_fac_amt =</span> par_fac_amt <span class="sc">*</span> <span class="fl">1.15</span>,</span>
+<span id="cb6-223"><a href="#cb6-223" aria-hidden="true" tabindex="-1"></a>    <span class="at">limiting_non =</span> nonpar_non_amt <span class="sc">*</span> <span class="fl">0.95</span>,</span>
+<span id="cb6-224"><a href="#cb6-224" aria-hidden="true" tabindex="-1"></a>    <span class="at">limiting_fac =</span> nonpar_fac_amt <span class="sc">*</span> <span class="fl">0.95</span>,</span>
+<span id="cb6-225"><a href="#cb6-225" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb6-226"><a href="#cb6-226" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(par_fac_amt <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb6-227"><a href="#cb6-227" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">gt</span>(</span>
+<span id="cb6-228"><a href="#cb6-228" aria-hidden="true" tabindex="-1"></a>    <span class="at">rowname_col =</span> <span class="st">"year"</span>, </span>
+<span id="cb6-229"><a href="#cb6-229" aria-hidden="true" tabindex="-1"></a>    <span class="at">groupname_col =</span> <span class="st">"hcpcs"</span>,</span>
+<span id="cb6-230"><a href="#cb6-230" aria-hidden="true" tabindex="-1"></a>    <span class="at">row_group_as_column =</span> <span class="cn">TRUE</span></span>
+<span id="cb6-231"><a href="#cb6-231" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span> </span>
+<span id="cb6-232"><a href="#cb6-232" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">opt_table_font</span>(</span>
+<span id="cb6-233"><a href="#cb6-233" aria-hidden="true" tabindex="-1"></a>    <span class="at">font =</span> gt<span class="sc">::</span><span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Atkinson Hyperlegible"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb6-234"><a href="#cb6-234" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">fmt_currency</span>(</span>
+<span id="cb6-235"><a href="#cb6-235" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">"par_non_amt"</span>, </span>
+<span id="cb6-236"><a href="#cb6-236" aria-hidden="true" tabindex="-1"></a>                <span class="st">"par_fac_amt"</span>, </span>
+<span id="cb6-237"><a href="#cb6-237" aria-hidden="true" tabindex="-1"></a>                <span class="st">"nonpar_non_amt"</span>, </span>
+<span id="cb6-238"><a href="#cb6-238" aria-hidden="true" tabindex="-1"></a>                <span class="st">"nonpar_fac_amt"</span>, </span>
+<span id="cb6-239"><a href="#cb6-239" aria-hidden="true" tabindex="-1"></a>                <span class="st">"limiting_non"</span>, </span>
+<span id="cb6-240"><a href="#cb6-240" aria-hidden="true" tabindex="-1"></a>                <span class="st">"limiting_fac"</span>)</span>
+<span id="cb6-241"><a href="#cb6-241" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb6-242"><a href="#cb6-242" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">cols_label</span>(</span>
+<span id="cb6-243"><a href="#cb6-243" aria-hidden="true" tabindex="-1"></a>    <span class="at">quarter =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"**Qtr**"</span>),</span>
+<span id="cb6-244"><a href="#cb6-244" aria-hidden="true" tabindex="-1"></a>    <span class="at">work_rvu =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;wk&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
+<span id="cb6-245"><a href="#cb6-245" aria-hidden="true" tabindex="-1"></a>    <span class="at">facility_pe_rvu =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;f&lt;/i&gt;&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;pe&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
+<span id="cb6-246"><a href="#cb6-246" aria-hidden="true" tabindex="-1"></a>    <span class="at">non_fac_pe_rvu =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;nf&lt;/i&gt;&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;pe&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
+<span id="cb6-247"><a href="#cb6-247" aria-hidden="true" tabindex="-1"></a>    <span class="at">mp_rvu =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;mp&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
+<span id="cb6-248"><a href="#cb6-248" aria-hidden="true" tabindex="-1"></a>    <span class="at">conv_factor =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;b&gt;CF&lt;/b&gt;"</span>),</span>
+<span id="cb6-249"><a href="#cb6-249" aria-hidden="true" tabindex="-1"></a>    <span class="at">tot_fac_rvu =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;f&lt;/i&gt;&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;s&lt;/i&gt;"</span>),</span>
+<span id="cb6-250"><a href="#cb6-250" aria-hidden="true" tabindex="-1"></a>    <span class="at">tot_non_rvu =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;nf&lt;/i&gt;&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;s&lt;/i&gt;"</span>),</span>
+<span id="cb6-251"><a href="#cb6-251" aria-hidden="true" tabindex="-1"></a>    <span class="at">par_non_amt =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;nf&lt;/i&gt;&lt;b&gt;&lt;small&gt;PAR&lt;/small&gt;&lt;/b&gt;"</span>),</span>
+<span id="cb6-252"><a href="#cb6-252" aria-hidden="true" tabindex="-1"></a>    <span class="at">par_fac_amt =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;f&lt;/i&gt;&lt;b&gt;&lt;small&gt;PAR&lt;/small&gt;&lt;/b&gt;"</span>),</span>
+<span id="cb6-253"><a href="#cb6-253" aria-hidden="true" tabindex="-1"></a>    <span class="at">nonpar_non_amt =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;nf&lt;/i&gt;&lt;b&gt;&lt;small&gt;NPAR&lt;/small&gt;&lt;/b&gt;"</span>),</span>
+<span id="cb6-254"><a href="#cb6-254" aria-hidden="true" tabindex="-1"></a>    <span class="at">nonpar_fac_amt =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;f&lt;/i&gt;&lt;b&gt;&lt;small&gt;NPAR&lt;/small&gt;&lt;/b&gt;"</span>),</span>
+<span id="cb6-255"><a href="#cb6-255" aria-hidden="true" tabindex="-1"></a>    <span class="at">limiting_non =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;nf&lt;/i&gt;&lt;b&gt;&lt;small&gt;LC&lt;/small&gt;&lt;/b&gt;"</span>),</span>
+<span id="cb6-256"><a href="#cb6-256" aria-hidden="true" tabindex="-1"></a>    <span class="at">limiting_fac =</span> gt<span class="sc">::</span><span class="fu">md</span>(<span class="st">"&lt;i&gt;f&lt;/i&gt;&lt;b&gt;&lt;small&gt;LC&lt;/small&gt;&lt;/b&gt;"</span>)</span>
+<span id="cb6-257"><a href="#cb6-257" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb6-258"><a href="#cb6-258" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">cols_align</span>(<span class="at">align =</span> <span class="st">"center"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-259"><a href="#cb6-259" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">tab_style</span>(</span>
+<span id="cb6-260"><a href="#cb6-260" aria-hidden="true" tabindex="-1"></a>      <span class="at">style =</span> gt<span class="sc">::</span><span class="fu">cell_text</span>(</span>
+<span id="cb6-261"><a href="#cb6-261" aria-hidden="true" tabindex="-1"></a>        <span class="at">align =</span> <span class="st">'center'</span>,</span>
+<span id="cb6-262"><a href="#cb6-262" aria-hidden="true" tabindex="-1"></a>        <span class="at">size =</span> gt<span class="sc">::</span><span class="fu">px</span>(<span class="dv">16</span>),</span>
+<span id="cb6-263"><a href="#cb6-263" aria-hidden="true" tabindex="-1"></a>        <span class="at">font =</span> gt<span class="sc">::</span><span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>),</span>
+<span id="cb6-264"><a href="#cb6-264" aria-hidden="true" tabindex="-1"></a>        <span class="at">weight =</span> <span class="st">"bold"</span>),</span>
+<span id="cb6-265"><a href="#cb6-265" aria-hidden="true" tabindex="-1"></a>      <span class="at">locations =</span> gt<span class="sc">::</span><span class="fu">cells_row_groups</span>()) <span class="sc">|&gt;</span> </span>
+<span id="cb6-266"><a href="#cb6-266" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">tab_style</span>(</span>
+<span id="cb6-267"><a href="#cb6-267" aria-hidden="true" tabindex="-1"></a>      <span class="at">style =</span> gt<span class="sc">::</span><span class="fu">cell_text</span>(</span>
+<span id="cb6-268"><a href="#cb6-268" aria-hidden="true" tabindex="-1"></a>      <span class="at">font =</span> gt<span class="sc">::</span><span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>)),</span>
+<span id="cb6-269"><a href="#cb6-269" aria-hidden="true" tabindex="-1"></a>      <span class="at">locations =</span> gt<span class="sc">::</span><span class="fu">cells_body</span>()) <span class="sc">|&gt;</span> </span>
+<span id="cb6-270"><a href="#cb6-270" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">tab_options</span>(</span>
+<span id="cb6-271"><a href="#cb6-271" aria-hidden="true" tabindex="-1"></a>    <span class="at">quarto.disable_processing =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb6-272"><a href="#cb6-272" aria-hidden="true" tabindex="-1"></a>    <span class="at">table.width =</span> <span class="st">"100%"</span></span>
+<span id="cb6-273"><a href="#cb6-273" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-274"><a href="#cb6-274" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb6-275"><a href="#cb6-275" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-276"><a href="#cb6-276" aria-hidden="true" tabindex="-1"></a><span class="fu"># Calculate Unadjusted Allowed Amounts</span></span>
+<span id="cb6-277"><a href="#cb6-277" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-280"><a href="#cb6-280" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb6-281"><a href="#cb6-281" aria-hidden="true" tabindex="-1"></a><span class="co">#| error: true</span></span>
+<span id="cb6-282"><a href="#cb6-282" aria-hidden="true" tabindex="-1"></a>claims_unajusted <span class="ot">&lt;-</span> claims <span class="sc">|&gt;</span> </span>
+<span id="cb6-283"><a href="#cb6-283" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(rvu_join, <span class="at">by =</span> <span class="fu">join_by</span>(hcpcs, year, quarter)) <span class="sc">|&gt;</span> </span>
+<span id="cb6-284"><a href="#cb6-284" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb6-285"><a href="#cb6-285" aria-hidden="true" tabindex="-1"></a>    <span class="at">pe_rvu =</span> <span class="fu">case_when</span>(</span>
+<span id="cb6-286"><a href="#cb6-286" aria-hidden="true" tabindex="-1"></a>      pos_type <span class="sc">==</span> <span class="st">"Non-Facility"</span> <span class="sc">~</span> non_fac_pe_rvu,</span>
+<span id="cb6-287"><a href="#cb6-287" aria-hidden="true" tabindex="-1"></a>      pos_type <span class="sc">==</span> <span class="st">"Facility"</span> <span class="sc">~</span> facility_pe_rvu,</span>
+<span id="cb6-288"><a href="#cb6-288" aria-hidden="true" tabindex="-1"></a>      <span class="at">.default =</span> <span class="cn">NA_real_</span></span>
+<span id="cb6-289"><a href="#cb6-289" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb6-290"><a href="#cb6-290" aria-hidden="true" tabindex="-1"></a>    <span class="at">facility_pe_rvu =</span> <span class="cn">NULL</span>,</span>
+<span id="cb6-291"><a href="#cb6-291" aria-hidden="true" tabindex="-1"></a>    <span class="at">non_fac_pe_rvu =</span> <span class="cn">NULL</span>,</span>
+<span id="cb6-292"><a href="#cb6-292" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_rvu =</span> work_rvu <span class="sc">+</span> pe_rvu <span class="sc">+</span> mp_rvu,</span>
+<span id="cb6-293"><a href="#cb6-293" aria-hidden="true" tabindex="-1"></a>    <span class="at">par_amt =</span> total_rvu <span class="sc">*</span> conv_factor <span class="sc">*</span> units,</span>
+<span id="cb6-294"><a href="#cb6-294" aria-hidden="true" tabindex="-1"></a>    <span class="at">nonpar_amt =</span> par_amt <span class="sc">*</span> <span class="fl">1.15</span>,</span>
+<span id="cb6-295"><a href="#cb6-295" aria-hidden="true" tabindex="-1"></a>    <span class="at">limit_chrg =</span> nonpar_amt <span class="sc">*</span> <span class="fl">0.95</span>,</span>
+<span id="cb6-296"><a href="#cb6-296" aria-hidden="true" tabindex="-1"></a>    <span class="at">.after =</span> work_rvu) <span class="sc">|&gt;</span> </span>
+<span id="cb6-297"><a href="#cb6-297" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb6-298"><a href="#cb6-298" aria-hidden="true" tabindex="-1"></a>    ins_class <span class="sc">!=</span> <span class="st">"SELF"</span>, </span>
+<span id="cb6-299"><a href="#cb6-299" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(hcpcs),</span>
+<span id="cb6-300"><a href="#cb6-300" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(work_rvu),</span>
+<span id="cb6-301"><a href="#cb6-301" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span>(work_rvu <span class="sc">==</span> <span class="fl">0.0</span> <span class="sc">&amp;</span> </span>
+<span id="cb6-302"><a href="#cb6-302" aria-hidden="true" tabindex="-1"></a>        pe_rvu <span class="sc">==</span> <span class="fl">0.0</span> <span class="sc">&amp;</span> </span>
+<span id="cb6-303"><a href="#cb6-303" aria-hidden="true" tabindex="-1"></a>        mp_rvu <span class="sc">==</span> <span class="fl">0.0</span>),</span>
+<span id="cb6-304"><a href="#cb6-304" aria-hidden="true" tabindex="-1"></a>    charges <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb6-305"><a href="#cb6-305" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-306"><a href="#cb6-306" aria-hidden="true" tabindex="-1"></a>claims_unajusted <span class="sc">|&gt;</span> skimr<span class="sc">::</span><span class="fu">skim</span>()</span>
+<span id="cb6-307"><a href="#cb6-307" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb6-308"><a href="#cb6-308" aria-hidden="true" tabindex="-1"></a></span>
 </code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
