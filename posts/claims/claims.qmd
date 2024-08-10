@@ -88,8 +88,11 @@ claims <- read_csv(
   fuimus::remove_quiet()
 
 claims <- claims |> 
-  left_join(search_pos() |> select(-c(pos_name, pos_description)), by = join_by(pos == pos_code)) |> 
-  full_join(expand_date_range(claims$dos, "dos"), by = join_by(dos))
+  left_join(search_pos() |> 
+              select(-c(pos_name, pos_description)), 
+            by = join_by(pos == pos_code)) |> 
+  full_join(expand_date_range(claims$dos, "dos"), 
+            by = join_by(dos))
 
 rvus <- c(
   get_source(2021, "pprrvu"),
