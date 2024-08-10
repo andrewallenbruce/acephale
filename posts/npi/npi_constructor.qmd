@@ -533,6 +533,7 @@ npi_constructor(1043477615)
 npi_constructor(1000000000)
 ```
 
+
 #### Test Verbose Option
 
 ```{r}
@@ -554,5 +555,70 @@ new_npi
 ```
 
 
+## Minimal Validator
 
+```{r filename="is_valid_npi.R"}
+is_valid_npi <- function(npi) {
+  
+  npi <- numeric_to_char(npi)
+  check_length(npi)
+  check_chars_numeric(npi)
+  check_nchars_10(npi)
+  check_first_char(npi)
+  
+  p  <- \(...) paste0(...)
+  s  <- \(x) unlist(strsplit(x, ""), use.names = FALSE)
+  ix <- c(1, 3, 5, 7, 9)
+  
+  id     <- as.numeric(rev(s(npi)[1:9]))
+  id[ix] <- id[ix] * 2
+  id[ix] <- ifelse(id[ix] > 9, id[ix] - 9, id[ix])
+  
+  id   <- sum(id) + 24
+  ck   <- (ceiling(id / 10) * 10) - id
+  test <- p(substr(npi, 1, 9), ck)
+  
+  identical(test, npi)
+}
+```
+
+#### Test Validator
+
+```{r}
+#| error: true
+#| message: true
+#| warning: true
+is_valid_npi(123456789)
+is_valid_npi("O123456789")
+is_valid_npi(0000000000)
+is_valid_npi(3000000000)
+```
+
+```{r}
+is_valid_npi(1043477615)
+is_valid_npi(1234567891)
+```
+
+
+```{r}
+random_npi_generator <- \(n) {
+  replicate(
+    n = n, 
+    expr = paste0(
+      c(sample(1:2, 1, replace = TRUE), 
+        sample(0:9, 9, replace = TRUE)), 
+      collapse = ""))
+}
+
+random_npi_generator(10)
+```
+
+
+```{r}
+collapse::whichv(
+  purrr::map_lgl(
+    random_npi_generator(1000), 
+    is_valid_npi), 
+  TRUE)
+```
 
