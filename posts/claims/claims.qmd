@@ -1,85 +1,74 @@
 ---
 title: "Claims Analysis"
-description: "A guide to National Provider Identifiers and the CMS standard for NPI validation."
 format:
   html:
     reference-location: block
-    other-links:
-      - text: Luhn Algorithm
-        icon: bookmark-plus
-        href: https://en.wikipedia.org/wiki/Luhn_algorithm
+editor_options: 
+  chunk_output_type: console
 ---
 
-```{r setup}
-#| message: false
-#| warning: false
-#| echo: false
-#| cache: false
+```{r}
+#| label: setup
+#| echo: FALSE
+#| message: FALSE
+#| warning: FALSE
 
 knitr::opts_chunk$set(
-  collapse  = FALSE,
-  echo      = TRUE, 
-  message   = FALSE, 
-  warning   = FALSE,
-  error     = TRUE,
-  comment   = "",
-  dpi       = 300, 
-  dev       = "ragg_png",
+  echo = FALSE, 
+  dev = "ragg_png",
+  dpi = 320,
   out.width = "100%",
+  fig.width = 8,
+  fig.asp = 0.618,
+  fig.retina = 2,
   fig.align = "center",
-  fig.width = 10
+  fig.show = "hold"
 )
 options(scipen = 999)
 
 library(tidyverse)
 library(here)
-library(downlit)
 library(gt)
 library(gtExtras)
+library(ggstatsplot)
 library(rvu)
 library(northstar)
 library(fuimus)
-library(ggstatsplot)
-```
 
-```{r}
-#| message: false
-#| warning: false
-#| echo: false
 claims_spec <- cols(
-  id = col_character(),
-  enc = col_integer(),
-  dos = col_date(format = ""),
-  dob = col_date(format = ""),
-  age = col_integer(),
-  dor = col_date(format = ""),
-  lag = col_double(),
-  ref = col_character(),
-  ref_cred = col_character(),
-  ref_tax = col_logical(),
-  ren = col_character(),
-  ren_cred = col_character(),
-  ren_tax = col_logical(),
-  icd = col_character(),
-  ord = col_integer(),
-  hcpcs = col_character(),
-  desc = col_character(),
-  units = col_integer(),
-  mod1 = col_character(),
-  mod2 = col_character(),
-  pos = col_character(),
-  pos_name = col_character(),
-  loc = col_character(),
-  ins_class = col_character(),
-  ins_prim = col_character(),
-  ins_sec = col_character(),
-  charges = col_double(),
-  allowed = col_double(),
-  payments = col_double(),
+  id          = col_character(),
+  enc         = col_integer(),
+  dos         = col_date(format = ""),
+  dob         = col_date(format = ""),
+  age         = col_integer(),
+  dor         = col_date(format = ""),
+  lag         = col_double(),
+  ref         = col_character(),
+  ref_cred    = col_character(),
+  ref_tax     = col_logical(),
+  ren         = col_character(),
+  ren_cred    = col_character(),
+  ren_tax     = col_logical(),
+  icd         = col_character(),
+  ord         = col_integer(),
+  hcpcs       = col_character(),
+  desc        = col_character(),
+  units       = col_integer(),
+  mod1        = col_character(),
+  mod2        = col_character(),
+  pos         = col_character(),
+  pos_name    = col_character(),
+  loc         = col_character(),
+  ins_class   = col_character(),
+  ins_prim    = col_character(),
+  ins_sec     = col_character(),
+  charges     = col_double(),
+  allowed     = col_double(),
+  payments    = col_double(),
   adjustments = col_double(),
-  adj1 = col_character(),
-  adj2 = col_character(),
-  adj3 = col_character()
+  adj1        = col_character(),
+  adj2        = col_character(),
+  adj3        = col_character()
 )
 
 claims <- read_csv(
@@ -88,11 +77,13 @@ claims <- read_csv(
   fuimus::remove_quiet()
 
 claims <- claims |> 
-  left_join(search_pos() |> 
-              select(-c(pos_name, pos_description)), 
-            by = join_by(pos == pos_code)) |> 
-  full_join(expand_date_range(claims$dos, "dos"), 
-            by = join_by(dos))
+  left_join(
+    search_pos() |> 
+      select(-c(pos_name, pos_description)), 
+    by = join_by(pos == pos_code)) |> 
+  full_join(
+    expand_date_range(claims$dos, "dos"), 
+    by = join_by(dos))
 
 rvus <- c(
   get_source(2021, "pprrvu"),
@@ -102,26 +93,187 @@ rvus <- c(
 ```
 
 
-# Trends & Demographics
+## Revenue Per Visit
+
+$ RPV = $ Total Payments $ \div $ Number of Patient Visits
 
 
 ```{r}
-claims |> 
-  filter(ord == 1) |> 
-  sorted_bars(month_l) +
-  gg_theme()
+#| label: claims_base
+#| message: false
+#| warning: false
+claims_base <- claims |> 
+  select(
+    id,
+    enc,
+    age,
+    ins_prim,
+    charges,
+    allowed,
+    payments,
+    adjustments)  |> 
+  arrange(id, enc) |>  
+  mutate(ppa = payments + adjustments,
+         gt = charges > ppa,
+         allowed = case_when(is.na(allowed) & gt ~ ppa, 
+                             is.na(allowed) & !gt ~ payments, 
+                             .default = allowed),
+         ppa = NULL,
+         gt = NULL,
+         .after = charges)
+
+claims_base
+```
+
+
+```{r}
+#| label: claims_summary
+#| message: false
+#| warning: false
+claims_summary <- claims_base |>
+  summarise(
+    procedures = n(),
+    charges = sum(charges, na.rm = TRUE),
+    allowed = sum(allowed, na.rm = TRUE),
+    payments = sum(payments, na.rm = TRUE),
+    adjustments = sum(adjustments, na.rm = TRUE),
+    .by = c(id, enc, age)) |>
+  summarise(
+    visits = n(),
+    procedures = sum(procedures, na.rm = TRUE),
+    charges = sum(charges, na.rm = TRUE),
+    allowed = sum(allowed, na.rm = TRUE),
+    payments = sum(payments, na.rm = TRUE),
+    adjustments = sum(adjustments, na.rm = TRUE),
+    .by = c(age)
+  ) |> 
+  summarise(
+    avg_age = mean(age, na.rm = TRUE),
+    procedures = sum(procedures, na.rm = TRUE),
+    visits = sum(visits, na.rm = TRUE),
+    charges = sum(charges, na.rm = TRUE),
+    allowed = sum(allowed, na.rm = TRUE),
+    revenue = sum(payments, na.rm = TRUE),
+    adjustments = sum(adjustments, na.rm = TRUE))
+
+claims_summary |> 
+  set_names(
+    c("Patient Age Average", 
+      "Procedures", 
+      "Visits", 
+      "Charges", 
+      "Allowed", 
+      "Net Payment", 
+      "Adjustments")) |> 
+  pivot_longer(
+    cols = everything(), 
+    names_to = "Metric", 
+    values_to = "Value")
+```
+
+
+```{r}
+#| label: claims_ratio
+#| message: false
+#| warning: false
+claims_summary |>
+  mutate(
+    revenue_adjustments = revenue + adjustments, 
+    .after = charges) |> 
+  reframe(
+    avg_age,
+    cpp = charges / procedures,
+    alpp = allowed / procedures,
+    rpp = revenue / procedures,
+    adpp = adjustments / procedures,
+    
+    ppv = procedures / visits,
+    cpv = charges / visits,
+    alpv = allowed / visits,
+    rpv = revenue / visits,
+    adpv = adjustments / visits,
+    
+    cpr = charges / revenue_adjustments,
+    alpr = allowed / revenue,
+    adpr = adjustments / revenue,
+    net_collect = revenue / (charges - adjustments),
+    net_allow = revenue / allowed,
+    net_adjust = revenue / adjustments,
+    ) |> 
+  set_names(
+    c("Patient Age Average", 
+      "Charge Per Procedure", 
+      "Allowed Per Procedure", 
+      "Payment Per Procedure", 
+      "Adjustment Per Procedure", 
+      "Procedures Per Visit", 
+      "Charge Per Visit", 
+      "Allowed Per Visit", 
+      "Payment Per Visit", 
+      "Adjustment Per Visit",
+      "Charge To Payment + Adjustment",
+      "Allowed Per Dollar", 
+      "Adjustment Per Dollar",
+      "Net Collection Ratio",
+      "Net Allowable Ratio",
+      "Net Adjustment Ratio"
+      )) |> 
+  pivot_longer(
+    cols = everything(), 
+    names_to = "Metric", 
+    values_to = "Value")
 ```
 
 ```{r}
-ggstatsplot::ggscatterstats(
-  claims |> filter(
-    payments > 0,
-    payments < 1000,
-    charges < 1000
-    ),
-  x = charges,
-  y = payments,
-  title = "Charges vs Payments")
+#| label: insurance_summary
+#| message: false
+#| warning: false
+claims_base |>
+  summarise(
+    procedures = n(),
+    charges = sum(charges, na.rm = TRUE),
+    allowed = sum(allowed, na.rm = TRUE),
+    payments = sum(payments, na.rm = TRUE),
+    adjustments = sum(adjustments, na.rm = TRUE),
+    .by = c(id, enc, age, ins_prim)) |>
+  summarise(
+    visits = n(),
+    procedures = sum(procedures, na.rm = TRUE),
+    charges = sum(charges, na.rm = TRUE),
+    allowed = sum(allowed, na.rm = TRUE),
+    payments = sum(payments, na.rm = TRUE),
+    adjustments = sum(adjustments, na.rm = TRUE),
+    .by = c(age, ins_prim)
+  ) |> 
+  summarise(
+    avg_age = mean(age, na.rm = TRUE),
+    procedures = sum(procedures, na.rm = TRUE),
+    visits = sum(visits, na.rm = TRUE),
+    charges = sum(charges, na.rm = TRUE),
+    allowed = sum(allowed, na.rm = TRUE),
+    revenue = sum(payments, na.rm = TRUE),
+    adjustments = sum(adjustments, na.rm = TRUE),
+    ppv = procedures / visits,
+    rpv = revenue / visits,
+    rpp = revenue / procedures,
+    .by = ins_prim
+  ) |> 
+  filter(!is.na(ins_prim)) |> 
+  arrange(desc(procedures)) |>
+  print(n = 30)
+```
+
+
+# Trends & Demographics
+
+```{r}
+ggstatsplot::grouped_gghistostats(
+  data = claims |> filter(between(payments, 1, 1000)),
+  x = payments,
+  grouping.var = pos_type,
+  centrality.type = "nonparametric",
+  plotgrid.args = list(nrow = 2)
+  )
 ```
 
 
