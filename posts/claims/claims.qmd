@@ -95,11 +95,12 @@ rvus <- c(
 
 ## Revenue Per Visit
 
-$ RPV = $ Total Payments $ \div $ Number of Patient Visits
+$RPV =$ Total Payments $\div$ Number of Patient Visits
 
 
 ```{r}
 #| label: claims_base
+#| echo: false
 #| message: false
 #| warning: false
 claims_base <- claims |> 
@@ -121,8 +122,6 @@ claims_base <- claims |>
          ppa = NULL,
          gt = NULL,
          .after = charges)
-
-claims_base
 ```
 
 
@@ -168,7 +167,26 @@ claims_summary |>
   pivot_longer(
     cols = everything(), 
     names_to = "Metric", 
-    values_to = "Value")
+    values_to = "Value") |> 
+  gt() |> 
+  opt_table_font(font = google_font(name = "Karla")) |> 
+  fmt_number(columns = Value, decimals = 0) |> 
+  tab_header(
+    title = "Overall Summary",
+    subtitle = "August 2022 - March 2024"
+  ) |> 
+  tab_options(
+    quarto.disable_processing = TRUE, 
+    stub_row_group.font.weight = "bold",
+    heading.title.font.size = px(22),
+    heading.subtitle.font.size = px(16),
+    heading.background.color = "white",
+    heading.align = "left",
+    table.width = pct(100),
+    table.font.size = px(16),
+    table.border.bottom.color = "white") |> 
+  opt_horizontal_padding(scale = 2) |> 
+  opt_all_caps()
 ```
 
 
@@ -181,18 +199,15 @@ claims_summary |>
     revenue_adjustments = revenue + adjustments, 
     .after = charges) |> 
   reframe(
-    avg_age,
     cpp = charges / procedures,
     alpp = allowed / procedures,
     rpp = revenue / procedures,
     adpp = adjustments / procedures,
-    
     ppv = procedures / visits,
     cpv = charges / visits,
     alpv = allowed / visits,
     rpv = revenue / visits,
     adpv = adjustments / visits,
-    
     cpr = charges / revenue_adjustments,
     alpr = allowed / revenue,
     adpr = adjustments / revenue,
@@ -201,8 +216,7 @@ claims_summary |>
     net_adjust = revenue / adjustments,
     ) |> 
   set_names(
-    c("Patient Age Average", 
-      "Charge Per Procedure", 
+    c("Charge Per Procedure", 
       "Allowed Per Procedure", 
       "Payment Per Procedure", 
       "Adjustment Per Procedure", 
@@ -246,6 +260,42 @@ claims_base |>
     .by = c(age, ins_prim)
   ) |> 
   summarise(
+    procedures = sum(procedures, na.rm = TRUE),
+    visits = sum(visits, na.rm = TRUE),
+    charges = sum(charges, na.rm = TRUE),
+    allowed = sum(allowed, na.rm = TRUE),
+    revenue = sum(payments, na.rm = TRUE),
+    adjustments = sum(adjustments, na.rm = TRUE),
+    .by = ins_prim
+  ) |> 
+  filter(!is.na(ins_prim)) |> 
+  arrange(desc(procedures)) |>
+  print(n = 30)
+```
+
+
+```{r}
+#| label: insurance_ratios
+#| message: false
+#| warning: false
+claims_base |>
+  summarise(
+    procedures = n(),
+    charges = sum(charges, na.rm = TRUE),
+    allowed = sum(allowed, na.rm = TRUE),
+    payments = sum(payments, na.rm = TRUE),
+    adjustments = sum(adjustments, na.rm = TRUE),
+    .by = c(id, enc, age, ins_prim)) |>
+  summarise(
+    visits = n(),
+    procedures = sum(procedures, na.rm = TRUE),
+    charges = sum(charges, na.rm = TRUE),
+    allowed = sum(allowed, na.rm = TRUE),
+    payments = sum(payments, na.rm = TRUE),
+    adjustments = sum(adjustments, na.rm = TRUE),
+    .by = c(age, ins_prim)
+  ) |> 
+  summarise(
     avg_age = mean(age, na.rm = TRUE),
     procedures = sum(procedures, na.rm = TRUE),
     visits = sum(visits, na.rm = TRUE),
@@ -262,7 +312,6 @@ claims_base |>
   arrange(desc(procedures)) |>
   print(n = 30)
 ```
-
 
 # Trends & Demographics
 
