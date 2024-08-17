@@ -2,10 +2,10 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.5.55">
+<meta name="generator" content="quarto-1.5.56">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Andrew Allen Bruce">
-<meta name="dcterms.date" content="2024-08-11">
+<meta name="dcterms.date" content="2024-08-17">
 <meta name="description" content="A guide to National Provider Identifiers and the CMS standard for NPI validation.">
 <title>Building an NPI Constructor – acéphale</title>
 <style>
@@ -147,7 +147,7 @@ window.Quarto = {
 <meta name="twitter:creator" content="@andrewallbruce">
 <meta name="twitter:card" content="summary">
 </head>
-<body class="nav-fixed">
+<body class="floating nav-fixed slimcontent">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top quarto-banner"><nav class="navbar navbar-expand-lg " data-bs-theme="dark"><div class="navbar-container container-fluid">
@@ -182,7 +182,7 @@ window.Quarto = {
             <div class="quarto-navbar-tools">
 </div>
       </div> <!-- /container-fluid -->
-    </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default page-columns page-full"><div class="quarto-title-banner page-columns page-full">
+    </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full"><div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
       <div class="quarto-title-block"><div><h1 class="title">Building an NPI Constructor</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
             <p class="subtitle lead">Validating National Provider Identifiers with Luhn’s Algorithm</p>
@@ -207,7 +207,7 @@ window.Quarto = {
       <div>
       <div class="quarto-title-meta-heading">Last updated</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">August 11, 2024</p>
+        <p class="date">August 17, 2024</p>
       </div>
     </div>
     
@@ -217,9 +217,7 @@ window.Quarto = {
   
   </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-<!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="2"><h2 id="toc-title">Contents</h2>
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="2"><h2 id="toc-title">Contents</h2>
    
   <ul>
 <li>
@@ -244,6 +242,9 @@ window.Quarto = {
   </ul>
 </li>
   </ul><div class="quarto-other-links"><h2>Other Links</h2><ul><li><a href="https://en.wikipedia.org/wiki/Luhn_algorithm"><i class="bi bi-bookmark-plus"></i>Luhn Algorithm</a></li><li><a href="https://en.wikipedia.org/wiki/ISO/IEC_7812"><i class="bi bi-bookmark-plus"></i>ISO/IEC 7812</a></li><li><a href="https://www.cms.gov/Regulations-and-Guidance/Administrative-Simplification/NationalProvIdentStand/Downloads/NPIcheckdigit.pdf"><i class="bi bi-bookmark-plus"></i>CMS NPI Standard</a></li><li><a href="https://www.cms.gov/medicare/cms-forms/cms-forms/downloads/cms10114.pdf"><i class="bi bi-bookmark-plus"></i>CMS-10114 NPI Application</a></li></ul></div></nav>
+</nav><div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
     </div>
 <!-- main -->
 <main class="content quarto-banner-title-block page-columns page-full" id="quarto-document-content"><p>A <strong>National Provider Identifier (NPI)</strong> is a unique 10-digit identification number assigned to health care providers in the United States through NPPES<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> The Centers for Medicare &amp; Medicaid Services (CMS) developed the NPI as a way to standardize the identification of health care providers across the health care industry.</p>
@@ -855,8 +856,8 @@ Next Multiple of Ten
 <span></span>
 <span><span class="fu">random_npi_generator</span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> [1] "1947589314" "2531796981" "1894950880" "1659871866" "1259819325"
- [6] "1472134293" "2846158871" "2448180073" "2329530553" "2954227628"</code></pre>
+<pre><code> [1] "2606012538" "2747621765" "1204811026" "2956851982" "2937282177"
+ [6] "1017843047" "2509307977" "2900994843" "1202031814" "1161794516"</code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
@@ -864,82 +865,113 @@ Next Multiple of Ten
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html">cat</a></span><span class="op">(</span><span class="va">x</span><span class="op">[</span><span class="fu">collapse</span><span class="fu">::</span><span class="fu"><a href="https://sebkrantz.github.io/collapse/reference/efficient-programming.html">whichv</a></span><span class="op">(</span><span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map_lgl</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">is_valid_npi</span><span class="op">)</span>, <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span>, sep <span class="op">=</span> <span class="st">"\n"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>2742930730
-2069321786
-1801098132
-1056536372
-2143683169
-1774543262
-2622761429
-1413331681
-1265989016
-2169300391
-2003259068
-2637337280
-1676243987
-2804550970
-2009763568
-1871450866
-2452193966
-2861493866
-1168807133
-2643771480
-2088746328
-1236316018
-2949324075
-1235824731
-2568100814
-1859219325
-1950611297
-2043009283
-1492065853
-2188178463
-2224648552
-1824500817
-2782505343
-2249604176
-1646164396
-2325690339
-1965024775
-2326804996
-1560366274
-2631074103
-1215135421
-2273875874
-2793028038
-1418362236
-2549130161
-2997355856
-2905383222
-1631110172
-2485818498
-1629965165
-2573248525
-1935370878
-2847485606
-2635749031
-2079722742
-2322718802
-2678850035
-2650415997
-2524519560
-2496698772
-2120434586
-2300185198
-1497684336
-1440351975
-2783289558
-2143573949
-1356773576
-1670277270
-1164150413
-1573117292
-2778947392
-2575546488
-2819339575
-2491482768
-2956444774
-2839216894</code></pre>
+<pre><code>2683965497
+1985689854
+2917969075
+2883431357
+2103419901
+2737411704
+2104351533
+2239049556
+2777239858
+1583304500
+2974294649
+1115907788
+1700326519
+2669152490
+1746363070
+1897570887
+2563147042
+1241690985
+1113130755
+2408292599
+1925561973
+1674285147
+2910802141
+2287686093
+2368264216
+1714329012
+1393152107
+1669108932
+2576633608
+1873116622
+2746907874
+1328515634
+1600398220
+1050970569
+2859345789
+1682398700
+1374544132
+1697728669
+1441749680
+2556497602
+1164408951
+1987547498
+2515372870
+1217141864
+1823121722
+2136001130
+2510090568
+2857446209
+1689359762
+2188305413
+2232334336
+1780484402
+2962742658
+1955839075
+1292844028
+2344643392
+2440989178
+1932415783
+2939285146
+2220271383
+1108373220
+2953270537
+2107733158
+1417041005
+2336884335
+1266754609
+1438538062
+1366773731
+2606642363
+2146109287
+1213992054
+1089366136
+1657766758
+2579219710
+2397043953
+1747566481
+2749184224
+1917936357
+2205047907
+1251617555
+2710550114
+2589298811
+1341335374
+2137649747
+1453207528
+2398107690
+2198487730
+1862022922
+2857173613
+2052964915
+1171985850
+1842079752
+2560599625
+1175783533
+1659128098
+2885309320
+2742442280
+1324946429
+1566575332
+1116981899
+2622249243
+2784528533
+1509694968
+2340386368
+1049572633
+1226961948
+1499806804</code></pre>
 </div>
 </div>
 <div style="page-break-after: always;"></div>
@@ -956,7 +988,7 @@ Next Multiple of Ten
  collate  English_United States.utf8
  ctype    English_United States.utf8
  tz       America/Los_Angeles
- date     2024-08-11
+ date     2024-08-17
  pandoc   3.1.11 @ C:/Program Files/RStudio/resources/app/bin/quarto/bin/tools/ (via rmarkdown)
 
 ─ Packages ───────────────────────────────────────────────────────────────────
@@ -966,7 +998,6 @@ Next Multiple of Ten
  colorspace     2.1-1       2024-07-26 [1] CRAN (R 4.3.2)
  digest         0.6.36      2024-06-23 [1] CRAN (R 4.3.3)
  dplyr        * 1.1.4       2023-11-17 [1] CRAN (R 4.3.2)
- drawr        * 0.0.1       2024-02-01 [1] Github (coatless-rpkg/drawr@4ad307f)
  evaluate       0.24.0      2024-06-10 [1] CRAN (R 4.3.2)
  fansi          1.0.6       2023-12-08 [1] CRAN (R 4.3.2)
  fastmap        1.2.0       2024-05-15 [1] CRAN (R 4.3.2)
@@ -1536,7 +1567,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb63-40"><a href="#cb63-40" aria-hidden="true" tabindex="-1"></a><span class="in">  fig.width = 8</span></span>
 <span id="cb63-41"><a href="#cb63-41" aria-hidden="true" tabindex="-1"></a><span class="in">)</span></span>
 <span id="cb63-42"><a href="#cb63-42" aria-hidden="true" tabindex="-1"></a><span class="in">options(scipen = 999)</span></span>
-<span id="cb63-43"><a href="#cb63-43" aria-hidden="true" tabindex="-1"></a><span class="in">library(drawr) # pak::pak("coatless-rpkg/drawr")</span></span>
+<span id="cb63-43"><a href="#cb63-43" aria-hidden="true" tabindex="-1"></a><span class="in"># library(drawr) # pak::pak("coatless-rpkg/drawr")</span></span>
 <span id="cb63-44"><a href="#cb63-44" aria-hidden="true" tabindex="-1"></a><span class="in">library(tidyverse)</span></span>
 <span id="cb63-45"><a href="#cb63-45" aria-hidden="true" tabindex="-1"></a><span class="in">library(rlang)</span></span>
 <span id="cb63-46"><a href="#cb63-46" aria-hidden="true" tabindex="-1"></a><span class="in">library(cli)</span></span>

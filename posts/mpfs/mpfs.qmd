@@ -41,14 +41,11 @@ options(scipen = 999)
 
 
 library(tidyverse)
-library(downlit)
 library(gt)
 library(northstar)
-# library(provider)
-library(rvu)
+library(rbrvs)
 library(hacksaw)
 library(cheapr)
-# library(armgin)
 
 p <- function(...) {paste0(...)}
 ```
@@ -190,7 +187,7 @@ What follows is a thorough dissection of each file in the archive, starting with
 The pdf labeled "RVU" is a comprehensive guide to the structure and contents of each file in the Relative Value zip file. It describes the methodology, that contains a data dictionary, record layout, and documentation
 
 ```{r}
-rvu24a <- rvu::get_source(year = 2024, source = "pprrvu")$rvu24a_jan |> 
+rvu24a <- rbrvs::get_source(year = 2024, source = "pprrvu")$rvu24a_jan |> 
   dplyr::mutate(
     mod = cheapr::factor_(mod),
     status_code = cheapr::factor_(status_code),
@@ -1106,4 +1103,11 @@ search_gpcis()[1:7] |>
     row_group.as_column = TRUE,
     row_group.default_label = "MAC"
     )
+```
+
+
+{{< pagebreak >}}
+
+```{r}
+sessioninfo::session_info()
 ```

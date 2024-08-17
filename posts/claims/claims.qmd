@@ -9,12 +9,11 @@ editor_options:
 
 ```{r}
 #| label: setup
-#| echo: FALSE
-#| message: FALSE
-#| warning: FALSE
+#| echo: false
+#| message: false
+#| warning: false
 
 knitr::opts_chunk$set(
-  echo = FALSE, 
   dev = "ragg_png",
   dpi = 320,
   out.width = "100%",
@@ -31,7 +30,7 @@ library(here)
 library(gt)
 library(gtExtras)
 library(ggstatsplot)
-library(rvu)
+library(rbrvs)
 library(northstar)
 library(fuimus)
 
@@ -72,39 +71,68 @@ claims_spec <- cols(
 )
 
 claims <- read_csv(
-  here("posts/claims/data", "clean_rpt_rend.csv"), 
-  col_types = claims_spec) |> 
-  fuimus::remove_quiet()
-
-claims <- claims |> 
+  here(
+    "posts/claims/data", 
+    "clean_rpt_rend.csv"), 
+  col_types = claims_spec
+  ) |> 
+  remove_quiet() |> 
   left_join(
     search_pos() |> 
-      select(-c(pos_name, pos_description)), 
-    by = join_by(pos == pos_code)) |> 
+      select(
+        -c(pos_name, pos_description)), 
+    by = join_by(pos == pos_code)
+    )
+
+claims <- claims |> 
   full_join(
     expand_date_range(claims$dos, "dos"), 
-    by = join_by(dos))
+    by = join_by(dos)
+    ) |> 
+  arrange(id, enc) |>  
+  mutate(
+    ppa = payments + adjustments,
+    gt = charges > ppa,
+    allowed = case_when(
+      is.na(allowed) & gt ~ ppa, 
+      is.na(allowed) & !gt ~ payments, 
+      .default = allowed),
+    ppa = NULL,
+    gt = NULL,
+    .after = charges)
 
-rvus <- c(
-  get_source(2021, "pprrvu"),
-  get_source(2022, "pprrvu"),
-  get_source(2023, "pprrvu"),
-  get_source(2024, "pprrvu"))
+rvu_spec <- cols(
+  date_start  = col_date(format = ""),
+  date_end    = col_date(format = ""),
+  hcpcs       = col_character(),
+  description = col_character(),
+  work_rvu    = col_double(),
+  pe_rvu      = col_double(),
+  mp_rvu      = col_double(),
+  rvu_total   = col_double(),
+  conv_factor = col_double(),
+  pctc_ind    = col_character(),
+  glob_days   = col_character(),
+  mult_proc   = col_character(),
+  dos         = col_date(format = ""),
+  pos         = col_character()
+)
+
+pprrvu <- read_csv(
+  here("posts/claims/data", "results.csv"),
+  col_types = rvu_spec)
 ```
 
 
-## Revenue Per Visit
-
-$RPV =$ Total Payments $\div$ Number of Patient Visits
-
+# Summary
 
 ```{r}
-#| label: claims_base
-#| echo: false
+#| label: claims_summary
+#| echo: true
 #| message: false
 #| warning: false
-claims_base <- claims |> 
-  select(
+claims_summary <- claims |>
+    select(
     id,
     enc,
     age,
@@ -112,24 +140,7 @@ claims_base <- claims |>
     charges,
     allowed,
     payments,
-    adjustments)  |> 
-  arrange(id, enc) |>  
-  mutate(ppa = payments + adjustments,
-         gt = charges > ppa,
-         allowed = case_when(is.na(allowed) & gt ~ ppa, 
-                             is.na(allowed) & !gt ~ payments, 
-                             .default = allowed),
-         ppa = NULL,
-         gt = NULL,
-         .after = charges)
-```
-
-
-```{r}
-#| label: claims_summary
-#| message: false
-#| warning: false
-claims_summary <- claims_base |>
+    adjustments) |> 
   summarise(
     procedures = n(),
     charges = sum(charges, na.rm = TRUE),
@@ -147,6 +158,7 @@ claims_summary <- claims_base |>
     .by = c(age)
   ) |> 
   summarise(
+    # patients = n(),
     avg_age = mean(age, na.rm = TRUE),
     procedures = sum(procedures, na.rm = TRUE),
     visits = sum(visits, na.rm = TRUE),
@@ -157,7 +169,7 @@ claims_summary <- claims_base |>
 
 claims_summary |> 
   set_names(
-    c("Patient Age Average", 
+    c("Average Patient Age", 
       "Procedures", 
       "Visits", 
       "Charges", 
@@ -167,31 +179,19 @@ claims_summary |>
   pivot_longer(
     cols = everything(), 
     names_to = "Metric", 
-    values_to = "Value") |> 
-  gt() |> 
-  opt_table_font(font = google_font(name = "Karla")) |> 
-  fmt_number(columns = Value, decimals = 0) |> 
-  tab_header(
-    title = "Overall Summary",
-    subtitle = "August 2022 - March 2024"
-  ) |> 
-  tab_options(
-    quarto.disable_processing = TRUE, 
-    stub_row_group.font.weight = "bold",
-    heading.title.font.size = px(22),
-    heading.subtitle.font.size = px(16),
-    heading.background.color = "white",
-    heading.align = "left",
-    table.width = pct(100),
-    table.font.size = px(16),
-    table.border.bottom.color = "white") |> 
-  opt_horizontal_padding(scale = 2) |> 
-  opt_all_caps()
+    values_to = "Value") |>
+  gt::gt()
 ```
+
+## Ratio Analysis
+
+Revenue Per Visit
+: $RPV =$ Total Payments $\div$ Number of Patient Visits
 
 
 ```{r}
 #| label: claims_ratio
+#| echo: true
 #| message: false
 #| warning: false
 claims_summary |>
@@ -235,14 +235,16 @@ claims_summary |>
   pivot_longer(
     cols = everything(), 
     names_to = "Metric", 
-    values_to = "Value")
+    values_to = "Value") |> 
+  gt::gt()
 ```
 
 ```{r}
 #| label: insurance_summary
+#| echo: true
 #| message: false
 #| warning: false
-claims_base |>
+insurance_summary <- claims |>
   summarise(
     procedures = n(),
     charges = sum(charges, na.rm = TRUE),
@@ -257,45 +259,10 @@ claims_base |>
     allowed = sum(allowed, na.rm = TRUE),
     payments = sum(payments, na.rm = TRUE),
     adjustments = sum(adjustments, na.rm = TRUE),
-    .by = c(age, ins_prim)
+    .by = c(id, age, ins_prim)
   ) |> 
   summarise(
-    procedures = sum(procedures, na.rm = TRUE),
-    visits = sum(visits, na.rm = TRUE),
-    charges = sum(charges, na.rm = TRUE),
-    allowed = sum(allowed, na.rm = TRUE),
-    revenue = sum(payments, na.rm = TRUE),
-    adjustments = sum(adjustments, na.rm = TRUE),
-    .by = ins_prim
-  ) |> 
-  filter(!is.na(ins_prim)) |> 
-  arrange(desc(procedures)) |>
-  print(n = 30)
-```
-
-
-```{r}
-#| label: insurance_ratios
-#| message: false
-#| warning: false
-claims_base |>
-  summarise(
-    procedures = n(),
-    charges = sum(charges, na.rm = TRUE),
-    allowed = sum(allowed, na.rm = TRUE),
-    payments = sum(payments, na.rm = TRUE),
-    adjustments = sum(adjustments, na.rm = TRUE),
-    .by = c(id, enc, age, ins_prim)) |>
-  summarise(
-    visits = n(),
-    procedures = sum(procedures, na.rm = TRUE),
-    charges = sum(charges, na.rm = TRUE),
-    allowed = sum(allowed, na.rm = TRUE),
-    payments = sum(payments, na.rm = TRUE),
-    adjustments = sum(adjustments, na.rm = TRUE),
-    .by = c(age, ins_prim)
-  ) |> 
-  summarise(
+    patients = n(),
     avg_age = mean(age, na.rm = TRUE),
     procedures = sum(procedures, na.rm = TRUE),
     visits = sum(visits, na.rm = TRUE),
@@ -303,36 +270,147 @@ claims_base |>
     allowed = sum(allowed, na.rm = TRUE),
     revenue = sum(payments, na.rm = TRUE),
     adjustments = sum(adjustments, na.rm = TRUE),
-    ppv = procedures / visits,
-    rpv = revenue / visits,
-    rpp = revenue / procedures,
-    .by = ins_prim
+    .by = c(ins_prim)
   ) |> 
   filter(!is.na(ins_prim)) |> 
-  arrange(desc(procedures)) |>
-  print(n = 30)
+  arrange(desc(procedures))
+
+# Patients are counted once per insurance class
+insurance_summary |>
+  gt::gt(rowname_col = "ins_prim") |> 
+  gt::opt_all_caps()
 ```
 
-# Trends & Demographics
 
 ```{r}
-ggstatsplot::grouped_gghistostats(
-  data = claims |> filter(between(payments, 1, 1000)),
-  x = payments,
-  grouping.var = pos_type,
-  centrality.type = "nonparametric",
-  plotgrid.args = list(nrow = 2)
-  )
+#| label: insurance_ratios
+#| echo: true
+#| message: false
+#| warning: false
+insurance_summary |> 
+  reframe(
+    ins_prim,
+    pts = patients,
+    vpp = visits / patients,
+    ppp = procedures / patients,
+    rpp = revenue / patients,
+    ppv = procedures / visits,
+    rpv = revenue / visits,
+    rpp = revenue / procedures
+  ) |> 
+  arrange(desc(pts)) |>
+  gt::gt(rowname_col = "ins_prim") |> 
+  gt::opt_all_caps()
 ```
 
 
 # Reimbursement
 
+```{r}
+#| label: rvu_new
+#| echo: false
+#| eval: false
+
+# mult = 0: "No adjustment. If procedure is reported on 
+# the same day as another procedure, base the payment on 
+# the lower of (a) the actual charge, or (b) the fee 
+# schedule amount for the procedure."
+
+# glob = ZZZ: "Code related to another service and is 
+# always included in Global period of other service."
+
+pprrvu |> 
+  reframe(
+    # dos, 
+    yr = data.table::year(dos),
+    qtr = data.table::quarter(dos),
+    # mon = data.table::month(dos),
+    pos,
+    hcpcs, 
+    description, 
+    # glob_days,
+    # mult_proc,
+    work_rvu, 
+    pe_rvu, 
+    mp_rvu, 
+    tot_rvu = rvu_total,
+    cf = conv_factor,
+    allow_unadj = tot_rvu * cf,
+    nonpar_unadj = allow_unadj * 1.15,
+    lim_unadj = nonpar_unadj * 0.95
+    ) |> 
+  gt::gt(
+    rowname_col = "year", 
+    groupname_col = "hcpcs",
+    row_group_as_column = TRUE
+    ) |> 
+  gt::opt_table_font(
+    font = gt::google_font(name = "Atkinson Hyperlegible")) |> 
+  gt::fmt_currency(
+    columns = c("par_non_amt", 
+                "par_fac_amt", 
+                "nonpar_non_amt", 
+                "nonpar_fac_amt", 
+                "limiting_non", 
+                "limiting_fac")
+    ) |>
+  gt::cols_label(
+    quarter = gt::md("**Qtr**"),
+    work_rvu = gt::md("<b><small>RVU</small></b><i><sub>wk</sub></i>"),
+    facility_pe_rvu = gt::md("<i>f</i><b><small>RVU</small></b><i><sub>pe</sub></i>"),
+    non_fac_pe_rvu = gt::md("<i>nf</i><b><small>RVU</small></b><i><sub>pe</sub></i>"),
+    mp_rvu = gt::md("<b><small>RVU</small></b><i><sub>mp</sub></i>"),
+    conv_factor = gt::md("<b>CF</b>"),
+    tot_fac_rvu = gt::md("<i>f</i><b><small>RVU</small></b><i>s</i>"),
+    tot_non_rvu = gt::md("<i>nf</i><b><small>RVU</small></b><i>s</i>"),
+    par_non_amt = gt::md("<i>nf</i><b><small>PAR</small></b>"),
+    par_fac_amt = gt::md("<i>f</i><b><small>PAR</small></b>"),
+    nonpar_non_amt = gt::md("<i>nf</i><b><small>NPAR</small></b>"),
+    nonpar_fac_amt = gt::md("<i>f</i><b><small>NPAR</small></b>"),
+    limiting_non = gt::md("<i>nf</i><b><small>LC</small></b>"),
+    limiting_fac = gt::md("<i>f</i><b><small>LC</small></b>")
+  ) |> 
+  gt::cols_align(align = "center") |>
+  gt::tab_style(
+      style = gt::cell_text(
+        align = 'center',
+        size = gt::px(16),
+        font = gt::google_font(name = "Fira Code"),
+        weight = "bold"),
+      locations = gt::cells_row_groups()) |> 
+  gt::tab_style(
+      style = gt::cell_text(
+      font = gt::google_font(name = "Fira Code")),
+      locations = gt::cells_body()) |> 
+  gt::tab_options(
+    quarto.disable_processing = TRUE,
+    table.width = "100%"
+  )
+```
 
 ```{r}
+#| label: rvu_old
+#| echo: false
+#| eval: false
+
+torvu <- claims |> 
+  filter(
+  stringfish::sf_grepl(hcpcs, "^[A-CEGHJ-MP-V0-9]\\d{3}[AFMTU0-9]$")
+  ) |> 
+  distinct(dos, hcpcs, pos_type) |> 
+  reframe(dos, hcpcs, pos = as.character(pos_type))
+
+# readr::write_csv(torvu, file = "C:/Users/Andrew/Desktop/Repositories/rbrvs/data-raw/torvu.csv"
+#   )
+torvu |> 
+  arrange(desc(dos))
+
 yq <- claims |> 
   filter(!is.na(hcpcs)) |> 
-  distinct(year, quarter, hcpcs)
+  distinct(year, quarter, hcpcs, pos_type)
+
+rvus$rvu22b_apr |>
+  select(hcpcs, work_rvu, facility_pe_rvu, non_fac_pe_rvu, mp_rvu, conv_factor)
 
 yq <- split(yq$hcpcs, yq[c("year", "quarter")]) |> 
   purrr::compact() |> 
@@ -401,11 +479,7 @@ rvu_join <- vctrs::vec_rbind(
   rvu_23.3,
   rvu_24.1
   )
-```
 
-
-
-```{r}
 rvu_join |> 
   dplyr::mutate(
     tot_fac_rvu = work_rvu + facility_pe_rvu + mp_rvu,
@@ -467,35 +541,133 @@ rvu_join |>
   )
 ```
 
-# Calculate Unadjusted Allowed Amounts
-
 ```{r}
-#| error: true
-claims_unajusted <- claims |> 
-  left_join(rvu_join, by = join_by(hcpcs, year, quarter)) |> 
-  mutate(
-    pe_rvu = case_when(
-      pos_type == "Non-Facility" ~ non_fac_pe_rvu,
-      pos_type == "Facility" ~ facility_pe_rvu,
-      .default = NA_real_
-      ),
-    facility_pe_rvu = NULL,
-    non_fac_pe_rvu = NULL,
-    total_rvu = work_rvu + pe_rvu + mp_rvu,
-    par_amt = total_rvu * conv_factor * units,
-    nonpar_amt = par_amt * 1.15,
-    limit_chrg = nonpar_amt * 0.95,
-    .after = work_rvu) |> 
+#| label: rvu_summary
+#| echo: true
+#| message: false
+#| warning: false
+rvu_join <- pprrvu |> 
+  reframe(
+    dos,
+    pos,
+    hcpcs, 
+    wrvu = work_rvu, 
+    prvu = pe_rvu, 
+    mrvu = mp_rvu, 
+    trvu = rvu_total,
+    cf = conv_factor,
+    all_un = trvu * cf,
+    npar_un = all_un * 1.15,
+    lim_un = npar_un * 0.95
+    )
+
+rvu_claims <- claims |> 
+  select(
+    dos, 
+    id, 
+    enc, 
+    ren,
+    ins_class,
+    ins_prim, 
+    ord,
+    hcpcs,
+    units,
+    pos = pos_type,
+    charges, 
+    allowed, 
+    payments, 
+    adjustments
+    ) |> 
+  left_join(
+    rvu_join, 
+    by = join_by(dos, hcpcs, pos)) |> 
   filter(
     ins_class != "SELF", 
     !is.na(hcpcs),
-    !is.na(work_rvu),
-    !(work_rvu == 0.0 & 
-        pe_rvu == 0.0 & 
-        mp_rvu == 0.0),
-    charges > 0)
-
-claims_unajusted |> skimr::skim()
+    !is.na(wrvu),
+    # !(wrvu == 0.0 & prvu == 0.0 & mrvu == 0.0),
+    charges > 0) |> 
+  arrange(dos, id, enc, ord) |> 
+  mutate(across(c(all_un, npar_un, lim_un), ~ . * units))
 ```
 
 
+```{r}
+#| echo: false
+#| eval: false
+rvu_claims |> 
+  mutate(year = data.table::year(dos), .after = dos) |> 
+  summarise(
+    procedures = n(),
+    charges = sum(charges, na.rm = TRUE),
+    allowed = sum(allowed, na.rm = TRUE),
+    payments = sum(payments, na.rm = TRUE),
+    adjustments = sum(adjustments, na.rm = TRUE),
+    units = sum(units, na.rm = TRUE),
+    wrvu = sum(wrvu, na.rm = TRUE),
+    prvu = sum(prvu, na.rm = TRUE),
+    mrvu = sum(mrvu, na.rm = TRUE),
+    trvu = sum(trvu, na.rm = TRUE),
+    all_un = sum(all_un, na.rm = TRUE),
+    npar_un = sum(npar_un, na.rm = TRUE),
+    lim_un = sum(lim_un, na.rm = TRUE),
+    .by = c(year, ins_prim))
+```
+
+
+```{r}
+#| echo: false
+#| eval: false
+rvu_claims |> filter(units > 1)
+  mutate(
+    year = data.table::year(dos),
+    qtr = data.table::quarter(dos),
+    mon = data.table::month(dos),
+    .after = dos
+  ) |> 
+  summarise(
+    procedures = n(),
+    charges = sum(charges, na.rm = TRUE),
+    allowed = sum(allowed, na.rm = TRUE),
+    payments = sum(payments, na.rm = TRUE),
+    adjustments = sum(adjustments, na.rm = TRUE),
+    units = sum(units, na.rm = TRUE),
+    wrvu = sum(wrvu, na.rm = TRUE),
+    prvu = sum(prvu, na.rm = TRUE),
+    mrvu = sum(mrvu, na.rm = TRUE),
+    trvu = sum(trvu, na.rm = TRUE),
+    allow_un = sum(allow_un, na.rm = TRUE),
+    npar_un = sum(npar_un, na.rm = TRUE),
+    lim_un = sum(lim_un, na.rm = TRUE),
+    .by = c(year, 
+            qtr, 
+            mon, 
+            id, 
+            enc, 
+            ins_prim)) |>
+  summarise(
+    visits = n(),
+    procedures = sum(procedures, na.rm = TRUE),
+    charges = sum(charges, na.rm = TRUE),
+    allowed = sum(allowed, na.rm = TRUE),
+    payments = sum(payments, na.rm = TRUE),
+    adjustments = sum(adjustments, na.rm = TRUE),
+    .by = c(age)
+  ) |> 
+  summarise(
+    # patients = n(),
+    avg_age = mean(age, na.rm = TRUE),
+    procedures = sum(procedures, na.rm = TRUE),
+    visits = sum(visits, na.rm = TRUE),
+    charges = sum(charges, na.rm = TRUE),
+    allowed = sum(allowed, na.rm = TRUE),
+    revenue = sum(payments, na.rm = TRUE),
+    adjustments = sum(adjustments, na.rm = TRUE))
+```
+
+
+{{< pagebreak >}}
+
+```{r}
+sessioninfo::session_info()
+```
