@@ -35,23 +35,35 @@ library(forager)
 ```
 
 
-**Days in Accounts Receivable** (also known as **DAR** or **Days in AR**) is a common financial metric belonging to a group of ratios called *efficiency ratios*. It measures the average amount of time it takes for a business to collect money owed from the responsible party for services rendered and billed.
+**Days in Accounts Receivable** (also known as **DAR** or **Days in AR**) is a common financial metric belonging to a group of ratios called *efficiency ratios*. 
 
-It’s importance within the healthcare RCM sphere cannot be understated, as it acts as a sort of pressure monitor connected to the vital organs of financial health within an organization. This post is intended to be a thorough overview of everything you never knew you didn’t want to know about Days in AR. Let’s start off with some background and terminology.
+DAR measures the average amount of time it takes for a business to collect money owed from the responsible party for services rendered and billed.
 
-## Accounts Receivable
+Its function within the healthcare RCM sphere is to act as a high-level monitor connected to the vital organs of financial health within an organization. 
 
-Accounts Receivable (AR) represents money owed to the healthcare practice by patients and/or insurance carriers. The Accounts Receivable cycle begins with the delivery of service and continues until payment for the service is reconciled to a zero balance. The AR Balance is the total Gross Charges entered and/or submitted to an insurance payer or patient but not yet collected. The AR balance can only be reduced by receiving payments or by entering contractual or write-off adjustments. Typical performance statistics maintained by the AR department include Days in AR and Aging of Accounts.
+The following is a thorough overview of everything you never knew you didn’t want to know about Days in AR. Let’s start off with some background and terminology.
 
-## Aging of Accounts
+<br>
 
-An account is a billable episode of care. It begins to age once it is billed to an insurance company or patient. These outstanding accounts are monitored by age in 30-day increments (0 - 30, 31 - 60, 61 - 90, and so forth.) AR departments monitor the number of accounts outstanding, the dollar amount in each 30-day increment (sometimes called “bins” or “buckets”), and the responsible parties. As well, aging should be broken down by many metrics, such as Provider, Patient, Insurance Types (Commercial, Primary, Secondary, Worker’s Compensation, Managed Care), Facility, Diagnosis/Procedure code, Specialty, etc. The older the account or the longer the account remains unpaid, the less likely it will be reimbursed.
+### Accounts Receivable
+
+Accounts Receivable (AR) represents money owed to the healthcare practice by patients and/or insurance carriers. The Accounts Receivable cycle begins with the delivery of service and continues until payment for the service is reconciled to a zero balance. 
+
+The AR Balance is the total Gross Charges entered and/or submitted to an insurance payer or patient but not yet collected. The AR balance can only be reduced by receiving payments or by entering contractual or write-off adjustments. Typical performance statistics maintained by the AR department include Days in AR and Aging of Accounts.
+
+### Aging of Accounts
+
+An account is a billable episode of care. It begins to age once it is billed to an insurance company or patient. These outstanding accounts are monitored by age in 30-day increments (0 - 30, 31 - 60, 61 - 90, and so forth.) AR departments monitor the number of accounts outstanding, the dollar amount in each 30-day increment (sometimes called “bins” or “buckets”), and the responsible parties. 
+
+As well, aging should be broken down by many metrics, such as Provider, Patient, Insurance Types (Commercial, Primary, Secondary, Worker’s Compensation, Managed Care), Facility, Diagnosis/Procedure code, Specialty, etc. The older the account or the longer the account remains unpaid, the less likely it will be reimbursed.
 
 Most claims are originally billed to insurance and, until the insurance makes a payment, the responsibility for the payment continues to be with the insurance payer. After the payer makes or denies a payment (with no just cause for an appeal), the responsibility for the balance of goes to the patient (to be sent an invoice) or the physician (to be written off.)
 
-## Days in Accounts Receivable
+### Days in Accounts Receivable
 
 Days in Accounts Receivable is a mathematical formula that calculates the average number of days it takes a business to collect money that it is owed. The DAR number should be low. A high DAR number tells you that there is a problem in your revenue cycle.
+
+<br>
 
 ::: {.callout-tip}
 
@@ -65,11 +77,13 @@ The contractual adjustment introduces a critical inefficiency to the healthcare 
 
 ::: 
 
+<br>
+
 {{< pagebreak >}}
 
 ### Example: Your Days in AR is 95
 
-So now you know that a low Days in AR number is good and a high number is bad. How low is good though? How high is bad? Is a DAR of zero the best? Let’s say that a practice has a Days in AR of 95 days. This means that, on average, it takes the practice 95 days to collect it’s outstanding balances. That doesn’t sound good, according to what I wrote a couple of paragraphs above. Or could that normal for that particular practice?
+So now you know that a low Days in AR number is good and a high number is bad. How low is good though? How high is bad? Is a DAR of `0` the best? Let’s say that a practice has a DAR of 95 days. This means that, on average, it takes the practice 95 days to collect it’s outstanding balances. That doesn’t sound good, according to what I wrote a couple of paragraphs above. Or could that normal for that particular practice?
 
 Let’s start with what we can say for sure about a Days in AR of 95:
 
@@ -77,7 +91,7 @@ Let’s start with what we can say for sure about a Days in AR of 95:
    2. Therefore, there is three months of unpaid work sitting in Accounts Receivable.
    3. As such, this practice will need three months of cash reserves on hand to meet its financial obligations.
 
-The “ideal” Days in AR depends entirely upon the medical practice, its customers (patients), its customers’ payers, the services it supplies, the providers performing those services, and the financial situation of the practice.
+The *“ideal”* Days in AR depends entirely upon the medical practice, its customers (patients), its customers’ payers, the services it supplies, the providers performing those services, and the financial situation of the practice.
 
 ## DAR Formulas
 
@@ -89,11 +103,13 @@ You need three numbers to calculate Days in AR:
 
 And the formula for Days in AR:
 
-$$ \text{Days in AR} = \frac{\text{Ending AR Balance}}{\text{Total Gross Charges}\div \text{Number of Days in the Period}} $$
+$$ \overline{dar} = \frac{ear_b}{gc_t\div days_n} $$
+
+{{< pagebreak >}}
 
 ### Step-by-Step Example
 
-Let’s say we want to calculate the Days in AR for January 2024. Our Gross Charges total is \$131,440.30 and our Ending AR Balance is \$203,460.00:
+Let’s say we want to calculate the Days in AR for January 2024. Our Gross Charges total is **\$131,440.30** and our Ending AR Balance is **\$203,460.00**:
 
 ```{r}
 #| label: ex_step_1
@@ -141,7 +157,7 @@ ex |>
 ```
 
 
-And there we have it, our Average Daily Charge is \$4,240.01 and our Days in AR is 47.99.
+And there we have it, our Average Daily Charge is **\$4,240.01** and our Days in AR is **47.99**.
 
 ## Building on the DAR Formula
 
@@ -172,3 +188,45 @@ dplyr::tibble(
     column_labels.font.weight = "bold")
 ```
 
+## EARb Target for DARt
+
+In the first example, our DAR was 47.99. That’s approximately 13 days over our DARt of 35. What would our EARB need to have been to bring us under our DARt? Here’s our formula:
+
+$$ ear_t = (\ dar_t \times gc_t\ )\ \div days_n $$
+
+We’ll calculate the EARB we needed as well as the difference between the two AR figures:
+
+```{r}
+#| label: ex_step_3
+#| echo: true
+ex <- ex |> 
+  dplyr::reframe(
+    GCt = `Gross Charges`,
+    EARb = `Ending AR Balance`,
+    NDiP = `Days in Period`,
+    ADC = `Gross Charges` / `NDiP`,
+    DAR = `EARb` / `ADC`,
+    DARt = 35,
+    EARt = (`DAR Target` * `GCt`) / `NDiP`,
+    Difference = `EARb Target` - `EARb`,
+    Percentage = `Difference` / `ADC`
+    )
+
+ex |> 
+  gt::gt() |> 
+  gt::fmt_currency(columns = c(2:3, 5), decimals = 2, incl_space = TRUE) |> 
+  gt::fmt_number(columns = 6, decimals = 2) |>
+  gt::opt_table_font(font = gt::google_font("Roboto Condensed")) |> 
+  gt::opt_stylize() |> 
+  gt::tab_options(
+    table.width = "100%",
+    quarto.disable_processing = TRUE, 
+    column_labels.font.weight = "bold")
+```
+
+
+{{< pagebreak >}}
+
+```{r}
+sessioninfo::session_info()
+```
