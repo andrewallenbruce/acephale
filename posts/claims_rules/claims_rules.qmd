@@ -26,6 +26,14 @@ library(here)
 library(tidyverse)
 library(janitor)
 library(gt)
+
+head_tail <- function(x, n = 5, by = NULL) {
+  dplyr::bind_rows(
+    dplyr::slice_head(
+      x, n = n, by = dplyr::all_of(by)),
+    dplyr::slice_tail(
+      x, n = n, by = dplyr::all_of(by)))
+}
 ```
 
 
@@ -52,9 +60,12 @@ rules_raw <- read_csv(
   x9 = col_character(),
   x10 = col_character()))
 
-rules_raw |> 
-  gt_preview() |> 
+head_tail(rules_raw, n = 10) |> 
+  gt(groupname_col = "id_rule",
+     rowname_col = "row",
+     row_group_as_column = TRUE) |>
   opt_table_font(font = google_font(name = "Fira Code")) |> 
+  opt_all_caps() |> 
   tab_options(table.width = pct(100),
               quarto.disable_processing = TRUE)
 ```
@@ -67,10 +78,12 @@ rules_raw |>
 #| message: false
 #| warning: false
 rules_raw |> 
-  filter(!is.na(x10))
+  filter(!is.na(x10)) |> 
+  glimpse()
 
 rules_raw |>
-  filter(is.na(var))
+  filter(is.na(var)) |> 
+  glimpse()
 ```
 
 
@@ -151,9 +164,18 @@ rules_new <- rules_raw |>
          wc = case_when(str_detect(value, "\\*") ~ 1L, .default = 0L),
          .after = value)
 
-rules_new |> 
-  gt_preview() |> 
-  opt_table_font(font = google_font(name = "Fira Code")) |> 
+head_tail(rules_new, n = 10, by = c("var", "action")) |> 
+  gt() |> 
+  # gt(groupname_col = "id_rule",
+  #    rowname_col = "row",
+  #    row_group_as_column = TRUE) |>
+  opt_table_font(font = google_font(name = "Roboto Condensed")) |> 
+  opt_all_caps() |> 
+  tab_style(
+      style = cell_text(
+        align = 'left',
+        font = google_font(name = "Fira Code")),
+      locations = cells_body(columns = c(var, action, value))) |> 
   tab_options(table.width = pct(100),
               quarto.disable_processing = TRUE)
 ```
