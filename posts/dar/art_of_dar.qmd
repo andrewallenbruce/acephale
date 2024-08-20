@@ -50,11 +50,15 @@ gt_opts <- \(gt_tbl) {
       heading.align = "left",
       heading.title.font.weight = "bold",
       heading.subtitle.font.weight = "bold",
-      heading.title.font.size = "1.25em",
-      heading.subtitle.font.size = "0.85em",
+      heading.title.font.size = px(24),
+      heading.subtitle.font.size = px(16),
+      table.font.size = px(18),
+      heading.padding = px(0),
       table.width = "100%",
-      quarto.disable_processing = TRUE, 
-      column_labels.font.weight = "bold")
+      # column_labels.font.weight = "bold",
+      column_labels.font.size = px(18),
+      quarto.disable_processing = TRUE
+      )
 }
 ```
 
@@ -67,10 +71,17 @@ gt_opts <- \(gt_tbl) {
 
 Its function in the healthcare revenue cycle is as a high-level monitor of the financial health of a healthcare entity.
 
-The following is a thorough overview of everything you never knew you didn’t want to know about **DAR**. Let’s start off with some background and terminology.
+The following is a thorough overview of everything you never knew you didn’t want to know about **DAR**. Let’s start off with some background and terminology. See @nte-healthcare for more information on the American healthcare economic model.
 
-Aging of Accounts
-: An **account** is a billable episode of care. It begins to **age** once it is billed to the **guarantor**. These *outstanding* accounts are monitored in 30-day blocks or **bins** ($[0, 30)$, $[31, 60)$, $[61, 90)$, $[91, 120)$, and $[121, \infty)$) by the number of accounts, the amount owed by each bin and the responsible parties. The older the account, the less likely it will be paid.
+| **Aging of Accounts**
+|    An **account** is a billable episode of care. It begins to **age** once 
+|    it is billed to the **guarantor**. These *outstanding* accounts are 
+|    monitored in 30-day blocks or **bins** ($[0, 30)$, $[31, 60)$, $[61, 90)$, 
+|    $[91, 120)$, and $[121, \infty)$) by the number of accounts, the amount
+|    owed by each bin and the responsible parties. The older the account, 
+|    the less likely it will be paid.
+
+<br>
 
 Guarantor
 : The responsible party for the amount owed (an insurance payer, a patient, etc.) Most claims are originally billed to insurance and, until the insurance makes a payment, the responsibility for the payment continues to be with the insurance payer. After the payer makes or denies a payment (with no just cause for an appeal), the responsibility for the balance of goes to the patient (to be sent an invoice) or the physician (to be written off.)
@@ -93,9 +104,9 @@ Let’s say that a practice has a DAR of 95 days. This means that, on average, i
 
 The *“ideal”* Days in AR depends entirely upon the medical practice, its customers (patients), its customers’ payers, the services it supplies, the providers performing those services, and the financial situation of the practice.
 
-::: {.callout-tip collapse="true"}
+::: {#nte-healthcare .callout-tip collapse="true"}
 
-## Note on the American Healthcare Economic Model
+## The American Healthcare Economic Model
 
 To understand the healthcare version of Days in AR, you need to first understand the environment in which it is used. 
 
@@ -119,7 +130,7 @@ This issue is much too complex for me to properly do justice to here. It is, how
 
 The formula for DAR is as follows:
 
-$$ \overline{dar} = arb \div (\ gc \div n_{days}\ )\ $$
+$$ \overline{dar} = \ arb \div (\ gc \ \div \ n_{days}\ )\ $$
 
 <br>
 
@@ -128,29 +139,29 @@ $$ \overline{dar_t} = \frac{arb_t}{gc_t\div n_{days}} $$
 
 Where:
 
-   + $t = $ <b>Time Period</b>
-      + The subscript $t$ denotes the time period ($t$) being measured.
-   + $n_{days} = $ <b>Days in Period</b>
-      + The number ($n$) of days in $t$.
-   + $gc_t = $ <b>Gross Charges</b>
-      + The sum of all charges billed during $t$.
-   + $\overline{dc_t} = $ <b>Average Daily Charge</b>
-      + $gc_t$ divided by $n_{days}$.
-   + $arb_t = $ <b>AR Balance</b>
-      + The sum of all outstanding balances at close of business (COB) on the final day of $t$.
-   + $\overline{dar_t} = $ <b>Average Days in AR</b>
-      + $arb_t$ divided by $\overline{dc_t}$ for time period $t$.
+| $t = \text{Time Period}$ 
+|      The subscript $t$ denotes the time period being measured.
+| $n_{days} = \text{Days in Period}$
+|      The number of days in $t$.
+| $gc_t = \text{Gross Charges}$
+|      The sum of all charges billed during $t$.
+| $\overline{dc_t} = \text{Average Daily Charge}$
+|      $gc_t$ divided by $n_{days}$.
+| $arb_t = \text{AR Balance}$
+|      The sum of all outstanding balances at close of business (COB) on the final day of $t$.
+| $\overline{dar_t} = \text{Average Days in AR}$
+|      $arb_t$ divided by $\overline{dc_t}$ for time period $t$.
 
 
+::: {#nte-example-1 .callout-note appearance="simple"}
 
-{{< pagebreak >}}
-
-### Example in R
+## Example in R
 
 Let’s say we want to calculate $\overline{dar_t}$ for the current month. Our Gross Charges total is **\$131,440** and our AR Balance is **\$203,460**:
 
 ```{r}
-#| label: smp_ex_1
+#| label: tbl-ex-1
+#| tbl-cap: "Step 1"
 #| echo: true
 ex <- tibble(
   ndays = days_in_month(today()),
@@ -160,12 +171,12 @@ ex <- tibble(
 ex |> 
   gt() |> 
   tab_header(
-    title = "Average Days in AR",
+    title = md("**Average Days in AR** _Calculation_"),
     subtitle = drng()) |>
   cols_label(
-    ndays = md("$n_{days}$"),
-    gc    = md("$gc_t$"),
-    arb   = md("$arb_t$")) |>
+    ndays = md("**n**<i><sub>days</sub></i>"),
+    gc    = md("**gc**<i><sub>t</sub></i>"),
+    arb   = md("**arb**<i><sub>t</sub></i>")) |>
   fmt_currency(columns = 2:3, decimals = 0) |> 
   gt_opts()
 ```
@@ -174,7 +185,8 @@ ex |>
 We have the three numbers we need, let’s plug them into our formula:
 
 ```{r}
-#| label: smp_ex_2
+#| label: tbl-ex-2
+#| tbl-cap: "Step 2"
 #| echo: true
 ex <- ex |> 
   mutate(
@@ -184,33 +196,40 @@ ex <- ex |>
 ex |> 
   gt() |> 
   tab_header(
-    title = "Average Days in AR",
+    title = md("**Average Days in AR** _Calculation_"),
     subtitle = drng()) |>
   cols_label(
-    ndays = md("$n_{days}$"),
-    gc    = md("$gc_t$"),
-    arb   = md("$arb_t$"),
-    dc    = md("$\\overline{dc_t}$"),
-    dar   = md("$\\overline{dar_t}$")) |>
+    ndays = md("**n**<i><sub>days</sub></i>"),
+    gc    = md("**gc**<i><sub>t</sub></i>"),
+    arb   = md("**arb**<i><sub>t</sub></i>"),
+    dc    = md("**dc**<i><sub>t</sub></i>"),
+    dar   = md("**dar**<i><sub>t</sub></i>")) |>
   fmt_currency(columns = c(2:4), decimals = 0) |> 
   fmt_number(columns = 5, decimals = 2) |>
   gt_opts()
 ```
 
 
-And there we have it, our Average Daily Charge is **\$4,240.01** and our Days in AR is **47.99**.
+And there we have it, our Average Daily Charge is **\$4,240** and our Days in AR is **47.99**. See @nte-example-1.
 
-## Building on the DAR Formula
+:::
+
+
+# DAR Targets
+
+   - $eart = (dart \cdot gc) \div n_{days}$ 
+   - $gct = (earb \cdot ndip) \div dart$
+   - $t_{days} = (dart \cdot gc) \div earb$
+   - $dart = (earb \cdot ndip) \div gct$
 
 Now that we have a basic understanding of the formula for Days in AR, we can expand upon and rearrange it to do many other things.
 
 One thing we’ll need to do is to declare a Days in AR target or DARt, which is the benchmark or threshold that we’d like to keep our Days in AR under for the time period being measured. For the time being, we’ll make it 35 days.
 
-As well, to simply things a bit, I’m going to use acronyms for these long variable names. They are as follows:
-
 ```{r}
 #| label: acronyms
 #| echo: true
+#| eval: false
 tibble(
   Acronym = c("`NDiP`", "`GCt`", "`EARb`", "`ADC`", "`DAR`", "`DARt`"),
   Variable = c(
@@ -229,13 +248,14 @@ tibble(
 
 In the first example, our DAR was 47.99. That’s approximately 13 days over our DARt of 35. What would our EARB need to have been to bring us under our DARt? Here’s our formula:
 
-$$ art = (\ dart \times gc\ )\ \div days_n $$
+$$ art = (\ dart \cdot gc\ )\ \div days_n $$
 
 We’ll calculate the EARB we needed as well as the difference between the two AR figures:
 
 ```{r}
 #| label: ex_step_3
 #| echo: true
+#| eval: false
 ex <- ex |> 
   dplyr::reframe(
     GCt = `Gross Charges`,
@@ -263,6 +283,10 @@ ex |>
 
 
 {{< pagebreak >}}
+
+<hr>
+
+# Session Info
 
 ```{r}
 sessioninfo::session_info()

@@ -220,14 +220,14 @@ window.Quarto = {
    
   <ul>
 <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#dar-formula" id="toc-dar-formula" class="nav-link" data-scroll-target="#dar-formula">DAR Formula</a></li>
   <li>
-<a href="#dar-formula" id="toc-dar-formula" class="nav-link" data-scroll-target="#dar-formula">DAR Formula</a>
+<a href="#dar-targets" id="toc-dar-targets" class="nav-link" data-scroll-target="#dar-targets"><span class="header-section-number">1</span> DAR Targets</a>
   <ul class="collapse">
-<li><a href="#example-in-r" id="toc-example-in-r" class="nav-link" data-scroll-target="#example-in-r">Example in R</a></li>
+<li><a href="#earb-target-for-dart" id="toc-earb-target-for-dart" class="nav-link" data-scroll-target="#earb-target-for-dart">EARb Target for DARt</a></li>
   </ul>
 </li>
-  <li><a href="#building-on-the-dar-formula" id="toc-building-on-the-dar-formula" class="nav-link" data-scroll-target="#building-on-the-dar-formula">Building on the DAR Formula</a></li>
-  <li><a href="#earb-target-for-dart" id="toc-earb-target-for-dart" class="nav-link" data-scroll-target="#earb-target-for-dart">EARb Target for DARt</a></li>
+  <li><a href="#session-info" id="toc-session-info" class="nav-link" data-scroll-target="#session-info"><span class="header-section-number">2</span> Session Info</a></li>
   </ul></nav>
 </nav><div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
@@ -238,12 +238,17 @@ window.Quarto = {
 <p><strong>Average Days in Accounts Receivable</strong> (<strong>DAR</strong> or <strong>Average Days in AR</strong>) is a common financial metric known as an <em>efficiency ratio</em>.</p>
 <p><strong>DAR</strong> measures the average number of days it takes for a business to collect money owed for services rendered from the responsible parties.</p>
 <p>Its function in the healthcare revenue cycle is as a high-level monitor of the financial health of a healthcare entity.</p>
-<p>The following is a thorough overview of everything you never knew you didn’t want to know about <strong>DAR</strong>. Let’s start off with some background and terminology.</p>
+<p>The following is a thorough overview of everything you never knew you didn’t want to know about <strong>DAR</strong>. Let’s start off with some background and terminology. See <a href="#nte-healthcare" class="quarto-xref">Note&nbsp;1</a> for more information on the American healthcare economic model.</p>
+<div class="line-block">
+<strong>Aging of Accounts</strong><br>
+&nbsp;&nbsp;&nbsp;An <strong>account</strong> is a billable episode of care. It begins to <strong>age</strong> once<br>
+&nbsp;&nbsp;&nbsp;it is billed to the <strong>guarantor</strong>. These <em>outstanding</em> accounts are<br>
+&nbsp;&nbsp;&nbsp;monitored in 30-day blocks or <strong>bins</strong> (<span class="math inline">[0, 30)</span>, <span class="math inline">[31, 60)</span>, <span class="math inline">[61, 90)</span>,<br>
+&nbsp;&nbsp;&nbsp;<span class="math inline">[91, 120)</span>, and <span class="math inline">[121, \infty)</span>) by the number of accounts, the amount<br>
+&nbsp;&nbsp;&nbsp;owed by each bin and the responsible parties. The older the account,<br>
+&nbsp;&nbsp;&nbsp;the less likely it will be paid.</div>
+<p><br></p>
 <dl>
-<dt>Aging of Accounts</dt>
-<dd>
-An <strong>account</strong> is a billable episode of care. It begins to <strong>age</strong> once it is billed to the <strong>guarantor</strong>. These <em>outstanding</em> accounts are monitored in 30-day blocks or <strong>bins</strong> (<span class="math inline">[0, 30)</span>, <span class="math inline">[31, 60)</span>, <span class="math inline">[61, 90)</span>, <span class="math inline">[91, 120)</span>, and <span class="math inline">[121, \infty)</span>) by the number of accounts, the amount owed by each bin and the responsible parties. The older the account, the less likely it will be paid.
-</dd>
 <dt>Guarantor</dt>
 <dd>
 The responsible party for the amount owed (an insurance payer, a patient, etc.) Most claims are originally billed to insurance and, until the insurance makes a payment, the responsibility for the payment continues to be with the insurance payer. After the payer makes or denies a payment (with no just cause for an appeal), the responsibility for the balance of goes to the patient (to be sent an invoice) or the physician (to be written off.)
@@ -266,13 +271,13 @@ A mathematical formula for the average number of days it takes a business to col
 <li>As such, this practice will need three months of cash reserves on hand to meet its financial obligations.</li>
 </ol>
 <p>The <em>“ideal”</em> Days in AR depends entirely upon the medical practice, its customers (patients), its customers’ payers, the services it supplies, the providers performing those services, and the financial situation of the practice.</p>
-<div class="callout callout-style-default callout-tip callout-titled">
+<div id="nte-healthcare" class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Note on the American Healthcare Economic Model
+Note&nbsp;1: The American Healthcare Economic Model
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
@@ -291,46 +296,28 @@ Note on the American Healthcare Economic Model
 <div style="page-break-after: always;"></div>
 </section><section id="dar-formula" class="level2"><h2 class="anchored" data-anchor-id="dar-formula">DAR Formula</h2>
 <p>The formula for DAR is as follows:</p>
-<p><span class="math display"> \overline{dar} = arb \div (\ gc \div n_{days}\ )\ </span></p>
+<p><span class="math display"> \overline{dar} = \ arb \div (\ gc \ \div \ n_{days}\ )\ </span></p>
 <p><br></p>
 <p><span class="math display"> \overline{dar_t} = \frac{arb_t}{gc_t\div n_{days}} </span></p>
 <p>Where:</p>
-<ul>
-<li>$t = $ <b>Time Period</b>
-<ul>
-<li>The subscript <span class="math inline">t</span> denotes the time period (<span class="math inline">t</span>) being measured.</li>
-</ul>
-</li>
-<li>$n_{days} = $ <b>Days in Period</b>
-<ul>
-<li>The number (<span class="math inline">n</span>) of days in <span class="math inline">t</span>.</li>
-</ul>
-</li>
-<li>$gc_t = $ <b>Gross Charges</b>
-<ul>
-<li>The sum of all charges billed during <span class="math inline">t</span>.</li>
-</ul>
-</li>
-<li>$ = $ <b>Average Daily Charge</b>
-<ul>
-<li>
-<span class="math inline">gc_t</span> divided by <span class="math inline">n_{days}</span>.</li>
-</ul>
-</li>
-<li>$arb_t = $ <b>AR Balance</b>
-<ul>
-<li>The sum of all outstanding balances at close of business (COB) on the final day of <span class="math inline">t</span>.</li>
-</ul>
-</li>
-<li>$ = $ <b>Average Days in AR</b>
-<ul>
-<li>
-<span class="math inline">arb_t</span> divided by <span class="math inline">\overline{dc_t}</span> for time period <span class="math inline">t</span>.</li>
-</ul>
-</li>
-</ul>
-<div style="page-break-after: always;"></div>
-<section id="example-in-r" class="level3"><h3 class="anchored" data-anchor-id="example-in-r">Example in R</h3>
+<div class="line-block">
+<span class="math inline">t = \text{Time Period}</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The subscript <span class="math inline">t</span> denotes the time period being measured.<br><span class="math inline">n_{days} = \text{Days in Period}</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The number of days in <span class="math inline">t</span>.<br><span class="math inline">gc_t = \text{Gross Charges}</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The sum of all charges billed during <span class="math inline">t</span>.<br><span class="math inline">\overline{dc_t} = \text{Average Daily Charge}</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="math inline">gc_t</span> divided by <span class="math inline">n_{days}</span>.<br><span class="math inline">arb_t = \text{AR Balance}</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The sum of all outstanding balances at close of business (COB) on the final day of <span class="math inline">t</span>.<br><span class="math inline">\overline{dar_t} = \text{Average Days in AR}</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="math inline">arb_t</span> divided by <span class="math inline">\overline{dc_t}</span> for time period <span class="math inline">t</span>.</div>
+<div id="nte-example-1" class="callout callout-style-simple callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note&nbsp;2: Example in R
+</div>
+</div>
+<div class="callout-body-container callout-body">
 <p>Let’s say we want to calculate <span class="math inline">\overline{dar_t}</span> for the current month. Our Gross Charges total is <strong>$131,440</strong> and our AR Balance is <strong>$203,460</strong>:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">ex</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span></span>
@@ -341,40 +328,44 @@ Note on the American Healthcare Economic Model
 <span><span class="va">ex</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">gt</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">tab_header</span><span class="op">(</span></span>
-<span>    title <span class="op">=</span> <span class="st">"Average Days in AR"</span>,</span>
+<span>    title <span class="op">=</span> <span class="fu">md</span><span class="op">(</span><span class="st">"**Average Days in AR** _Calculation_"</span><span class="op">)</span>,</span>
 <span>    subtitle <span class="op">=</span> <span class="fu">drng</span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">cols_label</span><span class="op">(</span></span>
-<span>    ndays <span class="op">=</span> <span class="fu">md</span><span class="op">(</span><span class="st">"$n_{days}$"</span><span class="op">)</span>,</span>
-<span>    gc    <span class="op">=</span> <span class="fu">md</span><span class="op">(</span><span class="st">"$gc_t$"</span><span class="op">)</span>,</span>
-<span>    arb   <span class="op">=</span> <span class="fu">md</span><span class="op">(</span><span class="st">"$arb_t$"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    ndays <span class="op">=</span> <span class="fu">md</span><span class="op">(</span><span class="st">"**n**&lt;i&gt;&lt;sub&gt;days&lt;/sub&gt;&lt;/i&gt;"</span><span class="op">)</span>,</span>
+<span>    gc    <span class="op">=</span> <span class="fu">md</span><span class="op">(</span><span class="st">"**gc**&lt;i&gt;&lt;sub&gt;t&lt;/sub&gt;&lt;/i&gt;"</span><span class="op">)</span>,</span>
+<span>    arb   <span class="op">=</span> <span class="fu">md</span><span class="op">(</span><span class="st">"**arb**&lt;i&gt;&lt;sub&gt;t&lt;/sub&gt;&lt;/i&gt;"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">fmt_currency</span><span class="op">(</span>columns <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">3</span>, decimals <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">gt_opts</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tbl-ex-1" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure"><figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ex-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Step 1
+</figcaption><div aria-describedby="tbl-ex-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="ebmsntdkdy" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="iinttdogwv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>@import url("https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-#ebmsntdkdy table {
+#iinttdogwv table {
   font-family: 'Roboto Condensed', system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ebmsntdkdy thead, #ebmsntdkdy tbody, #ebmsntdkdy tfoot, #ebmsntdkdy tr, #ebmsntdkdy td, #ebmsntdkdy th {
+#iinttdogwv thead, #iinttdogwv tbody, #iinttdogwv tfoot, #iinttdogwv tr, #iinttdogwv td, #iinttdogwv th {
   border-style: none;
 }
 
-#ebmsntdkdy p {
+#iinttdogwv p {
   margin: 0;
   padding: 0;
 }
 
-#ebmsntdkdy .gt_table {
+#iinttdogwv .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
   margin-left: auto;
   margin-right: auto;
   color: #333333;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: normal;
   font-style: normal;
   background-color: #FFFFFF;
@@ -393,36 +384,36 @@ Note on the American Healthcare Economic Model
   border-left-color: #D3D3D3;
 }
 
-#ebmsntdkdy .gt_caption {
+#iinttdogwv .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ebmsntdkdy .gt_title {
+#iinttdogwv .gt_title {
   color: #333333;
-  font-size: 1.25em;
+  font-size: 24px;
   font-weight: bold;
-  padding-top: 4px;
-  padding-bottom: 4px;
+  padding-top: 0px;
+  padding-bottom: 0px;
   padding-left: 5px;
   padding-right: 5px;
   border-bottom-color: #FFFFFF;
   border-bottom-width: 0;
 }
 
-#ebmsntdkdy .gt_subtitle {
+#iinttdogwv .gt_subtitle {
   color: #333333;
-  font-size: 0.85em;
+  font-size: 16px;
   font-weight: bold;
-  padding-top: 3px;
-  padding-bottom: 5px;
+  padding-top: -1px;
+  padding-bottom: 1px;
   padding-left: 5px;
   padding-right: 5px;
   border-top-color: #FFFFFF;
   border-top-width: 0;
 }
 
-#ebmsntdkdy .gt_heading {
+#iinttdogwv .gt_heading {
   background-color: #FFFFFF;
   text-align: left;
   border-bottom-color: #FFFFFF;
@@ -434,13 +425,13 @@ Note on the American Healthcare Economic Model
   border-right-color: #D3D3D3;
 }
 
-#ebmsntdkdy .gt_bottom_border {
+#iinttdogwv .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #0076BA;
 }
 
-#ebmsntdkdy .gt_col_headings {
+#iinttdogwv .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #0076BA;
@@ -455,11 +446,11 @@ Note on the American Healthcare Economic Model
   border-right-color: #D3D3D3;
 }
 
-#ebmsntdkdy .gt_col_heading {
+#iinttdogwv .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: bold;
+  font-size: 18px;
+  font-weight: normal;
   text-transform: inherit;
   border-left-style: none;
   border-left-width: 1px;
@@ -475,11 +466,11 @@ Note on the American Healthcare Economic Model
   overflow-x: hidden;
 }
 
-#ebmsntdkdy .gt_column_spanner_outer {
+#iinttdogwv .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: bold;
+  font-size: 18px;
+  font-weight: normal;
   text-transform: inherit;
   padding-top: 0;
   padding-bottom: 0;
@@ -487,15 +478,15 @@ Note on the American Healthcare Economic Model
   padding-right: 4px;
 }
 
-#ebmsntdkdy .gt_column_spanner_outer:first-child {
+#iinttdogwv .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ebmsntdkdy .gt_column_spanner_outer:last-child {
+#iinttdogwv .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ebmsntdkdy .gt_column_spanner {
+#iinttdogwv .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #0076BA;
@@ -507,11 +498,11 @@ Note on the American Healthcare Economic Model
   width: 100%;
 }
 
-#ebmsntdkdy .gt_spanner_row {
+#iinttdogwv .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ebmsntdkdy .gt_group_heading {
+#iinttdogwv .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -537,7 +528,7 @@ Note on the American Healthcare Economic Model
   text-align: left;
 }
 
-#ebmsntdkdy .gt_empty_group_heading {
+#iinttdogwv .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -552,15 +543,15 @@ Note on the American Healthcare Economic Model
   vertical-align: middle;
 }
 
-#ebmsntdkdy .gt_from_md > :first-child {
+#iinttdogwv .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ebmsntdkdy .gt_from_md > :last-child {
+#iinttdogwv .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ebmsntdkdy .gt_row {
+#iinttdogwv .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -579,7 +570,7 @@ Note on the American Healthcare Economic Model
   overflow-x: hidden;
 }
 
-#ebmsntdkdy .gt_stub {
+#iinttdogwv .gt_stub {
   color: #FFFFFF;
   background-color: #0076BA;
   font-size: 100%;
@@ -592,7 +583,7 @@ Note on the American Healthcare Economic Model
   padding-right: 5px;
 }
 
-#ebmsntdkdy .gt_stub_row_group {
+#iinttdogwv .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -606,15 +597,15 @@ Note on the American Healthcare Economic Model
   vertical-align: top;
 }
 
-#ebmsntdkdy .gt_row_group_first td {
+#iinttdogwv .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ebmsntdkdy .gt_row_group_first th {
+#iinttdogwv .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ebmsntdkdy .gt_summary_row {
+#iinttdogwv .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -624,16 +615,16 @@ Note on the American Healthcare Economic Model
   padding-right: 5px;
 }
 
-#ebmsntdkdy .gt_first_summary_row {
+#iinttdogwv .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #0076BA;
 }
 
-#ebmsntdkdy .gt_first_summary_row.thick {
+#iinttdogwv .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ebmsntdkdy .gt_last_summary_row {
+#iinttdogwv .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -643,7 +634,7 @@ Note on the American Healthcare Economic Model
   border-bottom-color: #0076BA;
 }
 
-#ebmsntdkdy .gt_grand_summary_row {
+#iinttdogwv .gt_grand_summary_row {
   color: #333333;
   background-color: #89D3FE;
   text-transform: inherit;
@@ -653,7 +644,7 @@ Note on the American Healthcare Economic Model
   padding-right: 5px;
 }
 
-#ebmsntdkdy .gt_first_grand_summary_row {
+#iinttdogwv .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -663,7 +654,7 @@ Note on the American Healthcare Economic Model
   border-top-color: #0076BA;
 }
 
-#ebmsntdkdy .gt_last_grand_summary_row_top {
+#iinttdogwv .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -673,11 +664,11 @@ Note on the American Healthcare Economic Model
   border-bottom-color: #0076BA;
 }
 
-#ebmsntdkdy .gt_striped {
+#iinttdogwv .gt_striped {
   background-color: #F4F4F4;
 }
 
-#ebmsntdkdy .gt_table_body {
+#iinttdogwv .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #0076BA;
@@ -686,7 +677,7 @@ Note on the American Healthcare Economic Model
   border-bottom-color: #0076BA;
 }
 
-#ebmsntdkdy .gt_footnotes {
+#iinttdogwv .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -700,7 +691,7 @@ Note on the American Healthcare Economic Model
   border-right-color: #D3D3D3;
 }
 
-#ebmsntdkdy .gt_footnote {
+#iinttdogwv .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -709,7 +700,7 @@ Note on the American Healthcare Economic Model
   padding-right: 5px;
 }
 
-#ebmsntdkdy .gt_sourcenotes {
+#iinttdogwv .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -723,7 +714,7 @@ Note on the American Healthcare Economic Model
   border-right-color: #D3D3D3;
 }
 
-#ebmsntdkdy .gt_sourcenote {
+#iinttdogwv .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -731,95 +722,97 @@ Note on the American Healthcare Economic Model
   padding-right: 5px;
 }
 
-#ebmsntdkdy .gt_left {
+#iinttdogwv .gt_left {
   text-align: left;
 }
 
-#ebmsntdkdy .gt_center {
+#iinttdogwv .gt_center {
   text-align: center;
 }
 
-#ebmsntdkdy .gt_right {
+#iinttdogwv .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ebmsntdkdy .gt_font_normal {
+#iinttdogwv .gt_font_normal {
   font-weight: normal;
 }
 
-#ebmsntdkdy .gt_font_bold {
+#iinttdogwv .gt_font_bold {
   font-weight: bold;
 }
 
-#ebmsntdkdy .gt_font_italic {
+#iinttdogwv .gt_font_italic {
   font-style: italic;
 }
 
-#ebmsntdkdy .gt_super {
+#iinttdogwv .gt_super {
   font-size: 65%;
 }
 
-#ebmsntdkdy .gt_footnote_marks {
+#iinttdogwv .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ebmsntdkdy .gt_asterisk {
+#iinttdogwv .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ebmsntdkdy .gt_indent_1 {
+#iinttdogwv .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ebmsntdkdy .gt_indent_2 {
+#iinttdogwv .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ebmsntdkdy .gt_indent_3 {
+#iinttdogwv .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ebmsntdkdy .gt_indent_4 {
+#iinttdogwv .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ebmsntdkdy .gt_indent_5 {
+#iinttdogwv .gt_indent_5 {
   text-indent: 25px;
 }
 
-#ebmsntdkdy .katex-display {
+#iinttdogwv .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#ebmsntdkdy div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#iinttdogwv div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
 <table class="gt_table" data-quarto-disable-processing="true" data-quarto-bootstrap="false">
 <thead>
 <tr class="gt_heading">
-<td colspan="3" class="gt_heading gt_title gt_font_normal" style="">Average Days in AR</td>
+<td colspan="3" class="gt_heading gt_title gt_font_normal" style=""><div data-qmd-base64="KipBdmVyYWdlIERheXMgaW4gQVIqKiBfQ2FsY3VsYXRpb25f"><div class="gt_from_md">
+<p><strong>Average Days in AR</strong> <em>Calculation</em></p>
+</div></div></td>
     </tr>
 <tr class="gt_heading">
 <td colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="">Thursday, August 1, 2024 - Saturday, August 31, 2024</td>
     </tr>
 <tr class="gt_col_headings">
-<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="<div data-qmd-base64=&quot;JG5fe2RheXN9JA==&quot;><div class='gt_from_md'><p>\(n_{days}\)</p>
-</div></div>"><div data-qmd-base64="JG5fe2RheXN9JA=="><div class="gt_from_md">
-<p>\(n_{days}\)</p>
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="<div data-qmd-base64=&quot;KipuKio8aT48c3ViPmRheXM8L3N1Yj48L2k+&quot;><div class='gt_from_md'><p><strong>n</strong><i><sub>days</sub></i></p>
+</div></div>"><div data-qmd-base64="KipuKio8aT48c3ViPmRheXM8L3N1Yj48L2k+"><div class="gt_from_md">
+<p><strong>n</strong><i><sub>days</sub></i></p>
 </div></div></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="<div data-qmd-base64=&quot;JGdjX3Qk&quot;><div class='gt_from_md'><p>\(gc_t\)</p>
-</div></div>"><div data-qmd-base64="JGdjX3Qk"><div class="gt_from_md">
-<p>\(gc_t\)</p>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="<div data-qmd-base64=&quot;KipnYyoqPGk+PHN1Yj50PC9zdWI+PC9pPg==&quot;><div class='gt_from_md'><p><strong>gc</strong><i><sub>t</sub></i></p>
+</div></div>"><div data-qmd-base64="KipnYyoqPGk+PHN1Yj50PC9zdWI+PC9pPg=="><div class="gt_from_md">
+<p><strong>gc</strong><i><sub>t</sub></i></p>
 </div></div></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="<div data-qmd-base64=&quot;JGFyYl90JA==&quot;><div class='gt_from_md'><p>\(arb_t\)</p>
-</div></div>"><div data-qmd-base64="JGFyYl90JA=="><div class="gt_from_md">
-<p>\(arb_t\)</p>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="<div data-qmd-base64=&quot;KiphcmIqKjxpPjxzdWI+dDwvc3ViPjwvaT4=&quot;><div class='gt_from_md'><p><strong>arb</strong><i><sub>t</sub></i></p>
+</div></div>"><div data-qmd-base64="KiphcmIqKjxpPjxzdWI+dDwvc3ViPjwvaT4="><div class="gt_from_md">
+<p><strong>arb</strong><i><sub>t</sub></i></p>
 </div></div></th>
     </tr>
 </thead>
@@ -832,6 +825,9 @@ Note on the American Healthcare Economic Model
 </div>
 </div>
 </div>
+</figure>
+</div>
+</div>
 <p>We have the three numbers we need, let’s plug them into our formula:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">ex</span> <span class="op">&lt;-</span> <span class="va">ex</span> <span class="op">|&gt;</span> </span>
@@ -842,43 +838,47 @@ Note on the American Healthcare Economic Model
 <span><span class="va">ex</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">gt</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">tab_header</span><span class="op">(</span></span>
-<span>    title <span class="op">=</span> <span class="st">"Average Days in AR"</span>,</span>
+<span>    title <span class="op">=</span> <span class="fu">md</span><span class="op">(</span><span class="st">"**Average Days in AR** _Calculation_"</span><span class="op">)</span>,</span>
 <span>    subtitle <span class="op">=</span> <span class="fu">drng</span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">cols_label</span><span class="op">(</span></span>
-<span>    ndays <span class="op">=</span> <span class="fu">md</span><span class="op">(</span><span class="st">"$n_{days}$"</span><span class="op">)</span>,</span>
-<span>    gc    <span class="op">=</span> <span class="fu">md</span><span class="op">(</span><span class="st">"$gc_t$"</span><span class="op">)</span>,</span>
-<span>    arb   <span class="op">=</span> <span class="fu">md</span><span class="op">(</span><span class="st">"$arb_t$"</span><span class="op">)</span>,</span>
-<span>    dc    <span class="op">=</span> <span class="fu">md</span><span class="op">(</span><span class="st">"$\\overline{dc_t}$"</span><span class="op">)</span>,</span>
-<span>    dar   <span class="op">=</span> <span class="fu">md</span><span class="op">(</span><span class="st">"$\\overline{dar_t}$"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    ndays <span class="op">=</span> <span class="fu">md</span><span class="op">(</span><span class="st">"**n**&lt;i&gt;&lt;sub&gt;days&lt;/sub&gt;&lt;/i&gt;"</span><span class="op">)</span>,</span>
+<span>    gc    <span class="op">=</span> <span class="fu">md</span><span class="op">(</span><span class="st">"**gc**&lt;i&gt;&lt;sub&gt;t&lt;/sub&gt;&lt;/i&gt;"</span><span class="op">)</span>,</span>
+<span>    arb   <span class="op">=</span> <span class="fu">md</span><span class="op">(</span><span class="st">"**arb**&lt;i&gt;&lt;sub&gt;t&lt;/sub&gt;&lt;/i&gt;"</span><span class="op">)</span>,</span>
+<span>    dc    <span class="op">=</span> <span class="fu">md</span><span class="op">(</span><span class="st">"**dc**&lt;i&gt;&lt;sub&gt;t&lt;/sub&gt;&lt;/i&gt;"</span><span class="op">)</span>,</span>
+<span>    dar   <span class="op">=</span> <span class="fu">md</span><span class="op">(</span><span class="st">"**dar**&lt;i&gt;&lt;sub&gt;t&lt;/sub&gt;&lt;/i&gt;"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">fmt_currency</span><span class="op">(</span>columns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">2</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span>, decimals <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">fmt_number</span><span class="op">(</span>columns <span class="op">=</span> <span class="fl">5</span>, decimals <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">gt_opts</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tbl-ex-2" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-layout-align="center">
+<figure class="quarto-float quarto-float-tbl figure"><figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ex-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Step 2
+</figcaption><div aria-describedby="tbl-ex-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="pakxigqtzf" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="whoxiktpcq" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>@import url("https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-#pakxigqtzf table {
+#whoxiktpcq table {
   font-family: 'Roboto Condensed', system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#pakxigqtzf thead, #pakxigqtzf tbody, #pakxigqtzf tfoot, #pakxigqtzf tr, #pakxigqtzf td, #pakxigqtzf th {
+#whoxiktpcq thead, #whoxiktpcq tbody, #whoxiktpcq tfoot, #whoxiktpcq tr, #whoxiktpcq td, #whoxiktpcq th {
   border-style: none;
 }
 
-#pakxigqtzf p {
+#whoxiktpcq p {
   margin: 0;
   padding: 0;
 }
 
-#pakxigqtzf .gt_table {
+#whoxiktpcq .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
   margin-left: auto;
   margin-right: auto;
   color: #333333;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: normal;
   font-style: normal;
   background-color: #FFFFFF;
@@ -897,36 +897,36 @@ Note on the American Healthcare Economic Model
   border-left-color: #D3D3D3;
 }
 
-#pakxigqtzf .gt_caption {
+#whoxiktpcq .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#pakxigqtzf .gt_title {
+#whoxiktpcq .gt_title {
   color: #333333;
-  font-size: 1.25em;
+  font-size: 24px;
   font-weight: bold;
-  padding-top: 4px;
-  padding-bottom: 4px;
+  padding-top: 0px;
+  padding-bottom: 0px;
   padding-left: 5px;
   padding-right: 5px;
   border-bottom-color: #FFFFFF;
   border-bottom-width: 0;
 }
 
-#pakxigqtzf .gt_subtitle {
+#whoxiktpcq .gt_subtitle {
   color: #333333;
-  font-size: 0.85em;
+  font-size: 16px;
   font-weight: bold;
-  padding-top: 3px;
-  padding-bottom: 5px;
+  padding-top: -1px;
+  padding-bottom: 1px;
   padding-left: 5px;
   padding-right: 5px;
   border-top-color: #FFFFFF;
   border-top-width: 0;
 }
 
-#pakxigqtzf .gt_heading {
+#whoxiktpcq .gt_heading {
   background-color: #FFFFFF;
   text-align: left;
   border-bottom-color: #FFFFFF;
@@ -938,13 +938,13 @@ Note on the American Healthcare Economic Model
   border-right-color: #D3D3D3;
 }
 
-#pakxigqtzf .gt_bottom_border {
+#whoxiktpcq .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #0076BA;
 }
 
-#pakxigqtzf .gt_col_headings {
+#whoxiktpcq .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #0076BA;
@@ -959,11 +959,11 @@ Note on the American Healthcare Economic Model
   border-right-color: #D3D3D3;
 }
 
-#pakxigqtzf .gt_col_heading {
+#whoxiktpcq .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: bold;
+  font-size: 18px;
+  font-weight: normal;
   text-transform: inherit;
   border-left-style: none;
   border-left-width: 1px;
@@ -979,11 +979,11 @@ Note on the American Healthcare Economic Model
   overflow-x: hidden;
 }
 
-#pakxigqtzf .gt_column_spanner_outer {
+#whoxiktpcq .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: bold;
+  font-size: 18px;
+  font-weight: normal;
   text-transform: inherit;
   padding-top: 0;
   padding-bottom: 0;
@@ -991,15 +991,15 @@ Note on the American Healthcare Economic Model
   padding-right: 4px;
 }
 
-#pakxigqtzf .gt_column_spanner_outer:first-child {
+#whoxiktpcq .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#pakxigqtzf .gt_column_spanner_outer:last-child {
+#whoxiktpcq .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#pakxigqtzf .gt_column_spanner {
+#whoxiktpcq .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #0076BA;
@@ -1011,11 +1011,11 @@ Note on the American Healthcare Economic Model
   width: 100%;
 }
 
-#pakxigqtzf .gt_spanner_row {
+#whoxiktpcq .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#pakxigqtzf .gt_group_heading {
+#whoxiktpcq .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1041,7 +1041,7 @@ Note on the American Healthcare Economic Model
   text-align: left;
 }
 
-#pakxigqtzf .gt_empty_group_heading {
+#whoxiktpcq .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1056,15 +1056,15 @@ Note on the American Healthcare Economic Model
   vertical-align: middle;
 }
 
-#pakxigqtzf .gt_from_md > :first-child {
+#whoxiktpcq .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#pakxigqtzf .gt_from_md > :last-child {
+#whoxiktpcq .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#pakxigqtzf .gt_row {
+#whoxiktpcq .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1083,7 +1083,7 @@ Note on the American Healthcare Economic Model
   overflow-x: hidden;
 }
 
-#pakxigqtzf .gt_stub {
+#whoxiktpcq .gt_stub {
   color: #FFFFFF;
   background-color: #0076BA;
   font-size: 100%;
@@ -1096,7 +1096,7 @@ Note on the American Healthcare Economic Model
   padding-right: 5px;
 }
 
-#pakxigqtzf .gt_stub_row_group {
+#whoxiktpcq .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1110,15 +1110,15 @@ Note on the American Healthcare Economic Model
   vertical-align: top;
 }
 
-#pakxigqtzf .gt_row_group_first td {
+#whoxiktpcq .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#pakxigqtzf .gt_row_group_first th {
+#whoxiktpcq .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#pakxigqtzf .gt_summary_row {
+#whoxiktpcq .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1128,16 +1128,16 @@ Note on the American Healthcare Economic Model
   padding-right: 5px;
 }
 
-#pakxigqtzf .gt_first_summary_row {
+#whoxiktpcq .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #0076BA;
 }
 
-#pakxigqtzf .gt_first_summary_row.thick {
+#whoxiktpcq .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#pakxigqtzf .gt_last_summary_row {
+#whoxiktpcq .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1147,7 +1147,7 @@ Note on the American Healthcare Economic Model
   border-bottom-color: #0076BA;
 }
 
-#pakxigqtzf .gt_grand_summary_row {
+#whoxiktpcq .gt_grand_summary_row {
   color: #333333;
   background-color: #89D3FE;
   text-transform: inherit;
@@ -1157,7 +1157,7 @@ Note on the American Healthcare Economic Model
   padding-right: 5px;
 }
 
-#pakxigqtzf .gt_first_grand_summary_row {
+#whoxiktpcq .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1167,7 +1167,7 @@ Note on the American Healthcare Economic Model
   border-top-color: #0076BA;
 }
 
-#pakxigqtzf .gt_last_grand_summary_row_top {
+#whoxiktpcq .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1177,11 +1177,11 @@ Note on the American Healthcare Economic Model
   border-bottom-color: #0076BA;
 }
 
-#pakxigqtzf .gt_striped {
+#whoxiktpcq .gt_striped {
   background-color: #F4F4F4;
 }
 
-#pakxigqtzf .gt_table_body {
+#whoxiktpcq .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #0076BA;
@@ -1190,7 +1190,7 @@ Note on the American Healthcare Economic Model
   border-bottom-color: #0076BA;
 }
 
-#pakxigqtzf .gt_footnotes {
+#whoxiktpcq .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1204,7 +1204,7 @@ Note on the American Healthcare Economic Model
   border-right-color: #D3D3D3;
 }
 
-#pakxigqtzf .gt_footnote {
+#whoxiktpcq .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1213,7 +1213,7 @@ Note on the American Healthcare Economic Model
   padding-right: 5px;
 }
 
-#pakxigqtzf .gt_sourcenotes {
+#whoxiktpcq .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1227,7 +1227,7 @@ Note on the American Healthcare Economic Model
   border-right-color: #D3D3D3;
 }
 
-#pakxigqtzf .gt_sourcenote {
+#whoxiktpcq .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1235,103 +1235,105 @@ Note on the American Healthcare Economic Model
   padding-right: 5px;
 }
 
-#pakxigqtzf .gt_left {
+#whoxiktpcq .gt_left {
   text-align: left;
 }
 
-#pakxigqtzf .gt_center {
+#whoxiktpcq .gt_center {
   text-align: center;
 }
 
-#pakxigqtzf .gt_right {
+#whoxiktpcq .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#pakxigqtzf .gt_font_normal {
+#whoxiktpcq .gt_font_normal {
   font-weight: normal;
 }
 
-#pakxigqtzf .gt_font_bold {
+#whoxiktpcq .gt_font_bold {
   font-weight: bold;
 }
 
-#pakxigqtzf .gt_font_italic {
+#whoxiktpcq .gt_font_italic {
   font-style: italic;
 }
 
-#pakxigqtzf .gt_super {
+#whoxiktpcq .gt_super {
   font-size: 65%;
 }
 
-#pakxigqtzf .gt_footnote_marks {
+#whoxiktpcq .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#pakxigqtzf .gt_asterisk {
+#whoxiktpcq .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#pakxigqtzf .gt_indent_1 {
+#whoxiktpcq .gt_indent_1 {
   text-indent: 5px;
 }
 
-#pakxigqtzf .gt_indent_2 {
+#whoxiktpcq .gt_indent_2 {
   text-indent: 10px;
 }
 
-#pakxigqtzf .gt_indent_3 {
+#whoxiktpcq .gt_indent_3 {
   text-indent: 15px;
 }
 
-#pakxigqtzf .gt_indent_4 {
+#whoxiktpcq .gt_indent_4 {
   text-indent: 20px;
 }
 
-#pakxigqtzf .gt_indent_5 {
+#whoxiktpcq .gt_indent_5 {
   text-indent: 25px;
 }
 
-#pakxigqtzf .katex-display {
+#whoxiktpcq .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#pakxigqtzf div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#whoxiktpcq div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
 <table class="gt_table" data-quarto-disable-processing="true" data-quarto-bootstrap="false">
 <thead>
 <tr class="gt_heading">
-<td colspan="5" class="gt_heading gt_title gt_font_normal" style="">Average Days in AR</td>
+<td colspan="5" class="gt_heading gt_title gt_font_normal" style=""><div data-qmd-base64="KipBdmVyYWdlIERheXMgaW4gQVIqKiBfQ2FsY3VsYXRpb25f"><div class="gt_from_md">
+<p><strong>Average Days in AR</strong> <em>Calculation</em></p>
+</div></div></td>
     </tr>
 <tr class="gt_heading">
 <td colspan="5" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="">Thursday, August 1, 2024 - Saturday, August 31, 2024</td>
     </tr>
 <tr class="gt_col_headings">
-<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="<div data-qmd-base64=&quot;JG5fe2RheXN9JA==&quot;><div class='gt_from_md'><p>\(n_{days}\)</p>
-</div></div>"><div data-qmd-base64="JG5fe2RheXN9JA=="><div class="gt_from_md">
-<p>\(n_{days}\)</p>
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="<div data-qmd-base64=&quot;KipuKio8aT48c3ViPmRheXM8L3N1Yj48L2k+&quot;><div class='gt_from_md'><p><strong>n</strong><i><sub>days</sub></i></p>
+</div></div>"><div data-qmd-base64="KipuKio8aT48c3ViPmRheXM8L3N1Yj48L2k+"><div class="gt_from_md">
+<p><strong>n</strong><i><sub>days</sub></i></p>
 </div></div></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="<div data-qmd-base64=&quot;JGdjX3Qk&quot;><div class='gt_from_md'><p>\(gc_t\)</p>
-</div></div>"><div data-qmd-base64="JGdjX3Qk"><div class="gt_from_md">
-<p>\(gc_t\)</p>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="<div data-qmd-base64=&quot;KipnYyoqPGk+PHN1Yj50PC9zdWI+PC9pPg==&quot;><div class='gt_from_md'><p><strong>gc</strong><i><sub>t</sub></i></p>
+</div></div>"><div data-qmd-base64="KipnYyoqPGk+PHN1Yj50PC9zdWI+PC9pPg=="><div class="gt_from_md">
+<p><strong>gc</strong><i><sub>t</sub></i></p>
 </div></div></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="<div data-qmd-base64=&quot;JGFyYl90JA==&quot;><div class='gt_from_md'><p>\(arb_t\)</p>
-</div></div>"><div data-qmd-base64="JGFyYl90JA=="><div class="gt_from_md">
-<p>\(arb_t\)</p>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="<div data-qmd-base64=&quot;KiphcmIqKjxpPjxzdWI+dDwvc3ViPjwvaT4=&quot;><div class='gt_from_md'><p><strong>arb</strong><i><sub>t</sub></i></p>
+</div></div>"><div data-qmd-base64="KiphcmIqKjxpPjxzdWI+dDwvc3ViPjwvaT4="><div class="gt_from_md">
+<p><strong>arb</strong><i><sub>t</sub></i></p>
 </div></div></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="<div data-qmd-base64=&quot;JFxvdmVybGluZXtkY190fSQ=&quot;><div class='gt_from_md'><p>\(\overline{dc_t}\)</p>
-</div></div>"><div data-qmd-base64="JFxvdmVybGluZXtkY190fSQ="><div class="gt_from_md">
-<p>\(\overline{dc_t}\)</p>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="<div data-qmd-base64=&quot;KipkYyoqPGk+PHN1Yj50PC9zdWI+PC9pPg==&quot;><div class='gt_from_md'><p><strong>dc</strong><i><sub>t</sub></i></p>
+</div></div>"><div data-qmd-base64="KipkYyoqPGk+PHN1Yj50PC9zdWI+PC9pPg=="><div class="gt_from_md">
+<p><strong>dc</strong><i><sub>t</sub></i></p>
 </div></div></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="<div data-qmd-base64=&quot;JFxvdmVybGluZXtkYXJfdH0k&quot;><div class='gt_from_md'><p>\(\overline{dar_t}\)</p>
-</div></div>"><div data-qmd-base64="JFxvdmVybGluZXtkYXJfdH0k"><div class="gt_from_md">
-<p>\(\overline{dar_t}\)</p>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="<div data-qmd-base64=&quot;KipkYXIqKjxpPjxzdWI+dDwvc3ViPjwvaT4=&quot;><div class='gt_from_md'><p><strong>dar</strong><i><sub>t</sub></i></p>
+</div></div>"><div data-qmd-base64="KipkYXIqKjxpPjxzdWI+dDwvc3ViPjwvaT4="><div class="gt_from_md">
+<p><strong>dar</strong><i><sub>t</sub></i></p>
 </div></div></th>
     </tr>
 </thead>
@@ -1346,11 +1348,22 @@ Note on the American Healthcare Economic Model
 </div>
 </div>
 </div>
-<p>And there we have it, our Average Daily Charge is <strong>$4,240.01</strong> and our Days in AR is <strong>47.99</strong>.</p>
-</section></section><section id="building-on-the-dar-formula" class="level2"><h2 class="anchored" data-anchor-id="building-on-the-dar-formula">Building on the DAR Formula</h2>
+</figure>
+</div>
+</div>
+<p>And there we have it, our Average Daily Charge is <strong>$4,240</strong> and our Days in AR is <strong>47.99</strong>. See <a href="#nte-example-1" class="quarto-xref">Note&nbsp;2</a>.</p>
+</div>
+</div>
+</section><section id="dar-targets" class="level1" data-number="1"><h1 data-number="1">
+<span class="header-section-number">1</span> DAR Targets</h1>
+<ul>
+<li><span class="math inline">eart = (dart \cdot gc) \div n_{days}</span></li>
+<li><span class="math inline">gct = (earb \cdot ndip) \div dart</span></li>
+<li><span class="math inline">t_{days} = (dart \cdot gc) \div earb</span></li>
+<li><span class="math inline">dart = (earb \cdot ndip) \div gct</span></li>
+</ul>
 <p>Now that we have a basic understanding of the formula for Days in AR, we can expand upon and rearrange it to do many other things.</p>
 <p>One thing we’ll need to do is to declare a Days in AR target or DARt, which is the benchmark or threshold that we’d like to keep our Days in AR under for the time period being measured. For the time being, we’ll make it 35 days.</p>
-<p>As well, to simply things a bit, I’m going to use acronyms for these long variable names. They are as follows:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">tibble</span><span class="op">(</span></span>
 <span>  Acronym <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"`NDiP`"</span>, <span class="st">"`GCt`"</span>, <span class="st">"`EARb`"</span>, <span class="st">"`ADC`"</span>, <span class="st">"`DAR`"</span>, <span class="st">"`DARt`"</span><span class="op">)</span>,</span>
@@ -1364,507 +1377,10 @@ Note on the American Healthcare Economic Model
 <span>  <span class="fu">gt</span><span class="op">(</span>process_md <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">fmt_markdown</span><span class="op">(</span>columns <span class="op">=</span> <span class="fl">1</span>, md_engine <span class="op">=</span> <span class="st">"commonmark"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">gt_opts</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div id="zqygxssxtb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>@import url("https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-#zqygxssxtb table {
-  font-family: 'Roboto Condensed', system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-#zqygxssxtb thead, #zqygxssxtb tbody, #zqygxssxtb tfoot, #zqygxssxtb tr, #zqygxssxtb td, #zqygxssxtb th {
-  border-style: none;
-}
-
-#zqygxssxtb p {
-  margin: 0;
-  padding: 0;
-}
-
-#zqygxssxtb .gt_table {
-  display: table;
-  border-collapse: collapse;
-  line-height: normal;
-  margin-left: auto;
-  margin-right: auto;
-  color: #333333;
-  font-size: 16px;
-  font-weight: normal;
-  font-style: normal;
-  background-color: #FFFFFF;
-  width: 100%;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #004D80;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #004D80;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-}
-
-#zqygxssxtb .gt_caption {
-  padding-top: 4px;
-  padding-bottom: 4px;
-}
-
-#zqygxssxtb .gt_title {
-  color: #333333;
-  font-size: 1.25em;
-  font-weight: bold;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-bottom-color: #FFFFFF;
-  border-bottom-width: 0;
-}
-
-#zqygxssxtb .gt_subtitle {
-  color: #333333;
-  font-size: 0.85em;
-  font-weight: bold;
-  padding-top: 3px;
-  padding-bottom: 5px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-top-color: #FFFFFF;
-  border-top-width: 0;
-}
-
-#zqygxssxtb .gt_heading {
-  background-color: #FFFFFF;
-  text-align: left;
-  border-bottom-color: #FFFFFF;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-}
-
-#zqygxssxtb .gt_bottom_border {
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #0076BA;
-}
-
-#zqygxssxtb .gt_col_headings {
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #0076BA;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #0076BA;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-}
-
-#zqygxssxtb .gt_col_heading {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: bold;
-  text-transform: inherit;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: bottom;
-  padding-top: 5px;
-  padding-bottom: 6px;
-  padding-left: 5px;
-  padding-right: 5px;
-  overflow-x: hidden;
-}
-
-#zqygxssxtb .gt_column_spanner_outer {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: bold;
-  text-transform: inherit;
-  padding-top: 0;
-  padding-bottom: 0;
-  padding-left: 4px;
-  padding-right: 4px;
-}
-
-#zqygxssxtb .gt_column_spanner_outer:first-child {
-  padding-left: 0;
-}
-
-#zqygxssxtb .gt_column_spanner_outer:last-child {
-  padding-right: 0;
-}
-
-#zqygxssxtb .gt_column_spanner {
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #0076BA;
-  vertical-align: bottom;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  overflow-x: hidden;
-  display: inline-block;
-  width: 100%;
-}
-
-#zqygxssxtb .gt_spanner_row {
-  border-bottom-style: hidden;
-}
-
-#zqygxssxtb .gt_group_heading {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #0076BA;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #0076BA;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: middle;
-  text-align: left;
-}
-
-#zqygxssxtb .gt_empty_group_heading {
-  padding: 0.5px;
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #0076BA;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #0076BA;
-  vertical-align: middle;
-}
-
-#zqygxssxtb .gt_from_md > :first-child {
-  margin-top: 0;
-}
-
-#zqygxssxtb .gt_from_md > :last-child {
-  margin-bottom: 0;
-}
-
-#zqygxssxtb .gt_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  margin: 10px;
-  border-top-style: none;
-  border-top-width: 1px;
-  border-top-color: #89D3FE;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #89D3FE;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #89D3FE;
-  vertical-align: middle;
-  overflow-x: hidden;
-}
-
-#zqygxssxtb .gt_stub {
-  color: #FFFFFF;
-  background-color: #0076BA;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-right-style: solid;
-  border-right-width: 2px;
-  border-right-color: #0076BA;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-#zqygxssxtb .gt_stub_row_group {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-right-style: solid;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-  padding-left: 5px;
-  padding-right: 5px;
-  vertical-align: top;
-}
-
-#zqygxssxtb .gt_row_group_first td {
-  border-top-width: 2px;
-}
-
-#zqygxssxtb .gt_row_group_first th {
-  border-top-width: 2px;
-}
-
-#zqygxssxtb .gt_summary_row {
-  color: #333333;
-  background-color: #FFFFFF;
-  text-transform: inherit;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-#zqygxssxtb .gt_first_summary_row {
-  border-top-style: solid;
-  border-top-color: #0076BA;
-}
-
-#zqygxssxtb .gt_first_summary_row.thick {
-  border-top-width: 2px;
-}
-
-#zqygxssxtb .gt_last_summary_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #0076BA;
-}
-
-#zqygxssxtb .gt_grand_summary_row {
-  color: #333333;
-  background-color: #89D3FE;
-  text-transform: inherit;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-#zqygxssxtb .gt_first_grand_summary_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-top-style: double;
-  border-top-width: 6px;
-  border-top-color: #0076BA;
-}
-
-#zqygxssxtb .gt_last_grand_summary_row_top {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-bottom-style: double;
-  border-bottom-width: 6px;
-  border-bottom-color: #0076BA;
-}
-
-#zqygxssxtb .gt_striped {
-  background-color: #F4F4F4;
-}
-
-#zqygxssxtb .gt_table_body {
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #0076BA;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #0076BA;
-}
-
-#zqygxssxtb .gt_footnotes {
-  color: #333333;
-  background-color: #FFFFFF;
-  border-bottom-style: none;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-}
-
-#zqygxssxtb .gt_footnote {
-  margin: 0px;
-  font-size: 90%;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-#zqygxssxtb .gt_sourcenotes {
-  color: #333333;
-  background-color: #FFFFFF;
-  border-bottom-style: none;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-}
-
-#zqygxssxtb .gt_sourcenote {
-  font-size: 90%;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-#zqygxssxtb .gt_left {
-  text-align: left;
-}
-
-#zqygxssxtb .gt_center {
-  text-align: center;
-}
-
-#zqygxssxtb .gt_right {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-#zqygxssxtb .gt_font_normal {
-  font-weight: normal;
-}
-
-#zqygxssxtb .gt_font_bold {
-  font-weight: bold;
-}
-
-#zqygxssxtb .gt_font_italic {
-  font-style: italic;
-}
-
-#zqygxssxtb .gt_super {
-  font-size: 65%;
-}
-
-#zqygxssxtb .gt_footnote_marks {
-  font-size: 75%;
-  vertical-align: 0.4em;
-  position: initial;
-}
-
-#zqygxssxtb .gt_asterisk {
-  font-size: 100%;
-  vertical-align: 0;
-}
-
-#zqygxssxtb .gt_indent_1 {
-  text-indent: 5px;
-}
-
-#zqygxssxtb .gt_indent_2 {
-  text-indent: 10px;
-}
-
-#zqygxssxtb .gt_indent_3 {
-  text-indent: 15px;
-}
-
-#zqygxssxtb .gt_indent_4 {
-  text-indent: 20px;
-}
-
-#zqygxssxtb .gt_indent_5 {
-  text-indent: 25px;
-}
-
-#zqygxssxtb .katex-display {
-  display: inline-flex !important;
-  margin-bottom: 0.75em !important;
-}
-
-#zqygxssxtb div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
-  height: 0px !important;
-}
-</style>
-<table class="gt_table" data-quarto-disable-processing="true" data-quarto-bootstrap="false">
-<thead><tr class="gt_col_headings">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Acronym">Acronym</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Variable">Variable</th>
-    </tr></thead>
-<tbody class="gt_table_body">
-<tr>
-<td headers="Acronym" class="gt_row gt_left"><div data-qmd-base64="YE5EaVBg"><div class="gt_from_md">
-<p><code>NDiP</code></p>
-</div></div></td>
-<td headers="Variable" class="gt_row gt_left">Number of Days in Period</td>
-</tr>
-<tr>
-<td headers="Acronym" class="gt_row gt_left"><div data-qmd-base64="YEdDdGA="><div class="gt_from_md">
-<p><code>GCt</code></p>
-</div></div></td>
-<td headers="Variable" class="gt_row gt_left">Total Gross Charges</td>
-</tr>
-<tr>
-<td headers="Acronym" class="gt_row gt_left"><div data-qmd-base64="YEVBUmJg"><div class="gt_from_md">
-<p><code>EARb</code></p>
-</div></div></td>
-<td headers="Variable" class="gt_row gt_left">Ending AR Balance</td>
-</tr>
-<tr>
-<td headers="Acronym" class="gt_row gt_left"><div data-qmd-base64="YEFEQ2A="><div class="gt_from_md">
-<p><code>ADC</code></p>
-</div></div></td>
-<td headers="Variable" class="gt_row gt_left">Average Daily Charge</td>
-</tr>
-<tr>
-<td headers="Acronym" class="gt_row gt_left"><div data-qmd-base64="YERBUmA="><div class="gt_from_md">
-<p><code>DAR</code></p>
-</div></div></td>
-<td headers="Variable" class="gt_row gt_left">Average Days in AR</td>
-</tr>
-<tr>
-<td headers="Acronym" class="gt_row gt_left"><div data-qmd-base64="YERBUnRg"><div class="gt_from_md">
-<p><code>DARt</code></p>
-</div></div></td>
-<td headers="Variable" class="gt_row gt_left">Average Days in AR Target</td>
-</tr>
-</tbody>
-</table>
 </div>
-</div>
-</div>
-</section><section id="earb-target-for-dart" class="level2"><h2 class="anchored" data-anchor-id="earb-target-for-dart">EARb Target for DARt</h2>
+<section id="earb-target-for-dart" class="level2"><h2 class="anchored" data-anchor-id="earb-target-for-dart">EARb Target for DARt</h2>
 <p>In the first example, our DAR was 47.99. That’s approximately 13 days over our DARt of 35. What would our EARB need to have been to bring us under our DARt? Here’s our formula:</p>
-<p><span class="math display"> art = (\ dart \times gc\ )\ \div days_n </span></p>
+<p><span class="math display"> art = (\ dart \cdot gc\ )\ \div days_n </span></p>
 <p>We’ll calculate the EARB we needed as well as the difference between the two AR figures:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">ex</span> <span class="op">&lt;-</span> <span class="va">ex</span> <span class="op">|&gt;</span> </span>
@@ -1878,14 +1394,9 @@ Note on the American Healthcare Economic Model
 <span>    EARt <span class="op">=</span> <span class="op">(</span><span class="va">`DAR Target`</span> <span class="op">*</span> <span class="va">`GCt`</span><span class="op">)</span> <span class="op">/</span> <span class="va">`NDiP`</span>,</span>
 <span>    Difference <span class="op">=</span> <span class="va">`EARb Target`</span> <span class="op">-</span> <span class="va">`EARb`</span>,</span>
 <span>    Percentage <span class="op">=</span> <span class="va">`Difference`</span> <span class="op">/</span> <span class="va">`ADC`</span></span>
-<span>    <span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in `dplyr::reframe()`:
-ℹ In argument: `GCt = Gross Charges`.
-Caused by error:
-! object 'Gross Charges' not found</code></pre>
-</div>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">ex</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="op">)</span></span>
+<span></span>
+<span><span class="va">ex</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">gt</span><span class="fu">::</span><span class="fu"><a href="https://gt.rstudio.com/reference/gt.html">gt</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">gt</span><span class="fu">::</span><span class="fu"><a href="https://gt.rstudio.com/reference/fmt_currency.html">fmt_currency</a></span><span class="op">(</span>columns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">2</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">5</span><span class="op">)</span>, decimals <span class="op">=</span> <span class="fl">2</span>, incl_space <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">gt</span><span class="fu">::</span><span class="fu"><a href="https://gt.rstudio.com/reference/fmt_number.html">fmt_number</a></span><span class="op">(</span>columns <span class="op">=</span> <span class="fl">6</span>, decimals <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -1895,16 +1406,12 @@ Caused by error:
 <span>    table.width <span class="op">=</span> <span class="st">"100%"</span>,</span>
 <span>    quarto.disable_processing <span class="op">=</span> <span class="cn">TRUE</span>, </span>
 <span>    column_labels.font.weight <span class="op">=</span> <span class="st">"bold"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in `vars_select_eval()`:
-! Can't select columns past the end.
-ℹ Location 6 doesn't exist.
-ℹ There are only 5 columns.</code></pre>
-</div>
 </div>
 <div style="page-break-after: always;"></div>
+<hr></section></section><section id="session-info" class="level1" data-number="2"><h1 data-number="2">
+<span class="header-section-number">2</span> Session Info</h1>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">sessioninfo</span><span class="fu">::</span><span class="fu"><a href="https://r-lib.github.io/sessioninfo/reference/session_info.html">session_info</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">sessioninfo</span><span class="fu">::</span><span class="fu"><a href="https://r-lib.github.io/sessioninfo/reference/session_info.html">session_info</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>─ Session info ───────────────────────────────────────────────────────────────
  setting  value
@@ -2457,275 +1964,299 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb10" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "The Art of DAR"</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> "An (exhaustive) overview of the Days in AR metric from a healthcare reimbursement perspective."</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co">    reference-location: block</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="an">editor_options:</span><span class="co"> </span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">  chunk_output_type: console</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="co">#| cache: false</span></span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(</span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">collapse  =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">echo      =</span> <span class="cn">TRUE</span>, </span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">message   =</span> <span class="cn">FALSE</span>, </span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">warning   =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">error     =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">comment   =</span> <span class="st">""</span>,</span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">dpi       =</span> <span class="dv">300</span>, </span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">dev       =</span> <span class="st">"ragg_png"</span>,</span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">out.width =</span> <span class="st">"100%"</span>,</span>
-<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.align =</span> <span class="st">"center"</span>,</span>
-<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.width =</span> <span class="dv">8</span></span>
-<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen =</span> <span class="dv">999</span>)</span>
-<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)</span>
-<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(forager)</span>
-<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a><span class="co"># helper to format date range</span></span>
-<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>drng <span class="ot">&lt;-</span> \(<span class="at">x =</span> lubridate<span class="sc">::</span><span class="fu">today</span>()) {</span>
-<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>  e1 <span class="ot">&lt;-</span> lubridate<span class="sc">::</span><span class="fu">floor_date</span>(x, <span class="st">"month"</span>)</span>
-<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>  e2 <span class="ot">&lt;-</span> lubridate<span class="sc">::</span><span class="fu">rollback</span>(x) <span class="sc">+</span> <span class="fu">months</span>(<span class="dv">1</span>)</span>
-<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>  fmt <span class="ot">&lt;-</span> \(x) gt<span class="sc">::</span><span class="fu">vec_fmt_date</span>(x, <span class="at">date_style =</span> <span class="st">"wday_month_day_year"</span>)</span>
-<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>  stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">"{fmt(e1)} - {fmt(e2)}"</span>)</span>
-<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a><span class="co"># custom gt options</span></span>
-<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>gt_opts <span class="ot">&lt;-</span> \(gt_tbl) {</span>
-<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>  gt_tbl <span class="sc">|&gt;</span> </span>
-<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>    gt<span class="sc">::</span><span class="fu">opt_table_font</span>(<span class="at">font =</span> gt<span class="sc">::</span><span class="fu">google_font</span>(<span class="st">"Roboto Condensed"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>    gt<span class="sc">::</span><span class="fu">opt_stylize</span>(<span class="at">add_row_striping =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>    gt<span class="sc">::</span><span class="fu">tab_options</span>(</span>
-<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>      <span class="at">heading.align =</span> <span class="st">"left"</span>,</span>
-<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>      <span class="at">heading.title.font.weight =</span> <span class="st">"bold"</span>,</span>
-<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>      <span class="at">heading.subtitle.font.weight =</span> <span class="st">"bold"</span>,</span>
-<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a>      <span class="at">heading.title.font.size =</span> <span class="st">"1.25em"</span>,</span>
-<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>      <span class="at">heading.subtitle.font.size =</span> <span class="st">"0.85em"</span>,</span>
-<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a>      <span class="at">table.width =</span> <span class="st">"100%"</span>,</span>
-<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>      <span class="at">quarto.disable_processing =</span> <span class="cn">TRUE</span>, </span>
-<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>      <span class="at">column_labels.font.weight =</span> <span class="st">"bold"</span>)</span>
-<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a><span class="fu">## Introduction</span></span>
-<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>**Average Days in Accounts Receivable** (**DAR** or **Average Days in AR**) is a common financial metric known as an *efficiency ratio*. </span>
-<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a>**DAR** measures the average number of days it takes for a business to collect money owed for services rendered from the responsible parties.</span>
-<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a>Its function in the healthcare revenue cycle is as a high-level monitor of the financial health of a healthcare entity.</span>
-<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a>The following is a thorough overview of everything you never knew you didn’t want to know about **DAR**. Let’s start off with some background and terminology.</span>
-<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-74"><a href="#cb10-74" aria-hidden="true" tabindex="-1"></a>Aging of Accounts</span>
-<span id="cb10-75"><a href="#cb10-75" aria-hidden="true" tabindex="-1"></a>: An **account** is a billable episode of care. It begins to **age** once it is billed to the **guarantor**. These *outstanding* accounts are monitored in 30-day blocks or **bins** ($[0, 30)$, $[31, 60)$, $[61, 90)$, $[91, 120)$, and $[121, \infty)$) by the number of accounts, the amount owed by each bin and the responsible parties. The older the account, the less likely it will be paid.</span>
-<span id="cb10-76"><a href="#cb10-76" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-77"><a href="#cb10-77" aria-hidden="true" tabindex="-1"></a>Guarantor</span>
-<span id="cb10-78"><a href="#cb10-78" aria-hidden="true" tabindex="-1"></a>: The responsible party for the amount owed (an insurance payer, a patient, etc.) Most claims are originally billed to insurance and, until the insurance makes a payment, the responsibility for the payment continues to be with the insurance payer. After the payer makes or denies a payment (with no just cause for an appeal), the responsibility for the balance of goes to the patient (to be sent an invoice) or the physician (to be written off.)</span>
-<span id="cb10-79"><a href="#cb10-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-80"><a href="#cb10-80" aria-hidden="true" tabindex="-1"></a>Accounts Receivable</span>
-<span id="cb10-81"><a href="#cb10-81" aria-hidden="true" tabindex="-1"></a>: AR represents money owed to the healthcare practice by patients and/or insurance carriers. The AR balance is the total charges billed to an insurance payer or patient for services rendered but not yet collected. The balance can only be reduced by payment or by adjustments, contractual or otherwise. The AR cycle begins with the delivery of services and ends with **reconciliation**, or when the balance owed equals zero. </span>
-<span id="cb10-82"><a href="#cb10-82" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-83"><a href="#cb10-83" aria-hidden="true" tabindex="-1"></a>Average Days in AR</span>
-<span id="cb10-84"><a href="#cb10-84" aria-hidden="true" tabindex="-1"></a>: A mathematical formula for the average number of days it takes a business to collect money that it is owed. A low average is good. A high average signals a problem within the revenue cycle.</span>
-<span id="cb10-85"><a href="#cb10-85" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-86"><a href="#cb10-86" aria-hidden="true" tabindex="-1"></a>So now you know that a low Days in AR number is good and a high number is bad. </span>
-<span id="cb10-87"><a href="#cb10-87" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-88"><a href="#cb10-88" aria-hidden="true" tabindex="-1"></a>How low is good though? How high is bad? </span>
-<span id="cb10-89"><a href="#cb10-89" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-90"><a href="#cb10-90" aria-hidden="true" tabindex="-1"></a>Let’s say that a practice has a DAR of 95 days. This means that, on average, it takes the practice 95 days to collect it’s outstanding balances. Let’s start with what we can say for sure about a Days in AR of 95:</span>
-<span id="cb10-91"><a href="#cb10-91" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-92"><a href="#cb10-92" aria-hidden="true" tabindex="-1"></a><span class="ss">   1. </span>95 days is roughly equal to a little over three months.</span>
-<span id="cb10-93"><a href="#cb10-93" aria-hidden="true" tabindex="-1"></a><span class="ss">   2. </span>Therefore, there is three months of unpaid work sitting in Accounts Receivable.</span>
-<span id="cb10-94"><a href="#cb10-94" aria-hidden="true" tabindex="-1"></a><span class="ss">   3. </span>As such, this practice will need three months of cash reserves on hand to meet its financial obligations.</span>
-<span id="cb10-95"><a href="#cb10-95" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-96"><a href="#cb10-96" aria-hidden="true" tabindex="-1"></a>The *“ideal”* Days in AR depends entirely upon the medical practice, its customers (patients), its customers’ payers, the services it supplies, the providers performing those services, and the financial situation of the practice.</span>
-<span id="cb10-97"><a href="#cb10-97" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-98"><a href="#cb10-98" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip collapse="true"}</span>
-<span id="cb10-99"><a href="#cb10-99" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-100"><a href="#cb10-100" aria-hidden="true" tabindex="-1"></a><span class="fu">## Note on the American Healthcare Economic Model</span></span>
-<span id="cb10-101"><a href="#cb10-101" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-102"><a href="#cb10-102" aria-hidden="true" tabindex="-1"></a>To understand the healthcare version of Days in AR, you need to first understand the environment in which it is used. </span>
-<span id="cb10-103"><a href="#cb10-103" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-104"><a href="#cb10-104" aria-hidden="true" tabindex="-1"></a>Typically, companies sell their products or services directly to consumers and are paid immediately at the point of service (POS). This is called a **business-to-consumer** revenue model. </span>
-<span id="cb10-105"><a href="#cb10-105" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-106"><a href="#cb10-106" aria-hidden="true" tabindex="-1"></a>Another revenue model type is the **business-to-business (B2B)** model, concerning businesses that transact primarily with each other. Purchases between two businesses tend to be much larger. As such, B2B businesses invoice on a monthly basis, meaning no payment for 30+ days.</span>
-<span id="cb10-107"><a href="#cb10-107" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-108"><a href="#cb10-108" aria-hidden="true" tabindex="-1"></a>Somewhere in between these two models is the American healthcare system. This gray area is caused by a middleman called a third party payer. Better known as an insurance company, providers enter into a contractual agreement with this third party to be paid for their services at a reduced rate. </span>
-<span id="cb10-109"><a href="#cb10-109" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-110"><a href="#cb10-110" aria-hidden="true" tabindex="-1"></a>In exchange, a provider gains access to the payer’s large subscriber base. The difference between the charge a provider submits to a payer and the contracted rate he or she has agreed to is called the **contractual adjustment**, which is written off once a claim has been adjudicated.</span>
-<span id="cb10-111"><a href="#cb10-111" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-112"><a href="#cb10-112" aria-hidden="true" tabindex="-1"></a>The contractual adjustment introduces a critical inefficiency to the healthcare revenue model. Rather than prices being determined by supply and demand, they are set by individually negotiated arrangements, the end result of which is no real demand or pricing curve. </span>
-<span id="cb10-113"><a href="#cb10-113" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-114"><a href="#cb10-114" aria-hidden="true" tabindex="-1"></a>This issue is much too complex for me to properly do justice to here. It is, however, an essential concept to grasp when trying to understand healthcare reimbursement. In other words, healthcare reimbursement is crazy, not you.</span>
-<span id="cb10-115"><a href="#cb10-115" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-116"><a href="#cb10-116" aria-hidden="true" tabindex="-1"></a>::: </span>
-<span id="cb10-117"><a href="#cb10-117" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-118"><a href="#cb10-118" aria-hidden="true" tabindex="-1"></a>{{&lt; pagebreak &gt;}}</span>
-<span id="cb10-119"><a href="#cb10-119" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-120"><a href="#cb10-120" aria-hidden="true" tabindex="-1"></a><span class="fu">## DAR Formula</span></span>
-<span id="cb10-121"><a href="#cb10-121" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-122"><a href="#cb10-122" aria-hidden="true" tabindex="-1"></a>The formula for DAR is as follows:</span>
-<span id="cb10-123"><a href="#cb10-123" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-124"><a href="#cb10-124" aria-hidden="true" tabindex="-1"></a>$$ \overline{dar} = arb \div (\ gc \div n_{days}\ )\ $$</span>
-<span id="cb10-125"><a href="#cb10-125" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-126"><a href="#cb10-126" aria-hidden="true" tabindex="-1"></a>&lt;br&gt;</span>
-<span id="cb10-127"><a href="#cb10-127" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-128"><a href="#cb10-128" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-129"><a href="#cb10-129" aria-hidden="true" tabindex="-1"></a>$$ \overline{dar_t} = \frac{arb_t}{gc_t\div n_{days}} $$</span>
-<span id="cb10-130"><a href="#cb10-130" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-131"><a href="#cb10-131" aria-hidden="true" tabindex="-1"></a>Where:</span>
-<span id="cb10-132"><a href="#cb10-132" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-133"><a href="#cb10-133" aria-hidden="true" tabindex="-1"></a><span class="ss">   + </span>$t = $ &lt;b&gt;Time Period&lt;/b&gt;</span>
-<span id="cb10-134"><a href="#cb10-134" aria-hidden="true" tabindex="-1"></a><span class="ss">      + </span>The subscript $t$ denotes the time period ($t$) being measured.</span>
-<span id="cb10-135"><a href="#cb10-135" aria-hidden="true" tabindex="-1"></a><span class="ss">   + </span>$n_{days} = $ &lt;b&gt;Days in Period&lt;/b&gt;</span>
-<span id="cb10-136"><a href="#cb10-136" aria-hidden="true" tabindex="-1"></a><span class="ss">      + </span>The number ($n$) of days in $t$.</span>
-<span id="cb10-137"><a href="#cb10-137" aria-hidden="true" tabindex="-1"></a><span class="ss">   + </span>$gc_t = $ &lt;b&gt;Gross Charges&lt;/b&gt;</span>
-<span id="cb10-138"><a href="#cb10-138" aria-hidden="true" tabindex="-1"></a><span class="ss">      + </span>The sum of all charges billed during $t$.</span>
-<span id="cb10-139"><a href="#cb10-139" aria-hidden="true" tabindex="-1"></a><span class="ss">   + </span>$\overline{dc_t} = $ &lt;b&gt;Average Daily Charge&lt;/b&gt;</span>
-<span id="cb10-140"><a href="#cb10-140" aria-hidden="true" tabindex="-1"></a><span class="ss">      + </span>$gc_t$ divided by $n_{days}$.</span>
-<span id="cb10-141"><a href="#cb10-141" aria-hidden="true" tabindex="-1"></a><span class="ss">   + </span>$arb_t = $ &lt;b&gt;AR Balance&lt;/b&gt;</span>
-<span id="cb10-142"><a href="#cb10-142" aria-hidden="true" tabindex="-1"></a><span class="ss">      + </span>The sum of all outstanding balances at close of business (COB) on the final day of $t$.</span>
-<span id="cb10-143"><a href="#cb10-143" aria-hidden="true" tabindex="-1"></a><span class="ss">   + </span>$\overline{dar_t} = $ &lt;b&gt;Average Days in AR&lt;/b&gt;</span>
-<span id="cb10-144"><a href="#cb10-144" aria-hidden="true" tabindex="-1"></a><span class="ss">      + </span>$arb_t$ divided by $\overline{dc_t}$ for time period $t$.</span>
-<span id="cb10-145"><a href="#cb10-145" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-146"><a href="#cb10-146" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-147"><a href="#cb10-147" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-148"><a href="#cb10-148" aria-hidden="true" tabindex="-1"></a>{{&lt; pagebreak &gt;}}</span>
-<span id="cb10-149"><a href="#cb10-149" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-150"><a href="#cb10-150" aria-hidden="true" tabindex="-1"></a><span class="fu">### Example in R</span></span>
-<span id="cb10-151"><a href="#cb10-151" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-152"><a href="#cb10-152" aria-hidden="true" tabindex="-1"></a>Let’s say we want to calculate $\overline{dar_t}$ for the current month. Our Gross Charges total is **\$131,440** and our AR Balance is **\$203,460**:</span>
-<span id="cb10-153"><a href="#cb10-153" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-156"><a href="#cb10-156" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb10-157"><a href="#cb10-157" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: smp_ex_1</span></span>
-<span id="cb10-158"><a href="#cb10-158" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
-<span id="cb10-159"><a href="#cb10-159" aria-hidden="true" tabindex="-1"></a>ex <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb10-160"><a href="#cb10-160" aria-hidden="true" tabindex="-1"></a>  <span class="at">ndays =</span> <span class="fu">days_in_month</span>(<span class="fu">today</span>()),</span>
-<span id="cb10-161"><a href="#cb10-161" aria-hidden="true" tabindex="-1"></a>  <span class="at">gc =</span> <span class="dv">131440</span>,</span>
-<span id="cb10-162"><a href="#cb10-162" aria-hidden="true" tabindex="-1"></a>  <span class="at">arb =</span> <span class="dv">203460</span>)</span>
-<span id="cb10-163"><a href="#cb10-163" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-164"><a href="#cb10-164" aria-hidden="true" tabindex="-1"></a>ex <span class="sc">|&gt;</span> </span>
-<span id="cb10-165"><a href="#cb10-165" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb10-166"><a href="#cb10-166" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_header</span>(</span>
-<span id="cb10-167"><a href="#cb10-167" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Average Days in AR"</span>,</span>
-<span id="cb10-168"><a href="#cb10-168" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="fu">drng</span>()) <span class="sc">|&gt;</span></span>
-<span id="cb10-169"><a href="#cb10-169" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
-<span id="cb10-170"><a href="#cb10-170" aria-hidden="true" tabindex="-1"></a>    <span class="at">ndays =</span> <span class="fu">md</span>(<span class="st">"$n_{days}$"</span>),</span>
-<span id="cb10-171"><a href="#cb10-171" aria-hidden="true" tabindex="-1"></a>    <span class="at">gc    =</span> <span class="fu">md</span>(<span class="st">"$gc_t$"</span>),</span>
-<span id="cb10-172"><a href="#cb10-172" aria-hidden="true" tabindex="-1"></a>    <span class="at">arb   =</span> <span class="fu">md</span>(<span class="st">"$arb_t$"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb10-173"><a href="#cb10-173" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_currency</span>(<span class="at">columns =</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">decimals =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb10-174"><a href="#cb10-174" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt_opts</span>()</span>
-<span id="cb10-175"><a href="#cb10-175" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-176"><a href="#cb10-176" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-177"><a href="#cb10-177" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-178"><a href="#cb10-178" aria-hidden="true" tabindex="-1"></a>We have the three numbers we need, let’s plug them into our formula:</span>
-<span id="cb10-179"><a href="#cb10-179" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-182"><a href="#cb10-182" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb10-183"><a href="#cb10-183" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: smp_ex_2</span></span>
-<span id="cb10-184"><a href="#cb10-184" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
-<span id="cb10-185"><a href="#cb10-185" aria-hidden="true" tabindex="-1"></a>ex <span class="ot">&lt;-</span> ex <span class="sc">|&gt;</span> </span>
-<span id="cb10-186"><a href="#cb10-186" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb10-187"><a href="#cb10-187" aria-hidden="true" tabindex="-1"></a>    <span class="at">dc =</span> gc <span class="sc">/</span> ndays,</span>
-<span id="cb10-188"><a href="#cb10-188" aria-hidden="true" tabindex="-1"></a>    <span class="at">dar =</span> arb <span class="sc">/</span> dc)</span>
-<span id="cb10-189"><a href="#cb10-189" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-190"><a href="#cb10-190" aria-hidden="true" tabindex="-1"></a>ex <span class="sc">|&gt;</span> </span>
-<span id="cb10-191"><a href="#cb10-191" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb10-192"><a href="#cb10-192" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_header</span>(</span>
-<span id="cb10-193"><a href="#cb10-193" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Average Days in AR"</span>,</span>
-<span id="cb10-194"><a href="#cb10-194" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="fu">drng</span>()) <span class="sc">|&gt;</span></span>
-<span id="cb10-195"><a href="#cb10-195" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
-<span id="cb10-196"><a href="#cb10-196" aria-hidden="true" tabindex="-1"></a>    <span class="at">ndays =</span> <span class="fu">md</span>(<span class="st">"$n_{days}$"</span>),</span>
-<span id="cb10-197"><a href="#cb10-197" aria-hidden="true" tabindex="-1"></a>    <span class="at">gc    =</span> <span class="fu">md</span>(<span class="st">"$gc_t$"</span>),</span>
-<span id="cb10-198"><a href="#cb10-198" aria-hidden="true" tabindex="-1"></a>    <span class="at">arb   =</span> <span class="fu">md</span>(<span class="st">"$arb_t$"</span>),</span>
-<span id="cb10-199"><a href="#cb10-199" aria-hidden="true" tabindex="-1"></a>    <span class="at">dc    =</span> <span class="fu">md</span>(<span class="st">"$</span><span class="sc">\\</span><span class="st">overline{dc_t}$"</span>),</span>
-<span id="cb10-200"><a href="#cb10-200" aria-hidden="true" tabindex="-1"></a>    <span class="at">dar   =</span> <span class="fu">md</span>(<span class="st">"$</span><span class="sc">\\</span><span class="st">overline{dar_t}$"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb10-201"><a href="#cb10-201" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_currency</span>(<span class="at">columns =</span> <span class="fu">c</span>(<span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>), <span class="at">decimals =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb10-202"><a href="#cb10-202" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_number</span>(<span class="at">columns =</span> <span class="dv">5</span>, <span class="at">decimals =</span> <span class="dv">2</span>) <span class="sc">|&gt;</span></span>
-<span id="cb10-203"><a href="#cb10-203" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt_opts</span>()</span>
-<span id="cb10-204"><a href="#cb10-204" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-205"><a href="#cb10-205" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-206"><a href="#cb10-206" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-207"><a href="#cb10-207" aria-hidden="true" tabindex="-1"></a>And there we have it, our Average Daily Charge is **\$4,240.01** and our Days in AR is **47.99**.</span>
-<span id="cb10-208"><a href="#cb10-208" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-209"><a href="#cb10-209" aria-hidden="true" tabindex="-1"></a><span class="fu">## Building on the DAR Formula</span></span>
-<span id="cb10-210"><a href="#cb10-210" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-211"><a href="#cb10-211" aria-hidden="true" tabindex="-1"></a>Now that we have a basic understanding of the formula for Days in AR, we can expand upon and rearrange it to do many other things.</span>
-<span id="cb10-212"><a href="#cb10-212" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-213"><a href="#cb10-213" aria-hidden="true" tabindex="-1"></a>One thing we’ll need to do is to declare a Days in AR target or DARt, which is the benchmark or threshold that we’d like to keep our Days in AR under for the time period being measured. For the time being, we’ll make it 35 days.</span>
-<span id="cb10-214"><a href="#cb10-214" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-215"><a href="#cb10-215" aria-hidden="true" tabindex="-1"></a>As well, to simply things a bit, I’m going to use acronyms for these long variable names. They are as follows:</span>
-<span id="cb10-216"><a href="#cb10-216" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-219"><a href="#cb10-219" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb10-220"><a href="#cb10-220" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: acronyms</span></span>
-<span id="cb10-221"><a href="#cb10-221" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
-<span id="cb10-222"><a href="#cb10-222" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
-<span id="cb10-223"><a href="#cb10-223" aria-hidden="true" tabindex="-1"></a>  <span class="at">Acronym =</span> <span class="fu">c</span>(<span class="st">"`NDiP`"</span>, <span class="st">"`GCt`"</span>, <span class="st">"`EARb`"</span>, <span class="st">"`ADC`"</span>, <span class="st">"`DAR`"</span>, <span class="st">"`DARt`"</span>),</span>
-<span id="cb10-224"><a href="#cb10-224" aria-hidden="true" tabindex="-1"></a>  <span class="at">Variable =</span> <span class="fu">c</span>(</span>
-<span id="cb10-225"><a href="#cb10-225" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Number of Days in Period"</span>, </span>
-<span id="cb10-226"><a href="#cb10-226" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Total Gross Charges"</span>, </span>
-<span id="cb10-227"><a href="#cb10-227" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Ending AR Balance"</span>, </span>
-<span id="cb10-228"><a href="#cb10-228" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Average Daily Charge"</span>, </span>
-<span id="cb10-229"><a href="#cb10-229" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Average Days in AR"</span>, </span>
-<span id="cb10-230"><a href="#cb10-230" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Average Days in AR Target"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb10-231"><a href="#cb10-231" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>(<span class="at">process_md =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb10-232"><a href="#cb10-232" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_markdown</span>(<span class="at">columns =</span> <span class="dv">1</span>, <span class="at">md_engine =</span> <span class="st">"commonmark"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb10-233"><a href="#cb10-233" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt_opts</span>()</span>
-<span id="cb10-234"><a href="#cb10-234" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-235"><a href="#cb10-235" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-236"><a href="#cb10-236" aria-hidden="true" tabindex="-1"></a><span class="fu">## EARb Target for DARt</span></span>
-<span id="cb10-237"><a href="#cb10-237" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-238"><a href="#cb10-238" aria-hidden="true" tabindex="-1"></a>In the first example, our DAR was 47.99. That’s approximately 13 days over our DARt of 35. What would our EARB need to have been to bring us under our DARt? Here’s our formula:</span>
-<span id="cb10-239"><a href="#cb10-239" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-240"><a href="#cb10-240" aria-hidden="true" tabindex="-1"></a>$$ art = (\ dart \times gc\ )\ \div days_n $$</span>
-<span id="cb10-241"><a href="#cb10-241" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-242"><a href="#cb10-242" aria-hidden="true" tabindex="-1"></a>We’ll calculate the EARB we needed as well as the difference between the two AR figures:</span>
-<span id="cb10-243"><a href="#cb10-243" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-246"><a href="#cb10-246" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb10-247"><a href="#cb10-247" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: ex_step_3</span></span>
-<span id="cb10-248"><a href="#cb10-248" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
-<span id="cb10-249"><a href="#cb10-249" aria-hidden="true" tabindex="-1"></a>ex <span class="ot">&lt;-</span> ex <span class="sc">|&gt;</span> </span>
-<span id="cb10-250"><a href="#cb10-250" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">reframe</span>(</span>
-<span id="cb10-251"><a href="#cb10-251" aria-hidden="true" tabindex="-1"></a>    <span class="at">GCt =</span> <span class="st">`</span><span class="at">Gross Charges</span><span class="st">`</span>,</span>
-<span id="cb10-252"><a href="#cb10-252" aria-hidden="true" tabindex="-1"></a>    <span class="at">EARb =</span> <span class="st">`</span><span class="at">Ending AR Balance</span><span class="st">`</span>,</span>
-<span id="cb10-253"><a href="#cb10-253" aria-hidden="true" tabindex="-1"></a>    <span class="at">NDiP =</span> <span class="st">`</span><span class="at">Days in Period</span><span class="st">`</span>,</span>
-<span id="cb10-254"><a href="#cb10-254" aria-hidden="true" tabindex="-1"></a>    <span class="at">ADC =</span> <span class="st">`</span><span class="at">Gross Charges</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">NDiP</span><span class="st">`</span>,</span>
-<span id="cb10-255"><a href="#cb10-255" aria-hidden="true" tabindex="-1"></a>    <span class="at">DAR =</span> <span class="st">`</span><span class="at">EARb</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">ADC</span><span class="st">`</span>,</span>
-<span id="cb10-256"><a href="#cb10-256" aria-hidden="true" tabindex="-1"></a>    <span class="at">DARt =</span> <span class="dv">35</span>,</span>
-<span id="cb10-257"><a href="#cb10-257" aria-hidden="true" tabindex="-1"></a>    <span class="at">EARt =</span> (<span class="st">`</span><span class="at">DAR Target</span><span class="st">`</span> <span class="sc">*</span> <span class="st">`</span><span class="at">GCt</span><span class="st">`</span>) <span class="sc">/</span> <span class="st">`</span><span class="at">NDiP</span><span class="st">`</span>,</span>
-<span id="cb10-258"><a href="#cb10-258" aria-hidden="true" tabindex="-1"></a>    <span class="at">Difference =</span> <span class="st">`</span><span class="at">EARb Target</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">EARb</span><span class="st">`</span>,</span>
-<span id="cb10-259"><a href="#cb10-259" aria-hidden="true" tabindex="-1"></a>    <span class="at">Percentage =</span> <span class="st">`</span><span class="at">Difference</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">ADC</span><span class="st">`</span></span>
-<span id="cb10-260"><a href="#cb10-260" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb10-261"><a href="#cb10-261" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-262"><a href="#cb10-262" aria-hidden="true" tabindex="-1"></a>ex <span class="sc">|&gt;</span> </span>
-<span id="cb10-263"><a href="#cb10-263" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb10-264"><a href="#cb10-264" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">fmt_currency</span>(<span class="at">columns =</span> <span class="fu">c</span>(<span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">5</span>), <span class="at">decimals =</span> <span class="dv">2</span>, <span class="at">incl_space =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb10-265"><a href="#cb10-265" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">fmt_number</span>(<span class="at">columns =</span> <span class="dv">6</span>, <span class="at">decimals =</span> <span class="dv">2</span>) <span class="sc">|&gt;</span></span>
-<span id="cb10-266"><a href="#cb10-266" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">opt_table_font</span>(<span class="at">font =</span> gt<span class="sc">::</span><span class="fu">google_font</span>(<span class="st">"Roboto Condensed"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb10-267"><a href="#cb10-267" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">opt_stylize</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb10-268"><a href="#cb10-268" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">tab_options</span>(</span>
-<span id="cb10-269"><a href="#cb10-269" aria-hidden="true" tabindex="-1"></a>    <span class="at">table.width =</span> <span class="st">"100%"</span>,</span>
-<span id="cb10-270"><a href="#cb10-270" aria-hidden="true" tabindex="-1"></a>    <span class="at">quarto.disable_processing =</span> <span class="cn">TRUE</span>, </span>
-<span id="cb10-271"><a href="#cb10-271" aria-hidden="true" tabindex="-1"></a>    <span class="at">column_labels.font.weight =</span> <span class="st">"bold"</span>)</span>
-<span id="cb10-272"><a href="#cb10-272" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-273"><a href="#cb10-273" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-274"><a href="#cb10-274" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-275"><a href="#cb10-275" aria-hidden="true" tabindex="-1"></a>{{&lt; pagebreak &gt;}}</span>
-<span id="cb10-276"><a href="#cb10-276" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-279"><a href="#cb10-279" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb10-280"><a href="#cb10-280" aria-hidden="true" tabindex="-1"></a>sessioninfo<span class="sc">::</span><span class="fu">session_info</span>()</span>
-<span id="cb10-281"><a href="#cb10-281" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<div class="sourceCode" id="cb7" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "The Art of DAR"</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> "An (exhaustive) overview of the Days in AR metric from a healthcare reimbursement perspective."</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">    reference-location: block</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="an">editor_options:</span><span class="co"> </span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">  chunk_output_type: console</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co">#| cache: false</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">collapse  =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">echo      =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">message   =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">warning   =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">error     =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">comment   =</span> <span class="st">""</span>,</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">dpi       =</span> <span class="dv">300</span>, </span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">dev       =</span> <span class="st">"ragg_png"</span>,</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">out.width =</span> <span class="st">"100%"</span>,</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.align =</span> <span class="st">"center"</span>,</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.width =</span> <span class="dv">8</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen =</span> <span class="dv">999</span>)</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(forager)</span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a><span class="co"># helper to format date range</span></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>drng <span class="ot">&lt;-</span> \(<span class="at">x =</span> lubridate<span class="sc">::</span><span class="fu">today</span>()) {</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>  e1 <span class="ot">&lt;-</span> lubridate<span class="sc">::</span><span class="fu">floor_date</span>(x, <span class="st">"month"</span>)</span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>  e2 <span class="ot">&lt;-</span> lubridate<span class="sc">::</span><span class="fu">rollback</span>(x) <span class="sc">+</span> <span class="fu">months</span>(<span class="dv">1</span>)</span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>  fmt <span class="ot">&lt;-</span> \(x) gt<span class="sc">::</span><span class="fu">vec_fmt_date</span>(x, <span class="at">date_style =</span> <span class="st">"wday_month_day_year"</span>)</span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>  stringr<span class="sc">::</span><span class="fu">str_glue</span>(<span class="st">"{fmt(e1)} - {fmt(e2)}"</span>)</span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a><span class="co"># custom gt options</span></span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>gt_opts <span class="ot">&lt;-</span> \(gt_tbl) {</span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>  gt_tbl <span class="sc">|&gt;</span> </span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>    gt<span class="sc">::</span><span class="fu">opt_table_font</span>(<span class="at">font =</span> gt<span class="sc">::</span><span class="fu">google_font</span>(<span class="st">"Roboto Condensed"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>    gt<span class="sc">::</span><span class="fu">opt_stylize</span>(<span class="at">add_row_striping =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>    gt<span class="sc">::</span><span class="fu">tab_options</span>(</span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>      <span class="at">heading.align =</span> <span class="st">"left"</span>,</span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>      <span class="at">heading.title.font.weight =</span> <span class="st">"bold"</span>,</span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>      <span class="at">heading.subtitle.font.weight =</span> <span class="st">"bold"</span>,</span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>      <span class="at">heading.title.font.size =</span> <span class="fu">px</span>(<span class="dv">24</span>),</span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>      <span class="at">heading.subtitle.font.size =</span> <span class="fu">px</span>(<span class="dv">16</span>),</span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>      <span class="at">table.font.size =</span> <span class="fu">px</span>(<span class="dv">18</span>),</span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>      <span class="at">heading.padding =</span> <span class="fu">px</span>(<span class="dv">0</span>),</span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>      <span class="at">table.width =</span> <span class="st">"100%"</span>,</span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>      <span class="co"># column_labels.font.weight = "bold",</span></span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>      <span class="at">column_labels.font.size =</span> <span class="fu">px</span>(<span class="dv">18</span>),</span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>      <span class="at">quarto.disable_processing =</span> <span class="cn">TRUE</span></span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a><span class="fu">## Introduction</span></span>
+<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>**Average Days in Accounts Receivable** (**DAR** or **Average Days in AR**) is a common financial metric known as an *efficiency ratio*. </span>
+<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a>**DAR** measures the average number of days it takes for a business to collect money owed for services rendered from the responsible parties.</span>
+<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a>Its function in the healthcare revenue cycle is as a high-level monitor of the financial health of a healthcare entity.</span>
+<span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a>The following is a thorough overview of everything you never knew you didn’t want to know about **DAR**. Let’s start off with some background and terminology. See @nte-healthcare for more information on the American healthcare economic model.</span>
+<span id="cb7-77"><a href="#cb7-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-78"><a href="#cb7-78" aria-hidden="true" tabindex="-1"></a>| **Aging of Accounts**</span>
+<span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a>|    An **account** is a billable episode of care. It begins to **age** once </span>
+<span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a>|    it is billed to the **guarantor**. These *outstanding* accounts are </span>
+<span id="cb7-81"><a href="#cb7-81" aria-hidden="true" tabindex="-1"></a>|    monitored in 30-day blocks or **bins** ($[0, 30)$, $[31, 60)$, $[61, 90)$, </span>
+<span id="cb7-82"><a href="#cb7-82" aria-hidden="true" tabindex="-1"></a>|    $[91, 120)$, and $[121, \infty)$) by the number of accounts, the amount</span>
+<span id="cb7-83"><a href="#cb7-83" aria-hidden="true" tabindex="-1"></a>|    owed by each bin and the responsible parties. The older the account, </span>
+<span id="cb7-84"><a href="#cb7-84" aria-hidden="true" tabindex="-1"></a>|    the less likely it will be paid.</span>
+<span id="cb7-85"><a href="#cb7-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-86"><a href="#cb7-86" aria-hidden="true" tabindex="-1"></a>&lt;br&gt;</span>
+<span id="cb7-87"><a href="#cb7-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-88"><a href="#cb7-88" aria-hidden="true" tabindex="-1"></a>Guarantor</span>
+<span id="cb7-89"><a href="#cb7-89" aria-hidden="true" tabindex="-1"></a>: The responsible party for the amount owed (an insurance payer, a patient, etc.) Most claims are originally billed to insurance and, until the insurance makes a payment, the responsibility for the payment continues to be with the insurance payer. After the payer makes or denies a payment (with no just cause for an appeal), the responsibility for the balance of goes to the patient (to be sent an invoice) or the physician (to be written off.)</span>
+<span id="cb7-90"><a href="#cb7-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-91"><a href="#cb7-91" aria-hidden="true" tabindex="-1"></a>Accounts Receivable</span>
+<span id="cb7-92"><a href="#cb7-92" aria-hidden="true" tabindex="-1"></a>: AR represents money owed to the healthcare practice by patients and/or insurance carriers. The AR balance is the total charges billed to an insurance payer or patient for services rendered but not yet collected. The balance can only be reduced by payment or by adjustments, contractual or otherwise. The AR cycle begins with the delivery of services and ends with **reconciliation**, or when the balance owed equals zero. </span>
+<span id="cb7-93"><a href="#cb7-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-94"><a href="#cb7-94" aria-hidden="true" tabindex="-1"></a>Average Days in AR</span>
+<span id="cb7-95"><a href="#cb7-95" aria-hidden="true" tabindex="-1"></a>: A mathematical formula for the average number of days it takes a business to collect money that it is owed. A low average is good. A high average signals a problem within the revenue cycle.</span>
+<span id="cb7-96"><a href="#cb7-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-97"><a href="#cb7-97" aria-hidden="true" tabindex="-1"></a>So now you know that a low Days in AR number is good and a high number is bad. </span>
+<span id="cb7-98"><a href="#cb7-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-99"><a href="#cb7-99" aria-hidden="true" tabindex="-1"></a>How low is good though? How high is bad? </span>
+<span id="cb7-100"><a href="#cb7-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-101"><a href="#cb7-101" aria-hidden="true" tabindex="-1"></a>Let’s say that a practice has a DAR of 95 days. This means that, on average, it takes the practice 95 days to collect it’s outstanding balances. Let’s start with what we can say for sure about a Days in AR of 95:</span>
+<span id="cb7-102"><a href="#cb7-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-103"><a href="#cb7-103" aria-hidden="true" tabindex="-1"></a><span class="ss">   1. </span>95 days is roughly equal to a little over three months.</span>
+<span id="cb7-104"><a href="#cb7-104" aria-hidden="true" tabindex="-1"></a><span class="ss">   2. </span>Therefore, there is three months of unpaid work sitting in Accounts Receivable.</span>
+<span id="cb7-105"><a href="#cb7-105" aria-hidden="true" tabindex="-1"></a><span class="ss">   3. </span>As such, this practice will need three months of cash reserves on hand to meet its financial obligations.</span>
+<span id="cb7-106"><a href="#cb7-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-107"><a href="#cb7-107" aria-hidden="true" tabindex="-1"></a>The *“ideal”* Days in AR depends entirely upon the medical practice, its customers (patients), its customers’ payers, the services it supplies, the providers performing those services, and the financial situation of the practice.</span>
+<span id="cb7-108"><a href="#cb7-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-109"><a href="#cb7-109" aria-hidden="true" tabindex="-1"></a>::: {#nte-healthcare .callout-tip collapse="true"}</span>
+<span id="cb7-110"><a href="#cb7-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-111"><a href="#cb7-111" aria-hidden="true" tabindex="-1"></a><span class="fu">## The American Healthcare Economic Model</span></span>
+<span id="cb7-112"><a href="#cb7-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-113"><a href="#cb7-113" aria-hidden="true" tabindex="-1"></a>To understand the healthcare version of Days in AR, you need to first understand the environment in which it is used. </span>
+<span id="cb7-114"><a href="#cb7-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-115"><a href="#cb7-115" aria-hidden="true" tabindex="-1"></a>Typically, companies sell their products or services directly to consumers and are paid immediately at the point of service (POS). This is called a **business-to-consumer** revenue model. </span>
+<span id="cb7-116"><a href="#cb7-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-117"><a href="#cb7-117" aria-hidden="true" tabindex="-1"></a>Another revenue model type is the **business-to-business (B2B)** model, concerning businesses that transact primarily with each other. Purchases between two businesses tend to be much larger. As such, B2B businesses invoice on a monthly basis, meaning no payment for 30+ days.</span>
+<span id="cb7-118"><a href="#cb7-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-119"><a href="#cb7-119" aria-hidden="true" tabindex="-1"></a>Somewhere in between these two models is the American healthcare system. This gray area is caused by a middleman called a third party payer. Better known as an insurance company, providers enter into a contractual agreement with this third party to be paid for their services at a reduced rate. </span>
+<span id="cb7-120"><a href="#cb7-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-121"><a href="#cb7-121" aria-hidden="true" tabindex="-1"></a>In exchange, a provider gains access to the payer’s large subscriber base. The difference between the charge a provider submits to a payer and the contracted rate he or she has agreed to is called the **contractual adjustment**, which is written off once a claim has been adjudicated.</span>
+<span id="cb7-122"><a href="#cb7-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-123"><a href="#cb7-123" aria-hidden="true" tabindex="-1"></a>The contractual adjustment introduces a critical inefficiency to the healthcare revenue model. Rather than prices being determined by supply and demand, they are set by individually negotiated arrangements, the end result of which is no real demand or pricing curve. </span>
+<span id="cb7-124"><a href="#cb7-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-125"><a href="#cb7-125" aria-hidden="true" tabindex="-1"></a>This issue is much too complex for me to properly do justice to here. It is, however, an essential concept to grasp when trying to understand healthcare reimbursement. In other words, healthcare reimbursement is crazy, not you.</span>
+<span id="cb7-126"><a href="#cb7-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-127"><a href="#cb7-127" aria-hidden="true" tabindex="-1"></a>::: </span>
+<span id="cb7-128"><a href="#cb7-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-129"><a href="#cb7-129" aria-hidden="true" tabindex="-1"></a>{{&lt; pagebreak &gt;}}</span>
+<span id="cb7-130"><a href="#cb7-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-131"><a href="#cb7-131" aria-hidden="true" tabindex="-1"></a><span class="fu">## DAR Formula</span></span>
+<span id="cb7-132"><a href="#cb7-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-133"><a href="#cb7-133" aria-hidden="true" tabindex="-1"></a>The formula for DAR is as follows:</span>
+<span id="cb7-134"><a href="#cb7-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-135"><a href="#cb7-135" aria-hidden="true" tabindex="-1"></a>$$ \overline{dar} = \ arb \div (\ gc \ \div \ n_{days}\ )\ $$</span>
+<span id="cb7-136"><a href="#cb7-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-137"><a href="#cb7-137" aria-hidden="true" tabindex="-1"></a>&lt;br&gt;</span>
+<span id="cb7-138"><a href="#cb7-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-139"><a href="#cb7-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-140"><a href="#cb7-140" aria-hidden="true" tabindex="-1"></a>$$ \overline{dar_t} = \frac{arb_t}{gc_t\div n_{days}} $$</span>
+<span id="cb7-141"><a href="#cb7-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-142"><a href="#cb7-142" aria-hidden="true" tabindex="-1"></a>Where:</span>
+<span id="cb7-143"><a href="#cb7-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-144"><a href="#cb7-144" aria-hidden="true" tabindex="-1"></a>| $t = \text{Time Period}$ </span>
+<span id="cb7-145"><a href="#cb7-145" aria-hidden="true" tabindex="-1"></a>|      The subscript $t$ denotes the time period being measured.</span>
+<span id="cb7-146"><a href="#cb7-146" aria-hidden="true" tabindex="-1"></a>| $n_{days} = \text{Days in Period}$</span>
+<span id="cb7-147"><a href="#cb7-147" aria-hidden="true" tabindex="-1"></a>|      The number of days in $t$.</span>
+<span id="cb7-148"><a href="#cb7-148" aria-hidden="true" tabindex="-1"></a>| $gc_t = \text{Gross Charges}$</span>
+<span id="cb7-149"><a href="#cb7-149" aria-hidden="true" tabindex="-1"></a>|      The sum of all charges billed during $t$.</span>
+<span id="cb7-150"><a href="#cb7-150" aria-hidden="true" tabindex="-1"></a>| $\overline{dc_t} = \text{Average Daily Charge}$</span>
+<span id="cb7-151"><a href="#cb7-151" aria-hidden="true" tabindex="-1"></a>|      $gc_t$ divided by $n_{days}$.</span>
+<span id="cb7-152"><a href="#cb7-152" aria-hidden="true" tabindex="-1"></a>| $arb_t = \text{AR Balance}$</span>
+<span id="cb7-153"><a href="#cb7-153" aria-hidden="true" tabindex="-1"></a>|      The sum of all outstanding balances at close of business (COB) on the final day of $t$.</span>
+<span id="cb7-154"><a href="#cb7-154" aria-hidden="true" tabindex="-1"></a>| $\overline{dar_t} = \text{Average Days in AR}$</span>
+<span id="cb7-155"><a href="#cb7-155" aria-hidden="true" tabindex="-1"></a>|      $arb_t$ divided by $\overline{dc_t}$ for time period $t$.</span>
+<span id="cb7-156"><a href="#cb7-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-157"><a href="#cb7-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-158"><a href="#cb7-158" aria-hidden="true" tabindex="-1"></a>::: {#nte-example-1 .callout-note appearance="simple"}</span>
+<span id="cb7-159"><a href="#cb7-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-160"><a href="#cb7-160" aria-hidden="true" tabindex="-1"></a><span class="fu">## Example in R</span></span>
+<span id="cb7-161"><a href="#cb7-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-162"><a href="#cb7-162" aria-hidden="true" tabindex="-1"></a>Let’s say we want to calculate $\overline{dar_t}$ for the current month. Our Gross Charges total is **\$131,440** and our AR Balance is **\$203,460**:</span>
+<span id="cb7-163"><a href="#cb7-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-166"><a href="#cb7-166" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb7-167"><a href="#cb7-167" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: tbl-ex-1</span></span>
+<span id="cb7-168"><a href="#cb7-168" aria-hidden="true" tabindex="-1"></a><span class="co">#| tbl-cap: "Step 1"</span></span>
+<span id="cb7-169"><a href="#cb7-169" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
+<span id="cb7-170"><a href="#cb7-170" aria-hidden="true" tabindex="-1"></a>ex <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb7-171"><a href="#cb7-171" aria-hidden="true" tabindex="-1"></a>  <span class="at">ndays =</span> <span class="fu">days_in_month</span>(<span class="fu">today</span>()),</span>
+<span id="cb7-172"><a href="#cb7-172" aria-hidden="true" tabindex="-1"></a>  <span class="at">gc =</span> <span class="dv">131440</span>,</span>
+<span id="cb7-173"><a href="#cb7-173" aria-hidden="true" tabindex="-1"></a>  <span class="at">arb =</span> <span class="dv">203460</span>)</span>
+<span id="cb7-174"><a href="#cb7-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-175"><a href="#cb7-175" aria-hidden="true" tabindex="-1"></a>ex <span class="sc">|&gt;</span> </span>
+<span id="cb7-176"><a href="#cb7-176" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb7-177"><a href="#cb7-177" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_header</span>(</span>
+<span id="cb7-178"><a href="#cb7-178" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="fu">md</span>(<span class="st">"**Average Days in AR** _Calculation_"</span>),</span>
+<span id="cb7-179"><a href="#cb7-179" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="fu">drng</span>()) <span class="sc">|&gt;</span></span>
+<span id="cb7-180"><a href="#cb7-180" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
+<span id="cb7-181"><a href="#cb7-181" aria-hidden="true" tabindex="-1"></a>    <span class="at">ndays =</span> <span class="fu">md</span>(<span class="st">"**n**&lt;i&gt;&lt;sub&gt;days&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
+<span id="cb7-182"><a href="#cb7-182" aria-hidden="true" tabindex="-1"></a>    <span class="at">gc    =</span> <span class="fu">md</span>(<span class="st">"**gc**&lt;i&gt;&lt;sub&gt;t&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
+<span id="cb7-183"><a href="#cb7-183" aria-hidden="true" tabindex="-1"></a>    <span class="at">arb   =</span> <span class="fu">md</span>(<span class="st">"**arb**&lt;i&gt;&lt;sub&gt;t&lt;/sub&gt;&lt;/i&gt;"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb7-184"><a href="#cb7-184" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_currency</span>(<span class="at">columns =</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">decimals =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb7-185"><a href="#cb7-185" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt_opts</span>()</span>
+<span id="cb7-186"><a href="#cb7-186" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb7-187"><a href="#cb7-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-188"><a href="#cb7-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-189"><a href="#cb7-189" aria-hidden="true" tabindex="-1"></a>We have the three numbers we need, let’s plug them into our formula:</span>
+<span id="cb7-190"><a href="#cb7-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-193"><a href="#cb7-193" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb7-194"><a href="#cb7-194" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: tbl-ex-2</span></span>
+<span id="cb7-195"><a href="#cb7-195" aria-hidden="true" tabindex="-1"></a><span class="co">#| tbl-cap: "Step 2"</span></span>
+<span id="cb7-196"><a href="#cb7-196" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
+<span id="cb7-197"><a href="#cb7-197" aria-hidden="true" tabindex="-1"></a>ex <span class="ot">&lt;-</span> ex <span class="sc">|&gt;</span> </span>
+<span id="cb7-198"><a href="#cb7-198" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb7-199"><a href="#cb7-199" aria-hidden="true" tabindex="-1"></a>    <span class="at">dc =</span> gc <span class="sc">/</span> ndays,</span>
+<span id="cb7-200"><a href="#cb7-200" aria-hidden="true" tabindex="-1"></a>    <span class="at">dar =</span> arb <span class="sc">/</span> dc)</span>
+<span id="cb7-201"><a href="#cb7-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-202"><a href="#cb7-202" aria-hidden="true" tabindex="-1"></a>ex <span class="sc">|&gt;</span> </span>
+<span id="cb7-203"><a href="#cb7-203" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb7-204"><a href="#cb7-204" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_header</span>(</span>
+<span id="cb7-205"><a href="#cb7-205" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="fu">md</span>(<span class="st">"**Average Days in AR** _Calculation_"</span>),</span>
+<span id="cb7-206"><a href="#cb7-206" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="fu">drng</span>()) <span class="sc">|&gt;</span></span>
+<span id="cb7-207"><a href="#cb7-207" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
+<span id="cb7-208"><a href="#cb7-208" aria-hidden="true" tabindex="-1"></a>    <span class="at">ndays =</span> <span class="fu">md</span>(<span class="st">"**n**&lt;i&gt;&lt;sub&gt;days&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
+<span id="cb7-209"><a href="#cb7-209" aria-hidden="true" tabindex="-1"></a>    <span class="at">gc    =</span> <span class="fu">md</span>(<span class="st">"**gc**&lt;i&gt;&lt;sub&gt;t&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
+<span id="cb7-210"><a href="#cb7-210" aria-hidden="true" tabindex="-1"></a>    <span class="at">arb   =</span> <span class="fu">md</span>(<span class="st">"**arb**&lt;i&gt;&lt;sub&gt;t&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
+<span id="cb7-211"><a href="#cb7-211" aria-hidden="true" tabindex="-1"></a>    <span class="at">dc    =</span> <span class="fu">md</span>(<span class="st">"**dc**&lt;i&gt;&lt;sub&gt;t&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
+<span id="cb7-212"><a href="#cb7-212" aria-hidden="true" tabindex="-1"></a>    <span class="at">dar   =</span> <span class="fu">md</span>(<span class="st">"**dar**&lt;i&gt;&lt;sub&gt;t&lt;/sub&gt;&lt;/i&gt;"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb7-213"><a href="#cb7-213" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_currency</span>(<span class="at">columns =</span> <span class="fu">c</span>(<span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>), <span class="at">decimals =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb7-214"><a href="#cb7-214" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_number</span>(<span class="at">columns =</span> <span class="dv">5</span>, <span class="at">decimals =</span> <span class="dv">2</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-215"><a href="#cb7-215" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt_opts</span>()</span>
+<span id="cb7-216"><a href="#cb7-216" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb7-217"><a href="#cb7-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-218"><a href="#cb7-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-219"><a href="#cb7-219" aria-hidden="true" tabindex="-1"></a>And there we have it, our Average Daily Charge is **\$4,240** and our Days in AR is **47.99**. See @nte-example-1.</span>
+<span id="cb7-220"><a href="#cb7-220" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-221"><a href="#cb7-221" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb7-222"><a href="#cb7-222" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-223"><a href="#cb7-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-224"><a href="#cb7-224" aria-hidden="true" tabindex="-1"></a><span class="fu"># DAR Targets</span></span>
+<span id="cb7-225"><a href="#cb7-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-226"><a href="#cb7-226" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>$eart = (dart \cdot gc) \div n_{days}$ </span>
+<span id="cb7-227"><a href="#cb7-227" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>$gct = (earb \cdot ndip) \div dart$</span>
+<span id="cb7-228"><a href="#cb7-228" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>$t_{days} = (dart \cdot gc) \div earb$</span>
+<span id="cb7-229"><a href="#cb7-229" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>$dart = (earb \cdot ndip) \div gct$</span>
+<span id="cb7-230"><a href="#cb7-230" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-231"><a href="#cb7-231" aria-hidden="true" tabindex="-1"></a>Now that we have a basic understanding of the formula for Days in AR, we can expand upon and rearrange it to do many other things.</span>
+<span id="cb7-232"><a href="#cb7-232" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-233"><a href="#cb7-233" aria-hidden="true" tabindex="-1"></a>One thing we’ll need to do is to declare a Days in AR target or DARt, which is the benchmark or threshold that we’d like to keep our Days in AR under for the time period being measured. For the time being, we’ll make it 35 days.</span>
+<span id="cb7-234"><a href="#cb7-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-237"><a href="#cb7-237" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb7-238"><a href="#cb7-238" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: acronyms</span></span>
+<span id="cb7-239"><a href="#cb7-239" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
+<span id="cb7-240"><a href="#cb7-240" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb7-241"><a href="#cb7-241" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb7-242"><a href="#cb7-242" aria-hidden="true" tabindex="-1"></a>  <span class="at">Acronym =</span> <span class="fu">c</span>(<span class="st">"`NDiP`"</span>, <span class="st">"`GCt`"</span>, <span class="st">"`EARb`"</span>, <span class="st">"`ADC`"</span>, <span class="st">"`DAR`"</span>, <span class="st">"`DARt`"</span>),</span>
+<span id="cb7-243"><a href="#cb7-243" aria-hidden="true" tabindex="-1"></a>  <span class="at">Variable =</span> <span class="fu">c</span>(</span>
+<span id="cb7-244"><a href="#cb7-244" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Number of Days in Period"</span>, </span>
+<span id="cb7-245"><a href="#cb7-245" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Total Gross Charges"</span>, </span>
+<span id="cb7-246"><a href="#cb7-246" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Ending AR Balance"</span>, </span>
+<span id="cb7-247"><a href="#cb7-247" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Average Daily Charge"</span>, </span>
+<span id="cb7-248"><a href="#cb7-248" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Average Days in AR"</span>, </span>
+<span id="cb7-249"><a href="#cb7-249" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Average Days in AR Target"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb7-250"><a href="#cb7-250" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>(<span class="at">process_md =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb7-251"><a href="#cb7-251" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_markdown</span>(<span class="at">columns =</span> <span class="dv">1</span>, <span class="at">md_engine =</span> <span class="st">"commonmark"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-252"><a href="#cb7-252" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt_opts</span>()</span>
+<span id="cb7-253"><a href="#cb7-253" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb7-254"><a href="#cb7-254" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-255"><a href="#cb7-255" aria-hidden="true" tabindex="-1"></a><span class="fu">## EARb Target for DARt</span></span>
+<span id="cb7-256"><a href="#cb7-256" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-257"><a href="#cb7-257" aria-hidden="true" tabindex="-1"></a>In the first example, our DAR was 47.99. That’s approximately 13 days over our DARt of 35. What would our EARB need to have been to bring us under our DARt? Here’s our formula:</span>
+<span id="cb7-258"><a href="#cb7-258" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-259"><a href="#cb7-259" aria-hidden="true" tabindex="-1"></a>$$ art = (\ dart \cdot gc\ )\ \div days_n $$</span>
+<span id="cb7-260"><a href="#cb7-260" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-261"><a href="#cb7-261" aria-hidden="true" tabindex="-1"></a>We’ll calculate the EARB we needed as well as the difference between the two AR figures:</span>
+<span id="cb7-262"><a href="#cb7-262" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-265"><a href="#cb7-265" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb7-266"><a href="#cb7-266" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: ex_step_3</span></span>
+<span id="cb7-267"><a href="#cb7-267" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
+<span id="cb7-268"><a href="#cb7-268" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb7-269"><a href="#cb7-269" aria-hidden="true" tabindex="-1"></a>ex <span class="ot">&lt;-</span> ex <span class="sc">|&gt;</span> </span>
+<span id="cb7-270"><a href="#cb7-270" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">reframe</span>(</span>
+<span id="cb7-271"><a href="#cb7-271" aria-hidden="true" tabindex="-1"></a>    <span class="at">GCt =</span> <span class="st">`</span><span class="at">Gross Charges</span><span class="st">`</span>,</span>
+<span id="cb7-272"><a href="#cb7-272" aria-hidden="true" tabindex="-1"></a>    <span class="at">EARb =</span> <span class="st">`</span><span class="at">Ending AR Balance</span><span class="st">`</span>,</span>
+<span id="cb7-273"><a href="#cb7-273" aria-hidden="true" tabindex="-1"></a>    <span class="at">NDiP =</span> <span class="st">`</span><span class="at">Days in Period</span><span class="st">`</span>,</span>
+<span id="cb7-274"><a href="#cb7-274" aria-hidden="true" tabindex="-1"></a>    <span class="at">ADC =</span> <span class="st">`</span><span class="at">Gross Charges</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">NDiP</span><span class="st">`</span>,</span>
+<span id="cb7-275"><a href="#cb7-275" aria-hidden="true" tabindex="-1"></a>    <span class="at">DAR =</span> <span class="st">`</span><span class="at">EARb</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">ADC</span><span class="st">`</span>,</span>
+<span id="cb7-276"><a href="#cb7-276" aria-hidden="true" tabindex="-1"></a>    <span class="at">DARt =</span> <span class="dv">35</span>,</span>
+<span id="cb7-277"><a href="#cb7-277" aria-hidden="true" tabindex="-1"></a>    <span class="at">EARt =</span> (<span class="st">`</span><span class="at">DAR Target</span><span class="st">`</span> <span class="sc">*</span> <span class="st">`</span><span class="at">GCt</span><span class="st">`</span>) <span class="sc">/</span> <span class="st">`</span><span class="at">NDiP</span><span class="st">`</span>,</span>
+<span id="cb7-278"><a href="#cb7-278" aria-hidden="true" tabindex="-1"></a>    <span class="at">Difference =</span> <span class="st">`</span><span class="at">EARb Target</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">EARb</span><span class="st">`</span>,</span>
+<span id="cb7-279"><a href="#cb7-279" aria-hidden="true" tabindex="-1"></a>    <span class="at">Percentage =</span> <span class="st">`</span><span class="at">Difference</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">ADC</span><span class="st">`</span></span>
+<span id="cb7-280"><a href="#cb7-280" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-281"><a href="#cb7-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-282"><a href="#cb7-282" aria-hidden="true" tabindex="-1"></a>ex <span class="sc">|&gt;</span> </span>
+<span id="cb7-283"><a href="#cb7-283" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb7-284"><a href="#cb7-284" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">fmt_currency</span>(<span class="at">columns =</span> <span class="fu">c</span>(<span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">5</span>), <span class="at">decimals =</span> <span class="dv">2</span>, <span class="at">incl_space =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb7-285"><a href="#cb7-285" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">fmt_number</span>(<span class="at">columns =</span> <span class="dv">6</span>, <span class="at">decimals =</span> <span class="dv">2</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-286"><a href="#cb7-286" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">opt_table_font</span>(<span class="at">font =</span> gt<span class="sc">::</span><span class="fu">google_font</span>(<span class="st">"Roboto Condensed"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb7-287"><a href="#cb7-287" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">opt_stylize</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb7-288"><a href="#cb7-288" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">tab_options</span>(</span>
+<span id="cb7-289"><a href="#cb7-289" aria-hidden="true" tabindex="-1"></a>    <span class="at">table.width =</span> <span class="st">"100%"</span>,</span>
+<span id="cb7-290"><a href="#cb7-290" aria-hidden="true" tabindex="-1"></a>    <span class="at">quarto.disable_processing =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb7-291"><a href="#cb7-291" aria-hidden="true" tabindex="-1"></a>    <span class="at">column_labels.font.weight =</span> <span class="st">"bold"</span>)</span>
+<span id="cb7-292"><a href="#cb7-292" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb7-293"><a href="#cb7-293" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-294"><a href="#cb7-294" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-295"><a href="#cb7-295" aria-hidden="true" tabindex="-1"></a>{{&lt; pagebreak &gt;}}</span>
+<span id="cb7-296"><a href="#cb7-296" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-297"><a href="#cb7-297" aria-hidden="true" tabindex="-1"></a>&lt;hr&gt;</span>
+<span id="cb7-298"><a href="#cb7-298" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-299"><a href="#cb7-299" aria-hidden="true" tabindex="-1"></a><span class="fu"># Session Info</span></span>
+<span id="cb7-300"><a href="#cb7-300" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-303"><a href="#cb7-303" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb7-304"><a href="#cb7-304" aria-hidden="true" tabindex="-1"></a>sessioninfo<span class="sc">::</span><span class="fu">session_info</span>()</span>
+<span id="cb7-305"><a href="#cb7-305" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
