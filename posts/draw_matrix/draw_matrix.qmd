@@ -1,5 +1,5 @@
 ---
-title: "PCS Code as a Matrix"
+title: "Medical Codes as Matrices"
 format:
   html:
     reference-location: block
@@ -26,57 +26,65 @@ knitr::opts_chunk$set(
 options(scipen = 999)
 
 library(tidyverse)
+library(stringfish)
 library(ggthemes)
 library(drawr)
 library(fuimus)
 library(procedural)
-library(drawr)
+library(northstar)
 ```
+
+# Function
 
 ```{r}
 #| echo: true
 #| message: false
 #| warning: false
-look <- function(x) {
+
+med <- dplyr::lst(
+  c_pcs = c(0:9, LETTERS[c(which(LETTERS %in% splitter("ABCDEFGHJKLMNPQRSTUVWXYZ")))]),
+  c_hcp = c(0:9, LETTERS[c(which(LETTERS %in% splitter("ABCEFGHJKLMPQRSTUV")))]),
+  p_pcs = 1:length(c_pcs),
+  p_hcp = 1:length(c_hcp),
+  a_pcs = 1:7,
+  a_hcp = 1:5
+  )
+
+med_lookup <- function(code, constants, possible) {
   
-  x             <- fuimus::splitter(stringfish::sf_toupper(x))
-  values        <- 1:34
-  names(values) <- c(0:9, LETTERS[c(1:8, 10:14, 16:26)])
-  unname(values[x])
+  code <- splitter(sf_toupper(code))
+  names(possible) <- constants
+  unname(possible[code])
   
 }
 
-pcs_matrix <- function(x) {
-  
-  axis   <- c(1:7)
-  value  <- c(0:9, LETTERS[c(1:8, 10:14, 16:26)])
+med_matrix <- function(code, axis, constants, possible) {
   
   m <- matrix(data     = 0L,
-              nrow     = length(value),
+              nrow     = length(constants),
               ncol     = length(axis),
-              dimnames = list(value, axis))
+              dimnames = list(constants, axis))
   
-  x <- look(x)
-  y <- 1L
+  x <- med_lookup(code, constants, possible)
   
-  m[x[1], 1] <- y
-  m[x[2], 2] <- y
-  m[x[3], 3] <- y
-  m[x[4], 4] <- y
-  m[x[5], 5] <- y
-  m[x[6], 6] <- y
-  m[x[7], 7] <- y
+  for (i in axis) {
+    m[x[i], i] <- 1L
+  }
   
   return(m)
 }
 ```
 
+# Test
 
 ```{r}
 #| echo: true
 #| message: false
 #| warning: false
-pcs_matrix("0G9000Z")
+med_matrix(code = "0G9000Z", 
+           axis = med$a_pcs, 
+           constants = med$c_pcs, 
+           possible = med$p_pcs)
 ```
 
 
@@ -84,17 +92,64 @@ pcs_matrix("0G9000Z")
 #| echo: true
 #| message: false
 #| warning: false
-x <- pcs_matrix("0G9000Z")
+med_matrix(code = "99213", 
+           axis = med$a_hcp, 
+           constants = med$c_hcp, 
+           possible = med$p_hcp)
+```
+
+
+# Draw
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+x_pcs <- med_matrix(code = "0G9000Z", 
+                    axis = med$a_pcs, 
+                    constants = med$c_pcs, 
+                    possible = med$p_pcs)
+
 
 gdraw_matrix(
-  x, 
-  highlight_area = x == 1, 
+  x_pcs, 
+  highlight_area = x_pcs == 1, 
   show_indices = "none",
   graph_title = "ICD-10-PCS Code 0G9000Z",
   graph_subtitle = NULL) + 
   theme_solid() + 
-  ylim(rev(rownames(x))) + 
-  xlim(colnames(x)) + 
+  ylim(rev(rownames(x_pcs))) + 
+  xlim(colnames(x_pcs)) + 
+  xlab("") + 
+  ylab("") +
+  theme(
+    legend.position = "none",
+    axis.text.x = element_text(size = 11),
+    axis.text.y = element_text(size = 11),
+    axis.ticks.x = element_blank(),
+    axis.ticks.y = element_blank(),
+    )
+```
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+x_hcpcs <- med_matrix(code = "99213", 
+                      axis = med$a_hcp, 
+                      constants = med$c_hcp, 
+                      possible = med$p_hcp)
+
+
+gdraw_matrix(
+  x_hcpcs, 
+  highlight_area = x_hcpcs == 1, 
+  show_indices = "none",
+  graph_title = "HCPCS Code 99213",
+  graph_subtitle = NULL) + 
+  theme_solid() + 
+  ylim(rev(rownames(x_hcpcs))) + 
+  xlim(colnames(x_hcpcs)) + 
   xlab("") + 
   ylab("") +
   theme(
@@ -108,6 +163,8 @@ gdraw_matrix(
 
 
 {{< pagebreak >}}
+
+## Session Info
 
 ```{r}
 sessioninfo::session_info()

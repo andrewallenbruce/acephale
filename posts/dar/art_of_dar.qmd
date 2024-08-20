@@ -32,6 +32,30 @@ options(scipen = 999)
 library(tidyverse)
 library(gt)
 library(forager)
+
+# helper to format date range
+drng <- \(x = lubridate::today()) {
+  e1 <- lubridate::floor_date(x, "month")
+  e2 <- lubridate::rollback(x) + months(1)
+  fmt <- \(x) gt::vec_fmt_date(x, date_style = "wday_month_day_year")
+  stringr::str_glue("{fmt(e1)} - {fmt(e2)}")
+}
+
+# custom gt options
+gt_opts <- \(gt_tbl) {
+  gt_tbl |> 
+    gt::opt_table_font(font = gt::google_font("Roboto Condensed")) |> 
+    gt::opt_stylize(add_row_striping = FALSE) |> 
+    gt::tab_options(
+      heading.align = "left",
+      heading.title.font.weight = "bold",
+      heading.subtitle.font.weight = "bold",
+      heading.title.font.size = "1.25em",
+      heading.subtitle.font.size = "0.85em",
+      table.width = "100%",
+      quarto.disable_processing = TRUE, 
+      column_labels.font.weight = "bold")
+}
 ```
 
 
@@ -46,7 +70,7 @@ Its function in the healthcare revenue cycle is as a high-level monitor of the f
 The following is a thorough overview of everything you never knew you didn’t want to know about **DAR**. Let’s start off with some background and terminology.
 
 Aging of Accounts
-: An **account** is a billable episode of care. It begins to **age** once it is billed to the **guarantor** .These *outstanding* accounts are monitored in 30-day blocks or **bins** ($[0, 30)$, $[31, 60)$, $[61, 90)$, $[91, 120)$, and $[121, \infty)$) by the number of accounts, the amount owed by each bin and the responsible parties. The older the account, the less likely it will be paid.
+: An **account** is a billable episode of care. It begins to **age** once it is billed to the **guarantor**. These *outstanding* accounts are monitored in 30-day blocks or **bins** ($[0, 30)$, $[31, 60)$, $[61, 90)$, $[91, 120)$, and $[121, \infty)$) by the number of accounts, the amount owed by each bin and the responsible parties. The older the account, the less likely it will be paid.
 
 Guarantor
 : The responsible party for the amount owed (an insurance payer, a patient, etc.) Most claims are originally billed to insurance and, until the insurance makes a payment, the responsibility for the payment continues to be with the insurance payer. After the payer makes or denies a payment (with no just cause for an appeal), the responsibility for the balance of goes to the patient (to be sent an invoice) or the physician (to be written off.)
@@ -69,11 +93,9 @@ Let’s say that a practice has a DAR of 95 days. This means that, on average, i
 
 The *“ideal”* Days in AR depends entirely upon the medical practice, its customers (patients), its customers’ payers, the services it supplies, the providers performing those services, and the financial situation of the practice.
 
-<br>
+::: {.callout-tip collapse="true"}
 
-::: {.callout-tip}
-
-## The American Healthcare Economic Model
+## Note on the American Healthcare Economic Model
 
 To understand the healthcare version of Days in AR, you need to first understand the environment in which it is used. 
 
@@ -91,75 +113,88 @@ This issue is much too complex for me to properly do justice to here. It is, how
 
 ::: 
 
-<br>
-
 {{< pagebreak >}}
-
-
 
 ## DAR Formula
 
 The formula for DAR is as follows:
 
-$$ \overline{dar} = \frac{ear_b}{gc_t\div days_n} $$
+$$ \overline{dar} = arb \div (\ gc \div n_{days}\ )\ $$
+
+<br>
+
+
+$$ \overline{dar_t} = \frac{arb_t}{gc_t\div n_{days}} $$
 
 Where:
 
-   + $days_n$ Number of Days in the Period Literally the number of days in the period for which you are calculating Days in AR. DAR is typically measured in monthly and quarterly increments, so this number will usually be around 30 or 90.
-   + **Total Gross Charges:** The total dollar amount (derived from the practice’s fee schedule^[A list of fees physicians establish as the fair price for the services they provide. Keep in mind that this is not the same as a payment schedule.]) charged by the practice during the period that you are measuring.
-   + **Ending AR Balance:** The Accounts Receivable balance at the close of business on the final day of the period that you are measuring.
+   + $t = $ <b>Time Period</b>
+      + The subscript $t$ denotes the time period ($t$) being measured.
+   + $n_{days} = $ <b>Days in Period</b>
+      + The number ($n$) of days in $t$.
+   + $gc_t = $ <b>Gross Charges</b>
+      + The sum of all charges billed during $t$.
+   + $\overline{dc_t} = $ <b>Average Daily Charge</b>
+      + $gc_t$ divided by $n_{days}$.
+   + $arb_t = $ <b>AR Balance</b>
+      + The sum of all outstanding balances at close of business (COB) on the final day of $t$.
+   + $\overline{dar_t} = $ <b>Average Days in AR</b>
+      + $arb_t$ divided by $\overline{dc_t}$ for time period $t$.
 
 
 
 {{< pagebreak >}}
 
-### Step-by-Step Example
+### Example in R
 
-Let’s say we want to calculate the Days in AR for January 2024. Our Gross Charges total is **\$131,440.30** and our Ending AR Balance is **\$203,460.00**:
+Let’s say we want to calculate $\overline{dar_t}$ for the current month. Our Gross Charges total is **\$131,440** and our AR Balance is **\$203,460**:
 
 ```{r}
-#| label: ex_step_1
+#| label: smp_ex_1
 #| echo: true
-ex <- dplyr::tibble(
-  `End Date` = as.Date("2024-01-31"),
-  `Gross Charges` = 131440.30,
-  `Ending AR Balance` = 203460.00,
-  `Days in Period` = lubridate::days_in_month(`End Date`)
-  )
+ex <- tibble(
+  ndays = days_in_month(today()),
+  gc = 131440,
+  arb = 203460)
 
 ex |> 
-  gt::gt() |> 
-  gt::fmt_currency(columns = 2:3, decimals = 2, incl_space = TRUE) |> 
-  gt::opt_table_font(font = gt::google_font("Roboto Condensed")) |> 
-  gt::opt_stylize() |> 
-  gt::tab_options(
-    table.width = "100%",
-    quarto.disable_processing = TRUE, 
-    column_labels.font.weight = "bold")
+  gt() |> 
+  tab_header(
+    title = "Average Days in AR",
+    subtitle = drng()) |>
+  cols_label(
+    ndays = md("$n_{days}$"),
+    gc    = md("$gc_t$"),
+    arb   = md("$arb_t$")) |>
+  fmt_currency(columns = 2:3, decimals = 0) |> 
+  gt_opts()
 ```
 
 
 We have the three numbers we need, let’s plug them into our formula:
 
 ```{r}
-#| label: ex_step_2
+#| label: smp_ex_2
 #| echo: true
 ex <- ex |> 
-  dplyr::mutate(
-    `Avg. Daily Charge` = `Gross Charges` / `Days in Period`,
-    `Avg. Days in AR` = `Ending AR Balance` / `Avg. Daily Charge`
-    )
+  mutate(
+    dc = gc / ndays,
+    dar = arb / dc)
 
 ex |> 
-  gt::gt() |> 
-  gt::fmt_currency(columns = c(2:3, 5), decimals = 2, incl_space = TRUE) |> 
-  gt::fmt_number(columns = 6, decimals = 2) |>
-  gt::opt_table_font(font = gt::google_font("Roboto Condensed")) |> 
-  gt::opt_stylize() |> 
-  gt::tab_options(
-    table.width = "100%",
-    quarto.disable_processing = TRUE, 
-    column_labels.font.weight = "bold")
+  gt() |> 
+  tab_header(
+    title = "Average Days in AR",
+    subtitle = drng()) |>
+  cols_label(
+    ndays = md("$n_{days}$"),
+    gc    = md("$gc_t$"),
+    arb   = md("$arb_t$"),
+    dc    = md("$\\overline{dc_t}$"),
+    dar   = md("$\\overline{dar_t}$")) |>
+  fmt_currency(columns = c(2:4), decimals = 0) |> 
+  fmt_number(columns = 5, decimals = 2) |>
+  gt_opts()
 ```
 
 
@@ -176,29 +211,25 @@ As well, to simply things a bit, I’m going to use acronyms for these long vari
 ```{r}
 #| label: acronyms
 #| echo: true
-dplyr::tibble(
-  `Acronym` = c("`NDiP`", "`GCt`", "`EARb`", "`ADC`", "`DAR`", "`DARt`"),
-  `Variable` = c("Number of Days in Period", 
-                 "Total Gross Charges", 
-                 "Ending AR Balance", 
-                 "Average Daily Charge", 
-                 "Average Days in AR", 
-                 "Average Days in AR Target")) |> 
-  gt::gt(process_md = TRUE) |> 
-  gt::fmt_markdown(columns = 1, md_engine = "commonmark") |>
-  gt::opt_table_font(font = gt::google_font("Roboto Condensed")) |> 
-  gt::opt_stylize() |> 
-  gt::tab_options(
-    table.width = "100%",
-    quarto.disable_processing = TRUE, 
-    column_labels.font.weight = "bold")
+tibble(
+  Acronym = c("`NDiP`", "`GCt`", "`EARb`", "`ADC`", "`DAR`", "`DARt`"),
+  Variable = c(
+    "Number of Days in Period", 
+    "Total Gross Charges", 
+    "Ending AR Balance", 
+    "Average Daily Charge", 
+    "Average Days in AR", 
+    "Average Days in AR Target")) |> 
+  gt(process_md = TRUE) |> 
+  fmt_markdown(columns = 1, md_engine = "commonmark") |>
+  gt_opts()
 ```
 
 ## EARb Target for DARt
 
 In the first example, our DAR was 47.99. That’s approximately 13 days over our DARt of 35. What would our EARB need to have been to bring us under our DARt? Here’s our formula:
 
-$$ ear_t = (\ dar_t \times gc_t\ )\ \div days_n $$
+$$ art = (\ dart \times gc\ )\ \div days_n $$
 
 We’ll calculate the EARB we needed as well as the difference between the two AR figures:
 
