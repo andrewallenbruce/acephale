@@ -35,57 +35,33 @@ library(forager)
 ```
 
 
-**Days in Accounts Receivable** (also known as **DAR** or **Days in AR**) is a common financial metric belonging to a group of ratios called *efficiency ratios*. 
+## Introduction
 
-DAR measures the average amount of time it takes for a business to collect money owed from the responsible party for services rendered and billed.
+**Average Days in Accounts Receivable** (**DAR** or **Average Days in AR**) is a common financial metric known as an *efficiency ratio*. 
 
-Its function within the healthcare RCM sphere is to act as a high-level monitor connected to the vital organs of financial health within an organization. 
+**DAR** measures the average number of days it takes for a business to collect money owed for services rendered from the responsible parties.
 
-The following is a thorough overview of everything you never knew you didn’t want to know about Days in AR. Let’s start off with some background and terminology.
+Its function in the healthcare revenue cycle is as a high-level monitor of the financial health of a healthcare entity.
 
-<br>
+The following is a thorough overview of everything you never knew you didn’t want to know about **DAR**. Let’s start off with some background and terminology.
 
-### Accounts Receivable
+Aging of Accounts
+: An **account** is a billable episode of care. It begins to **age** once it is billed to the **guarantor** .These *outstanding* accounts are monitored in 30-day blocks or **bins** ($[0, 30)$, $[31, 60)$, $[61, 90)$, $[91, 120)$, and $[121, \infty)$) by the number of accounts, the amount owed by each bin and the responsible parties. The older the account, the less likely it will be paid.
 
-Accounts Receivable (AR) represents money owed to the healthcare practice by patients and/or insurance carriers. The Accounts Receivable cycle begins with the delivery of service and continues until payment for the service is reconciled to a zero balance. 
+Guarantor
+: The responsible party for the amount owed (an insurance payer, a patient, etc.) Most claims are originally billed to insurance and, until the insurance makes a payment, the responsibility for the payment continues to be with the insurance payer. After the payer makes or denies a payment (with no just cause for an appeal), the responsibility for the balance of goes to the patient (to be sent an invoice) or the physician (to be written off.)
 
-The AR Balance is the total Gross Charges entered and/or submitted to an insurance payer or patient but not yet collected. The AR balance can only be reduced by receiving payments or by entering contractual or write-off adjustments. Typical performance statistics maintained by the AR department include Days in AR and Aging of Accounts.
+Accounts Receivable
+: AR represents money owed to the healthcare practice by patients and/or insurance carriers. The AR balance is the total charges billed to an insurance payer or patient for services rendered but not yet collected. The balance can only be reduced by payment or by adjustments, contractual or otherwise. The AR cycle begins with the delivery of services and ends with **reconciliation**, or when the balance owed equals zero. 
 
-### Aging of Accounts
+Average Days in AR
+: A mathematical formula for the average number of days it takes a business to collect money that it is owed. A low average is good. A high average signals a problem within the revenue cycle.
 
-An account is a billable episode of care. It begins to age once it is billed to an insurance company or patient. These outstanding accounts are monitored by age in 30-day increments (0 - 30, 31 - 60, 61 - 90, and so forth.) AR departments monitor the number of accounts outstanding, the dollar amount in each 30-day increment (sometimes called “bins” or “buckets”), and the responsible parties. 
+So now you know that a low Days in AR number is good and a high number is bad. 
 
-As well, aging should be broken down by many metrics, such as Provider, Patient, Insurance Types (Commercial, Primary, Secondary, Worker’s Compensation, Managed Care), Facility, Diagnosis/Procedure code, Specialty, etc. The older the account or the longer the account remains unpaid, the less likely it will be reimbursed.
+How low is good though? How high is bad? 
 
-Most claims are originally billed to insurance and, until the insurance makes a payment, the responsibility for the payment continues to be with the insurance payer. After the payer makes or denies a payment (with no just cause for an appeal), the responsibility for the balance of goes to the patient (to be sent an invoice) or the physician (to be written off.)
-
-### Days in Accounts Receivable
-
-Days in Accounts Receivable is a mathematical formula that calculates the average number of days it takes a business to collect money that it is owed. The DAR number should be low. A high DAR number tells you that there is a problem in your revenue cycle.
-
-<br>
-
-::: {.callout-tip}
-
-## The Healthcare Economic Model
-
-To understand the healthcare version of Days in AR, you need to first understand a little bit about the environment in which it lives. Typically, companies sell their products or services directly to consumers and are paid immediately at the point of service. This is called a business-to-consumer revenue model. Another revenue model type is the business-to-business model, concerning businesses that transact primarily with other businesses. As purchases between two businesses tend to be much larger, business-to-business companies invoice on a monthly basis, meaning it will not be paid for 30-plus days.
-
-Somewhere in between these two models is the American healthcare system. This gray area is caused by a middleman called a third party payer. Better known as an insurance company, providers enter into a contractual agreement with this third party to be paid for their services at a reduced rate. In exchange, a provider gains access to the payer’s large subscriber base. The difference between the charge a provider submits to a payer and the contracted rate he or she has agreed to is called the Contractual Adjustment, which is written off once a claim has been adjudicated.
-
-The contractual adjustment introduces a critical inefficiency to the healthcare revenue model. Rather than prices being determined by supply and demand, they are set by individually negotiated arrangements, the end result of which is no real demand or pricing curve. This issue is much too complex for me to properly do justice to here. It is, however, an essential concept to grasp when trying to understand healthcare reimbursement. In other words, healthcare reimbursement is crazy, not you.
-
-::: 
-
-<br>
-
-{{< pagebreak >}}
-
-### Example: Your Days in AR is 95
-
-So now you know that a low Days in AR number is good and a high number is bad. How low is good though? How high is bad? Is a DAR of `0` the best? Let’s say that a practice has a DAR of 95 days. This means that, on average, it takes the practice 95 days to collect it’s outstanding balances. That doesn’t sound good, according to what I wrote a couple of paragraphs above. Or could that normal for that particular practice?
-
-Let’s start with what we can say for sure about a Days in AR of 95:
+Let’s say that a practice has a DAR of 95 days. This means that, on average, it takes the practice 95 days to collect it’s outstanding balances. Let’s start with what we can say for sure about a Days in AR of 95:
 
    1. 95 days is roughly equal to a little over three months.
    2. Therefore, there is three months of unpaid work sitting in Accounts Receivable.
@@ -93,17 +69,47 @@ Let’s start with what we can say for sure about a Days in AR of 95:
 
 The *“ideal”* Days in AR depends entirely upon the medical practice, its customers (patients), its customers’ payers, the services it supplies, the providers performing those services, and the financial situation of the practice.
 
-## DAR Formulas
+<br>
 
-You need three numbers to calculate Days in AR:
+::: {.callout-tip}
 
-   1. **Number of Days in the Period:** Literally the number of days in the period for which you are calculating Days in AR. DAR is typically measured in monthly and quarterly increments, so this number will usually be around 30 or 90.
-   2. **Total Gross Charges:** The total dollar amount (derived from the practice’s fee schedule^[A list of fees physicians establish as the fair price for the services they provide. Keep in mind that this is not the same as a payment schedule.]) charged by the practice during the period that you are measuring.
-   3. **Ending AR Balance:** The Accounts Receivable balance at the close of business on the final day of the period that you are measuring.
+## The American Healthcare Economic Model
 
-And the formula for Days in AR:
+To understand the healthcare version of Days in AR, you need to first understand the environment in which it is used. 
+
+Typically, companies sell their products or services directly to consumers and are paid immediately at the point of service (POS). This is called a **business-to-consumer** revenue model. 
+
+Another revenue model type is the **business-to-business (B2B)** model, concerning businesses that transact primarily with each other. Purchases between two businesses tend to be much larger. As such, B2B businesses invoice on a monthly basis, meaning no payment for 30+ days.
+
+Somewhere in between these two models is the American healthcare system. This gray area is caused by a middleman called a third party payer. Better known as an insurance company, providers enter into a contractual agreement with this third party to be paid for their services at a reduced rate. 
+
+In exchange, a provider gains access to the payer’s large subscriber base. The difference between the charge a provider submits to a payer and the contracted rate he or she has agreed to is called the **contractual adjustment**, which is written off once a claim has been adjudicated.
+
+The contractual adjustment introduces a critical inefficiency to the healthcare revenue model. Rather than prices being determined by supply and demand, they are set by individually negotiated arrangements, the end result of which is no real demand or pricing curve. 
+
+This issue is much too complex for me to properly do justice to here. It is, however, an essential concept to grasp when trying to understand healthcare reimbursement. In other words, healthcare reimbursement is crazy, not you.
+
+::: 
+
+<br>
+
+{{< pagebreak >}}
+
+
+
+## DAR Formula
+
+The formula for DAR is as follows:
 
 $$ \overline{dar} = \frac{ear_b}{gc_t\div days_n} $$
+
+Where:
+
+   + $days_n$ Number of Days in the Period Literally the number of days in the period for which you are calculating Days in AR. DAR is typically measured in monthly and quarterly increments, so this number will usually be around 30 or 90.
+   + **Total Gross Charges:** The total dollar amount (derived from the practice’s fee schedule^[A list of fees physicians establish as the fair price for the services they provide. Keep in mind that this is not the same as a payment schedule.]) charged by the practice during the period that you are measuring.
+   + **Ending AR Balance:** The Accounts Receivable balance at the close of business on the final day of the period that you are measuring.
+
+
 
 {{< pagebreak >}}
 

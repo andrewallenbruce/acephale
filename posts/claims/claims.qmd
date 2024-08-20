@@ -34,93 +34,7 @@ library(rbrvs)
 library(northstar)
 library(fuimus)
 
-claims_spec <- cols(
-  id          = col_character(),
-  enc         = col_integer(),
-  dos         = col_date(format = ""),
-  dob         = col_date(format = ""),
-  age         = col_integer(),
-  dor         = col_date(format = ""),
-  lag         = col_double(),
-  ref         = col_character(),
-  ref_cred    = col_character(),
-  ref_tax     = col_logical(),
-  ren         = col_character(),
-  ren_cred    = col_character(),
-  ren_tax     = col_logical(),
-  icd         = col_character(),
-  ord         = col_integer(),
-  hcpcs       = col_character(),
-  desc        = col_character(),
-  units       = col_integer(),
-  mod1        = col_character(),
-  mod2        = col_character(),
-  pos         = col_character(),
-  pos_name    = col_character(),
-  loc         = col_character(),
-  ins_class   = col_character(),
-  ins_prim    = col_character(),
-  ins_sec     = col_character(),
-  charges     = col_double(),
-  allowed     = col_double(),
-  payments    = col_double(),
-  adjustments = col_double(),
-  adj1        = col_character(),
-  adj2        = col_character(),
-  adj3        = col_character()
-)
-
-claims <- read_csv(
-  here(
-    "posts/claims/data", 
-    "clean_rpt_rend.csv"), 
-  col_types = claims_spec
-  ) |> 
-  remove_quiet() |> 
-  left_join(
-    search_pos() |> 
-      select(
-        -c(pos_name, pos_description)), 
-    by = join_by(pos == pos_code)
-    )
-
-claims <- claims |> 
-  full_join(
-    expand_date_range(claims$dos, "dos"), 
-    by = join_by(dos)
-    ) |> 
-  arrange(id, enc) |>  
-  mutate(
-    ppa = payments + adjustments,
-    gt = charges > ppa,
-    allowed = case_when(
-      is.na(allowed) & gt ~ ppa, 
-      is.na(allowed) & !gt ~ payments, 
-      .default = allowed),
-    ppa = NULL,
-    gt = NULL,
-    .after = charges)
-
-rvu_spec <- cols(
-  date_start  = col_date(format = ""),
-  date_end    = col_date(format = ""),
-  hcpcs       = col_character(),
-  description = col_character(),
-  work_rvu    = col_double(),
-  pe_rvu      = col_double(),
-  mp_rvu      = col_double(),
-  rvu_total   = col_double(),
-  conv_factor = col_double(),
-  pctc_ind    = col_character(),
-  glob_days   = col_character(),
-  mult_proc   = col_character(),
-  dos         = col_date(format = ""),
-  pos         = col_character()
-)
-
-pprrvu <- read_csv(
-  here("posts/claims/data", "results.csv"),
-  col_types = rvu_spec)
+source(here("posts/claims/scripts", "load.R"))
 ```
 
 
@@ -180,7 +94,7 @@ claims_summary |>
     cols = everything(), 
     names_to = "Metric", 
     values_to = "Value") |>
-  gt::gt()
+  gt()
 ```
 
 ## Ratio Analysis
@@ -236,7 +150,7 @@ claims_summary |>
     cols = everything(), 
     names_to = "Metric", 
     values_to = "Value") |> 
-  gt::gt()
+  gt()
 ```
 
 ```{r}
@@ -277,8 +191,8 @@ insurance_summary <- claims |>
 
 # Patients are counted once per insurance class
 insurance_summary |>
-  gt::gt(rowname_col = "ins_prim") |> 
-  gt::opt_all_caps()
+  gt(rowname_col = "ins_prim") |> 
+  opt_all_caps()
 ```
 
 
@@ -299,8 +213,8 @@ insurance_summary |>
     rpp = revenue / procedures
   ) |> 
   arrange(desc(pts)) |>
-  gt::gt(rowname_col = "ins_prim") |> 
-  gt::opt_all_caps()
+  gt(rowname_col = "ins_prim") |> 
+  opt_all_caps()
 ```
 
 
@@ -339,14 +253,14 @@ pprrvu |>
     nonpar_unadj = allow_unadj * 1.15,
     lim_unadj = nonpar_unadj * 0.95
     ) |> 
-  gt::gt(
+  gt(
     rowname_col = "year", 
     groupname_col = "hcpcs",
     row_group_as_column = TRUE
     ) |> 
-  gt::opt_table_font(
-    font = gt::google_font(name = "Atkinson Hyperlegible")) |> 
-  gt::fmt_currency(
+  opt_table_font(
+    font = google_font(name = "Atkinson Hyperlegible")) |> 
+  fmt_currency(
     columns = c("par_non_amt", 
                 "par_fac_amt", 
                 "nonpar_non_amt", 
@@ -354,35 +268,35 @@ pprrvu |>
                 "limiting_non", 
                 "limiting_fac")
     ) |>
-  gt::cols_label(
-    quarter = gt::md("**Qtr**"),
-    work_rvu = gt::md("<b><small>RVU</small></b><i><sub>wk</sub></i>"),
-    facility_pe_rvu = gt::md("<i>f</i><b><small>RVU</small></b><i><sub>pe</sub></i>"),
-    non_fac_pe_rvu = gt::md("<i>nf</i><b><small>RVU</small></b><i><sub>pe</sub></i>"),
-    mp_rvu = gt::md("<b><small>RVU</small></b><i><sub>mp</sub></i>"),
-    conv_factor = gt::md("<b>CF</b>"),
-    tot_fac_rvu = gt::md("<i>f</i><b><small>RVU</small></b><i>s</i>"),
-    tot_non_rvu = gt::md("<i>nf</i><b><small>RVU</small></b><i>s</i>"),
-    par_non_amt = gt::md("<i>nf</i><b><small>PAR</small></b>"),
-    par_fac_amt = gt::md("<i>f</i><b><small>PAR</small></b>"),
-    nonpar_non_amt = gt::md("<i>nf</i><b><small>NPAR</small></b>"),
-    nonpar_fac_amt = gt::md("<i>f</i><b><small>NPAR</small></b>"),
-    limiting_non = gt::md("<i>nf</i><b><small>LC</small></b>"),
-    limiting_fac = gt::md("<i>f</i><b><small>LC</small></b>")
+  cols_label(
+    quarter = md("**Qtr**"),
+    work_rvu = md("<b><small>RVU</small></b><i><sub>wk</sub></i>"),
+    facility_pe_rvu = md("<i>f</i><b><small>RVU</small></b><i><sub>pe</sub></i>"),
+    non_fac_pe_rvu = md("<i>nf</i><b><small>RVU</small></b><i><sub>pe</sub></i>"),
+    mp_rvu = md("<b><small>RVU</small></b><i><sub>mp</sub></i>"),
+    conv_factor = md("<b>CF</b>"),
+    tot_fac_rvu = md("<i>f</i><b><small>RVU</small></b><i>s</i>"),
+    tot_non_rvu = md("<i>nf</i><b><small>RVU</small></b><i>s</i>"),
+    par_non_amt = md("<i>nf</i><b><small>PAR</small></b>"),
+    par_fac_amt = md("<i>f</i><b><small>PAR</small></b>"),
+    nonpar_non_amt = md("<i>nf</i><b><small>NPAR</small></b>"),
+    nonpar_fac_amt = md("<i>f</i><b><small>NPAR</small></b>"),
+    limiting_non = md("<i>nf</i><b><small>LC</small></b>"),
+    limiting_fac = md("<i>f</i><b><small>LC</small></b>")
   ) |> 
-  gt::cols_align(align = "center") |>
-  gt::tab_style(
-      style = gt::cell_text(
+  cols_align(align = "center") |>
+  tab_style(
+      style = cell_text(
         align = 'center',
-        size = gt::px(16),
-        font = gt::google_font(name = "Fira Code"),
+        size = px(16),
+        font = google_font(name = "Fira Code"),
         weight = "bold"),
-      locations = gt::cells_row_groups()) |> 
-  gt::tab_style(
-      style = gt::cell_text(
-      font = gt::google_font(name = "Fira Code")),
-      locations = gt::cells_body()) |> 
-  gt::tab_options(
+      locations = cells_row_groups()) |> 
+  tab_style(
+      style = cell_text(
+      font = google_font(name = "Fira Code")),
+      locations = cells_body()) |> 
+  tab_options(
     quarto.disable_processing = TRUE,
     table.width = "100%"
   )
