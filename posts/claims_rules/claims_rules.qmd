@@ -1,0 +1,281 @@
+---
+title: "Building Claims Rules"
+format: 
+  html:
+    reference-location: block
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#| label: setup
+#| echo: false
+#| message: false
+#| warning: false
+knitr::opts_chunk$set(
+  dev = "ragg_png",
+  dpi = 300,
+  out.width = "100%",
+  fig.width = 8,
+  fig.asp = 0.618,
+  fig.retina = 2,
+  fig.align = "center",
+  fig.show = "hold")
+options(scipen = 999)
+library(here)
+library(tidyverse)
+library(janitor)
+library(gt)
+```
+
+
+## Load Data
+
+```{r}
+#| label: load_data
+#| echo: true
+#| message: false
+#| warning: false
+rules_raw <- read_csv(
+  here::here("posts/claims_rules/data/rules_raw.csv"),
+  col_types = cols(
+  row = col_integer(),
+  id_rule = col_integer(),
+  id_name = col_character(),
+  id_order = col_integer(),
+  category = col_factor(),
+  alert = col_character(),
+  var = col_character(),
+  action = col_character(),
+  value = col_character(),
+  rule = col_character(),
+  x9 = col_character(),
+  x10 = col_character()))
+
+rules_raw |> 
+  gt_preview() |> 
+  opt_table_font(font = google_font(name = "Fira Code")) |> 
+  tab_options(table.width = pct(100),
+              quarto.disable_processing = TRUE)
+```
+
+### TODO: Problem Rows
+
+```{r}
+#| label: rows_wrong
+#| echo: true
+#| message: false
+#| warning: false
+rules_raw |> 
+  filter(!is.na(x10))
+
+rules_raw |>
+  filter(is.na(var))
+```
+
+
+## Rules
+
+```{r}
+#| label: rules_new
+#| echo: true
+#| message: false
+#| warning: false
+rules_new <- rules_raw |>
+  select(
+    row, 
+    id_rule, 
+    id_name,
+    id_order, 
+    var, 
+    action, 
+    value) |>
+  mutate(var = case_match(
+    var,
+      c("CPT CODE", 
+        "CPT Code", 
+        "CPT code", 
+        "CPT", 
+        "Code Check Expired CPT Alert (Presence)", 
+        "CPT is one of") ~ "hcpcs",
+      c("Mod1", 
+        "CPT Mod1", 
+        "CPT Mod 1", 
+        "CPTMod1", 
+        "Code Check CPT Mod Alert (Presence)", 
+        "CPT MOD1", 
+        "CPT Mod1 (Presence)") ~ "mod_1",
+      c("Mod2", 
+        "CPT MOD2", 
+        "CPT Mod 2", 
+        "CPT Mod2 (Presence)", 
+        "CPTMod2", 
+        "CPT Mod2") ~ "mod_2",
+      "CPT Mod3" ~ "mod_3",
+      "CPT Mod4" ~ "mod_4",
+      "CPT Units" ~ "unit",
+      c("Dx code", 
+        "DX Code", 
+        "Dx Code", 
+        "Code Check Expired DX Alert (Presence)") ~ "icd",
+      c("Encounter Date of Service", 
+        "Date of Service") ~ "dos",
+      c("Location", 
+        "Place of Service") ~ "pos",
+      c("CPT UB04", 
+        "UB04 Bill Type") ~ "ub04",
+      "CPT NDC (Presence)" ~ "ndc",
+      "CPT Rev Code" ~ "rev_code",
+      "Code Check CCI Alert (Presence)" ~ "cci",
+      "Code Check LCD Alert (Presence)" ~ "lcd",
+      "Code Check NCD Alert (Presence)" ~ "ncd",
+      c("Patient Age", 
+        "Code Check Age Alert (Presence)") ~ "age",
+      c("Patient Sex", 
+        "Code Check Gender Alert (Presence)") ~ "sex",
+      "NA" ~ NA_character_,
+      "Rendering Provider" ~ "render",
+      "Referring Provider (Presence)" ~ "refer",
+      c("Primary Insurance Class", 
+        "Primary Insurance class", 
+        "Primary insurance class") ~ "iclass_prim",
+      "Primary Insurance" ~ "iname_prim",
+      "Secondary Insurance Class" ~ "iclass_sec",
+      "Secondary Insurance" ~ "iname_sec",
+      c("Primary Insurance Authorization (Presence)", 
+        "Primary Insurance Authorization (Presence) is not [Present]") ~ "iauth_prim",
+      .default = var) |> as_factor()) |>
+  separate_longer_delim(cols = value, delim = ",") |> 
+  mutate(value = str_squish(value),
+         neg = case_when(str_detect(action, "not") ~ 1L, .default = 0L),
+         wc = case_when(str_detect(value, "\\*") ~ 1L, .default = 0L),
+         .after = value)
+
+rules_new |> 
+  gt_preview() |> 
+  opt_table_font(font = google_font(name = "Fira Code")) |> 
+  tab_options(table.width = pct(100),
+              quarto.disable_processing = TRUE)
+```
+
+### Distinct Rules
+
+```{r}
+#| label: distinct
+#| echo: true
+#| message: false
+#| warning: false
+cat(n_distinct(rules_new$id_rule))
+```
+
+## Variables
+
+```{r}
+#| label: vars
+#| echo: true
+#| message: false
+#| warning: false
+rules_raw |>
+  filter(!is.na(var)) |> 
+  count(var) |>
+  pull(var) |> 
+  cat(sep = "\n")
+
+rules_new |>
+  filter(!is.na(var)) |> 
+  count(var = as.character(var)) |>
+  pull(var) |> 
+  cat(sep = "\n")
+```
+
+## Actions
+
+```{r}
+#| label: actions
+#| echo: true
+#| message: false
+#| warning: false
+rules_raw |>
+  filter(!is.na(action)) |>
+  count(action) |>
+  pull(action) |> 
+  cat(sep = "\n")
+```
+
+
+## Generating Regexes
+
+```{r}
+#| label: regex
+#| echo: true
+#| message: false
+#| warning: false
+rules_new |> 
+  filter(
+    wc == 1,
+    # action == "has all",
+    var == "hcpcs"
+  ) |>
+  mutate(
+    value = str_remove_all(value, "\\*"),
+    chars = 5 - str_length(value),
+    .after = value
+  ) |> 
+  mutate(
+    pattern = case_when(
+      chars == 0 ~ glue::glue("^<<value>>$", .open = "<<", .close = ">>"),
+      chars == 1 ~ glue::glue("^<<value>>[0-9]$", .open = "<<", .close = ">>"),
+      chars > 1 ~ glue::glue("^<<value>>[0-9]{<<chars>>}$", .open = "<<", .close = ">>")),
+    pattern = case_when(neg == 1L ~ glue::glue('!{pattern}'), .default = pattern),
+    .after = pattern
+  ) |> 
+  gt_preview() |> 
+  opt_table_font(font = google_font(name = "Fira Code")) |> 
+  tab_options(table.width = gt::pct(100),
+              quarto.disable_processing = TRUE)
+```
+
+
+```{r}
+#| label: misc
+#| eval: false
+#| echo: true
+#| message: false
+#| warning: false
+northstar::search_descriptions(hcpcs_desc_type = "Long") |> 
+  # dplyr::mutate(not_hcpcs = !grepl("^99[0-9]{3}$", hcpcs_code)) |> 
+  filter(!grepl("^99[0-9]{3,3}$", hcpcs_code)) |>
+  # dplyr::mutate(has_hcpcs = grepl("^J[0-9]{4}$", hcpcs_code)) |> 
+  filter(str_detect(hcpcs_code, regex("^J[0-9]{4}$"))) |> 
+  filter(str_detect(hcpcs_code, regex("^(?!5405)(?<![0-9]{1})$"))) |> 
+  print(n = 200)
+
+# Match strings that don't start with "99" and don't end with 3 digits
+pattern <- "^(?!99).*(?<![0-9]{3})$"
+
+# Negation pattern
+"^(?!9938[0-9]{1}$)"
+
+# Begins with 0, ends with digit
+"^0.*\\d$"
+
+# Begins with 0, ends with letter
+"^0.*[A-Z]$"
+
+# Match strings that don't start with "a" and don't end with "z"
+pattern <- "^(?!a).*[^z]$"
+grep(pattern, c("apple", "banana", "cherry"), value = TRUE)
+# Output: "banana" "cherry"
+
+stringr::str_detect("99202", stringr::regex("^[992]{3}.*"))
+
+grep("^[992]{3}.*", "99202", value = TRUE, invert = TRUE)
+
+
+# pattern = dplyr::case_when(
+#   chars == 0 & negation == FALSE ~ glue::glue("^<value>$", .open = "<", .close = ">"),
+#   chars > 0  & negation == FALSE ~ glue::glue("^<value>[0-9]{<chars>}$", .open = "<", .close = ">"),
+#   chars == 0 & negation == TRUE ~ glue::glue("^(?!<value>)$", .open = "<", .close = ">"),
+#   chars > 0  & negation == TRUE ~ glue::glue("^(?!<<value>>)(?<![0-9]{<<chars>>})$", .open = "<<", .close = ">>")
+#   ),
+```
