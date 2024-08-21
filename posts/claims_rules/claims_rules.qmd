@@ -13,14 +13,15 @@ editor_options:
 #| message: false
 #| warning: false
 knitr::opts_chunk$set(
-  dev = "ragg_png",
-  dpi = 300,
-  out.width = "100%",
-  fig.width = 8,
-  fig.asp = 0.618,
+  dev        = "ragg_png",
+  dpi        = 300,
+  out.width  = "100%",
+  fig.width  = 8,
+  fig.asp    = 0.618,
   fig.retina = 2,
-  fig.align = "center",
-  fig.show = "hold")
+  fig.align  = "center",
+  fig.show   = "hold")
+
 options(scipen = 999)
 library(here)
 library(tidyverse)
@@ -29,11 +30,8 @@ library(gt)
 library(fuimus)
 
 head_tail <- function(x, n = 5, by = NULL) {
-  dplyr::bind_rows(
-    dplyr::slice_head(
-      x, n = n, by = dplyr::all_of(by)),
-    dplyr::slice_tail(
-      x, n = n, by = dplyr::all_of(by)))
+  dplyr::bind_rows(dplyr::slice_head(x, n = n, by = dplyr::all_of(by)),
+                   dplyr::slice_tail(x, n = n, by = dplyr::all_of(by)))
 }
 ```
 
@@ -45,46 +43,44 @@ head_tail <- function(x, n = 5, by = NULL) {
 #| echo: true
 #| message: false
 #| warning: false
-rules_raw <- read_csv(here(
-  "posts/claims_rules/data/rules_raw.csv"
-  ),
+rules_raw <- read_csv(
+  here("posts/claims_rules/data/rules_raw.csv"),
   col_types = cols(
-  row = col_integer(),
-  id_rule = col_integer(),
-  id_name = col_character(),
-  id_order = col_integer(),
-  category = col_factor(),
-  alert = col_character(),
-  var = col_character(),
-  action = col_character(),
-  value = col_character(),
-  rule = col_character(),
-  x9 = col_character(),
-  x10 = col_character()))
+  row       = col_integer(),
+  id_rule   = col_integer(),
+  id_name   = col_character(),
+  id_order  = col_integer(),
+  category  = col_factor(),
+  alert     = col_character(),
+  var       = col_character(),
+  action    = col_character(),
+  value     = col_character(),
+  rule      = col_character(),
+  x9        = col_character(),
+  x10       = col_character()))
 
 rules_re <- rules_raw |> 
   select(
     row,
-    rid = id_rule,
-    rord = id_order,
-    rnm = id_name,
-    rvar = var,
-    ract = action,
-    rval = value,
-    rcat = category,
+    rid   = id_rule,
+    rord  = id_order,
+    rnm   = id_name,
+    rvar  = var,
+    ract  = action,
+    rval  = value,
+    rcat  = category,
     rdesc = rule,
-    rmsg = alert
+    rmsg  = alert
   ) |>
   mutate(
-    rcat = remove_quotes(as.character(rcat)),
-    rcat = str_remove_all(rcat, "\\r|\\n"),
-    rmsg = remove_quotes(rmsg),
-    rmsg = str_remove_all(rmsg, "\\r|\\n"),
+    rcat  = remove_quotes(as.character(rcat)),
+    rcat  = str_remove_all(rcat, "\\r|\\n"),
+    rmsg  = remove_quotes(rmsg),
+    rmsg  = str_remove_all(rmsg, "\\r|\\n"),
     rdesc = remove_quotes(rdesc),
-    rdesc = str_remove_all(rdesc, "\\r|\\n")
-  )
+    rdesc = str_remove_all(rdesc, "\\r|\\n"))
 
-rules_re |> print(n = 50)
+rules_re |> print(n = 20)
 ```
 
 
@@ -144,23 +140,23 @@ categorize_vars <- rules_raw |>
       "Code Check LCD Alert (Presence)" ~ "lcd",
       "Code Check NCD Alert (Presence)" ~ "ncd",
       c("Patient Age", 
-        "Code Check Age Alert (Presence)") ~ "age",
+        "Code Check Age Alert (Presence)") ~ "dob",
       c("Patient Sex", 
         "Code Check Gender Alert (Presence)") ~ "sex",
       "NA" ~ NA_character_,
-      "Rendering Provider" ~ "render",
-      "Referring Provider (Presence)" ~ "refer",
+      "Rendering Provider" ~ "rendering",
+      "Referring Provider (Presence)" ~ "referring",
       c("Primary Insurance Class", 
         "Primary Insurance class", 
-        "Primary insurance class") ~ "iclass_prim",
-      "Primary Insurance" ~ "iname_prim",
-      "Secondary Insurance Class" ~ "iclass_sec",
-      "Secondary Insurance" ~ "iname_sec",
+        "Primary insurance class") ~ "primary_class",
+      "Primary Insurance" ~ "primary_name",
+      "Secondary Insurance Class" ~ "secondary_class",
+      "Secondary Insurance" ~ "secondary_name",
       c("Primary Insurance Authorization (Presence)", 
-        "Primary Insurance Authorization (Presence) is not [Present]") ~ "iauth_prim",
+        "Primary Insurance Authorization (Presence) is not [Present]") ~ "primary_auth",
       .default = var) |> as_factor())
 
-categorize_vars |> print(n = 50)
+categorize_vars |> print(n = 20)
 ```
 
 
@@ -176,23 +172,28 @@ categorize_vars |>
   reframe(
     var_name = var,
     var_type = case_match(var,
-      c("sex", "render", "refer", "iauth_prim", 
-        "iclass_prim", "iname_prim", "iclass_sec", "iname_sec", 
-        "ncd", "lcd", "cci", "ndc", "ub04", "pos", "icd", 
-        "hcpcs", "mod_1", "mod_2", "mod_3", "mod_4") ~ "<chr>",
+      c("sex", "rendering", "referring", 
+        "primary_auth", "primary_class", 
+        "primary_name", "secondary_class", 
+        "secondary_name", "ncd", "lcd", 
+        "cci", "ndc", "ub04", "pos", 
+        "icd", "hcpcs", "mod_1", "mod_2", 
+        "mod_3", "mod_4") ~ "<chr>",
       c("rev_code", "unit") ~ "<int>",
-      c("dos", "age") ~ "<date>"
+      c("dos", "dob") ~ "<date>"
     ) |> as_factor(),
     var_class = case_match(
       as.character(var),
-      c("sex", "dos", "age", "dob") ~ "patient",
-      c("render", "refer") ~ "provider",
+      c("sex", "dos", "dob") ~ "patient",
+      c("rendering", "referring") ~ "provider",
       c("hcpcs", "mod_1", "mod_2", "mod_3", "mod_4", 
         "rev_code", "unit", "ndc", "pos") ~ "procedure",
       c("icd") ~ "diagnosis",
-      c("ub04") ~ "claim",
+      c("ub04", "1500") ~ "claim",
       c("ncd", "lcd", "cci") ~ "ncci",
-      c("iauth_prim", "iclass_prim", "iname_prim", "iclass_sec", "iname_sec") ~ "payer"
+      c("primary_auth", "primary_class", 
+        "primary_name", "secondary_class", 
+        "secondary_name") ~ "payer"
     ) |> as_factor(),
     var_action = action
   ) |> 
@@ -201,10 +202,88 @@ categorize_vars |>
     var_class, 
     var_name, 
     var_action) |> 
+  arrange(var_type, var_class, var_name) |>
   print(n = 100)
 ```
 
-## Variables
+## Date of Service
+
+```{r}
+categorize_vars |> 
+  filter(var == "dos") |> 
+  mutate(type = "<date>",
+         value = anytime::anydate(value),
+         op = if_else(str_detect(action, "after"), ">", "<")) |> 
+  select(row, id_rule, id_name, id_order, type, var, op, value)
+```
+
+## Patient Age
+
+```{r}
+categorize_vars |> 
+  filter(var == "dob") |> 
+  mutate(
+    var = "age",
+    type = "<int>", 
+    .before = var) |> 
+  mutate(age = strex::str_extract_numbers(value),
+         time = strex::str_extract_non_numerics(value)) |> 
+  unnest(c(age, time)) |> 
+  mutate(
+    age = as.integer(age),
+    time = str_remove_all(time, "\\s|,"),
+    value = NULL,
+    op = case_match(action,
+                    c("is younger than", "younger than") ~ "<",
+                    "is older than" ~ ">",
+                    "is" ~ "==",
+                    .default = NA_character_
+                    ),
+    days = case_when(
+      time == "years" ~ as.duration(years(age)) / ddays(1),
+      time == "months" ~ as.duration(months(age)) / ddays(1),
+      time == "days" ~ as.duration(days(age)) / ddays(1),
+      .default = NA_real_
+    ),
+    dos = lubridate::today(),
+  ) |> 
+  select(row, id_rule, id_name, id_order, type, var, op, age, time, days) |> 
+  print(n = 1000)
+```
+
+## HCPCS Unit
+
+```{r}
+categorize_vars |> 
+  filter(var == "unit") |> 
+  mutate(type = "<int>", 
+         value = as.integer(value),
+         .before = var, 
+         op = if_else(
+           str_detect(action, "is not"), 
+           "!=", "=="))
+```
+
+## NDC
+
+How can this be represented in relational algebra? Detect presence with regex?
+
+If not present, then is `NA` its' representation? If so, `is.na(x)` would equal `is not present` and `!is.na(x)` would equal `is present`
+
+
+```{r}
+categorize_vars |> 
+  filter(var == "ndc") |> 
+  mutate(type = "<lgl>", 
+         .before = var, 
+         op = if_else(
+           str_detect(action, "is not"), 
+           "is.na(x)", 
+           "!is.na(x)")
+         ) |> 
+  print(n = 24)
+```
+
 
 ```{r}
 #| label: vars
