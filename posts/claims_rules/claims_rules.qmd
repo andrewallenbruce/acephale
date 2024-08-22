@@ -30,20 +30,12 @@ library(gt)
 library(fuimus)
 
 head_tail <- function(x, n = 5, by = NULL) {
-  dplyr::bind_rows(dplyr::slice_head(x, n = n, by = dplyr::all_of(by)),
-                   dplyr::slice_tail(x, n = n, by = dplyr::all_of(by)))
+  dplyr::bind_rows(
+    dplyr::slice_head(x, n = n, by = dplyr::all_of(by)),
+    dplyr::slice_tail(x, n = n, by = dplyr::all_of(by)))
 }
-```
 
-
-## Load Data
-
-```{r}
-#| label: load_data
-#| echo: true
-#| message: false
-#| warning: false
-rules_raw <- read_csv(
+rules <- read_csv(
   here("posts/claims_rules/data/rules_raw.csv"),
   col_types = cols(
   row       = col_integer(),
@@ -57,9 +49,7 @@ rules_raw <- read_csv(
   value     = col_character(),
   rule      = col_character(),
   x9        = col_character(),
-  x10       = col_character()))
-
-rules_re <- rules_raw |> 
+  x10       = col_character())) |> 
   select(
     row,
     rid   = id_rule,
@@ -78,30 +68,68 @@ rules_re <- rules_raw |>
     rmsg  = remove_quotes(rmsg),
     rmsg  = str_remove_all(rmsg, "\\r|\\n"),
     rdesc = remove_quotes(rdesc),
-    rdesc = str_remove_all(rdesc, "\\r|\\n"))
+    rdesc = str_remove_all(rdesc, "\\r|\\n")) |> 
+  fill(rdesc)
 
-rules_re |> print(n = 20)
+rules_desc <- rules |> 
+  select(rid, rnm, rcat, rdesc, rmsg) |> 
+  distinct()
+
+rules_parts <- rules |> 
+  select(rid, rord, rvar, ract, rval)
 ```
 
 
-## Rules
+## Descriptors Overview
+
+`rcat`: Move urls to own column
+`rnm`: split letters/numbers, categorize further
+`rdesc`: human readable full rule
+`rmsg`: actually the description or explanation
 
 ```{r}
-#| label: categorize_vars
+#| label: rules_desc
 #| echo: true
 #| message: false
 #| warning: false
-categorize_vars <- rules_raw |>
-  select(
-    row, 
-    id_rule, 
-    id_name,
-    id_order, 
-    var, 
-    action, 
-    value) |>
-  mutate(var = case_match(
-    var,
+rules_desc |> 
+  hacksaw::count_split(
+    rnm, 
+    rcat, 
+    rdesc, 
+    rmsg
+  )
+```
+
+
+## Components Overview 
+
+```{r}
+#| label: rules_parts
+#| echo: true
+#| message: false
+#| warning: false
+rules_parts |> 
+  hacksaw::count_split(
+    rid, 
+    rord, 
+    rvar, 
+    ract,
+    rval
+  )
+```
+
+
+## Recode Variables to Reduce Duplication
+
+```{r}
+#| label: recode_var
+#| echo: true
+#| message: false
+#| warning: false
+rules_parts <- rules_parts |>
+  mutate(rvar = case_match(
+    rvar,
       c("CPT CODE", 
         "CPT Code", 
         "CPT code", 
@@ -154,9 +182,18 @@ categorize_vars <- rules_raw |>
       "Secondary Insurance" ~ "secondary_name",
       c("Primary Insurance Authorization (Presence)", 
         "Primary Insurance Authorization (Presence) is not [Present]") ~ "primary_auth",
-      .default = var) |> as_factor())
+      .default = rvar) |> 
+      as_factor()
+    )
 
-categorize_vars |> print(n = 20)
+rules_parts |> 
+  hacksaw::count_split(
+    rid, 
+    rord, 
+    rvar, 
+    ract,
+    rval
+  )
 ```
 
 
@@ -165,13 +202,13 @@ categorize_vars |> print(n = 20)
 #| echo: true
 #| message: false
 #| warning: false
-categorize_vars |> 
-  filter(!is.na(action)) |>
-  count(var, action) |> 
-  arrange(var, desc(n)) |> 
+rules_parts |> 
+  filter(!is.na(ract)) |>
+  count(rvar, ract) |> 
+  arrange(rvar, desc(n)) |> 
   reframe(
-    var_name = var,
-    var_type = case_match(var,
+    var_name = rvar,
+    var_type = case_match(rvar,
       c("sex", "rendering", "referring", 
         "primary_auth", "primary_class", 
         "primary_name", "secondary_class", 
@@ -182,8 +219,7 @@ categorize_vars |>
       c("rev_code", "unit") ~ "<int>",
       c("dos", "dob") ~ "<date>"
     ) |> as_factor(),
-    var_class = case_match(
-      as.character(var),
+    var_class = case_match(as.character(rvar),
       c("sex", "dos", "dob") ~ "patient",
       c("rendering", "referring") ~ "provider",
       c("hcpcs", "mod_1", "mod_2", "mod_3", "mod_4", 
@@ -195,7 +231,7 @@ categorize_vars |>
         "primary_name", "secondary_class", 
         "secondary_name") ~ "payer"
     ) |> as_factor(),
-    var_action = action
+    var_action = ract
   ) |> 
   select(
     var_type, 
@@ -209,31 +245,31 @@ categorize_vars |>
 ## Date of Service
 
 ```{r}
-categorize_vars |> 
-  filter(var == "dos") |> 
+rules_parts |> 
+  filter(rvar == "dos") |> 
   mutate(type = "<date>",
-         value = anytime::anydate(value),
-         op = if_else(str_detect(action, "after"), ">", "<")) |> 
-  select(row, id_rule, id_name, id_order, type, var, op, value)
+         rval = anytime::anydate(rval),
+         op = if_else(str_detect(ract, "after"), ">", "<")) |> 
+  select(rid, rord, type, rvar, op, rval)
 ```
 
 ## Patient Age
 
 ```{r}
-categorize_vars |> 
-  filter(var == "dob") |> 
+rules_parts |> 
+  filter(rvar == "dob") |> 
   mutate(
     var = "age",
     type = "<int>", 
     .before = var) |> 
-  mutate(age = strex::str_extract_numbers(value),
-         time = strex::str_extract_non_numerics(value)) |> 
+  mutate(age = strex::str_extract_numbers(rval),
+         time = strex::str_extract_non_numerics(rval)) |> 
   unnest(c(age, time)) |> 
   mutate(
     age = as.integer(age),
     time = str_remove_all(time, "\\s|,"),
-    value = NULL,
-    op = case_match(action,
+    rval = NULL,
+    op = case_match(ract,
                     c("is younger than", "younger than") ~ "<",
                     "is older than" ~ ">",
                     "is" ~ "==",
@@ -247,20 +283,20 @@ categorize_vars |>
     ),
     dos = lubridate::today(),
   ) |> 
-  select(row, id_rule, id_name, id_order, type, var, op, age, time, days) |> 
+  select(rid, rord, type, rvar, op, age, time, days) |> 
   print(n = 1000)
 ```
 
 ## Unit (HCPCS)
 
 ```{r}
-categorize_vars |> 
-  filter(var == "unit") |> 
+rules_parts |> 
+  filter(rvar == "unit") |> 
   mutate(type = "<int>", 
-         value = as.integer(value),
-         .before = var, 
+         rval = as.integer(rval),
+         .before = rvar, 
          op = if_else(
-           str_detect(action, "is not"), 
+           str_detect(ract, "is not"), 
            "!=", "=="))
 ```
 
@@ -272,12 +308,12 @@ If not present, then is `NA` its' representation? If so, `is.na(x)` would equal 
 
 
 ```{r}
-categorize_vars |> 
-  filter(var == "ndc") |> 
+rules_parts |> 
+  filter(rvar == "ndc") |> 
   mutate(type = "<lgl>", 
-         .before = var, 
+         .before = rvar, 
          op = if_else(
-           str_detect(action, "is not"), 
+           str_detect(ract, "is not"), 
            "is.na(x)", 
            "!is.na(x)")
          ) |> 
@@ -286,25 +322,25 @@ categorize_vars |>
 
 ## ICD
 
-has all
-is
-is not
-is one of
+   * has all
+   * is
+   * is not
+   * is one of
 
 some values contain wildcards *
 
 ```{r}
-categorize_vars |> 
-  filter(var == "icd") |>
-  mutate(wc = case_when(str_detect(value, "\\*") ~ 1L, .default = 0L),
-         wc_nchar = if_else(wc ==1, str_count(value, "[[:alnum:]]"), 0L),
+rules_parts |> 
+  filter(rvar == "icd") |>
+  mutate(wc = case_when(str_detect(rval, "\\*") ~ 1L, .default = 0L),
+         wc_nchar = if_else(wc ==1, str_count(rval, "[[:alnum:]]"), 0L),
          type = "<chr>",
-         .after = id_order) |> 
+         .after = rord) |> 
   mutate(op = case_when(
-           action == "is" & wc == 1 ~ "%in%",
-           action == "is" & wc == 0 ~ "==",
+           ract == "is" & wc == 1 ~ "%in%",
+           ract == "is" & wc == 0 ~ "==",
            .default = NA_character_),
-         .after = var) |> 
+         .after = rvar) |> 
   filter(!is.na(op)) |> 
   print(n = 124)
 ```
