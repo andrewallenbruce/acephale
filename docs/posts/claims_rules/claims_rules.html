@@ -177,8 +177,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#rules" id="toc-rules" class="nav-link" data-scroll-target="#rules">Rules</a></li>
   <li><a href="#date-of-service" id="toc-date-of-service" class="nav-link" data-scroll-target="#date-of-service">Date of Service</a></li>
   <li><a href="#patient-age" id="toc-patient-age" class="nav-link" data-scroll-target="#patient-age">Patient Age</a></li>
-  <li><a href="#hcpcs-unit" id="toc-hcpcs-unit" class="nav-link" data-scroll-target="#hcpcs-unit">HCPCS Unit</a></li>
+  <li><a href="#unit-hcpcs" id="toc-unit-hcpcs" class="nav-link" data-scroll-target="#unit-hcpcs">Unit (HCPCS)</a></li>
   <li><a href="#ndc" id="toc-ndc" class="nav-link" data-scroll-target="#ndc">NDC</a></li>
+  <li><a href="#icd" id="toc-icd" class="nav-link" data-scroll-target="#icd">ICD</a></li>
   <li><a href="#regexes" id="toc-regexes" class="nav-link" data-scroll-target="#regexes">Regexes</a></li>
   </ul></nav>
 </nav><div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
@@ -676,7 +677,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 164  3085    1071 UNVSL118        2 &lt;int&gt; age   &gt;        28 days      28  </code></pre>
 </div>
 </div>
-</section><section id="hcpcs-unit" class="level2"><h2 class="anchored" data-anchor-id="hcpcs-unit">HCPCS Unit</h2>
+</section><section id="unit-hcpcs" class="level2"><h2 class="anchored" data-anchor-id="unit-hcpcs">Unit (HCPCS)</h2>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">categorize_vars</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">var</span> <span class="op">==</span> <span class="st">"unit"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -749,8 +750,155 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 24  2863    1002 BCBSMS1        2 &lt;lgl&gt; !is.na(x) ndc   is     Not Present</code></pre>
 </div>
 </div>
+</section><section id="icd" class="level2"><h2 class="anchored" data-anchor-id="icd">ICD</h2>
+<p>has all is is not is one of</p>
+<p>some values contain wildcards *</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># categorize_vars |&gt;</span></span>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">categorize_vars</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">var</span> <span class="op">==</span> <span class="st">"icd"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">mutate</span><span class="op">(</span>wc <span class="op">=</span> <span class="fu">case_when</span><span class="op">(</span><span class="fu">str_detect</span><span class="op">(</span><span class="va">value</span>, <span class="st">"\\*"</span><span class="op">)</span> <span class="op">~</span> <span class="fl">1L</span>, .default <span class="op">=</span> <span class="fl">0L</span><span class="op">)</span>,</span>
+<span>         wc_nchar <span class="op">=</span> <span class="fu">if_else</span><span class="op">(</span><span class="va">wc</span> <span class="op">==</span><span class="fl">1</span>, <span class="fu">str_count</span><span class="op">(</span><span class="va">value</span>, <span class="st">"[[:alnum:]]"</span><span class="op">)</span>, <span class="fl">0L</span><span class="op">)</span>,</span>
+<span>         type <span class="op">=</span> <span class="st">"&lt;chr&gt;"</span>,</span>
+<span>         .after <span class="op">=</span> <span class="va">id_order</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">mutate</span><span class="op">(</span>op <span class="op">=</span> <span class="fu">case_when</span><span class="op">(</span></span>
+<span>           <span class="va">action</span> <span class="op">==</span> <span class="st">"is"</span> <span class="op">&amp;</span> <span class="va">wc</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">~</span> <span class="st">"%in%"</span>,</span>
+<span>           <span class="va">action</span> <span class="op">==</span> <span class="st">"is"</span> <span class="op">&amp;</span> <span class="va">wc</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">~</span> <span class="st">"=="</span>,</span>
+<span>           .default <span class="op">=</span> <span class="cn">NA_character_</span><span class="op">)</span>,</span>
+<span>         .after <span class="op">=</span> <span class="va">var</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">op</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">124</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 124 × 11
+      row id_rule id_name id_order    wc wc_nchar type  var   op    action value
+    &lt;int&gt;   &lt;int&gt; &lt;chr&gt;      &lt;int&gt; &lt;int&gt;    &lt;int&gt; &lt;chr&gt; &lt;fct&gt; &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt;
+  1     9       4 ALBCBS3        1     1        1 &lt;chr&gt; icd   %in%  is     S*   
+  2    69      23 BCBSKS6        2     0        0 &lt;chr&gt; icd   ==    is     H01.…
+  3    71      24 BCBSKS7        2     1        1 &lt;chr&gt; icd   %in%  is     S*   
+  4   262      79 GAMCD18        3     0        0 &lt;chr&gt; icd   ==    is     Z13.…
+  5   353     100 ICD10-…        1     1        4 &lt;chr&gt; icd   %in%  is     R06.…
+  6   355     101 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     J41.*
+  7   359     104 ICD10-…        1     0        0 &lt;chr&gt; icd   ==    is     G89.2
+  8   362     106 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     E08.*
+  9   364     107 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     G30.*
+ 10   366     108 ICD10-…        1     0        0 &lt;chr&gt; icd   ==    is     R63.5
+ 11   368     109 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     R41.*
+ 12   370     110 ICD10-2        1     0        0 &lt;chr&gt; icd   ==    is     J00  
+ 13   372     111 ICD10-…        1     0        0 &lt;chr&gt; icd   ==    is     R41.3
+ 14   374     112 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     G43.*
+ 15   376     113 ICD10-…        1     1        4 &lt;chr&gt; icd   %in%  is     G43.…
+ 16   377     113 ICD10-…        2     1        4 &lt;chr&gt; icd   %in%  is     G43.…
+ 17   378     114 ICD10-…        1     0        0 &lt;chr&gt; icd   ==    is     Z72.…
+ 18   380     115 ICD10-…        1     1        4 &lt;chr&gt; icd   %in%  is     M54.…
+ 19   382     116 ICD10-…        1     1        4 &lt;chr&gt; icd   %in%  is     M54.…
+ 20   385     118 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     E10.*
+ 21   387     119 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     E11.*
+ 22   389     120 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     E09.*
+ 23   392     122 ICD10-…        1     0        0 &lt;chr&gt; icd   ==    is     G31.…
+ 24   394     123 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     J45* 
+ 25   396     124 ICD10-…        1     0        0 &lt;chr&gt; icd   ==    is     Z72.0
+ 26   398     125 ICD10-…        1     0        0 &lt;chr&gt; icd   ==    is     N39.0
+ 27   400     126 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     R06* 
+ 28   403     128 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     F20* 
+ 29   405     129 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     F30* 
+ 30   407     130 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     F31* 
+ 31   409     131 ICD10-4        1     0        0 &lt;chr&gt; icd   ==    is     H72.…
+ 32   410     132 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     F32* 
+ 33   412     133 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     F33* 
+ 34   418     138 ICD10-…        1     1        4 &lt;chr&gt; icd   %in%  is     F10.…
+ 35   420     139 ICD10-…        1     1        4 &lt;chr&gt; icd   %in%  is     F11.…
+ 36   422     140 ICD10-…        1     0        0 &lt;chr&gt; icd   ==    is     Z31.…
+ 37   424     141 ICD10-…        1     1        5 &lt;chr&gt; icd   %in%  is     M75.…
+ 38   425     141 ICD10-…        2     1        5 &lt;chr&gt; icd   %in%  is     S46.…
+ 39   426     142 ICD10-5        1     0        0 &lt;chr&gt; icd   ==    is     J30.9
+ 40   428     143 ICD10-6        1     0        0 &lt;chr&gt; icd   ==    is     J06.9
+ 41   430     144 ICD10-7        1     0        0 &lt;chr&gt; icd   ==    is     R07.0
+ 42   432     145 ICD10-8        1     0        0 &lt;chr&gt; icd   ==    is     M51.…
+ 43   434     146 ICD10-9        1     1        4 &lt;chr&gt; icd   %in%  is     M54.…
+ 44   460     154 ILMCD8         3     0        0 &lt;chr&gt; icd   ==    is     Z23  
+ 45   664     230 ORTHO25        2     0        0 &lt;chr&gt; icd   ==    is     M17.0
+ 46  1064     363 UNVSL34        1     1        3 &lt;chr&gt; icd   %in%  is     Z68* 
+ 47  1071     368 AUDIO2         1     0        0 &lt;chr&gt; icd   ==    is     H61.…
+ 48  1105     382 ICD10-…        1     1        5 &lt;chr&gt; icd   %in%  is     Z01.…
+ 49  1157     402 VACCN2         3     0        0 &lt;chr&gt; icd   ==    is     Z23  
+ 50  1256     436 WAMCD20        3     0        0 &lt;chr&gt; icd   ==    is     Z23  
+ 51  1287     448 ICD10-…        1     1        5 &lt;chr&gt; icd   %in%  is     Z01.…
+ 52  1309     457 ICD10-…        1     0        0 &lt;chr&gt; icd   ==    is     R17  
+ 53  1332     469 UNVSL67        1     0        0 &lt;chr&gt; icd   ==    is     Pres…
+ 54  1352     476 ICD10-…        1     0        0 &lt;chr&gt; icd   ==    is     R50.…
+ 55  1472     521 ICD10-…        1     0        0 &lt;chr&gt; icd   ==    is     F91.3
+ 56  1496     531 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     J95* 
+ 57  1510     536 ICD10-…        1     1        4 &lt;chr&gt; icd   %in%  is     R53.…
+ 58  1707     596 ICD10-…        1     0        0 &lt;chr&gt; icd   ==    is     H60.…
+ 59  1711     599 ICD10-…        1     0        0 &lt;chr&gt; icd   ==    is     H66.…
+ 60  1717     602 ICD10-…        1     1        4 &lt;chr&gt; icd   %in%  is     M43.…
+ 61  1720     603 ICD10-…        2     1        1 &lt;chr&gt; icd   %in%  is     O*   
+ 62  1724     605 COVID1…        2     0        0 &lt;chr&gt; icd   ==    is     Z11.…
+ 63  1726     606 COVID1…        2     0        0 &lt;chr&gt; icd   ==    is     Z20.…
+ 64  1728     607 COVID1…        2     0        0 &lt;chr&gt; icd   ==    is     J12.…
+ 65  1732     609 COVID1…        1     0        0 &lt;chr&gt; icd   ==    is     M35.…
+ 66  1770     622 COVID1…        1     0        0 &lt;chr&gt; icd   ==    is     Z11.…
+ 67  1780     628 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     R51.*
+ 68  1782     629 ICD10-…        1     1        5 &lt;chr&gt; icd   %in%  is     M12.…
+ 69  1795     634 ICD10-…        1     0        0 &lt;chr&gt; icd   ==    is     H62.…
+ 70  1802     637 ICD10-…        1     0        0 &lt;chr&gt; icd   ==    is     Z00.8
+ 71  1803     638 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     E66* 
+ 72  1836     648 WIMCD2         2     1        1 &lt;chr&gt; icd   %in%  is     O*   
+ 73  1925     677 ICD10-…        1     0        0 &lt;chr&gt; icd   ==    is     G25.3
+ 74  1927     678 ICD10-…        1     0        0 &lt;chr&gt; icd   ==    is     R56.1
+ 75  1931     681 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     R22.*
+ 76  1933     682 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     G58.*
+ 77  1935     683 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     R65.*
+ 78  1961     695 ICD10-…        1     1        4 &lt;chr&gt; icd   %in%  is     O09.…
+ 79  1966     698 COVID1…        1     0        0 &lt;chr&gt; icd   ==    is     B97.…
+ 80  1998     705 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     Z34* 
+ 81  2000     706 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     Z3A* 
+ 82  2002     707 ICD10-…        1     1        4 &lt;chr&gt; icd   %in%  is     O09.…
+ 83  2004     708 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     Z34* 
+ 84  2006     709 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     Z34* 
+ 85  2009     710 OBGYN1         2     1        3 &lt;chr&gt; icd   %in%  is     Z34* 
+ 86  2011     711 OBGYN2         1     1        3 &lt;chr&gt; icd   %in%  is     Z34* 
+ 87  2014     712 OBGYN3         1     1        3 &lt;chr&gt; icd   %in%  is     Z34* 
+ 88  2054     728 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     L50* 
+ 89  2058     729 VACCN51        3     0        0 &lt;chr&gt; icd   ==    is     Z23  
+ 90  2085     735 MDMCD1         5     0        0 &lt;chr&gt; icd   ==    is     Z23  
+ 91  2088     736 MDMCD2         3     0        0 &lt;chr&gt; icd   ==    is     Z23  
+ 92  2090     737 ICD10-…        1     0        0 &lt;chr&gt; icd   ==    is     R19.4
+ 93  2147     753 COMCD9         3     0        0 &lt;chr&gt; icd   ==    is     Z23  
+ 94  2157     755 COMCD11        4     1        3 &lt;chr&gt; icd   %in%  is     Z30* 
+ 95  2198     768 MIMCD3         3     0        0 &lt;chr&gt; icd   ==    is     Z23  
+ 96  2232     782 ICD10-…        1     0        0 &lt;chr&gt; icd   ==    is     J91.0
+ 97  2233     783 ICD10-…        1     0        0 &lt;chr&gt; icd   ==    is     J91.8
+ 98  2290     803 ICD10-…        1     0        0 &lt;chr&gt; icd   ==    is     I87.2
+ 99  2304     811 PRVNT34        1     1        7 &lt;chr&gt; icd   %in%  is     Z13.…
+100  2310     813 COVID1…        2     0        0 &lt;chr&gt; icd   ==    is     M35.…
+101  2315     815 COVID1…        2     0        0 &lt;chr&gt; icd   ==    is     U09.9
+102  2317     816 ICD10-…        2     0        0 &lt;chr&gt; icd   ==    is     F32.9
+103  2319     817 ICD10-…        2     0        0 &lt;chr&gt; icd   ==    is     R63.3
+104  2341     827 ICD10-…        1     0        0 &lt;chr&gt; icd   ==    is     R35.8
+105  2343     828 ICD10-…        2     0        0 &lt;chr&gt; icd   ==    is     M54.5
+106  2345     829 ICD10-…        2     0        0 &lt;chr&gt; icd   ==    is     P09  
+107  2347     830 ICD10-…        2     0        0 &lt;chr&gt; icd   ==    is     R05  
+108  2348     831 ICD10-…        1     0        0 &lt;chr&gt; icd   ==    is     Z20.…
+109  2349     831 ICD10-…        2     0        0 &lt;chr&gt; icd   ==    is     U07.1
+110  2371     842 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     B97* 
+111  2410     858 OBGYN16        1     1        3 &lt;chr&gt; icd   %in%  is     Z37.*
+112  2747     957 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     Q03* 
+113  2774     965 LABS34         3     0        0 &lt;chr&gt; icd   ==    is     Z12.5
+114  2787     969 DIGES10        3     1        3 &lt;chr&gt; icd   %in%  is     Z12.*
+115  2791     971 ICD10-…        1     0        0 &lt;chr&gt; icd   ==    is     B37.3
+116  2865    1003 DIGES13        1     0        0 &lt;chr&gt; icd   ==    is     K30  
+117  2973    1039 TXMCD14        3     0        0 &lt;chr&gt; icd   ==    is     Z13.…
+118  3046    1057 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     R31.*
+119  3059    1062 ICD10-…        1     0        0 &lt;chr&gt; icd   ==    is     J02.9
+120  3066    1064 DIGES14        3     0        0 &lt;chr&gt; icd   ==    is     R19.5
+121  3084    1071 UNVSL1…        1     1        5 &lt;chr&gt; icd   %in%  is     H04.…
+122  3086    1072 ICD10-…        1     0        0 &lt;chr&gt; icd   ==    is     M54.6
+123  3101    1077 UNVSL1…        2     1        3 &lt;chr&gt; icd   %in%  is     F25* 
+124  3132    1092 ICD10-…        1     1        3 &lt;chr&gt; icd   %in%  is     F17.*</code></pre>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># categorize_vars |&gt;</span></span>
 <span><span class="co">#   separate_longer_delim(cols = value, delim = ",") |&gt; </span></span>
 <span><span class="co">#   mutate(value = str_squish(value),</span></span>
 <span><span class="co">#          neg = case_when(str_detect(action, "not") ~ 1L, .default = 0L),</span></span>
@@ -795,7 +943,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </section><section id="regexes" class="level2"><h2 class="anchored" data-anchor-id="regexes">Regexes</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># rules_new |&gt; </span></span>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># rules_new |&gt; </span></span>
 <span><span class="co">#   filter(wc == 1,</span></span>
 <span><span class="co">#          var == "hcpcs") |&gt;</span></span>
 <span><span class="co">#   mutate(value = str_remove_all(value, "\\*"),</span></span>
@@ -824,7 +972,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span><span class="co">#               quarto.disable_processing = TRUE)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">northstar</span><span class="fu">::</span><span class="fu"><a href="https://andrewallenbruce.github.io/northstar/reference/search_descriptions.html">search_descriptions</a></span><span class="op">(</span>hcpcs_desc_type <span class="op">=</span> <span class="st">"Long"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">northstar</span><span class="fu">::</span><span class="fu"><a href="https://andrewallenbruce.github.io/northstar/reference/search_descriptions.html">search_descriptions</a></span><span class="op">(</span>hcpcs_desc_type <span class="op">=</span> <span class="st">"Long"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="co"># dplyr::mutate(not_hcpcs = !grepl("^99[0-9]{3}$", hcpcs_code)) |&gt; </span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html">grepl</a></span><span class="op">(</span><span class="st">"^99[0-9]{3,3}$"</span>, <span class="va">hcpcs_code</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="co"># dplyr::mutate(has_hcpcs = grepl("^J[0-9]{4}$", hcpcs_code)) |&gt; </span></span>
@@ -1336,423 +1484,448 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb18" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Building Claims Rules"</span></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span><span class="co"> </span></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="co">    reference-location: block</span></span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="an">editor_options:</span><span class="co"> </span></span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="co">  chunk_output_type: console</span></span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
-<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
-<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(</span>
-<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">dev        =</span> <span class="st">"ragg_png"</span>,</span>
-<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">dpi        =</span> <span class="dv">300</span>,</span>
-<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">out.width  =</span> <span class="st">"100%"</span>,</span>
-<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.width  =</span> <span class="dv">8</span>,</span>
-<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.asp    =</span> <span class="fl">0.618</span>,</span>
-<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.retina =</span> <span class="dv">2</span>,</span>
-<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.align  =</span> <span class="st">"center"</span>,</span>
-<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.show   =</span> <span class="st">"hold"</span>)</span>
-<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen =</span> <span class="dv">999</span>)</span>
-<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
-<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span>
-<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)</span>
-<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fuimus)</span>
-<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>head_tail <span class="ot">&lt;-</span> <span class="cf">function</span>(x, <span class="at">n =</span> <span class="dv">5</span>, <span class="at">by =</span> <span class="cn">NULL</span>) {</span>
-<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">bind_rows</span>(dplyr<span class="sc">::</span><span class="fu">slice_head</span>(x, <span class="at">n =</span> n, <span class="at">by =</span> dplyr<span class="sc">::</span><span class="fu">all_of</span>(by)),</span>
-<span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a>                   dplyr<span class="sc">::</span><span class="fu">slice_tail</span>(x, <span class="at">n =</span> n, <span class="at">by =</span> dplyr<span class="sc">::</span><span class="fu">all_of</span>(by)))</span>
-<span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb18-39"><a href="#cb18-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-40"><a href="#cb18-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-41"><a href="#cb18-41" aria-hidden="true" tabindex="-1"></a><span class="fu">## Load Data</span></span>
-<span id="cb18-42"><a href="#cb18-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-45"><a href="#cb18-45" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb18-46"><a href="#cb18-46" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: load_data</span></span>
-<span id="cb18-47"><a href="#cb18-47" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
-<span id="cb18-48"><a href="#cb18-48" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb18-49"><a href="#cb18-49" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb18-50"><a href="#cb18-50" aria-hidden="true" tabindex="-1"></a>rules_raw <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
-<span id="cb18-51"><a href="#cb18-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">here</span>(<span class="st">"posts/claims_rules/data/rules_raw.csv"</span>),</span>
-<span id="cb18-52"><a href="#cb18-52" aria-hidden="true" tabindex="-1"></a>  <span class="at">col_types =</span> <span class="fu">cols</span>(</span>
-<span id="cb18-53"><a href="#cb18-53" aria-hidden="true" tabindex="-1"></a>  <span class="at">row       =</span> <span class="fu">col_integer</span>(),</span>
-<span id="cb18-54"><a href="#cb18-54" aria-hidden="true" tabindex="-1"></a>  <span class="at">id_rule   =</span> <span class="fu">col_integer</span>(),</span>
-<span id="cb18-55"><a href="#cb18-55" aria-hidden="true" tabindex="-1"></a>  <span class="at">id_name   =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb18-56"><a href="#cb18-56" aria-hidden="true" tabindex="-1"></a>  <span class="at">id_order  =</span> <span class="fu">col_integer</span>(),</span>
-<span id="cb18-57"><a href="#cb18-57" aria-hidden="true" tabindex="-1"></a>  <span class="at">category  =</span> <span class="fu">col_factor</span>(),</span>
-<span id="cb18-58"><a href="#cb18-58" aria-hidden="true" tabindex="-1"></a>  <span class="at">alert     =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb18-59"><a href="#cb18-59" aria-hidden="true" tabindex="-1"></a>  <span class="at">var       =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb18-60"><a href="#cb18-60" aria-hidden="true" tabindex="-1"></a>  <span class="at">action    =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb18-61"><a href="#cb18-61" aria-hidden="true" tabindex="-1"></a>  <span class="at">value     =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb18-62"><a href="#cb18-62" aria-hidden="true" tabindex="-1"></a>  <span class="at">rule      =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb18-63"><a href="#cb18-63" aria-hidden="true" tabindex="-1"></a>  <span class="at">x9        =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb18-64"><a href="#cb18-64" aria-hidden="true" tabindex="-1"></a>  <span class="at">x10       =</span> <span class="fu">col_character</span>()))</span>
-<span id="cb18-65"><a href="#cb18-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-66"><a href="#cb18-66" aria-hidden="true" tabindex="-1"></a>rules_re <span class="ot">&lt;-</span> rules_raw <span class="sc">|&gt;</span> </span>
-<span id="cb18-67"><a href="#cb18-67" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
-<span id="cb18-68"><a href="#cb18-68" aria-hidden="true" tabindex="-1"></a>    row,</span>
-<span id="cb18-69"><a href="#cb18-69" aria-hidden="true" tabindex="-1"></a>    <span class="at">rid   =</span> id_rule,</span>
-<span id="cb18-70"><a href="#cb18-70" aria-hidden="true" tabindex="-1"></a>    <span class="at">rord  =</span> id_order,</span>
-<span id="cb18-71"><a href="#cb18-71" aria-hidden="true" tabindex="-1"></a>    <span class="at">rnm   =</span> id_name,</span>
-<span id="cb18-72"><a href="#cb18-72" aria-hidden="true" tabindex="-1"></a>    <span class="at">rvar  =</span> var,</span>
-<span id="cb18-73"><a href="#cb18-73" aria-hidden="true" tabindex="-1"></a>    <span class="at">ract  =</span> action,</span>
-<span id="cb18-74"><a href="#cb18-74" aria-hidden="true" tabindex="-1"></a>    <span class="at">rval  =</span> value,</span>
-<span id="cb18-75"><a href="#cb18-75" aria-hidden="true" tabindex="-1"></a>    <span class="at">rcat  =</span> category,</span>
-<span id="cb18-76"><a href="#cb18-76" aria-hidden="true" tabindex="-1"></a>    <span class="at">rdesc =</span> rule,</span>
-<span id="cb18-77"><a href="#cb18-77" aria-hidden="true" tabindex="-1"></a>    <span class="at">rmsg  =</span> alert</span>
-<span id="cb18-78"><a href="#cb18-78" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb18-79"><a href="#cb18-79" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb18-80"><a href="#cb18-80" aria-hidden="true" tabindex="-1"></a>    <span class="at">rcat  =</span> <span class="fu">remove_quotes</span>(<span class="fu">as.character</span>(rcat)),</span>
-<span id="cb18-81"><a href="#cb18-81" aria-hidden="true" tabindex="-1"></a>    <span class="at">rcat  =</span> <span class="fu">str_remove_all</span>(rcat, <span class="st">"</span><span class="sc">\\</span><span class="st">r|</span><span class="sc">\\</span><span class="st">n"</span>),</span>
-<span id="cb18-82"><a href="#cb18-82" aria-hidden="true" tabindex="-1"></a>    <span class="at">rmsg  =</span> <span class="fu">remove_quotes</span>(rmsg),</span>
-<span id="cb18-83"><a href="#cb18-83" aria-hidden="true" tabindex="-1"></a>    <span class="at">rmsg  =</span> <span class="fu">str_remove_all</span>(rmsg, <span class="st">"</span><span class="sc">\\</span><span class="st">r|</span><span class="sc">\\</span><span class="st">n"</span>),</span>
-<span id="cb18-84"><a href="#cb18-84" aria-hidden="true" tabindex="-1"></a>    <span class="at">rdesc =</span> <span class="fu">remove_quotes</span>(rdesc),</span>
-<span id="cb18-85"><a href="#cb18-85" aria-hidden="true" tabindex="-1"></a>    <span class="at">rdesc =</span> <span class="fu">str_remove_all</span>(rdesc, <span class="st">"</span><span class="sc">\\</span><span class="st">r|</span><span class="sc">\\</span><span class="st">n"</span>))</span>
-<span id="cb18-86"><a href="#cb18-86" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-87"><a href="#cb18-87" aria-hidden="true" tabindex="-1"></a>rules_re <span class="sc">|&gt;</span> <span class="fu">print</span>(<span class="at">n =</span> <span class="dv">20</span>)</span>
-<span id="cb18-88"><a href="#cb18-88" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb18-89"><a href="#cb18-89" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-90"><a href="#cb18-90" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-91"><a href="#cb18-91" aria-hidden="true" tabindex="-1"></a><span class="fu">## Rules</span></span>
-<span id="cb18-92"><a href="#cb18-92" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-95"><a href="#cb18-95" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb18-96"><a href="#cb18-96" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: categorize_vars</span></span>
-<span id="cb18-97"><a href="#cb18-97" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
-<span id="cb18-98"><a href="#cb18-98" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb18-99"><a href="#cb18-99" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb18-100"><a href="#cb18-100" aria-hidden="true" tabindex="-1"></a>categorize_vars <span class="ot">&lt;-</span> rules_raw <span class="sc">|&gt;</span></span>
-<span id="cb18-101"><a href="#cb18-101" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
-<span id="cb18-102"><a href="#cb18-102" aria-hidden="true" tabindex="-1"></a>    row, </span>
-<span id="cb18-103"><a href="#cb18-103" aria-hidden="true" tabindex="-1"></a>    id_rule, </span>
-<span id="cb18-104"><a href="#cb18-104" aria-hidden="true" tabindex="-1"></a>    id_name,</span>
-<span id="cb18-105"><a href="#cb18-105" aria-hidden="true" tabindex="-1"></a>    id_order, </span>
-<span id="cb18-106"><a href="#cb18-106" aria-hidden="true" tabindex="-1"></a>    var, </span>
-<span id="cb18-107"><a href="#cb18-107" aria-hidden="true" tabindex="-1"></a>    action, </span>
-<span id="cb18-108"><a href="#cb18-108" aria-hidden="true" tabindex="-1"></a>    value) <span class="sc">|&gt;</span></span>
-<span id="cb18-109"><a href="#cb18-109" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">var =</span> <span class="fu">case_match</span>(</span>
-<span id="cb18-110"><a href="#cb18-110" aria-hidden="true" tabindex="-1"></a>    var,</span>
-<span id="cb18-111"><a href="#cb18-111" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"CPT CODE"</span>, </span>
-<span id="cb18-112"><a href="#cb18-112" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPT Code"</span>, </span>
-<span id="cb18-113"><a href="#cb18-113" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPT code"</span>, </span>
-<span id="cb18-114"><a href="#cb18-114" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPT"</span>, </span>
-<span id="cb18-115"><a href="#cb18-115" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Code Check Expired CPT Alert (Presence)"</span>, </span>
-<span id="cb18-116"><a href="#cb18-116" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPT is one of"</span>) <span class="sc">~</span> <span class="st">"hcpcs"</span>,</span>
-<span id="cb18-117"><a href="#cb18-117" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"Mod1"</span>, </span>
-<span id="cb18-118"><a href="#cb18-118" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPT Mod1"</span>, </span>
-<span id="cb18-119"><a href="#cb18-119" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPT Mod 1"</span>, </span>
-<span id="cb18-120"><a href="#cb18-120" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPTMod1"</span>, </span>
-<span id="cb18-121"><a href="#cb18-121" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Code Check CPT Mod Alert (Presence)"</span>, </span>
-<span id="cb18-122"><a href="#cb18-122" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPT MOD1"</span>, </span>
-<span id="cb18-123"><a href="#cb18-123" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPT Mod1 (Presence)"</span>) <span class="sc">~</span> <span class="st">"mod_1"</span>,</span>
-<span id="cb18-124"><a href="#cb18-124" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"Mod2"</span>, </span>
-<span id="cb18-125"><a href="#cb18-125" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPT MOD2"</span>, </span>
-<span id="cb18-126"><a href="#cb18-126" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPT Mod 2"</span>, </span>
-<span id="cb18-127"><a href="#cb18-127" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPT Mod2 (Presence)"</span>, </span>
-<span id="cb18-128"><a href="#cb18-128" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPTMod2"</span>, </span>
-<span id="cb18-129"><a href="#cb18-129" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPT Mod2"</span>) <span class="sc">~</span> <span class="st">"mod_2"</span>,</span>
-<span id="cb18-130"><a href="#cb18-130" aria-hidden="true" tabindex="-1"></a>      <span class="st">"CPT Mod3"</span> <span class="sc">~</span> <span class="st">"mod_3"</span>,</span>
-<span id="cb18-131"><a href="#cb18-131" aria-hidden="true" tabindex="-1"></a>      <span class="st">"CPT Mod4"</span> <span class="sc">~</span> <span class="st">"mod_4"</span>,</span>
-<span id="cb18-132"><a href="#cb18-132" aria-hidden="true" tabindex="-1"></a>      <span class="st">"CPT Units"</span> <span class="sc">~</span> <span class="st">"unit"</span>,</span>
-<span id="cb18-133"><a href="#cb18-133" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"Dx code"</span>, </span>
-<span id="cb18-134"><a href="#cb18-134" aria-hidden="true" tabindex="-1"></a>        <span class="st">"DX Code"</span>, </span>
-<span id="cb18-135"><a href="#cb18-135" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Dx Code"</span>, </span>
-<span id="cb18-136"><a href="#cb18-136" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Code Check Expired DX Alert (Presence)"</span>) <span class="sc">~</span> <span class="st">"icd"</span>,</span>
-<span id="cb18-137"><a href="#cb18-137" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"Encounter Date of Service"</span>, </span>
-<span id="cb18-138"><a href="#cb18-138" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Date of Service"</span>) <span class="sc">~</span> <span class="st">"dos"</span>,</span>
-<span id="cb18-139"><a href="#cb18-139" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"Location"</span>, </span>
-<span id="cb18-140"><a href="#cb18-140" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Place of Service"</span>) <span class="sc">~</span> <span class="st">"pos"</span>,</span>
-<span id="cb18-141"><a href="#cb18-141" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"CPT UB04"</span>, </span>
-<span id="cb18-142"><a href="#cb18-142" aria-hidden="true" tabindex="-1"></a>        <span class="st">"UB04 Bill Type"</span>) <span class="sc">~</span> <span class="st">"ub04"</span>,</span>
-<span id="cb18-143"><a href="#cb18-143" aria-hidden="true" tabindex="-1"></a>      <span class="st">"CPT NDC (Presence)"</span> <span class="sc">~</span> <span class="st">"ndc"</span>,</span>
-<span id="cb18-144"><a href="#cb18-144" aria-hidden="true" tabindex="-1"></a>      <span class="st">"CPT Rev Code"</span> <span class="sc">~</span> <span class="st">"rev_code"</span>,</span>
-<span id="cb18-145"><a href="#cb18-145" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Code Check CCI Alert (Presence)"</span> <span class="sc">~</span> <span class="st">"cci"</span>,</span>
-<span id="cb18-146"><a href="#cb18-146" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Code Check LCD Alert (Presence)"</span> <span class="sc">~</span> <span class="st">"lcd"</span>,</span>
-<span id="cb18-147"><a href="#cb18-147" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Code Check NCD Alert (Presence)"</span> <span class="sc">~</span> <span class="st">"ncd"</span>,</span>
-<span id="cb18-148"><a href="#cb18-148" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"Patient Age"</span>, </span>
-<span id="cb18-149"><a href="#cb18-149" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Code Check Age Alert (Presence)"</span>) <span class="sc">~</span> <span class="st">"dob"</span>,</span>
-<span id="cb18-150"><a href="#cb18-150" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"Patient Sex"</span>, </span>
-<span id="cb18-151"><a href="#cb18-151" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Code Check Gender Alert (Presence)"</span>) <span class="sc">~</span> <span class="st">"sex"</span>,</span>
-<span id="cb18-152"><a href="#cb18-152" aria-hidden="true" tabindex="-1"></a>      <span class="st">"NA"</span> <span class="sc">~</span> <span class="cn">NA_character_</span>,</span>
-<span id="cb18-153"><a href="#cb18-153" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Rendering Provider"</span> <span class="sc">~</span> <span class="st">"rendering"</span>,</span>
-<span id="cb18-154"><a href="#cb18-154" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Referring Provider (Presence)"</span> <span class="sc">~</span> <span class="st">"referring"</span>,</span>
-<span id="cb18-155"><a href="#cb18-155" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"Primary Insurance Class"</span>, </span>
-<span id="cb18-156"><a href="#cb18-156" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Primary Insurance class"</span>, </span>
-<span id="cb18-157"><a href="#cb18-157" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Primary insurance class"</span>) <span class="sc">~</span> <span class="st">"primary_class"</span>,</span>
-<span id="cb18-158"><a href="#cb18-158" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Primary Insurance"</span> <span class="sc">~</span> <span class="st">"primary_name"</span>,</span>
-<span id="cb18-159"><a href="#cb18-159" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Secondary Insurance Class"</span> <span class="sc">~</span> <span class="st">"secondary_class"</span>,</span>
-<span id="cb18-160"><a href="#cb18-160" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Secondary Insurance"</span> <span class="sc">~</span> <span class="st">"secondary_name"</span>,</span>
-<span id="cb18-161"><a href="#cb18-161" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"Primary Insurance Authorization (Presence)"</span>, </span>
-<span id="cb18-162"><a href="#cb18-162" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Primary Insurance Authorization (Presence) is not [Present]"</span>) <span class="sc">~</span> <span class="st">"primary_auth"</span>,</span>
-<span id="cb18-163"><a href="#cb18-163" aria-hidden="true" tabindex="-1"></a>      <span class="at">.default =</span> var) <span class="sc">|&gt;</span> <span class="fu">as_factor</span>())</span>
-<span id="cb18-164"><a href="#cb18-164" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-165"><a href="#cb18-165" aria-hidden="true" tabindex="-1"></a>categorize_vars <span class="sc">|&gt;</span> <span class="fu">print</span>(<span class="at">n =</span> <span class="dv">20</span>)</span>
-<span id="cb18-166"><a href="#cb18-166" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb18-167"><a href="#cb18-167" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-168"><a href="#cb18-168" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-171"><a href="#cb18-171" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb18-172"><a href="#cb18-172" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: cat_vars</span></span>
-<span id="cb18-173"><a href="#cb18-173" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
-<span id="cb18-174"><a href="#cb18-174" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb18-175"><a href="#cb18-175" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb18-176"><a href="#cb18-176" aria-hidden="true" tabindex="-1"></a>categorize_vars <span class="sc">|&gt;</span> </span>
-<span id="cb18-177"><a href="#cb18-177" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(action)) <span class="sc">|&gt;</span></span>
-<span id="cb18-178"><a href="#cb18-178" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(var, action) <span class="sc">|&gt;</span> </span>
-<span id="cb18-179"><a href="#cb18-179" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(var, <span class="fu">desc</span>(n)) <span class="sc">|&gt;</span> </span>
-<span id="cb18-180"><a href="#cb18-180" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reframe</span>(</span>
-<span id="cb18-181"><a href="#cb18-181" aria-hidden="true" tabindex="-1"></a>    <span class="at">var_name =</span> var,</span>
-<span id="cb18-182"><a href="#cb18-182" aria-hidden="true" tabindex="-1"></a>    <span class="at">var_type =</span> <span class="fu">case_match</span>(var,</span>
-<span id="cb18-183"><a href="#cb18-183" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"sex"</span>, <span class="st">"rendering"</span>, <span class="st">"referring"</span>, </span>
-<span id="cb18-184"><a href="#cb18-184" aria-hidden="true" tabindex="-1"></a>        <span class="st">"primary_auth"</span>, <span class="st">"primary_class"</span>, </span>
-<span id="cb18-185"><a href="#cb18-185" aria-hidden="true" tabindex="-1"></a>        <span class="st">"primary_name"</span>, <span class="st">"secondary_class"</span>, </span>
-<span id="cb18-186"><a href="#cb18-186" aria-hidden="true" tabindex="-1"></a>        <span class="st">"secondary_name"</span>, <span class="st">"ncd"</span>, <span class="st">"lcd"</span>, </span>
-<span id="cb18-187"><a href="#cb18-187" aria-hidden="true" tabindex="-1"></a>        <span class="st">"cci"</span>, <span class="st">"ndc"</span>, <span class="st">"ub04"</span>, <span class="st">"pos"</span>, </span>
-<span id="cb18-188"><a href="#cb18-188" aria-hidden="true" tabindex="-1"></a>        <span class="st">"icd"</span>, <span class="st">"hcpcs"</span>, <span class="st">"mod_1"</span>, <span class="st">"mod_2"</span>, </span>
-<span id="cb18-189"><a href="#cb18-189" aria-hidden="true" tabindex="-1"></a>        <span class="st">"mod_3"</span>, <span class="st">"mod_4"</span>) <span class="sc">~</span> <span class="st">"&lt;chr&gt;"</span>,</span>
-<span id="cb18-190"><a href="#cb18-190" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"rev_code"</span>, <span class="st">"unit"</span>) <span class="sc">~</span> <span class="st">"&lt;int&gt;"</span>,</span>
-<span id="cb18-191"><a href="#cb18-191" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"dos"</span>, <span class="st">"dob"</span>) <span class="sc">~</span> <span class="st">"&lt;date&gt;"</span></span>
-<span id="cb18-192"><a href="#cb18-192" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span> <span class="fu">as_factor</span>(),</span>
-<span id="cb18-193"><a href="#cb18-193" aria-hidden="true" tabindex="-1"></a>    <span class="at">var_class =</span> <span class="fu">case_match</span>(</span>
-<span id="cb18-194"><a href="#cb18-194" aria-hidden="true" tabindex="-1"></a>      <span class="fu">as.character</span>(var),</span>
-<span id="cb18-195"><a href="#cb18-195" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"sex"</span>, <span class="st">"dos"</span>, <span class="st">"dob"</span>) <span class="sc">~</span> <span class="st">"patient"</span>,</span>
-<span id="cb18-196"><a href="#cb18-196" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"rendering"</span>, <span class="st">"referring"</span>) <span class="sc">~</span> <span class="st">"provider"</span>,</span>
-<span id="cb18-197"><a href="#cb18-197" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"hcpcs"</span>, <span class="st">"mod_1"</span>, <span class="st">"mod_2"</span>, <span class="st">"mod_3"</span>, <span class="st">"mod_4"</span>, </span>
-<span id="cb18-198"><a href="#cb18-198" aria-hidden="true" tabindex="-1"></a>        <span class="st">"rev_code"</span>, <span class="st">"unit"</span>, <span class="st">"ndc"</span>, <span class="st">"pos"</span>) <span class="sc">~</span> <span class="st">"procedure"</span>,</span>
-<span id="cb18-199"><a href="#cb18-199" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"icd"</span>) <span class="sc">~</span> <span class="st">"diagnosis"</span>,</span>
-<span id="cb18-200"><a href="#cb18-200" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"ub04"</span>, <span class="st">"1500"</span>) <span class="sc">~</span> <span class="st">"claim"</span>,</span>
-<span id="cb18-201"><a href="#cb18-201" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"ncd"</span>, <span class="st">"lcd"</span>, <span class="st">"cci"</span>) <span class="sc">~</span> <span class="st">"ncci"</span>,</span>
-<span id="cb18-202"><a href="#cb18-202" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"primary_auth"</span>, <span class="st">"primary_class"</span>, </span>
-<span id="cb18-203"><a href="#cb18-203" aria-hidden="true" tabindex="-1"></a>        <span class="st">"primary_name"</span>, <span class="st">"secondary_class"</span>, </span>
-<span id="cb18-204"><a href="#cb18-204" aria-hidden="true" tabindex="-1"></a>        <span class="st">"secondary_name"</span>) <span class="sc">~</span> <span class="st">"payer"</span></span>
-<span id="cb18-205"><a href="#cb18-205" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span> <span class="fu">as_factor</span>(),</span>
-<span id="cb18-206"><a href="#cb18-206" aria-hidden="true" tabindex="-1"></a>    <span class="at">var_action =</span> action</span>
-<span id="cb18-207"><a href="#cb18-207" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb18-208"><a href="#cb18-208" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
-<span id="cb18-209"><a href="#cb18-209" aria-hidden="true" tabindex="-1"></a>    var_type, </span>
-<span id="cb18-210"><a href="#cb18-210" aria-hidden="true" tabindex="-1"></a>    var_class, </span>
-<span id="cb18-211"><a href="#cb18-211" aria-hidden="true" tabindex="-1"></a>    var_name, </span>
-<span id="cb18-212"><a href="#cb18-212" aria-hidden="true" tabindex="-1"></a>    var_action) <span class="sc">|&gt;</span> </span>
-<span id="cb18-213"><a href="#cb18-213" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(var_type, var_class, var_name) <span class="sc">|&gt;</span></span>
-<span id="cb18-214"><a href="#cb18-214" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">n =</span> <span class="dv">100</span>)</span>
-<span id="cb18-215"><a href="#cb18-215" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb18-216"><a href="#cb18-216" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-217"><a href="#cb18-217" aria-hidden="true" tabindex="-1"></a><span class="fu">## Date of Service</span></span>
-<span id="cb18-218"><a href="#cb18-218" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-221"><a href="#cb18-221" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb18-222"><a href="#cb18-222" aria-hidden="true" tabindex="-1"></a>categorize_vars <span class="sc">|&gt;</span> </span>
-<span id="cb18-223"><a href="#cb18-223" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(var <span class="sc">==</span> <span class="st">"dos"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb18-224"><a href="#cb18-224" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type =</span> <span class="st">"&lt;date&gt;"</span>,</span>
-<span id="cb18-225"><a href="#cb18-225" aria-hidden="true" tabindex="-1"></a>         <span class="at">value =</span> anytime<span class="sc">::</span><span class="fu">anydate</span>(value),</span>
-<span id="cb18-226"><a href="#cb18-226" aria-hidden="true" tabindex="-1"></a>         <span class="at">op =</span> <span class="fu">if_else</span>(<span class="fu">str_detect</span>(action, <span class="st">"after"</span>), <span class="st">"&gt;"</span>, <span class="st">"&lt;"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb18-227"><a href="#cb18-227" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(row, id_rule, id_name, id_order, type, var, op, value)</span>
-<span id="cb18-228"><a href="#cb18-228" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb18-229"><a href="#cb18-229" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-230"><a href="#cb18-230" aria-hidden="true" tabindex="-1"></a><span class="fu">## Patient Age</span></span>
-<span id="cb18-231"><a href="#cb18-231" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-234"><a href="#cb18-234" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb18-235"><a href="#cb18-235" aria-hidden="true" tabindex="-1"></a>categorize_vars <span class="sc">|&gt;</span> </span>
-<span id="cb18-236"><a href="#cb18-236" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(var <span class="sc">==</span> <span class="st">"dob"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb18-237"><a href="#cb18-237" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb18-238"><a href="#cb18-238" aria-hidden="true" tabindex="-1"></a>    <span class="at">var =</span> <span class="st">"age"</span>,</span>
-<span id="cb18-239"><a href="#cb18-239" aria-hidden="true" tabindex="-1"></a>    <span class="at">type =</span> <span class="st">"&lt;int&gt;"</span>, </span>
-<span id="cb18-240"><a href="#cb18-240" aria-hidden="true" tabindex="-1"></a>    <span class="at">.before =</span> var) <span class="sc">|&gt;</span> </span>
-<span id="cb18-241"><a href="#cb18-241" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">age =</span> strex<span class="sc">::</span><span class="fu">str_extract_numbers</span>(value),</span>
-<span id="cb18-242"><a href="#cb18-242" aria-hidden="true" tabindex="-1"></a>         <span class="at">time =</span> strex<span class="sc">::</span><span class="fu">str_extract_non_numerics</span>(value)) <span class="sc">|&gt;</span> </span>
-<span id="cb18-243"><a href="#cb18-243" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(<span class="fu">c</span>(age, time)) <span class="sc">|&gt;</span> </span>
-<span id="cb18-244"><a href="#cb18-244" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb18-245"><a href="#cb18-245" aria-hidden="true" tabindex="-1"></a>    <span class="at">age =</span> <span class="fu">as.integer</span>(age),</span>
-<span id="cb18-246"><a href="#cb18-246" aria-hidden="true" tabindex="-1"></a>    <span class="at">time =</span> <span class="fu">str_remove_all</span>(time, <span class="st">"</span><span class="sc">\\</span><span class="st">s|,"</span>),</span>
-<span id="cb18-247"><a href="#cb18-247" aria-hidden="true" tabindex="-1"></a>    <span class="at">value =</span> <span class="cn">NULL</span>,</span>
-<span id="cb18-248"><a href="#cb18-248" aria-hidden="true" tabindex="-1"></a>    <span class="at">op =</span> <span class="fu">case_match</span>(action,</span>
-<span id="cb18-249"><a href="#cb18-249" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">c</span>(<span class="st">"is younger than"</span>, <span class="st">"younger than"</span>) <span class="sc">~</span> <span class="st">"&lt;"</span>,</span>
-<span id="cb18-250"><a href="#cb18-250" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"is older than"</span> <span class="sc">~</span> <span class="st">"&gt;"</span>,</span>
-<span id="cb18-251"><a href="#cb18-251" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"is"</span> <span class="sc">~</span> <span class="st">"=="</span>,</span>
-<span id="cb18-252"><a href="#cb18-252" aria-hidden="true" tabindex="-1"></a>                    <span class="at">.default =</span> <span class="cn">NA_character_</span></span>
-<span id="cb18-253"><a href="#cb18-253" aria-hidden="true" tabindex="-1"></a>                    ),</span>
-<span id="cb18-254"><a href="#cb18-254" aria-hidden="true" tabindex="-1"></a>    <span class="at">days =</span> <span class="fu">case_when</span>(</span>
-<span id="cb18-255"><a href="#cb18-255" aria-hidden="true" tabindex="-1"></a>      time <span class="sc">==</span> <span class="st">"years"</span> <span class="sc">~</span> <span class="fu">as.duration</span>(<span class="fu">years</span>(age)) <span class="sc">/</span> <span class="fu">ddays</span>(<span class="dv">1</span>),</span>
-<span id="cb18-256"><a href="#cb18-256" aria-hidden="true" tabindex="-1"></a>      time <span class="sc">==</span> <span class="st">"months"</span> <span class="sc">~</span> <span class="fu">as.duration</span>(<span class="fu">months</span>(age)) <span class="sc">/</span> <span class="fu">ddays</span>(<span class="dv">1</span>),</span>
-<span id="cb18-257"><a href="#cb18-257" aria-hidden="true" tabindex="-1"></a>      time <span class="sc">==</span> <span class="st">"days"</span> <span class="sc">~</span> <span class="fu">as.duration</span>(<span class="fu">days</span>(age)) <span class="sc">/</span> <span class="fu">ddays</span>(<span class="dv">1</span>),</span>
-<span id="cb18-258"><a href="#cb18-258" aria-hidden="true" tabindex="-1"></a>      <span class="at">.default =</span> <span class="cn">NA_real_</span></span>
-<span id="cb18-259"><a href="#cb18-259" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb18-260"><a href="#cb18-260" aria-hidden="true" tabindex="-1"></a>    <span class="at">dos =</span> lubridate<span class="sc">::</span><span class="fu">today</span>(),</span>
-<span id="cb18-261"><a href="#cb18-261" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb18-262"><a href="#cb18-262" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(row, id_rule, id_name, id_order, type, var, op, age, time, days) <span class="sc">|&gt;</span> </span>
-<span id="cb18-263"><a href="#cb18-263" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">n =</span> <span class="dv">1000</span>)</span>
-<span id="cb18-264"><a href="#cb18-264" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb18-265"><a href="#cb18-265" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-266"><a href="#cb18-266" aria-hidden="true" tabindex="-1"></a><span class="fu">## HCPCS Unit</span></span>
-<span id="cb18-267"><a href="#cb18-267" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-270"><a href="#cb18-270" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb18-271"><a href="#cb18-271" aria-hidden="true" tabindex="-1"></a>categorize_vars <span class="sc">|&gt;</span> </span>
-<span id="cb18-272"><a href="#cb18-272" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(var <span class="sc">==</span> <span class="st">"unit"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb18-273"><a href="#cb18-273" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type =</span> <span class="st">"&lt;int&gt;"</span>, </span>
-<span id="cb18-274"><a href="#cb18-274" aria-hidden="true" tabindex="-1"></a>         <span class="at">value =</span> <span class="fu">as.integer</span>(value),</span>
-<span id="cb18-275"><a href="#cb18-275" aria-hidden="true" tabindex="-1"></a>         <span class="at">.before =</span> var, </span>
-<span id="cb18-276"><a href="#cb18-276" aria-hidden="true" tabindex="-1"></a>         <span class="at">op =</span> <span class="fu">if_else</span>(</span>
-<span id="cb18-277"><a href="#cb18-277" aria-hidden="true" tabindex="-1"></a>           <span class="fu">str_detect</span>(action, <span class="st">"is not"</span>), </span>
-<span id="cb18-278"><a href="#cb18-278" aria-hidden="true" tabindex="-1"></a>           <span class="st">"!="</span>, <span class="st">"=="</span>))</span>
-<span id="cb18-279"><a href="#cb18-279" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb18-280"><a href="#cb18-280" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-281"><a href="#cb18-281" aria-hidden="true" tabindex="-1"></a><span class="fu">## NDC</span></span>
-<span id="cb18-282"><a href="#cb18-282" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-283"><a href="#cb18-283" aria-hidden="true" tabindex="-1"></a>How can this be represented in relational algebra? Detect presence with regex?</span>
-<span id="cb18-284"><a href="#cb18-284" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-285"><a href="#cb18-285" aria-hidden="true" tabindex="-1"></a>If not present, then is <span class="in">`NA`</span> its' representation? If so, <span class="in">`is.na(x)`</span> would equal <span class="in">`is not present`</span> and <span class="in">`!is.na(x)`</span> would equal <span class="in">`is present`</span></span>
-<span id="cb18-286"><a href="#cb18-286" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-287"><a href="#cb18-287" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-290"><a href="#cb18-290" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb18-291"><a href="#cb18-291" aria-hidden="true" tabindex="-1"></a>categorize_vars <span class="sc">|&gt;</span> </span>
-<span id="cb18-292"><a href="#cb18-292" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(var <span class="sc">==</span> <span class="st">"ndc"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb18-293"><a href="#cb18-293" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type =</span> <span class="st">"&lt;lgl&gt;"</span>, </span>
-<span id="cb18-294"><a href="#cb18-294" aria-hidden="true" tabindex="-1"></a>         <span class="at">.before =</span> var, </span>
-<span id="cb18-295"><a href="#cb18-295" aria-hidden="true" tabindex="-1"></a>         <span class="at">op =</span> <span class="fu">if_else</span>(</span>
-<span id="cb18-296"><a href="#cb18-296" aria-hidden="true" tabindex="-1"></a>           <span class="fu">str_detect</span>(action, <span class="st">"is not"</span>), </span>
-<span id="cb18-297"><a href="#cb18-297" aria-hidden="true" tabindex="-1"></a>           <span class="st">"is.na(x)"</span>, </span>
-<span id="cb18-298"><a href="#cb18-298" aria-hidden="true" tabindex="-1"></a>           <span class="st">"!is.na(x)"</span>)</span>
-<span id="cb18-299"><a href="#cb18-299" aria-hidden="true" tabindex="-1"></a>         ) <span class="sc">|&gt;</span> </span>
-<span id="cb18-300"><a href="#cb18-300" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">n =</span> <span class="dv">24</span>)</span>
-<span id="cb18-301"><a href="#cb18-301" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb18-302"><a href="#cb18-302" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-303"><a href="#cb18-303" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-306"><a href="#cb18-306" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb18-307"><a href="#cb18-307" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: vars</span></span>
-<span id="cb18-308"><a href="#cb18-308" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
-<span id="cb18-309"><a href="#cb18-309" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb18-310"><a href="#cb18-310" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb18-311"><a href="#cb18-311" aria-hidden="true" tabindex="-1"></a><span class="co"># categorize_vars |&gt;</span></span>
-<span id="cb18-312"><a href="#cb18-312" aria-hidden="true" tabindex="-1"></a><span class="co">#   separate_longer_delim(cols = value, delim = ",") |&gt; </span></span>
-<span id="cb18-313"><a href="#cb18-313" aria-hidden="true" tabindex="-1"></a><span class="co">#   mutate(value = str_squish(value),</span></span>
-<span id="cb18-314"><a href="#cb18-314" aria-hidden="true" tabindex="-1"></a><span class="co">#          neg = case_when(str_detect(action, "not") ~ 1L, .default = 0L),</span></span>
-<span id="cb18-315"><a href="#cb18-315" aria-hidden="true" tabindex="-1"></a><span class="co">#          wc = case_when(str_detect(value, "\\*") ~ 1L, .default = 0L),</span></span>
-<span id="cb18-316"><a href="#cb18-316" aria-hidden="true" tabindex="-1"></a><span class="co">#          .after = value)</span></span>
-<span id="cb18-317"><a href="#cb18-317" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb18-318"><a href="#cb18-318" aria-hidden="true" tabindex="-1"></a><span class="co"># head_tail(rules_new, n = 10, by = c("var", "action")) |&gt; </span></span>
-<span id="cb18-319"><a href="#cb18-319" aria-hidden="true" tabindex="-1"></a><span class="co">#   gt() |&gt; </span></span>
-<span id="cb18-320"><a href="#cb18-320" aria-hidden="true" tabindex="-1"></a><span class="co">#   cols_align(align = "left") |&gt;</span></span>
-<span id="cb18-321"><a href="#cb18-321" aria-hidden="true" tabindex="-1"></a><span class="co">#   opt_table_font(font = google_font(name = "Roboto Condensed")) |&gt; </span></span>
-<span id="cb18-322"><a href="#cb18-322" aria-hidden="true" tabindex="-1"></a><span class="co">#   opt_all_caps() |&gt; </span></span>
-<span id="cb18-323"><a href="#cb18-323" aria-hidden="true" tabindex="-1"></a><span class="co">#   tab_style(</span></span>
-<span id="cb18-324"><a href="#cb18-324" aria-hidden="true" tabindex="-1"></a><span class="co">#       style = cell_text(</span></span>
-<span id="cb18-325"><a href="#cb18-325" aria-hidden="true" tabindex="-1"></a><span class="co">#         align = 'left',</span></span>
-<span id="cb18-326"><a href="#cb18-326" aria-hidden="true" tabindex="-1"></a><span class="co">#         weight = "bold",</span></span>
-<span id="cb18-327"><a href="#cb18-327" aria-hidden="true" tabindex="-1"></a><span class="co">#         font = google_font(name = "Roboto Mono")),</span></span>
-<span id="cb18-328"><a href="#cb18-328" aria-hidden="true" tabindex="-1"></a><span class="co">#       locations = cells_body(columns = c(var, action, value))) |&gt; </span></span>
-<span id="cb18-329"><a href="#cb18-329" aria-hidden="true" tabindex="-1"></a><span class="co">#   tab_options(table.width = pct(100),</span></span>
-<span id="cb18-330"><a href="#cb18-330" aria-hidden="true" tabindex="-1"></a><span class="co">#               quarto.disable_processing = TRUE)</span></span>
-<span id="cb18-331"><a href="#cb18-331" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-332"><a href="#cb18-332" aria-hidden="true" tabindex="-1"></a><span class="co"># rules_new |&gt;</span></span>
-<span id="cb18-333"><a href="#cb18-333" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(!is.na(var)) |&gt; </span></span>
-<span id="cb18-334"><a href="#cb18-334" aria-hidden="true" tabindex="-1"></a><span class="co">#   group_by(var) |&gt;</span></span>
-<span id="cb18-335"><a href="#cb18-335" aria-hidden="true" tabindex="-1"></a><span class="co">#   count(action) |&gt;</span></span>
-<span id="cb18-336"><a href="#cb18-336" aria-hidden="true" tabindex="-1"></a><span class="co">#   ungroup() |&gt;</span></span>
-<span id="cb18-337"><a href="#cb18-337" aria-hidden="true" tabindex="-1"></a><span class="co">#   arrange(var, desc(n), action) |&gt; </span></span>
-<span id="cb18-338"><a href="#cb18-338" aria-hidden="true" tabindex="-1"></a><span class="co">#   gt(groupname_col = "var", row_group_as_column = TRUE) |&gt; </span></span>
-<span id="cb18-339"><a href="#cb18-339" aria-hidden="true" tabindex="-1"></a><span class="co">#   cols_align(align = "left") |&gt;</span></span>
-<span id="cb18-340"><a href="#cb18-340" aria-hidden="true" tabindex="-1"></a><span class="co">#   opt_table_font(</span></span>
-<span id="cb18-341"><a href="#cb18-341" aria-hidden="true" tabindex="-1"></a><span class="co">#     font = google_font(name = "Roboto Condensed"),</span></span>
-<span id="cb18-342"><a href="#cb18-342" aria-hidden="true" tabindex="-1"></a><span class="co">#     weight = "bold"</span></span>
-<span id="cb18-343"><a href="#cb18-343" aria-hidden="true" tabindex="-1"></a><span class="co">#     ) |&gt; </span></span>
-<span id="cb18-344"><a href="#cb18-344" aria-hidden="true" tabindex="-1"></a><span class="co">#   opt_all_caps() |&gt; </span></span>
-<span id="cb18-345"><a href="#cb18-345" aria-hidden="true" tabindex="-1"></a><span class="co">#   tab_style(</span></span>
-<span id="cb18-346"><a href="#cb18-346" aria-hidden="true" tabindex="-1"></a><span class="co">#       style = cell_text(</span></span>
-<span id="cb18-347"><a href="#cb18-347" aria-hidden="true" tabindex="-1"></a><span class="co">#         align = 'left',</span></span>
-<span id="cb18-348"><a href="#cb18-348" aria-hidden="true" tabindex="-1"></a><span class="co">#         weight = "normal",</span></span>
-<span id="cb18-349"><a href="#cb18-349" aria-hidden="true" tabindex="-1"></a><span class="co">#         font = google_font(name = "Roboto Mono")),</span></span>
-<span id="cb18-350"><a href="#cb18-350" aria-hidden="true" tabindex="-1"></a><span class="co">#       locations = cells_body(columns = c(var, action))) |&gt; </span></span>
-<span id="cb18-351"><a href="#cb18-351" aria-hidden="true" tabindex="-1"></a><span class="co">#   tab_options(table.width = pct(100),</span></span>
-<span id="cb18-352"><a href="#cb18-352" aria-hidden="true" tabindex="-1"></a><span class="co">#               quarto.disable_processing = TRUE)</span></span>
-<span id="cb18-353"><a href="#cb18-353" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb18-354"><a href="#cb18-354" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-355"><a href="#cb18-355" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-356"><a href="#cb18-356" aria-hidden="true" tabindex="-1"></a><span class="fu">## Regexes</span></span>
-<span id="cb18-357"><a href="#cb18-357" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-360"><a href="#cb18-360" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb18-361"><a href="#cb18-361" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: regex</span></span>
-<span id="cb18-362"><a href="#cb18-362" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
-<span id="cb18-363"><a href="#cb18-363" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb18-364"><a href="#cb18-364" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb18-365"><a href="#cb18-365" aria-hidden="true" tabindex="-1"></a><span class="co"># rules_new |&gt; </span></span>
-<span id="cb18-366"><a href="#cb18-366" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(wc == 1,</span></span>
-<span id="cb18-367"><a href="#cb18-367" aria-hidden="true" tabindex="-1"></a><span class="co">#          var == "hcpcs") |&gt;</span></span>
-<span id="cb18-368"><a href="#cb18-368" aria-hidden="true" tabindex="-1"></a><span class="co">#   mutate(value = str_remove_all(value, "\\*"),</span></span>
-<span id="cb18-369"><a href="#cb18-369" aria-hidden="true" tabindex="-1"></a><span class="co">#          chars = 5 - str_length(value),</span></span>
-<span id="cb18-370"><a href="#cb18-370" aria-hidden="true" tabindex="-1"></a><span class="co">#          .after = value) |&gt; </span></span>
-<span id="cb18-371"><a href="#cb18-371" aria-hidden="true" tabindex="-1"></a><span class="co">#   mutate(</span></span>
-<span id="cb18-372"><a href="#cb18-372" aria-hidden="true" tabindex="-1"></a><span class="co">#     regex = case_when(</span></span>
-<span id="cb18-373"><a href="#cb18-373" aria-hidden="true" tabindex="-1"></a><span class="co">#       chars == 0 ~ glue_chr("^&lt;&lt;value&gt;&gt;$", .open = "&lt;&lt;", .close = "&gt;&gt;"),</span></span>
-<span id="cb18-374"><a href="#cb18-374" aria-hidden="true" tabindex="-1"></a><span class="co">#       chars == 1 ~ glue_chr("^&lt;&lt;value&gt;&gt;[0-9]$", .open = "&lt;&lt;", .close = "&gt;&gt;"),</span></span>
-<span id="cb18-375"><a href="#cb18-375" aria-hidden="true" tabindex="-1"></a><span class="co">#       chars &gt; 1 ~ glue_chr("^&lt;&lt;value&gt;&gt;[0-9]{&lt;&lt;chars&gt;&gt;}$", .open = "&lt;&lt;", .close = "&gt;&gt;")),</span></span>
-<span id="cb18-376"><a href="#cb18-376" aria-hidden="true" tabindex="-1"></a><span class="co">#     regex = case_when(neg == 1L ~ glue_chr('!{regex}'), .default = regex),</span></span>
-<span id="cb18-377"><a href="#cb18-377" aria-hidden="true" tabindex="-1"></a><span class="co">#     .after = regex</span></span>
-<span id="cb18-378"><a href="#cb18-378" aria-hidden="true" tabindex="-1"></a><span class="co">#   ) |&gt; </span></span>
-<span id="cb18-379"><a href="#cb18-379" aria-hidden="true" tabindex="-1"></a><span class="co">#   head_tail(n = 10, by = c("var", "action")) |&gt; </span></span>
-<span id="cb18-380"><a href="#cb18-380" aria-hidden="true" tabindex="-1"></a><span class="co">#   gt() |&gt; </span></span>
-<span id="cb18-381"><a href="#cb18-381" aria-hidden="true" tabindex="-1"></a><span class="co">#   cols_align(align = "left") |&gt;</span></span>
-<span id="cb18-382"><a href="#cb18-382" aria-hidden="true" tabindex="-1"></a><span class="co">#   opt_table_font(font = google_font(name = "Roboto Condensed")) |&gt; </span></span>
-<span id="cb18-383"><a href="#cb18-383" aria-hidden="true" tabindex="-1"></a><span class="co">#   opt_all_caps() |&gt; </span></span>
-<span id="cb18-384"><a href="#cb18-384" aria-hidden="true" tabindex="-1"></a><span class="co">#   tab_style(</span></span>
-<span id="cb18-385"><a href="#cb18-385" aria-hidden="true" tabindex="-1"></a><span class="co">#       style = cell_text(</span></span>
-<span id="cb18-386"><a href="#cb18-386" aria-hidden="true" tabindex="-1"></a><span class="co">#         align = 'left',</span></span>
-<span id="cb18-387"><a href="#cb18-387" aria-hidden="true" tabindex="-1"></a><span class="co">#         weight = "bold",</span></span>
-<span id="cb18-388"><a href="#cb18-388" aria-hidden="true" tabindex="-1"></a><span class="co">#         font = google_font(name = "Roboto Mono")),</span></span>
-<span id="cb18-389"><a href="#cb18-389" aria-hidden="true" tabindex="-1"></a><span class="co">#       locations = cells_body(columns = c(regex))) |&gt; </span></span>
-<span id="cb18-390"><a href="#cb18-390" aria-hidden="true" tabindex="-1"></a><span class="co">#   tab_options(table.width = pct(100),</span></span>
-<span id="cb18-391"><a href="#cb18-391" aria-hidden="true" tabindex="-1"></a><span class="co">#               quarto.disable_processing = TRUE)</span></span>
-<span id="cb18-392"><a href="#cb18-392" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb18-393"><a href="#cb18-393" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-394"><a href="#cb18-394" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-397"><a href="#cb18-397" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb18-398"><a href="#cb18-398" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: misc</span></span>
-<span id="cb18-399"><a href="#cb18-399" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb18-400"><a href="#cb18-400" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
-<span id="cb18-401"><a href="#cb18-401" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb18-402"><a href="#cb18-402" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb18-403"><a href="#cb18-403" aria-hidden="true" tabindex="-1"></a>northstar<span class="sc">::</span><span class="fu">search_descriptions</span>(<span class="at">hcpcs_desc_type =</span> <span class="st">"Long"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb18-404"><a href="#cb18-404" aria-hidden="true" tabindex="-1"></a>  <span class="co"># dplyr::mutate(not_hcpcs = !grepl("^99[0-9]{3}$", hcpcs_code)) |&gt; </span></span>
-<span id="cb18-405"><a href="#cb18-405" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">grepl</span>(<span class="st">"^99[0-9]{3,3}$"</span>, hcpcs_code)) <span class="sc">|&gt;</span></span>
-<span id="cb18-406"><a href="#cb18-406" aria-hidden="true" tabindex="-1"></a>  <span class="co"># dplyr::mutate(has_hcpcs = grepl("^J[0-9]{4}$", hcpcs_code)) |&gt; </span></span>
-<span id="cb18-407"><a href="#cb18-407" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(hcpcs_code, <span class="fu">regex</span>(<span class="st">"^J[0-9]{4}$"</span>))) <span class="sc">|&gt;</span> </span>
-<span id="cb18-408"><a href="#cb18-408" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(hcpcs_code, <span class="fu">regex</span>(<span class="st">"^(?!5405)(?&lt;![0-9]{1})$"</span>))) <span class="sc">|&gt;</span> </span>
-<span id="cb18-409"><a href="#cb18-409" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">n =</span> <span class="dv">200</span>)</span>
-<span id="cb18-410"><a href="#cb18-410" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-411"><a href="#cb18-411" aria-hidden="true" tabindex="-1"></a><span class="co"># Match strings that don't start with "99" and don't end with 3 digits</span></span>
-<span id="cb18-412"><a href="#cb18-412" aria-hidden="true" tabindex="-1"></a>pattern <span class="ot">&lt;-</span> <span class="st">"^(?!99).*(?&lt;![0-9]{3})$"</span></span>
-<span id="cb18-413"><a href="#cb18-413" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-414"><a href="#cb18-414" aria-hidden="true" tabindex="-1"></a><span class="co"># Negation pattern</span></span>
-<span id="cb18-415"><a href="#cb18-415" aria-hidden="true" tabindex="-1"></a><span class="st">"^(?!9938[0-9]{1}$)"</span></span>
-<span id="cb18-416"><a href="#cb18-416" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-417"><a href="#cb18-417" aria-hidden="true" tabindex="-1"></a><span class="co"># Begins with 0, ends with digit</span></span>
-<span id="cb18-418"><a href="#cb18-418" aria-hidden="true" tabindex="-1"></a><span class="st">"^0.*</span><span class="sc">\\</span><span class="st">d$"</span></span>
-<span id="cb18-419"><a href="#cb18-419" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-420"><a href="#cb18-420" aria-hidden="true" tabindex="-1"></a><span class="co"># Begins with 0, ends with letter</span></span>
-<span id="cb18-421"><a href="#cb18-421" aria-hidden="true" tabindex="-1"></a><span class="st">"^0.*[A-Z]$"</span></span>
-<span id="cb18-422"><a href="#cb18-422" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-423"><a href="#cb18-423" aria-hidden="true" tabindex="-1"></a><span class="co"># Match strings that don't start with "a" and don't end with "z"</span></span>
-<span id="cb18-424"><a href="#cb18-424" aria-hidden="true" tabindex="-1"></a>pattern <span class="ot">&lt;-</span> <span class="st">"^(?!a).*[^z]$"</span></span>
-<span id="cb18-425"><a href="#cb18-425" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span>(pattern, <span class="fu">c</span>(<span class="st">"apple"</span>, <span class="st">"banana"</span>, <span class="st">"cherry"</span>), <span class="at">value =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb18-426"><a href="#cb18-426" aria-hidden="true" tabindex="-1"></a><span class="co"># Output: "banana" "cherry"</span></span>
-<span id="cb18-427"><a href="#cb18-427" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-428"><a href="#cb18-428" aria-hidden="true" tabindex="-1"></a>stringr<span class="sc">::</span><span class="fu">str_detect</span>(<span class="st">"99202"</span>, stringr<span class="sc">::</span><span class="fu">regex</span>(<span class="st">"^[992]{3}.*"</span>))</span>
-<span id="cb18-429"><a href="#cb18-429" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-430"><a href="#cb18-430" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span>(<span class="st">"^[992]{3}.*"</span>, <span class="st">"99202"</span>, <span class="at">value =</span> <span class="cn">TRUE</span>, <span class="at">invert =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb18-431"><a href="#cb18-431" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-432"><a href="#cb18-432" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-433"><a href="#cb18-433" aria-hidden="true" tabindex="-1"></a><span class="co"># pattern = dplyr::case_when(</span></span>
-<span id="cb18-434"><a href="#cb18-434" aria-hidden="true" tabindex="-1"></a><span class="co">#   chars == 0 &amp; negation == FALSE ~ glue::glue("^&lt;value&gt;$", .open = "&lt;", .close = "&gt;"),</span></span>
-<span id="cb18-435"><a href="#cb18-435" aria-hidden="true" tabindex="-1"></a><span class="co">#   chars &gt; 0  &amp; negation == FALSE ~ glue::glue("^&lt;value&gt;[0-9]{&lt;chars&gt;}$", .open = "&lt;", .close = "&gt;"),</span></span>
-<span id="cb18-436"><a href="#cb18-436" aria-hidden="true" tabindex="-1"></a><span class="co">#   chars == 0 &amp; negation == TRUE ~ glue::glue("^(?!&lt;value&gt;)$", .open = "&lt;", .close = "&gt;"),</span></span>
-<span id="cb18-437"><a href="#cb18-437" aria-hidden="true" tabindex="-1"></a><span class="co">#   chars &gt; 0  &amp; negation == TRUE ~ glue::glue("^(?!&lt;&lt;value&gt;&gt;)(?&lt;![0-9]{&lt;&lt;chars&gt;&gt;})$", .open = "&lt;&lt;", .close = "&gt;&gt;")</span></span>
-<span id="cb18-438"><a href="#cb18-438" aria-hidden="true" tabindex="-1"></a><span class="co">#   ),</span></span>
-<span id="cb18-439"><a href="#cb18-439" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<div class="sourceCode" id="cb20" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Building Claims Rules"</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span><span class="co"> </span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="co">    reference-location: block</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="an">editor_options:</span><span class="co"> </span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="co">  chunk_output_type: console</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">dev        =</span> <span class="st">"ragg_png"</span>,</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">dpi        =</span> <span class="dv">300</span>,</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">out.width  =</span> <span class="st">"100%"</span>,</span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.width  =</span> <span class="dv">8</span>,</span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.asp    =</span> <span class="fl">0.618</span>,</span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.retina =</span> <span class="dv">2</span>,</span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.align  =</span> <span class="st">"center"</span>,</span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.show   =</span> <span class="st">"hold"</span>)</span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen =</span> <span class="dv">999</span>)</span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)</span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fuimus)</span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a>head_tail <span class="ot">&lt;-</span> <span class="cf">function</span>(x, <span class="at">n =</span> <span class="dv">5</span>, <span class="at">by =</span> <span class="cn">NULL</span>) {</span>
+<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">bind_rows</span>(dplyr<span class="sc">::</span><span class="fu">slice_head</span>(x, <span class="at">n =</span> n, <span class="at">by =</span> dplyr<span class="sc">::</span><span class="fu">all_of</span>(by)),</span>
+<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a>                   dplyr<span class="sc">::</span><span class="fu">slice_tail</span>(x, <span class="at">n =</span> n, <span class="at">by =</span> dplyr<span class="sc">::</span><span class="fu">all_of</span>(by)))</span>
+<span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-38"><a href="#cb20-38" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-40"><a href="#cb20-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-41"><a href="#cb20-41" aria-hidden="true" tabindex="-1"></a><span class="fu">## Load Data</span></span>
+<span id="cb20-42"><a href="#cb20-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-45"><a href="#cb20-45" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb20-46"><a href="#cb20-46" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: load_data</span></span>
+<span id="cb20-47"><a href="#cb20-47" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
+<span id="cb20-48"><a href="#cb20-48" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb20-49"><a href="#cb20-49" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb20-50"><a href="#cb20-50" aria-hidden="true" tabindex="-1"></a>rules_raw <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb20-51"><a href="#cb20-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">here</span>(<span class="st">"posts/claims_rules/data/rules_raw.csv"</span>),</span>
+<span id="cb20-52"><a href="#cb20-52" aria-hidden="true" tabindex="-1"></a>  <span class="at">col_types =</span> <span class="fu">cols</span>(</span>
+<span id="cb20-53"><a href="#cb20-53" aria-hidden="true" tabindex="-1"></a>  <span class="at">row       =</span> <span class="fu">col_integer</span>(),</span>
+<span id="cb20-54"><a href="#cb20-54" aria-hidden="true" tabindex="-1"></a>  <span class="at">id_rule   =</span> <span class="fu">col_integer</span>(),</span>
+<span id="cb20-55"><a href="#cb20-55" aria-hidden="true" tabindex="-1"></a>  <span class="at">id_name   =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb20-56"><a href="#cb20-56" aria-hidden="true" tabindex="-1"></a>  <span class="at">id_order  =</span> <span class="fu">col_integer</span>(),</span>
+<span id="cb20-57"><a href="#cb20-57" aria-hidden="true" tabindex="-1"></a>  <span class="at">category  =</span> <span class="fu">col_factor</span>(),</span>
+<span id="cb20-58"><a href="#cb20-58" aria-hidden="true" tabindex="-1"></a>  <span class="at">alert     =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb20-59"><a href="#cb20-59" aria-hidden="true" tabindex="-1"></a>  <span class="at">var       =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb20-60"><a href="#cb20-60" aria-hidden="true" tabindex="-1"></a>  <span class="at">action    =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb20-61"><a href="#cb20-61" aria-hidden="true" tabindex="-1"></a>  <span class="at">value     =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb20-62"><a href="#cb20-62" aria-hidden="true" tabindex="-1"></a>  <span class="at">rule      =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb20-63"><a href="#cb20-63" aria-hidden="true" tabindex="-1"></a>  <span class="at">x9        =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb20-64"><a href="#cb20-64" aria-hidden="true" tabindex="-1"></a>  <span class="at">x10       =</span> <span class="fu">col_character</span>()))</span>
+<span id="cb20-65"><a href="#cb20-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-66"><a href="#cb20-66" aria-hidden="true" tabindex="-1"></a>rules_re <span class="ot">&lt;-</span> rules_raw <span class="sc">|&gt;</span> </span>
+<span id="cb20-67"><a href="#cb20-67" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb20-68"><a href="#cb20-68" aria-hidden="true" tabindex="-1"></a>    row,</span>
+<span id="cb20-69"><a href="#cb20-69" aria-hidden="true" tabindex="-1"></a>    <span class="at">rid   =</span> id_rule,</span>
+<span id="cb20-70"><a href="#cb20-70" aria-hidden="true" tabindex="-1"></a>    <span class="at">rord  =</span> id_order,</span>
+<span id="cb20-71"><a href="#cb20-71" aria-hidden="true" tabindex="-1"></a>    <span class="at">rnm   =</span> id_name,</span>
+<span id="cb20-72"><a href="#cb20-72" aria-hidden="true" tabindex="-1"></a>    <span class="at">rvar  =</span> var,</span>
+<span id="cb20-73"><a href="#cb20-73" aria-hidden="true" tabindex="-1"></a>    <span class="at">ract  =</span> action,</span>
+<span id="cb20-74"><a href="#cb20-74" aria-hidden="true" tabindex="-1"></a>    <span class="at">rval  =</span> value,</span>
+<span id="cb20-75"><a href="#cb20-75" aria-hidden="true" tabindex="-1"></a>    <span class="at">rcat  =</span> category,</span>
+<span id="cb20-76"><a href="#cb20-76" aria-hidden="true" tabindex="-1"></a>    <span class="at">rdesc =</span> rule,</span>
+<span id="cb20-77"><a href="#cb20-77" aria-hidden="true" tabindex="-1"></a>    <span class="at">rmsg  =</span> alert</span>
+<span id="cb20-78"><a href="#cb20-78" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb20-79"><a href="#cb20-79" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb20-80"><a href="#cb20-80" aria-hidden="true" tabindex="-1"></a>    <span class="at">rcat  =</span> <span class="fu">remove_quotes</span>(<span class="fu">as.character</span>(rcat)),</span>
+<span id="cb20-81"><a href="#cb20-81" aria-hidden="true" tabindex="-1"></a>    <span class="at">rcat  =</span> <span class="fu">str_remove_all</span>(rcat, <span class="st">"</span><span class="sc">\\</span><span class="st">r|</span><span class="sc">\\</span><span class="st">n"</span>),</span>
+<span id="cb20-82"><a href="#cb20-82" aria-hidden="true" tabindex="-1"></a>    <span class="at">rmsg  =</span> <span class="fu">remove_quotes</span>(rmsg),</span>
+<span id="cb20-83"><a href="#cb20-83" aria-hidden="true" tabindex="-1"></a>    <span class="at">rmsg  =</span> <span class="fu">str_remove_all</span>(rmsg, <span class="st">"</span><span class="sc">\\</span><span class="st">r|</span><span class="sc">\\</span><span class="st">n"</span>),</span>
+<span id="cb20-84"><a href="#cb20-84" aria-hidden="true" tabindex="-1"></a>    <span class="at">rdesc =</span> <span class="fu">remove_quotes</span>(rdesc),</span>
+<span id="cb20-85"><a href="#cb20-85" aria-hidden="true" tabindex="-1"></a>    <span class="at">rdesc =</span> <span class="fu">str_remove_all</span>(rdesc, <span class="st">"</span><span class="sc">\\</span><span class="st">r|</span><span class="sc">\\</span><span class="st">n"</span>))</span>
+<span id="cb20-86"><a href="#cb20-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-87"><a href="#cb20-87" aria-hidden="true" tabindex="-1"></a>rules_re <span class="sc">|&gt;</span> <span class="fu">print</span>(<span class="at">n =</span> <span class="dv">20</span>)</span>
+<span id="cb20-88"><a href="#cb20-88" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-89"><a href="#cb20-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-90"><a href="#cb20-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-91"><a href="#cb20-91" aria-hidden="true" tabindex="-1"></a><span class="fu">## Rules</span></span>
+<span id="cb20-92"><a href="#cb20-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-95"><a href="#cb20-95" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb20-96"><a href="#cb20-96" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: categorize_vars</span></span>
+<span id="cb20-97"><a href="#cb20-97" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
+<span id="cb20-98"><a href="#cb20-98" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb20-99"><a href="#cb20-99" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb20-100"><a href="#cb20-100" aria-hidden="true" tabindex="-1"></a>categorize_vars <span class="ot">&lt;-</span> rules_raw <span class="sc">|&gt;</span></span>
+<span id="cb20-101"><a href="#cb20-101" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb20-102"><a href="#cb20-102" aria-hidden="true" tabindex="-1"></a>    row, </span>
+<span id="cb20-103"><a href="#cb20-103" aria-hidden="true" tabindex="-1"></a>    id_rule, </span>
+<span id="cb20-104"><a href="#cb20-104" aria-hidden="true" tabindex="-1"></a>    id_name,</span>
+<span id="cb20-105"><a href="#cb20-105" aria-hidden="true" tabindex="-1"></a>    id_order, </span>
+<span id="cb20-106"><a href="#cb20-106" aria-hidden="true" tabindex="-1"></a>    var, </span>
+<span id="cb20-107"><a href="#cb20-107" aria-hidden="true" tabindex="-1"></a>    action, </span>
+<span id="cb20-108"><a href="#cb20-108" aria-hidden="true" tabindex="-1"></a>    value) <span class="sc">|&gt;</span></span>
+<span id="cb20-109"><a href="#cb20-109" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">var =</span> <span class="fu">case_match</span>(</span>
+<span id="cb20-110"><a href="#cb20-110" aria-hidden="true" tabindex="-1"></a>    var,</span>
+<span id="cb20-111"><a href="#cb20-111" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"CPT CODE"</span>, </span>
+<span id="cb20-112"><a href="#cb20-112" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPT Code"</span>, </span>
+<span id="cb20-113"><a href="#cb20-113" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPT code"</span>, </span>
+<span id="cb20-114"><a href="#cb20-114" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPT"</span>, </span>
+<span id="cb20-115"><a href="#cb20-115" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Code Check Expired CPT Alert (Presence)"</span>, </span>
+<span id="cb20-116"><a href="#cb20-116" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPT is one of"</span>) <span class="sc">~</span> <span class="st">"hcpcs"</span>,</span>
+<span id="cb20-117"><a href="#cb20-117" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"Mod1"</span>, </span>
+<span id="cb20-118"><a href="#cb20-118" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPT Mod1"</span>, </span>
+<span id="cb20-119"><a href="#cb20-119" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPT Mod 1"</span>, </span>
+<span id="cb20-120"><a href="#cb20-120" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPTMod1"</span>, </span>
+<span id="cb20-121"><a href="#cb20-121" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Code Check CPT Mod Alert (Presence)"</span>, </span>
+<span id="cb20-122"><a href="#cb20-122" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPT MOD1"</span>, </span>
+<span id="cb20-123"><a href="#cb20-123" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPT Mod1 (Presence)"</span>) <span class="sc">~</span> <span class="st">"mod_1"</span>,</span>
+<span id="cb20-124"><a href="#cb20-124" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"Mod2"</span>, </span>
+<span id="cb20-125"><a href="#cb20-125" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPT MOD2"</span>, </span>
+<span id="cb20-126"><a href="#cb20-126" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPT Mod 2"</span>, </span>
+<span id="cb20-127"><a href="#cb20-127" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPT Mod2 (Presence)"</span>, </span>
+<span id="cb20-128"><a href="#cb20-128" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPTMod2"</span>, </span>
+<span id="cb20-129"><a href="#cb20-129" aria-hidden="true" tabindex="-1"></a>        <span class="st">"CPT Mod2"</span>) <span class="sc">~</span> <span class="st">"mod_2"</span>,</span>
+<span id="cb20-130"><a href="#cb20-130" aria-hidden="true" tabindex="-1"></a>      <span class="st">"CPT Mod3"</span> <span class="sc">~</span> <span class="st">"mod_3"</span>,</span>
+<span id="cb20-131"><a href="#cb20-131" aria-hidden="true" tabindex="-1"></a>      <span class="st">"CPT Mod4"</span> <span class="sc">~</span> <span class="st">"mod_4"</span>,</span>
+<span id="cb20-132"><a href="#cb20-132" aria-hidden="true" tabindex="-1"></a>      <span class="st">"CPT Units"</span> <span class="sc">~</span> <span class="st">"unit"</span>,</span>
+<span id="cb20-133"><a href="#cb20-133" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"Dx code"</span>, </span>
+<span id="cb20-134"><a href="#cb20-134" aria-hidden="true" tabindex="-1"></a>        <span class="st">"DX Code"</span>, </span>
+<span id="cb20-135"><a href="#cb20-135" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Dx Code"</span>, </span>
+<span id="cb20-136"><a href="#cb20-136" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Code Check Expired DX Alert (Presence)"</span>) <span class="sc">~</span> <span class="st">"icd"</span>,</span>
+<span id="cb20-137"><a href="#cb20-137" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"Encounter Date of Service"</span>, </span>
+<span id="cb20-138"><a href="#cb20-138" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Date of Service"</span>) <span class="sc">~</span> <span class="st">"dos"</span>,</span>
+<span id="cb20-139"><a href="#cb20-139" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"Location"</span>, </span>
+<span id="cb20-140"><a href="#cb20-140" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Place of Service"</span>) <span class="sc">~</span> <span class="st">"pos"</span>,</span>
+<span id="cb20-141"><a href="#cb20-141" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"CPT UB04"</span>, </span>
+<span id="cb20-142"><a href="#cb20-142" aria-hidden="true" tabindex="-1"></a>        <span class="st">"UB04 Bill Type"</span>) <span class="sc">~</span> <span class="st">"ub04"</span>,</span>
+<span id="cb20-143"><a href="#cb20-143" aria-hidden="true" tabindex="-1"></a>      <span class="st">"CPT NDC (Presence)"</span> <span class="sc">~</span> <span class="st">"ndc"</span>,</span>
+<span id="cb20-144"><a href="#cb20-144" aria-hidden="true" tabindex="-1"></a>      <span class="st">"CPT Rev Code"</span> <span class="sc">~</span> <span class="st">"rev_code"</span>,</span>
+<span id="cb20-145"><a href="#cb20-145" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Code Check CCI Alert (Presence)"</span> <span class="sc">~</span> <span class="st">"cci"</span>,</span>
+<span id="cb20-146"><a href="#cb20-146" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Code Check LCD Alert (Presence)"</span> <span class="sc">~</span> <span class="st">"lcd"</span>,</span>
+<span id="cb20-147"><a href="#cb20-147" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Code Check NCD Alert (Presence)"</span> <span class="sc">~</span> <span class="st">"ncd"</span>,</span>
+<span id="cb20-148"><a href="#cb20-148" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"Patient Age"</span>, </span>
+<span id="cb20-149"><a href="#cb20-149" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Code Check Age Alert (Presence)"</span>) <span class="sc">~</span> <span class="st">"dob"</span>,</span>
+<span id="cb20-150"><a href="#cb20-150" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"Patient Sex"</span>, </span>
+<span id="cb20-151"><a href="#cb20-151" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Code Check Gender Alert (Presence)"</span>) <span class="sc">~</span> <span class="st">"sex"</span>,</span>
+<span id="cb20-152"><a href="#cb20-152" aria-hidden="true" tabindex="-1"></a>      <span class="st">"NA"</span> <span class="sc">~</span> <span class="cn">NA_character_</span>,</span>
+<span id="cb20-153"><a href="#cb20-153" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Rendering Provider"</span> <span class="sc">~</span> <span class="st">"rendering"</span>,</span>
+<span id="cb20-154"><a href="#cb20-154" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Referring Provider (Presence)"</span> <span class="sc">~</span> <span class="st">"referring"</span>,</span>
+<span id="cb20-155"><a href="#cb20-155" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"Primary Insurance Class"</span>, </span>
+<span id="cb20-156"><a href="#cb20-156" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Primary Insurance class"</span>, </span>
+<span id="cb20-157"><a href="#cb20-157" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Primary insurance class"</span>) <span class="sc">~</span> <span class="st">"primary_class"</span>,</span>
+<span id="cb20-158"><a href="#cb20-158" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Primary Insurance"</span> <span class="sc">~</span> <span class="st">"primary_name"</span>,</span>
+<span id="cb20-159"><a href="#cb20-159" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Secondary Insurance Class"</span> <span class="sc">~</span> <span class="st">"secondary_class"</span>,</span>
+<span id="cb20-160"><a href="#cb20-160" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Secondary Insurance"</span> <span class="sc">~</span> <span class="st">"secondary_name"</span>,</span>
+<span id="cb20-161"><a href="#cb20-161" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"Primary Insurance Authorization (Presence)"</span>, </span>
+<span id="cb20-162"><a href="#cb20-162" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Primary Insurance Authorization (Presence) is not [Present]"</span>) <span class="sc">~</span> <span class="st">"primary_auth"</span>,</span>
+<span id="cb20-163"><a href="#cb20-163" aria-hidden="true" tabindex="-1"></a>      <span class="at">.default =</span> var) <span class="sc">|&gt;</span> <span class="fu">as_factor</span>())</span>
+<span id="cb20-164"><a href="#cb20-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-165"><a href="#cb20-165" aria-hidden="true" tabindex="-1"></a>categorize_vars <span class="sc">|&gt;</span> <span class="fu">print</span>(<span class="at">n =</span> <span class="dv">20</span>)</span>
+<span id="cb20-166"><a href="#cb20-166" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-167"><a href="#cb20-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-168"><a href="#cb20-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-171"><a href="#cb20-171" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb20-172"><a href="#cb20-172" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: cat_vars</span></span>
+<span id="cb20-173"><a href="#cb20-173" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
+<span id="cb20-174"><a href="#cb20-174" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb20-175"><a href="#cb20-175" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb20-176"><a href="#cb20-176" aria-hidden="true" tabindex="-1"></a>categorize_vars <span class="sc">|&gt;</span> </span>
+<span id="cb20-177"><a href="#cb20-177" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(action)) <span class="sc">|&gt;</span></span>
+<span id="cb20-178"><a href="#cb20-178" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(var, action) <span class="sc">|&gt;</span> </span>
+<span id="cb20-179"><a href="#cb20-179" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(var, <span class="fu">desc</span>(n)) <span class="sc">|&gt;</span> </span>
+<span id="cb20-180"><a href="#cb20-180" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reframe</span>(</span>
+<span id="cb20-181"><a href="#cb20-181" aria-hidden="true" tabindex="-1"></a>    <span class="at">var_name =</span> var,</span>
+<span id="cb20-182"><a href="#cb20-182" aria-hidden="true" tabindex="-1"></a>    <span class="at">var_type =</span> <span class="fu">case_match</span>(var,</span>
+<span id="cb20-183"><a href="#cb20-183" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"sex"</span>, <span class="st">"rendering"</span>, <span class="st">"referring"</span>, </span>
+<span id="cb20-184"><a href="#cb20-184" aria-hidden="true" tabindex="-1"></a>        <span class="st">"primary_auth"</span>, <span class="st">"primary_class"</span>, </span>
+<span id="cb20-185"><a href="#cb20-185" aria-hidden="true" tabindex="-1"></a>        <span class="st">"primary_name"</span>, <span class="st">"secondary_class"</span>, </span>
+<span id="cb20-186"><a href="#cb20-186" aria-hidden="true" tabindex="-1"></a>        <span class="st">"secondary_name"</span>, <span class="st">"ncd"</span>, <span class="st">"lcd"</span>, </span>
+<span id="cb20-187"><a href="#cb20-187" aria-hidden="true" tabindex="-1"></a>        <span class="st">"cci"</span>, <span class="st">"ndc"</span>, <span class="st">"ub04"</span>, <span class="st">"pos"</span>, </span>
+<span id="cb20-188"><a href="#cb20-188" aria-hidden="true" tabindex="-1"></a>        <span class="st">"icd"</span>, <span class="st">"hcpcs"</span>, <span class="st">"mod_1"</span>, <span class="st">"mod_2"</span>, </span>
+<span id="cb20-189"><a href="#cb20-189" aria-hidden="true" tabindex="-1"></a>        <span class="st">"mod_3"</span>, <span class="st">"mod_4"</span>) <span class="sc">~</span> <span class="st">"&lt;chr&gt;"</span>,</span>
+<span id="cb20-190"><a href="#cb20-190" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"rev_code"</span>, <span class="st">"unit"</span>) <span class="sc">~</span> <span class="st">"&lt;int&gt;"</span>,</span>
+<span id="cb20-191"><a href="#cb20-191" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"dos"</span>, <span class="st">"dob"</span>) <span class="sc">~</span> <span class="st">"&lt;date&gt;"</span></span>
+<span id="cb20-192"><a href="#cb20-192" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span> <span class="fu">as_factor</span>(),</span>
+<span id="cb20-193"><a href="#cb20-193" aria-hidden="true" tabindex="-1"></a>    <span class="at">var_class =</span> <span class="fu">case_match</span>(</span>
+<span id="cb20-194"><a href="#cb20-194" aria-hidden="true" tabindex="-1"></a>      <span class="fu">as.character</span>(var),</span>
+<span id="cb20-195"><a href="#cb20-195" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"sex"</span>, <span class="st">"dos"</span>, <span class="st">"dob"</span>) <span class="sc">~</span> <span class="st">"patient"</span>,</span>
+<span id="cb20-196"><a href="#cb20-196" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"rendering"</span>, <span class="st">"referring"</span>) <span class="sc">~</span> <span class="st">"provider"</span>,</span>
+<span id="cb20-197"><a href="#cb20-197" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"hcpcs"</span>, <span class="st">"mod_1"</span>, <span class="st">"mod_2"</span>, <span class="st">"mod_3"</span>, <span class="st">"mod_4"</span>, </span>
+<span id="cb20-198"><a href="#cb20-198" aria-hidden="true" tabindex="-1"></a>        <span class="st">"rev_code"</span>, <span class="st">"unit"</span>, <span class="st">"ndc"</span>, <span class="st">"pos"</span>) <span class="sc">~</span> <span class="st">"procedure"</span>,</span>
+<span id="cb20-199"><a href="#cb20-199" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"icd"</span>) <span class="sc">~</span> <span class="st">"diagnosis"</span>,</span>
+<span id="cb20-200"><a href="#cb20-200" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"ub04"</span>, <span class="st">"1500"</span>) <span class="sc">~</span> <span class="st">"claim"</span>,</span>
+<span id="cb20-201"><a href="#cb20-201" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"ncd"</span>, <span class="st">"lcd"</span>, <span class="st">"cci"</span>) <span class="sc">~</span> <span class="st">"ncci"</span>,</span>
+<span id="cb20-202"><a href="#cb20-202" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"primary_auth"</span>, <span class="st">"primary_class"</span>, </span>
+<span id="cb20-203"><a href="#cb20-203" aria-hidden="true" tabindex="-1"></a>        <span class="st">"primary_name"</span>, <span class="st">"secondary_class"</span>, </span>
+<span id="cb20-204"><a href="#cb20-204" aria-hidden="true" tabindex="-1"></a>        <span class="st">"secondary_name"</span>) <span class="sc">~</span> <span class="st">"payer"</span></span>
+<span id="cb20-205"><a href="#cb20-205" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span> <span class="fu">as_factor</span>(),</span>
+<span id="cb20-206"><a href="#cb20-206" aria-hidden="true" tabindex="-1"></a>    <span class="at">var_action =</span> action</span>
+<span id="cb20-207"><a href="#cb20-207" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb20-208"><a href="#cb20-208" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb20-209"><a href="#cb20-209" aria-hidden="true" tabindex="-1"></a>    var_type, </span>
+<span id="cb20-210"><a href="#cb20-210" aria-hidden="true" tabindex="-1"></a>    var_class, </span>
+<span id="cb20-211"><a href="#cb20-211" aria-hidden="true" tabindex="-1"></a>    var_name, </span>
+<span id="cb20-212"><a href="#cb20-212" aria-hidden="true" tabindex="-1"></a>    var_action) <span class="sc">|&gt;</span> </span>
+<span id="cb20-213"><a href="#cb20-213" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(var_type, var_class, var_name) <span class="sc">|&gt;</span></span>
+<span id="cb20-214"><a href="#cb20-214" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">n =</span> <span class="dv">100</span>)</span>
+<span id="cb20-215"><a href="#cb20-215" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-216"><a href="#cb20-216" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-217"><a href="#cb20-217" aria-hidden="true" tabindex="-1"></a><span class="fu">## Date of Service</span></span>
+<span id="cb20-218"><a href="#cb20-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-221"><a href="#cb20-221" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb20-222"><a href="#cb20-222" aria-hidden="true" tabindex="-1"></a>categorize_vars <span class="sc">|&gt;</span> </span>
+<span id="cb20-223"><a href="#cb20-223" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(var <span class="sc">==</span> <span class="st">"dos"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb20-224"><a href="#cb20-224" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type =</span> <span class="st">"&lt;date&gt;"</span>,</span>
+<span id="cb20-225"><a href="#cb20-225" aria-hidden="true" tabindex="-1"></a>         <span class="at">value =</span> anytime<span class="sc">::</span><span class="fu">anydate</span>(value),</span>
+<span id="cb20-226"><a href="#cb20-226" aria-hidden="true" tabindex="-1"></a>         <span class="at">op =</span> <span class="fu">if_else</span>(<span class="fu">str_detect</span>(action, <span class="st">"after"</span>), <span class="st">"&gt;"</span>, <span class="st">"&lt;"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb20-227"><a href="#cb20-227" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(row, id_rule, id_name, id_order, type, var, op, value)</span>
+<span id="cb20-228"><a href="#cb20-228" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-229"><a href="#cb20-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-230"><a href="#cb20-230" aria-hidden="true" tabindex="-1"></a><span class="fu">## Patient Age</span></span>
+<span id="cb20-231"><a href="#cb20-231" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-234"><a href="#cb20-234" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb20-235"><a href="#cb20-235" aria-hidden="true" tabindex="-1"></a>categorize_vars <span class="sc">|&gt;</span> </span>
+<span id="cb20-236"><a href="#cb20-236" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(var <span class="sc">==</span> <span class="st">"dob"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb20-237"><a href="#cb20-237" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb20-238"><a href="#cb20-238" aria-hidden="true" tabindex="-1"></a>    <span class="at">var =</span> <span class="st">"age"</span>,</span>
+<span id="cb20-239"><a href="#cb20-239" aria-hidden="true" tabindex="-1"></a>    <span class="at">type =</span> <span class="st">"&lt;int&gt;"</span>, </span>
+<span id="cb20-240"><a href="#cb20-240" aria-hidden="true" tabindex="-1"></a>    <span class="at">.before =</span> var) <span class="sc">|&gt;</span> </span>
+<span id="cb20-241"><a href="#cb20-241" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">age =</span> strex<span class="sc">::</span><span class="fu">str_extract_numbers</span>(value),</span>
+<span id="cb20-242"><a href="#cb20-242" aria-hidden="true" tabindex="-1"></a>         <span class="at">time =</span> strex<span class="sc">::</span><span class="fu">str_extract_non_numerics</span>(value)) <span class="sc">|&gt;</span> </span>
+<span id="cb20-243"><a href="#cb20-243" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(<span class="fu">c</span>(age, time)) <span class="sc">|&gt;</span> </span>
+<span id="cb20-244"><a href="#cb20-244" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb20-245"><a href="#cb20-245" aria-hidden="true" tabindex="-1"></a>    <span class="at">age =</span> <span class="fu">as.integer</span>(age),</span>
+<span id="cb20-246"><a href="#cb20-246" aria-hidden="true" tabindex="-1"></a>    <span class="at">time =</span> <span class="fu">str_remove_all</span>(time, <span class="st">"</span><span class="sc">\\</span><span class="st">s|,"</span>),</span>
+<span id="cb20-247"><a href="#cb20-247" aria-hidden="true" tabindex="-1"></a>    <span class="at">value =</span> <span class="cn">NULL</span>,</span>
+<span id="cb20-248"><a href="#cb20-248" aria-hidden="true" tabindex="-1"></a>    <span class="at">op =</span> <span class="fu">case_match</span>(action,</span>
+<span id="cb20-249"><a href="#cb20-249" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">c</span>(<span class="st">"is younger than"</span>, <span class="st">"younger than"</span>) <span class="sc">~</span> <span class="st">"&lt;"</span>,</span>
+<span id="cb20-250"><a href="#cb20-250" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"is older than"</span> <span class="sc">~</span> <span class="st">"&gt;"</span>,</span>
+<span id="cb20-251"><a href="#cb20-251" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"is"</span> <span class="sc">~</span> <span class="st">"=="</span>,</span>
+<span id="cb20-252"><a href="#cb20-252" aria-hidden="true" tabindex="-1"></a>                    <span class="at">.default =</span> <span class="cn">NA_character_</span></span>
+<span id="cb20-253"><a href="#cb20-253" aria-hidden="true" tabindex="-1"></a>                    ),</span>
+<span id="cb20-254"><a href="#cb20-254" aria-hidden="true" tabindex="-1"></a>    <span class="at">days =</span> <span class="fu">case_when</span>(</span>
+<span id="cb20-255"><a href="#cb20-255" aria-hidden="true" tabindex="-1"></a>      time <span class="sc">==</span> <span class="st">"years"</span> <span class="sc">~</span> <span class="fu">as.duration</span>(<span class="fu">years</span>(age)) <span class="sc">/</span> <span class="fu">ddays</span>(<span class="dv">1</span>),</span>
+<span id="cb20-256"><a href="#cb20-256" aria-hidden="true" tabindex="-1"></a>      time <span class="sc">==</span> <span class="st">"months"</span> <span class="sc">~</span> <span class="fu">as.duration</span>(<span class="fu">months</span>(age)) <span class="sc">/</span> <span class="fu">ddays</span>(<span class="dv">1</span>),</span>
+<span id="cb20-257"><a href="#cb20-257" aria-hidden="true" tabindex="-1"></a>      time <span class="sc">==</span> <span class="st">"days"</span> <span class="sc">~</span> <span class="fu">as.duration</span>(<span class="fu">days</span>(age)) <span class="sc">/</span> <span class="fu">ddays</span>(<span class="dv">1</span>),</span>
+<span id="cb20-258"><a href="#cb20-258" aria-hidden="true" tabindex="-1"></a>      <span class="at">.default =</span> <span class="cn">NA_real_</span></span>
+<span id="cb20-259"><a href="#cb20-259" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb20-260"><a href="#cb20-260" aria-hidden="true" tabindex="-1"></a>    <span class="at">dos =</span> lubridate<span class="sc">::</span><span class="fu">today</span>(),</span>
+<span id="cb20-261"><a href="#cb20-261" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb20-262"><a href="#cb20-262" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(row, id_rule, id_name, id_order, type, var, op, age, time, days) <span class="sc">|&gt;</span> </span>
+<span id="cb20-263"><a href="#cb20-263" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">n =</span> <span class="dv">1000</span>)</span>
+<span id="cb20-264"><a href="#cb20-264" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-265"><a href="#cb20-265" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-266"><a href="#cb20-266" aria-hidden="true" tabindex="-1"></a><span class="fu">## Unit (HCPCS)</span></span>
+<span id="cb20-267"><a href="#cb20-267" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-270"><a href="#cb20-270" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb20-271"><a href="#cb20-271" aria-hidden="true" tabindex="-1"></a>categorize_vars <span class="sc">|&gt;</span> </span>
+<span id="cb20-272"><a href="#cb20-272" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(var <span class="sc">==</span> <span class="st">"unit"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb20-273"><a href="#cb20-273" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type =</span> <span class="st">"&lt;int&gt;"</span>, </span>
+<span id="cb20-274"><a href="#cb20-274" aria-hidden="true" tabindex="-1"></a>         <span class="at">value =</span> <span class="fu">as.integer</span>(value),</span>
+<span id="cb20-275"><a href="#cb20-275" aria-hidden="true" tabindex="-1"></a>         <span class="at">.before =</span> var, </span>
+<span id="cb20-276"><a href="#cb20-276" aria-hidden="true" tabindex="-1"></a>         <span class="at">op =</span> <span class="fu">if_else</span>(</span>
+<span id="cb20-277"><a href="#cb20-277" aria-hidden="true" tabindex="-1"></a>           <span class="fu">str_detect</span>(action, <span class="st">"is not"</span>), </span>
+<span id="cb20-278"><a href="#cb20-278" aria-hidden="true" tabindex="-1"></a>           <span class="st">"!="</span>, <span class="st">"=="</span>))</span>
+<span id="cb20-279"><a href="#cb20-279" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-280"><a href="#cb20-280" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-281"><a href="#cb20-281" aria-hidden="true" tabindex="-1"></a><span class="fu">## NDC</span></span>
+<span id="cb20-282"><a href="#cb20-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-283"><a href="#cb20-283" aria-hidden="true" tabindex="-1"></a>How can this be represented in relational algebra? Detect presence with regex?</span>
+<span id="cb20-284"><a href="#cb20-284" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-285"><a href="#cb20-285" aria-hidden="true" tabindex="-1"></a>If not present, then is <span class="in">`NA`</span> its' representation? If so, <span class="in">`is.na(x)`</span> would equal <span class="in">`is not present`</span> and <span class="in">`!is.na(x)`</span> would equal <span class="in">`is present`</span></span>
+<span id="cb20-286"><a href="#cb20-286" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-287"><a href="#cb20-287" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-290"><a href="#cb20-290" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb20-291"><a href="#cb20-291" aria-hidden="true" tabindex="-1"></a>categorize_vars <span class="sc">|&gt;</span> </span>
+<span id="cb20-292"><a href="#cb20-292" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(var <span class="sc">==</span> <span class="st">"ndc"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb20-293"><a href="#cb20-293" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type =</span> <span class="st">"&lt;lgl&gt;"</span>, </span>
+<span id="cb20-294"><a href="#cb20-294" aria-hidden="true" tabindex="-1"></a>         <span class="at">.before =</span> var, </span>
+<span id="cb20-295"><a href="#cb20-295" aria-hidden="true" tabindex="-1"></a>         <span class="at">op =</span> <span class="fu">if_else</span>(</span>
+<span id="cb20-296"><a href="#cb20-296" aria-hidden="true" tabindex="-1"></a>           <span class="fu">str_detect</span>(action, <span class="st">"is not"</span>), </span>
+<span id="cb20-297"><a href="#cb20-297" aria-hidden="true" tabindex="-1"></a>           <span class="st">"is.na(x)"</span>, </span>
+<span id="cb20-298"><a href="#cb20-298" aria-hidden="true" tabindex="-1"></a>           <span class="st">"!is.na(x)"</span>)</span>
+<span id="cb20-299"><a href="#cb20-299" aria-hidden="true" tabindex="-1"></a>         ) <span class="sc">|&gt;</span> </span>
+<span id="cb20-300"><a href="#cb20-300" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">n =</span> <span class="dv">24</span>)</span>
+<span id="cb20-301"><a href="#cb20-301" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-302"><a href="#cb20-302" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-303"><a href="#cb20-303" aria-hidden="true" tabindex="-1"></a><span class="fu">## ICD</span></span>
+<span id="cb20-304"><a href="#cb20-304" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-305"><a href="#cb20-305" aria-hidden="true" tabindex="-1"></a>has all</span>
+<span id="cb20-306"><a href="#cb20-306" aria-hidden="true" tabindex="-1"></a>is</span>
+<span id="cb20-307"><a href="#cb20-307" aria-hidden="true" tabindex="-1"></a>is not</span>
+<span id="cb20-308"><a href="#cb20-308" aria-hidden="true" tabindex="-1"></a>is one of</span>
+<span id="cb20-309"><a href="#cb20-309" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-310"><a href="#cb20-310" aria-hidden="true" tabindex="-1"></a>some values contain wildcards *</span>
+<span id="cb20-311"><a href="#cb20-311" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-314"><a href="#cb20-314" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb20-315"><a href="#cb20-315" aria-hidden="true" tabindex="-1"></a>categorize_vars <span class="sc">|&gt;</span> </span>
+<span id="cb20-316"><a href="#cb20-316" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(var <span class="sc">==</span> <span class="st">"icd"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb20-317"><a href="#cb20-317" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">wc =</span> <span class="fu">case_when</span>(<span class="fu">str_detect</span>(value, <span class="st">"</span><span class="sc">\\</span><span class="st">*"</span>) <span class="sc">~</span> <span class="dv">1</span>L, <span class="at">.default =</span> <span class="dv">0</span>L),</span>
+<span id="cb20-318"><a href="#cb20-318" aria-hidden="true" tabindex="-1"></a>         <span class="at">wc_nchar =</span> <span class="fu">if_else</span>(wc <span class="sc">==</span><span class="dv">1</span>, <span class="fu">str_count</span>(value, <span class="st">"[[:alnum:]]"</span>), <span class="dv">0</span>L),</span>
+<span id="cb20-319"><a href="#cb20-319" aria-hidden="true" tabindex="-1"></a>         <span class="at">type =</span> <span class="st">"&lt;chr&gt;"</span>,</span>
+<span id="cb20-320"><a href="#cb20-320" aria-hidden="true" tabindex="-1"></a>         <span class="at">.after =</span> id_order) <span class="sc">|&gt;</span> </span>
+<span id="cb20-321"><a href="#cb20-321" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">op =</span> <span class="fu">case_when</span>(</span>
+<span id="cb20-322"><a href="#cb20-322" aria-hidden="true" tabindex="-1"></a>           action <span class="sc">==</span> <span class="st">"is"</span> <span class="sc">&amp;</span> wc <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">"%in%"</span>,</span>
+<span id="cb20-323"><a href="#cb20-323" aria-hidden="true" tabindex="-1"></a>           action <span class="sc">==</span> <span class="st">"is"</span> <span class="sc">&amp;</span> wc <span class="sc">==</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"=="</span>,</span>
+<span id="cb20-324"><a href="#cb20-324" aria-hidden="true" tabindex="-1"></a>           <span class="at">.default =</span> <span class="cn">NA_character_</span>),</span>
+<span id="cb20-325"><a href="#cb20-325" aria-hidden="true" tabindex="-1"></a>         <span class="at">.after =</span> var) <span class="sc">|&gt;</span> </span>
+<span id="cb20-326"><a href="#cb20-326" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(op)) <span class="sc">|&gt;</span> </span>
+<span id="cb20-327"><a href="#cb20-327" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">n =</span> <span class="dv">124</span>)</span>
+<span id="cb20-328"><a href="#cb20-328" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-329"><a href="#cb20-329" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-330"><a href="#cb20-330" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-333"><a href="#cb20-333" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb20-334"><a href="#cb20-334" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: vars</span></span>
+<span id="cb20-335"><a href="#cb20-335" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
+<span id="cb20-336"><a href="#cb20-336" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb20-337"><a href="#cb20-337" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb20-338"><a href="#cb20-338" aria-hidden="true" tabindex="-1"></a><span class="co"># categorize_vars |&gt;</span></span>
+<span id="cb20-339"><a href="#cb20-339" aria-hidden="true" tabindex="-1"></a><span class="co">#   separate_longer_delim(cols = value, delim = ",") |&gt; </span></span>
+<span id="cb20-340"><a href="#cb20-340" aria-hidden="true" tabindex="-1"></a><span class="co">#   mutate(value = str_squish(value),</span></span>
+<span id="cb20-341"><a href="#cb20-341" aria-hidden="true" tabindex="-1"></a><span class="co">#          neg = case_when(str_detect(action, "not") ~ 1L, .default = 0L),</span></span>
+<span id="cb20-342"><a href="#cb20-342" aria-hidden="true" tabindex="-1"></a><span class="co">#          wc = case_when(str_detect(value, "\\*") ~ 1L, .default = 0L),</span></span>
+<span id="cb20-343"><a href="#cb20-343" aria-hidden="true" tabindex="-1"></a><span class="co">#          .after = value)</span></span>
+<span id="cb20-344"><a href="#cb20-344" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb20-345"><a href="#cb20-345" aria-hidden="true" tabindex="-1"></a><span class="co"># head_tail(rules_new, n = 10, by = c("var", "action")) |&gt; </span></span>
+<span id="cb20-346"><a href="#cb20-346" aria-hidden="true" tabindex="-1"></a><span class="co">#   gt() |&gt; </span></span>
+<span id="cb20-347"><a href="#cb20-347" aria-hidden="true" tabindex="-1"></a><span class="co">#   cols_align(align = "left") |&gt;</span></span>
+<span id="cb20-348"><a href="#cb20-348" aria-hidden="true" tabindex="-1"></a><span class="co">#   opt_table_font(font = google_font(name = "Roboto Condensed")) |&gt; </span></span>
+<span id="cb20-349"><a href="#cb20-349" aria-hidden="true" tabindex="-1"></a><span class="co">#   opt_all_caps() |&gt; </span></span>
+<span id="cb20-350"><a href="#cb20-350" aria-hidden="true" tabindex="-1"></a><span class="co">#   tab_style(</span></span>
+<span id="cb20-351"><a href="#cb20-351" aria-hidden="true" tabindex="-1"></a><span class="co">#       style = cell_text(</span></span>
+<span id="cb20-352"><a href="#cb20-352" aria-hidden="true" tabindex="-1"></a><span class="co">#         align = 'left',</span></span>
+<span id="cb20-353"><a href="#cb20-353" aria-hidden="true" tabindex="-1"></a><span class="co">#         weight = "bold",</span></span>
+<span id="cb20-354"><a href="#cb20-354" aria-hidden="true" tabindex="-1"></a><span class="co">#         font = google_font(name = "Roboto Mono")),</span></span>
+<span id="cb20-355"><a href="#cb20-355" aria-hidden="true" tabindex="-1"></a><span class="co">#       locations = cells_body(columns = c(var, action, value))) |&gt; </span></span>
+<span id="cb20-356"><a href="#cb20-356" aria-hidden="true" tabindex="-1"></a><span class="co">#   tab_options(table.width = pct(100),</span></span>
+<span id="cb20-357"><a href="#cb20-357" aria-hidden="true" tabindex="-1"></a><span class="co">#               quarto.disable_processing = TRUE)</span></span>
+<span id="cb20-358"><a href="#cb20-358" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-359"><a href="#cb20-359" aria-hidden="true" tabindex="-1"></a><span class="co"># rules_new |&gt;</span></span>
+<span id="cb20-360"><a href="#cb20-360" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(!is.na(var)) |&gt; </span></span>
+<span id="cb20-361"><a href="#cb20-361" aria-hidden="true" tabindex="-1"></a><span class="co">#   group_by(var) |&gt;</span></span>
+<span id="cb20-362"><a href="#cb20-362" aria-hidden="true" tabindex="-1"></a><span class="co">#   count(action) |&gt;</span></span>
+<span id="cb20-363"><a href="#cb20-363" aria-hidden="true" tabindex="-1"></a><span class="co">#   ungroup() |&gt;</span></span>
+<span id="cb20-364"><a href="#cb20-364" aria-hidden="true" tabindex="-1"></a><span class="co">#   arrange(var, desc(n), action) |&gt; </span></span>
+<span id="cb20-365"><a href="#cb20-365" aria-hidden="true" tabindex="-1"></a><span class="co">#   gt(groupname_col = "var", row_group_as_column = TRUE) |&gt; </span></span>
+<span id="cb20-366"><a href="#cb20-366" aria-hidden="true" tabindex="-1"></a><span class="co">#   cols_align(align = "left") |&gt;</span></span>
+<span id="cb20-367"><a href="#cb20-367" aria-hidden="true" tabindex="-1"></a><span class="co">#   opt_table_font(</span></span>
+<span id="cb20-368"><a href="#cb20-368" aria-hidden="true" tabindex="-1"></a><span class="co">#     font = google_font(name = "Roboto Condensed"),</span></span>
+<span id="cb20-369"><a href="#cb20-369" aria-hidden="true" tabindex="-1"></a><span class="co">#     weight = "bold"</span></span>
+<span id="cb20-370"><a href="#cb20-370" aria-hidden="true" tabindex="-1"></a><span class="co">#     ) |&gt; </span></span>
+<span id="cb20-371"><a href="#cb20-371" aria-hidden="true" tabindex="-1"></a><span class="co">#   opt_all_caps() |&gt; </span></span>
+<span id="cb20-372"><a href="#cb20-372" aria-hidden="true" tabindex="-1"></a><span class="co">#   tab_style(</span></span>
+<span id="cb20-373"><a href="#cb20-373" aria-hidden="true" tabindex="-1"></a><span class="co">#       style = cell_text(</span></span>
+<span id="cb20-374"><a href="#cb20-374" aria-hidden="true" tabindex="-1"></a><span class="co">#         align = 'left',</span></span>
+<span id="cb20-375"><a href="#cb20-375" aria-hidden="true" tabindex="-1"></a><span class="co">#         weight = "normal",</span></span>
+<span id="cb20-376"><a href="#cb20-376" aria-hidden="true" tabindex="-1"></a><span class="co">#         font = google_font(name = "Roboto Mono")),</span></span>
+<span id="cb20-377"><a href="#cb20-377" aria-hidden="true" tabindex="-1"></a><span class="co">#       locations = cells_body(columns = c(var, action))) |&gt; </span></span>
+<span id="cb20-378"><a href="#cb20-378" aria-hidden="true" tabindex="-1"></a><span class="co">#   tab_options(table.width = pct(100),</span></span>
+<span id="cb20-379"><a href="#cb20-379" aria-hidden="true" tabindex="-1"></a><span class="co">#               quarto.disable_processing = TRUE)</span></span>
+<span id="cb20-380"><a href="#cb20-380" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-381"><a href="#cb20-381" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-382"><a href="#cb20-382" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-383"><a href="#cb20-383" aria-hidden="true" tabindex="-1"></a><span class="fu">## Regexes</span></span>
+<span id="cb20-384"><a href="#cb20-384" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-387"><a href="#cb20-387" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb20-388"><a href="#cb20-388" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: regex</span></span>
+<span id="cb20-389"><a href="#cb20-389" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
+<span id="cb20-390"><a href="#cb20-390" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb20-391"><a href="#cb20-391" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb20-392"><a href="#cb20-392" aria-hidden="true" tabindex="-1"></a><span class="co"># rules_new |&gt; </span></span>
+<span id="cb20-393"><a href="#cb20-393" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(wc == 1,</span></span>
+<span id="cb20-394"><a href="#cb20-394" aria-hidden="true" tabindex="-1"></a><span class="co">#          var == "hcpcs") |&gt;</span></span>
+<span id="cb20-395"><a href="#cb20-395" aria-hidden="true" tabindex="-1"></a><span class="co">#   mutate(value = str_remove_all(value, "\\*"),</span></span>
+<span id="cb20-396"><a href="#cb20-396" aria-hidden="true" tabindex="-1"></a><span class="co">#          chars = 5 - str_length(value),</span></span>
+<span id="cb20-397"><a href="#cb20-397" aria-hidden="true" tabindex="-1"></a><span class="co">#          .after = value) |&gt; </span></span>
+<span id="cb20-398"><a href="#cb20-398" aria-hidden="true" tabindex="-1"></a><span class="co">#   mutate(</span></span>
+<span id="cb20-399"><a href="#cb20-399" aria-hidden="true" tabindex="-1"></a><span class="co">#     regex = case_when(</span></span>
+<span id="cb20-400"><a href="#cb20-400" aria-hidden="true" tabindex="-1"></a><span class="co">#       chars == 0 ~ glue_chr("^&lt;&lt;value&gt;&gt;$", .open = "&lt;&lt;", .close = "&gt;&gt;"),</span></span>
+<span id="cb20-401"><a href="#cb20-401" aria-hidden="true" tabindex="-1"></a><span class="co">#       chars == 1 ~ glue_chr("^&lt;&lt;value&gt;&gt;[0-9]$", .open = "&lt;&lt;", .close = "&gt;&gt;"),</span></span>
+<span id="cb20-402"><a href="#cb20-402" aria-hidden="true" tabindex="-1"></a><span class="co">#       chars &gt; 1 ~ glue_chr("^&lt;&lt;value&gt;&gt;[0-9]{&lt;&lt;chars&gt;&gt;}$", .open = "&lt;&lt;", .close = "&gt;&gt;")),</span></span>
+<span id="cb20-403"><a href="#cb20-403" aria-hidden="true" tabindex="-1"></a><span class="co">#     regex = case_when(neg == 1L ~ glue_chr('!{regex}'), .default = regex),</span></span>
+<span id="cb20-404"><a href="#cb20-404" aria-hidden="true" tabindex="-1"></a><span class="co">#     .after = regex</span></span>
+<span id="cb20-405"><a href="#cb20-405" aria-hidden="true" tabindex="-1"></a><span class="co">#   ) |&gt; </span></span>
+<span id="cb20-406"><a href="#cb20-406" aria-hidden="true" tabindex="-1"></a><span class="co">#   head_tail(n = 10, by = c("var", "action")) |&gt; </span></span>
+<span id="cb20-407"><a href="#cb20-407" aria-hidden="true" tabindex="-1"></a><span class="co">#   gt() |&gt; </span></span>
+<span id="cb20-408"><a href="#cb20-408" aria-hidden="true" tabindex="-1"></a><span class="co">#   cols_align(align = "left") |&gt;</span></span>
+<span id="cb20-409"><a href="#cb20-409" aria-hidden="true" tabindex="-1"></a><span class="co">#   opt_table_font(font = google_font(name = "Roboto Condensed")) |&gt; </span></span>
+<span id="cb20-410"><a href="#cb20-410" aria-hidden="true" tabindex="-1"></a><span class="co">#   opt_all_caps() |&gt; </span></span>
+<span id="cb20-411"><a href="#cb20-411" aria-hidden="true" tabindex="-1"></a><span class="co">#   tab_style(</span></span>
+<span id="cb20-412"><a href="#cb20-412" aria-hidden="true" tabindex="-1"></a><span class="co">#       style = cell_text(</span></span>
+<span id="cb20-413"><a href="#cb20-413" aria-hidden="true" tabindex="-1"></a><span class="co">#         align = 'left',</span></span>
+<span id="cb20-414"><a href="#cb20-414" aria-hidden="true" tabindex="-1"></a><span class="co">#         weight = "bold",</span></span>
+<span id="cb20-415"><a href="#cb20-415" aria-hidden="true" tabindex="-1"></a><span class="co">#         font = google_font(name = "Roboto Mono")),</span></span>
+<span id="cb20-416"><a href="#cb20-416" aria-hidden="true" tabindex="-1"></a><span class="co">#       locations = cells_body(columns = c(regex))) |&gt; </span></span>
+<span id="cb20-417"><a href="#cb20-417" aria-hidden="true" tabindex="-1"></a><span class="co">#   tab_options(table.width = pct(100),</span></span>
+<span id="cb20-418"><a href="#cb20-418" aria-hidden="true" tabindex="-1"></a><span class="co">#               quarto.disable_processing = TRUE)</span></span>
+<span id="cb20-419"><a href="#cb20-419" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-420"><a href="#cb20-420" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-421"><a href="#cb20-421" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-424"><a href="#cb20-424" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb20-425"><a href="#cb20-425" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: misc</span></span>
+<span id="cb20-426"><a href="#cb20-426" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb20-427"><a href="#cb20-427" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
+<span id="cb20-428"><a href="#cb20-428" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb20-429"><a href="#cb20-429" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb20-430"><a href="#cb20-430" aria-hidden="true" tabindex="-1"></a>northstar<span class="sc">::</span><span class="fu">search_descriptions</span>(<span class="at">hcpcs_desc_type =</span> <span class="st">"Long"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb20-431"><a href="#cb20-431" aria-hidden="true" tabindex="-1"></a>  <span class="co"># dplyr::mutate(not_hcpcs = !grepl("^99[0-9]{3}$", hcpcs_code)) |&gt; </span></span>
+<span id="cb20-432"><a href="#cb20-432" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">grepl</span>(<span class="st">"^99[0-9]{3,3}$"</span>, hcpcs_code)) <span class="sc">|&gt;</span></span>
+<span id="cb20-433"><a href="#cb20-433" aria-hidden="true" tabindex="-1"></a>  <span class="co"># dplyr::mutate(has_hcpcs = grepl("^J[0-9]{4}$", hcpcs_code)) |&gt; </span></span>
+<span id="cb20-434"><a href="#cb20-434" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(hcpcs_code, <span class="fu">regex</span>(<span class="st">"^J[0-9]{4}$"</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb20-435"><a href="#cb20-435" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(hcpcs_code, <span class="fu">regex</span>(<span class="st">"^(?!5405)(?&lt;![0-9]{1})$"</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb20-436"><a href="#cb20-436" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">n =</span> <span class="dv">200</span>)</span>
+<span id="cb20-437"><a href="#cb20-437" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-438"><a href="#cb20-438" aria-hidden="true" tabindex="-1"></a><span class="co"># Match strings that don't start with "99" and don't end with 3 digits</span></span>
+<span id="cb20-439"><a href="#cb20-439" aria-hidden="true" tabindex="-1"></a>pattern <span class="ot">&lt;-</span> <span class="st">"^(?!99).*(?&lt;![0-9]{3})$"</span></span>
+<span id="cb20-440"><a href="#cb20-440" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-441"><a href="#cb20-441" aria-hidden="true" tabindex="-1"></a><span class="co"># Negation pattern</span></span>
+<span id="cb20-442"><a href="#cb20-442" aria-hidden="true" tabindex="-1"></a><span class="st">"^(?!9938[0-9]{1}$)"</span></span>
+<span id="cb20-443"><a href="#cb20-443" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-444"><a href="#cb20-444" aria-hidden="true" tabindex="-1"></a><span class="co"># Begins with 0, ends with digit</span></span>
+<span id="cb20-445"><a href="#cb20-445" aria-hidden="true" tabindex="-1"></a><span class="st">"^0.*</span><span class="sc">\\</span><span class="st">d$"</span></span>
+<span id="cb20-446"><a href="#cb20-446" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-447"><a href="#cb20-447" aria-hidden="true" tabindex="-1"></a><span class="co"># Begins with 0, ends with letter</span></span>
+<span id="cb20-448"><a href="#cb20-448" aria-hidden="true" tabindex="-1"></a><span class="st">"^0.*[A-Z]$"</span></span>
+<span id="cb20-449"><a href="#cb20-449" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-450"><a href="#cb20-450" aria-hidden="true" tabindex="-1"></a><span class="co"># Match strings that don't start with "a" and don't end with "z"</span></span>
+<span id="cb20-451"><a href="#cb20-451" aria-hidden="true" tabindex="-1"></a>pattern <span class="ot">&lt;-</span> <span class="st">"^(?!a).*[^z]$"</span></span>
+<span id="cb20-452"><a href="#cb20-452" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span>(pattern, <span class="fu">c</span>(<span class="st">"apple"</span>, <span class="st">"banana"</span>, <span class="st">"cherry"</span>), <span class="at">value =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb20-453"><a href="#cb20-453" aria-hidden="true" tabindex="-1"></a><span class="co"># Output: "banana" "cherry"</span></span>
+<span id="cb20-454"><a href="#cb20-454" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-455"><a href="#cb20-455" aria-hidden="true" tabindex="-1"></a>stringr<span class="sc">::</span><span class="fu">str_detect</span>(<span class="st">"99202"</span>, stringr<span class="sc">::</span><span class="fu">regex</span>(<span class="st">"^[992]{3}.*"</span>))</span>
+<span id="cb20-456"><a href="#cb20-456" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-457"><a href="#cb20-457" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span>(<span class="st">"^[992]{3}.*"</span>, <span class="st">"99202"</span>, <span class="at">value =</span> <span class="cn">TRUE</span>, <span class="at">invert =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb20-458"><a href="#cb20-458" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-459"><a href="#cb20-459" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-460"><a href="#cb20-460" aria-hidden="true" tabindex="-1"></a><span class="co"># pattern = dplyr::case_when(</span></span>
+<span id="cb20-461"><a href="#cb20-461" aria-hidden="true" tabindex="-1"></a><span class="co">#   chars == 0 &amp; negation == FALSE ~ glue::glue("^&lt;value&gt;$", .open = "&lt;", .close = "&gt;"),</span></span>
+<span id="cb20-462"><a href="#cb20-462" aria-hidden="true" tabindex="-1"></a><span class="co">#   chars &gt; 0  &amp; negation == FALSE ~ glue::glue("^&lt;value&gt;[0-9]{&lt;chars&gt;}$", .open = "&lt;", .close = "&gt;"),</span></span>
+<span id="cb20-463"><a href="#cb20-463" aria-hidden="true" tabindex="-1"></a><span class="co">#   chars == 0 &amp; negation == TRUE ~ glue::glue("^(?!&lt;value&gt;)$", .open = "&lt;", .close = "&gt;"),</span></span>
+<span id="cb20-464"><a href="#cb20-464" aria-hidden="true" tabindex="-1"></a><span class="co">#   chars &gt; 0  &amp; negation == TRUE ~ glue::glue("^(?!&lt;&lt;value&gt;&gt;)(?&lt;![0-9]{&lt;&lt;chars&gt;&gt;})$", .open = "&lt;&lt;", .close = "&gt;&gt;")</span></span>
+<span id="cb20-465"><a href="#cb20-465" aria-hidden="true" tabindex="-1"></a><span class="co">#   ),</span></span>
+<span id="cb20-466"><a href="#cb20-466" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

@@ -251,7 +251,7 @@ categorize_vars |>
   print(n = 1000)
 ```
 
-## HCPCS Unit
+## Unit (HCPCS)
 
 ```{r}
 categorize_vars |> 
@@ -282,6 +282,31 @@ categorize_vars |>
            "!is.na(x)")
          ) |> 
   print(n = 24)
+```
+
+## ICD
+
+has all
+is
+is not
+is one of
+
+some values contain wildcards *
+
+```{r}
+categorize_vars |> 
+  filter(var == "icd") |>
+  mutate(wc = case_when(str_detect(value, "\\*") ~ 1L, .default = 0L),
+         wc_nchar = if_else(wc ==1, str_count(value, "[[:alnum:]]"), 0L),
+         type = "<chr>",
+         .after = id_order) |> 
+  mutate(op = case_when(
+           action == "is" & wc == 1 ~ "%in%",
+           action == "is" & wc == 0 ~ "==",
+           .default = NA_character_),
+         .after = var) |> 
+  filter(!is.na(op)) |> 
+  print(n = 124)
 ```
 
 
