@@ -35,6 +35,29 @@ head_tail <- function(x, n = 5, by = NULL) {
     dplyr::slice_tail(x, n = n, by = dplyr::all_of(by)))
 }
 
+count_unique <- \(df, 
+                  ..., 
+                  .rename_first = "value", 
+                  .set_names, 
+                  .names_to = "variable") {
+  
+  df <- fuimus::df_2_chr(df)
+  df <- dplyr::select(df, ...) |> 
+    names() |> 
+    purrr::map(~ dplyr::count(df, .data[[.x]], sort = TRUE)) |> 
+    purrr::set_names(nm = .set_names)
+  
+  first_column_rename <- \(x, first = .rename_first) {
+    for (i in 1:length(x)) {
+      colnames(x[[i]])[1] <- first
+      }
+    x
+  }
+  
+  first_column_rename(df) |> 
+    purrr::list_rbind(names_to = .names_to)
+}
+
 rules <- read_csv(
   here("posts/claims_rules/data/rules_raw.csv"),
   col_types = cols(
@@ -70,35 +93,28 @@ rules <- read_csv(
     rdesc = remove_quotes(rdesc),
     rdesc = str_remove_all(rdesc, "\\r|\\n")) |> 
   fill(rdesc)
-
-rules_desc <- rules |> 
-  select(rid, rnm, rcat, rdesc, rmsg) |> 
-  distinct()
-
-rules_parts <- rules |> 
-  select(rid, rord, rvar, ract, rval)
 ```
 
 
 ## Descriptors Overview
 
-`rcat`: Move urls to own column
-`rnm`: split letters/numbers, categorize further
-`rdesc`: human readable full rule
-`rmsg`: actually the description or explanation
+-   [ ] `rcat`: Move urls to own column
+-   [ ] `rnm`: split letters/numbers, categorize further
+-   [ ] `rdesc`: human readable full rule
+-   [ ] `rmsg`: actually the description or explanation
 
 ```{r}
 #| label: rules_desc
 #| echo: true
 #| message: false
 #| warning: false
+rules_desc <- rules |> 
+  select(rid, rnm, rcat, rdesc, rmsg) |> 
+  distinct()
+
 rules_desc |> 
-  hacksaw::count_split(
-    rnm, 
-    rcat, 
-    rdesc, 
-    rmsg
-  )
+  count_unique(rnm, rcat, rdesc, rmsg, 
+               .set_names = c("name", "category", "description", "message"))
 ```
 
 
@@ -109,14 +125,12 @@ rules_desc |>
 #| echo: true
 #| message: false
 #| warning: false
+rules_parts <- rules |> 
+  select(rid, rord, rvar, ract, rval)
+
 rules_parts |> 
-  hacksaw::count_split(
-    rid, 
-    rord, 
-    rvar, 
-    ract,
-    rval
-  )
+  count_unique(rid, rord, rvar, ract, rval,
+               .set_names = c("id", "step", "variable", "action", "value"))
 ```
 
 
@@ -187,13 +201,8 @@ rules_parts <- rules_parts |>
     )
 
 rules_parts |> 
-  hacksaw::count_split(
-    rid, 
-    rord, 
-    rvar, 
-    ract,
-    rval
-  )
+  count_unique(rid, rord, rvar, ract, rval,
+               .set_names = c("id", "step", "variable", "action", "value"))
 ```
 
 
