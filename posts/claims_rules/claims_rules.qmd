@@ -73,129 +73,165 @@ rules <- read_csv(
   rule      = col_character(),
   x9        = col_character(),
   x10       = col_character())) |> 
+  mutate(
+    category = remove_quotes(as.character(category)),
+    category = str_remove_all(category, "\\r|\\n"),
+    alert = remove_quotes(alert),
+    alert = str_remove_all(alert, "\\r|\\n"),
+    rule = remove_quotes(rule),
+    rule = str_remove_all(rule, "\\r|\\n")) |> 
+  fill(rule) |> 
   select(
     row,
-    rid   = id_rule,
-    rord  = id_order,
-    rnm   = id_name,
-    rvar  = var,
-    ract  = action,
-    rval  = value,
-    rcat  = category,
-    rdesc = rule,
-    rmsg  = alert
-  ) |>
-  mutate(
-    rcat  = remove_quotes(as.character(rcat)),
-    rcat  = str_remove_all(rcat, "\\r|\\n"),
-    rmsg  = remove_quotes(rmsg),
-    rmsg  = str_remove_all(rmsg, "\\r|\\n"),
-    rdesc = remove_quotes(rdesc),
-    rdesc = str_remove_all(rdesc, "\\r|\\n")) |> 
-  fill(rdesc)
+    id = id_rule,
+    step = id_order,
+    name = id_name,
+    variable = var,
+    action,
+    value,
+    category,
+    description = rule,
+    rationale  = alert
+  )
 ```
 
 
-# Rule Anatomy
+# Anatomy of a Rule
 
    - Rule Descriptors
-      - `rnm`: Unique Alphanumeric Identifier
-      - `rid`: Unique Numeric Identifier; Primary Key
-         - `rnm == rid`: *Both refer to the same rule*
-      - `rdesc`: Single-Line, Human Readable Description of Rule Steps
-      - `rmsg`: Rationale for Rule Implementation
-      - `rcat`: High-Level Classification of Rule
+      - `id`: Unique Numeric Identifier; `<Primary Key>`
+      - `name`: Unique Alphanumeric Identifier; `<Primary Key>`
+      - `category`: High-Level Classification
+      - `description`: Human Readable Description of Rule Steps
+      - `rationale`: Reason for Implementation
+      - `sources`: URLs, References, or Documentation
   - Step Components
-      - `rord`: Indicates Order of Step in Rule Validation
-      - `rvar`: Variable to Evaluate
-      - `ract`: Operation Performed to Test for Expected State
-      - `rval`: Value Representing Expected State of Rule Variable
+      - `step`: Indicates Order of Step in Rule Validation
+      - `variable`: Variable to Evaluate
+      - `class`: Operation Performed to Test for Expected State
+      - `method`: Operation Performed to Test for Expected State
+      - `action`: Operation Performed to Test for Expected State
+      - `value`: Value Representing Expected State of Rule Variable
 
-
-## Rule Descriptors
-
--   [ ] `rnm`: split letters/numbers, categorize further
--   [X] `rcat`: Extract urls to own column
--   [ ] `rdesc`: human readable full rule
--   [ ] `rmsg`: actually the description or explanation
 
 ```{r}
-#| label: rules_desc
+rules[1, 2:10] |> glimpse()
+
+rules[2, 2:10] |> glimpse()
+```
+
+
+## Descriptors
+
+-   [ ] `id`: 
+-   [ ] `name`: split letters/numbers, categorize further
+-   [X] `category`: Extract urls to `sources`
+-   [ ] `description`:
+-   [ ] `rationale`:
+-   [X] `sources`:
+
+```{r}
+#| label: descriptors
 #| echo: true
 #| message: false
 #| warning: false
-rules_desc <- rules |> 
-  select(rid, rnm, rcat, rdesc, rmsg) |> 
+descriptors <- rules |> 
+  select(id, name, category, description, rationale) |> 
   distinct()
 
-rules_desc
+descriptors
 ```
 
 
 ```{r}
-rules_desc_summary <- rules_desc |> 
+rules_desc_summary <- descriptors |> 
   count_unique(
-    rnm, 
-    rcat, 
-    rdesc, 
-    rmsg, 
-    .set_names = names(rules_desc[2:5]))
+    name, category, description, rationale, 
+    .set_names = names(descriptors[2:5]))
 
 rules_desc_summary |> 
-  filter(variable == "rcat")
+  filter(variable == "category")
 ```
 
 ### Categories
 
 ```{r}
-#| label: rules_cat_url
+#| label: category
 #| echo: true
 #| message: false
 #| warning: false
-rules_desc <- rules_desc |> 
-  mutate(https = str_extract_all(rcat,"https?://[^\\s]+"),
-         rcat = str_remove_all(rcat,"https?://[^\\s]+")) |>
-  unnest(https, keep_empty = TRUE) |>
-  separate_longer_delim(https, delim = "https:") |>
-  mutate(https = na_if(https, "") |> str_squish(),
-         https = if_else(!is.na(https), str_c("https:", https), https),
-         rcat = na_if(rcat, "") |> str_squish(),
-         rdesc = str_squish(rdesc)) |> 
-  nest(urls = c(https))
+descriptors <- descriptors |> 
+  mutate(sources = str_extract_all(category,"https?://[^\\s]+"),
+         category = str_remove_all(category,"https?://[^\\s]+")) |>
+  unnest(sources, keep_empty = TRUE) |>
+  separate_longer_delim(sources, delim = "https:") |>
+  mutate(sources = na_if(sources, "") |> str_squish(),
+         sources = if_else(!is.na(sources), str_c("https:", sources), sources),
+         category = na_if(category, "") |> str_squish(),
+         description = str_squish(description),
+         description = str_remove_all(description, "►"),
+         description = gsub(",(?!\\s)", ", ", description, perl = TRUE) |> str_squish(),
+         rationale = str_squish(rationale),
+         rationale = str_remove_all(rationale, "►"),
+         rationale = gsub(",(?!\\s)", ", ", rationale, perl = TRUE) |> str_squish()
+         ) |> 
+  nest(sources = c(sources))
 
-rules_desc |>
-  mutate(rcat = str_wrap(rcat, width = 50),
-         rdesc = str_wrap(rdesc, width = 50),
-         rmsg = str_wrap(rdesc, width = 50)) |>
-  select(-urls) |> 
-  gt() |>
-  cols_align(align = "left") |>
+descriptors |>
+  mutate(category = str_wrap(category, width = 50),
+         description = str_wrap(description, width = 60),
+         rationale = str_wrap(rationale, width = 50)) |>
+  select(-sources) |> 
+  gt(rowname_col = "name",
+     groupname_col = "category",
+     row_group_as_column = TRUE) |>
+  cols_align(align = "left", columns = -c(id)) |>
+  cols_align(align = "center", columns = c(id)) |>
   opt_table_font(font = google_font(name = "Roboto Condensed")) |>
   opt_all_caps() |>
   tab_style(
       style = cell_text(
-        align = 'left',
+        align = "left",
         weight = "bold",
+        size = px(14),
+        whitespace = "break-spaces",
         font = google_font(name = "Roboto Mono")),
-      locations = cells_body(columns = c(rdesc))) |>
-  tab_options(table.width = pct(100),
+      locations = cells_body(columns = c(description))) |>
+  tab_style(
+      style = cell_text(
+        color = "#0B0B35",
+        align = "center",
+        weight = "bold",
+        size = px(16),
+        font = google_font(name = "Roboto Condensed")),
+      locations = cells_body(columns = c(id))) |>
+  tab_stubhead(label = "Rule Category") |> 
+  tab_row_group(label = "Name", rows = everything()) |> 
+  tab_style(
+    style = cell_text(
+      v_align = "middle", 
+      weight = "800"),
+    locations = cells_stubhead()) |> 
+  opt_stylize(add_row_striping = TRUE) |>
+  tab_options(table.width = pct(85),
               quarto.disable_processing = TRUE)
 ```
 
 
-## Step Components
+## Components
 
 ```{r}
 #| label: rules_parts
 #| echo: true
 #| message: false
 #| warning: false
-rules_parts <- rules |> 
-  select(rid, rord, rvar, ract, rval)
+components <- rules |> 
+  select(id, step, variable, action, value) |> 
+  distinct()
 
-rules_parts |> 
+components |> 
   count_unique(
-    rid, rord, rvar, ract, rval,
+   id, step, variable, action, value,
     .set_names = c("id", "step", "variable", "action", "value"))
 ```
 
@@ -207,9 +243,8 @@ rules_parts |>
 #| echo: true
 #| message: false
 #| warning: false
-rules_parts <- rules_parts |>
-  mutate(rvar = case_match(
-    rvar,
+components <- components |>
+  mutate(variable = case_match(variable,
       c("CPT CODE", 
         "CPT Code", 
         "CPT code", 
@@ -262,13 +297,14 @@ rules_parts <- rules_parts |>
       "Secondary Insurance" ~ "secondary_name",
       c("Primary Insurance Authorization (Presence)", 
         "Primary Insurance Authorization (Presence) is not [Present]") ~ "primary_auth",
-      .default = rvar) |> 
+      .default = variable) |> 
       as_factor()
     )
 
-rules_parts |> 
-  count_unique(rid, rord, rvar, ract, rval,
-               .set_names = c("id", "step", "variable", "action", "value"))
+components |> 
+  count_unique(
+   id, step, variable, action, value,
+    .set_names = c("id", "step", "variable", "action", "value"))
 ```
 
 
@@ -277,13 +313,13 @@ rules_parts |>
 #| echo: true
 #| message: false
 #| warning: false
-rules_parts |> 
-  filter(!is.na(ract)) |>
-  count(rvar, ract) |> 
-  arrange(rvar, desc(n)) |> 
+components |> 
+  filter(!is.na(action)) |>
+  count(variable, action) |> 
+  arrange(variable, desc(n)) |> 
   reframe(
-    var_name = rvar,
-    var_type = case_match(rvar,
+    variable,
+    class = case_match(variable,
       c("sex", "rendering", "referring", 
         "primary_auth", "primary_class", 
         "primary_name", "secondary_class", 
@@ -294,7 +330,7 @@ rules_parts |>
       c("rev_code", "unit") ~ "<int>",
       c("dos", "dob") ~ "<date>"
     ) |> as_factor(),
-    var_class = case_match(as.character(rvar),
+    group = case_match(as.character(variable),
       c("sex", "dos", "dob") ~ "patient",
       c("rendering", "referring") ~ "provider",
       c("hcpcs", "mod_1", "mod_2", "mod_3", "mod_4", 
@@ -306,14 +342,10 @@ rules_parts |>
         "primary_name", "secondary_class", 
         "secondary_name") ~ "payer"
     ) |> as_factor(),
-    var_action = ract
+    action
   ) |> 
-  select(
-    var_type, 
-    var_class, 
-    var_name, 
-    var_action) |> 
-  arrange(var_type, var_class, var_name) |>
+  select(class, group, variable, action) |> 
+  arrange(class, group, variable) |>
   gt() |>
   cols_align(align = "left") |>
   opt_table_font(font = google_font(name = "Roboto Condensed")) |>
@@ -323,20 +355,31 @@ rules_parts |>
         align = 'left',
         weight = "bold",
         font = google_font(name = "Roboto Mono")),
-      locations = cells_body(columns = c(var_action))) |>
+      locations = cells_body(columns = c(action))) |>
+  tab_style(
+      style = cell_text(
+        align = 'left',
+        weight = "normal",
+        style = "italic",
+        decorate = "underline",
+        stretch = "condensed",
+        font = google_font(name = "Fira Code")),
+      locations = cells_body(columns = c(class))) |>
   tab_options(table.width = pct(100),
               quarto.disable_processing = TRUE)
 ```
 
-## Date of Service
+## Variables
+
+### Date of Service
 
 ```{r}
-rules_parts |> 
-  filter(rvar == "dos") |> 
-  mutate(type = "<date>",
-         rval = anytime::anydate(rval),
-         op = if_else(str_detect(ract, "after"), ">", "<")) |> 
-  select(rid, rord, type, rvar, op, rval) |> 
+components |> 
+  filter(variable == "dos") |> 
+  mutate(class = "<date>",
+         value = anytime::anydate(value),
+         method = if_else(str_detect(action, "after"), ">", "<")) |> 
+  select(id, step, class, variable, method, value) |> 
   gt() |>
   cols_align(align = "left") |>
   opt_table_font(font = google_font(name = "Roboto Condensed")) |>
@@ -346,42 +389,54 @@ rules_parts |>
         align = 'left',
         weight = "bold",
         font = google_font(name = "Roboto Mono")),
-      locations = cells_body(columns = c(rvar, op, rval))) |>
+      locations = cells_body(columns = c(variable, method, value))) |>
+  tab_style(
+      style = cell_text(
+        align = 'left',
+        weight = "normal",
+        style = "italic",
+        decorate = "underline",
+        stretch = "condensed",
+        font = google_font(name = "Fira Code")),
+      locations = cells_body(columns = c(class))) |>
+  opt_stylize() |>
   tab_options(table.width = pct(100),
               quarto.disable_processing = TRUE)
 ```
 
-## Patient Age
+### Patient Age
+
+All ages should be in the same unit of time, in this case, days.
+
+Should be calculated from the encounter's Date of Service (`dos`) and the patient's Date of Birth (`dob`).
 
 ```{r}
-rules_parts |> 
-  filter(rvar == "dob") |> 
-  mutate(
-    var = "age",
-    type = "<int>", 
-    .before = var) |> 
-  mutate(age = strex::str_extract_numbers(rval),
-         time = strex::str_extract_non_numerics(rval)) |> 
-  unnest(c(age, time)) |> 
+components |> 
+  filter(variable == "dob") |> 
+  mutate(variable = "age",
+         class = "<int>", 
+         age = strex::str_extract_numbers(value),
+         period = strex::str_extract_non_numerics(value),
+         .before = variable) |> 
+  unnest(c(age, period)) |> 
   mutate(
     age = as.integer(age),
-    time = str_remove_all(time, "\\s|,"),
-    rval = NULL,
-    op = case_match(ract,
-                    c("is younger than", "younger than") ~ "<",
-                    "is older than" ~ ">",
-                    "is" ~ "==",
-                    .default = NA_character_
-                    ),
+    period = str_remove_all(period, "\\s|,"),
+    value = NULL,
+    method = case_match(
+      action,
+      c("is younger than", "younger than") ~ "<",
+      "is older than" ~ ">",
+      "is" ~ "==",
+      .default = NA_character_),
     days = case_when(
-      time == "years" ~ as.duration(years(age)) / ddays(1),
-      time == "months" ~ as.duration(months(age)) / ddays(1),
-      time == "days" ~ as.duration(days(age)) / ddays(1),
-      .default = NA_real_
-    ),
+      period == "years" ~ as.duration(years(age)) / ddays(1),
+      period == "months" ~ as.duration(months(age)) / ddays(1),
+      period == "days" ~ as.duration(days(age)) / ddays(1),
+      .default = NA_real_),
     dos = lubridate::today(),
   ) |> 
-  select(rid, rord, type, rvar, op, age, time, days) |> 
+  select(id, step, class, variable, method, age, period, days) |> 
   gt() |>
   cols_align(align = "left") |>
   opt_table_font(font = google_font(name = "Roboto Condensed")) |>
@@ -392,22 +447,30 @@ rules_parts |>
         align = 'left',
         weight = "bold",
         font = google_font(name = "Roboto Mono")),
-      locations = cells_body(columns = c(rvar, op))) |>
+      locations = cells_body(columns = c(variable, method))) |>
+  tab_style(
+      style = cell_text(
+        align = 'left',
+        weight = "normal",
+        style = "italic",
+        decorate = "underline",
+        stretch = "condensed",
+        font = google_font(name = "Fira Code")),
+      locations = cells_body(columns = c(class))) |>
   tab_options(table.width = pct(100),
               quarto.disable_processing = TRUE)
 ```
 
-## Unit (HCPCS)
+### Unit (HCPCS)
 
 ```{r}
-rules_parts |> 
-  filter(rvar == "unit") |> 
-  mutate(type = "<int>", 
-         rval = as.integer(rval),
-         .before = rvar, 
-         op = if_else(
-           str_detect(ract, "is not"), 
-           "!=", "==")) |> 
+components |> 
+  filter(variable == "unit") |> 
+  mutate(class = "<int>", 
+         value = as.integer(value),
+         method = if_else(str_detect(action, "is not"), "!=", "=="),
+         .before = variable) |> 
+  select(id, step, class, variable, method, value, action) |> 
   gt() |>
   cols_align(align = "left") |>
   opt_table_font(font = google_font(name = "Roboto Condensed")) |>
@@ -417,12 +480,21 @@ rules_parts |>
         align = 'left',
         weight = "bold",
         font = google_font(name = "Roboto Mono")),
-      locations = cells_body(columns = c(rvar, op, rval))) |>
+      locations = cells_body(columns = c(variable, method, value))) |>
+  tab_style(
+      style = cell_text(
+        align = 'left',
+        weight = "normal",
+        style = "italic",
+        decorate = "underline",
+        stretch = "condensed",
+        font = google_font(name = "Fira Code")),
+      locations = cells_body(columns = c(class))) |>
   tab_options(table.width = pct(100),
               quarto.disable_processing = TRUE)
 ```
 
-## NDC
+### NDC
 
 How can this be represented in relational algebra? Detect presence with regex?
 
@@ -430,15 +502,12 @@ If not present, then is `NA` its' representation? If so, `is.na(x)` would equal 
 
 
 ```{r}
-rules_parts |> 
-  filter(rvar == "ndc") |> 
-  mutate(type = "<lgl>", 
-         .before = rvar, 
-         op = if_else(
-           str_detect(ract, "is not"), 
-           "is.na(x)", 
-           "!is.na(x)")
-         ) |> 
+components |> 
+  filter(variable == "ndc") |> 
+  mutate(class = "<lgl>", 
+         .before = variable, 
+         method = if_else(str_detect(action, "is not"), "is.na(x)", "!is.na(x)")) |> 
+  select(id, step, class, variable, method, value, action) |> 
   gt() |>
   cols_align(align = "left") |>
   opt_table_font(font = google_font(name = "Roboto Condensed")) |>
@@ -448,12 +517,21 @@ rules_parts |>
         align = 'left',
         weight = "bold",
         font = google_font(name = "Roboto Mono")),
-      locations = cells_body(columns = c(rvar, op, rval))) |>
+      locations = cells_body(columns = c(variable, method, value))) |>
+  tab_style(
+      style = cell_text(
+        align = 'left',
+        weight = "normal",
+        style = "italic",
+        decorate = "underline",
+        stretch = "condensed",
+        font = google_font(name = "Fira Code")),
+      locations = cells_body(columns = c(class))) |>
   tab_options(table.width = pct(100),
               quarto.disable_processing = TRUE)
 ```
 
-## ICD
+### ICD
 
    * has all
    * is
@@ -463,18 +541,18 @@ rules_parts |>
 some values contain wildcards *
 
 ```{r}
-rules_parts |> 
-  filter(rvar == "icd") |>
-  mutate(wc = case_when(str_detect(rval, "\\*") ~ 1L, .default = 0L),
-         nchar = if_else(wc ==1, str_count(rval, "[[:alnum:]]"), 0L),
-         type = "<chr>",
-         .after = rord) |> 
-  mutate(op = case_when(
-           ract == "is" & wc == 1 ~ "%in%",
-           ract == "is" & wc == 0 ~ "==",
-           .default = NA_character_),
-         .after = rvar) |> 
-  filter(!is.na(op)) |> 
+components |> 
+  filter(variable == "icd") |>
+  mutate(wc = case_when(str_detect(value, "\\*") ~ 1L, .default = 0L),
+         nchar = if_else(wc ==1, str_count(value, "[[:alnum:]]"), 0L),
+         class = "<chr>",
+         method = case_when(
+           action == "is" & wc == 1 ~ "%in%",
+           action == "is" & wc == 0 ~ "==",
+           .default = NA_character_)
+         ) |> 
+  filter(!is.na(method)) |> 
+  select(id, step, class, variable, method, value, action, wc, nchar) |> 
   gt() |>
   cols_align(align = "left") |>
   opt_table_font(font = google_font(name = "Roboto Condensed")) |>
@@ -484,7 +562,16 @@ rules_parts |>
         align = 'left',
         weight = "bold",
         font = google_font(name = "Roboto Mono")),
-      locations = cells_body(columns = c(rvar, op, rval))) |>
+      locations = cells_body(columns = c(variable, method, value))) |>
+  tab_style(
+      style = cell_text(
+        align = 'left',
+        weight = "normal",
+        style = "italic",
+        decorate = "underline",
+        stretch = "condensed",
+        font = google_font(name = "Fira Code")),
+      locations = cells_body(columns = c(class))) |>
   tab_options(table.width = pct(100),
               quarto.disable_processing = TRUE)
 ```
