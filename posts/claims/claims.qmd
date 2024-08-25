@@ -15,7 +15,7 @@ editor_options:
 
 knitr::opts_chunk$set(
   dev = "ragg_png",
-  dpi = 320,
+  dpi = 150,
   out.width = "100%",
   fig.width = 8,
   fig.asp = 0.618,
@@ -101,10 +101,9 @@ procedure_sum <- procedures |>
     adjustments = na_sum(adjustments),
     .by = c(id, enc, dos)) |>
   filter(charges > 0) |>
-  arrange(dos)
-
-procedure_sum |> 
-  left_join(encounters, by = join_by(id, enc, dos)) |> 
+  arrange(dos) |> 
+  left_join(
+    encounters, by = join_by(id, enc, dos)) |> 
   select(
     id, 
     enc, 
@@ -129,7 +128,68 @@ procedure_sum |>
     loc,
     ins_class,
     ins_prim)
+
+procedure_sum
 ```
+
+```{r}
+procedure_sum |> 
+  summarise(
+    encounters = n(),
+    n_hcpcs = na_sum(n_hcpcs),
+    n_units = na_sum(n_units),
+    n_mod1 = na_sum(n_mod1),
+    n_mod2 = na_sum(n_mod2),
+    charges = na_sum(charges),
+    allowed = na_sum(allowed),
+    payments = na_sum(payments),
+    adjustments = na_sum(adjustments),
+    .by = c(year, quarter, month_l, rendering, ins_prim)) |> 
+  arrange(year, quarter, month_l) |> 
+  ggplot(aes(y = charges)) +
+  geom_boxplot(aes(group = year, fill = year)) +
+  scale_x_continuous(labels = scales::label_number(scale = 0.001, suffix = "k")) +
+  ggthemes::theme_fivethirtyeight() +
+  theme(legend.position = "none") +
+  theme(
+    axis.text.y = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank()
+  )
+```
+
+
+
+```{r}
+procedure_sum |> 
+  summarise(
+    encounters = n(),
+    n_hcpcs = na_sum(n_hcpcs),
+    n_units = na_sum(n_units),
+    n_mod1 = na_sum(n_mod1),
+    n_mod2 = na_sum(n_mod2),
+    charges = na_sum(charges),
+    allowed = na_sum(allowed),
+    payments = na_sum(payments),
+    adjustments = na_sum(adjustments),
+    .by = c(year, quarter, month_l, rendering, ins_prim)) |> 
+  arrange(year, quarter, month_l) |> 
+  ggplot(aes(x = payments, y = charges)) +
+  geom_point(aes(size = encounters, group = ins_prim, fill = ins_prim), colour = "black", shape = 21) +
+  geom_quantile(colour = "royalblue", linewidth = 1) +
+  # geom_hline(yintercept = 0, color = "black", linewidth = 0.5) +
+  # geom_vline(xintercept = 0, color = "grey50", linewidth = 0.5) +
+  scale_y_continuous(labels = scales::label_number(scale = 0.001, suffix = "k")) +
+  scale_x_continuous(labels = scales::label_number(scale = 0.001, suffix = "k")) +
+  ggthemes::theme_fivethirtyeight() +
+  coord_cartesian(clip = "off") +
+  theme(legend.position = "none") +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank()
+  )
+```
+
 
 ## Ratio Analysis
 
