@@ -28,12 +28,57 @@ library(tidyverse)
 library(here)
 library(gt)
 library(gtExtras)
-library(ggstatsplot)
 library(rbrvs)
 library(northstar)
 library(fuimus)
 
 source(here("posts/claims/scripts", "load.R"))
+
+claims <- claims |> distinct()
+
+encounters <- claims |> 
+  select(
+    id, 
+    enc, 
+    dos, 
+    dob,
+    age, 
+    # dor,
+    # lag,
+    # ref,
+    # ref_cred,
+    rendering = ren,
+    cred = ren_cred,
+    icd,
+    pos,
+    pos_name,
+    pos_type,
+    loc,
+    ins_class,
+    ins_prim,
+    # ins_sec,
+    year:wday_l) |> 
+  distinct()
+
+procedures <- claims |> 
+  select(
+    id, 
+    enc,
+    dos,
+    ord,
+    hcpcs, 
+    desc,
+    units,
+    mod1,
+    mod2,
+    charges, 
+    allowed, 
+    payments, 
+    adjustments,
+    adj1,
+    adj2,
+    adj3) |> 
+  distinct()
 ```
 
 
@@ -41,6 +86,59 @@ source(here("posts/claims/scripts", "load.R"))
 
 ```{r}
 #| label: claims_summary
+#| echo: true
+#| message: false
+#| warning: false
+procedure_sum <- procedures |>
+  summarise(
+    n_hcpcs = n_distinct(hcpcs, na.rm = TRUE),
+    n_units = na_sum(units),
+    n_mod1 = na_sum(!is.na(mod1)),
+    n_mod2 = na_sum(!is.na(mod2)),
+    charges = na_sum(charges),
+    allowed = na_sum(allowed),
+    payments = na_sum(payments),
+    adjustments = na_sum(adjustments),
+    .by = c(id, enc, dos)) |>
+  filter(charges > 0) |>
+  arrange(dos)
+
+procedure_sum |> 
+  left_join(encounters, by = join_by(id, enc, dos)) |> 
+  select(
+    id, 
+    enc, 
+    dos, 
+    year:wday_l,
+    n_hcpcs, 
+    n_units, 
+    n_mod1, 
+    n_mod2, 
+    charges, 
+    allowed, 
+    payments, 
+    adjustments,
+    dob,
+    age,
+    rendering,
+    cred,
+    icd,
+    pos,
+    pos_name,
+    pos_type,
+    loc,
+    ins_class,
+    ins_prim)
+```
+
+## Ratio Analysis
+
+Revenue Per Visit
+: $RPV =$ Total Payments $\div$ Number of Patient Visits
+
+
+```{r}
+#| label: claims_ratio
 #| echo: true
 #| message: false
 #| warning: false
@@ -97,19 +195,7 @@ claims_summary |>
   opt_table_font(font = google_font(name = "Fira Code")) |> 
   tab_options(table.width = pct(100),
               quarto.disable_processing = TRUE)
-```
 
-## Ratio Analysis
-
-Revenue Per Visit
-: $RPV =$ Total Payments $\div$ Number of Patient Visits
-
-
-```{r}
-#| label: claims_ratio
-#| echo: true
-#| message: false
-#| warning: false
 claims_summary |>
   mutate(
     revenue_adjustments = revenue + adjustments, 

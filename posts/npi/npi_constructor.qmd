@@ -40,7 +40,6 @@ knitr::opts_chunk$set(
   fig.width = 8
 )
 options(scipen = 999)
-# library(drawr) # pak::pak("coatless-rpkg/drawr")
 library(tidyverse)
 library(rlang)
 library(cli)
@@ -69,8 +68,7 @@ The following is an excerpt from the CMS document on the NPI check digit calcula
 
 The check digit is calculated using the [Luhn formula](https://en.wikipedia.org/wiki/Luhn_algorithm) for computing the modulus 10 *double-add-double* check digit.^[This algorithm is recognized as an ISO standard (ISO/IEC 7812) and is the specified check digit algorithm to be used for the card issuer identifier on a standard health identification card.]
 
-When an NPI is used as a card issuer identifier on a standard health identification card, it is prefixed with **80840**, in which **80** indicates *health applications* and **840** indicates the *United States*^[See <https://en.wikipedia.org/wiki/ISO/IEC_7812#Major_industry_identifier> for further explanation.].
-
+When an NPI is used as a card issuer identifier on a standard health identification card, it is prefixed with **80840**, in which **80** indicates *health applications* and **840** indicates the *United States*.
 To enable this feature for any NPI, the check digit will always be calculated as if the prefix is present. For a non-prefixed NPI, this is accomplished by adding the constant **24** in step 2 of the calculation.
 
 ### Check Digit Calculation
@@ -615,9 +613,15 @@ random_npi_generator(10)
 ```
 
 ```{r}
-x <- random_npi_generator(1000)
+n <- 100000
+x <- random_npi_generator(n)
+y <- x[collapse::whichv(purrr::map_lgl(x, is_valid_npi), TRUE)]
 
-cat(x[collapse::whichv(purrr::map_lgl(x, is_valid_npi), TRUE)], sep = "\n")
+paste0((length(y) / n) * 100, "%")
+
+bench::mark(
+  purrr::map_lgl(x, is_valid_npi)) |> 
+  dplyr::glimpse()
 ```
 
 {{< pagebreak >}}
