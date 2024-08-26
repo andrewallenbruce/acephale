@@ -93,6 +93,9 @@ rules <- read_csv(
     description = rule,
     rationale  = alert
   )
+
+rules[1, 9, drop = TRUE] <- "CPT Code is [43760] AND Encounter Date of Service after [01/01/2019]"
+rules[2, 9, drop = TRUE] <- "CPT Code is [43760] AND Encounter Date of Service after [01/01/2019]"
 ```
 
 
@@ -117,8 +120,38 @@ rules <- read_csv(
 
 ```{r}
 rules[1, 2:10] |> glimpse()
-
 rules[2, 2:10] |> glimpse()
+```
+
+
+```{r}
+library(S7)
+
+rule <- S7::new_class(
+  "crule",
+  properties = list(
+    id = S7::class_integer,
+    name = S7::class_character,
+    category = S7::class_character,
+    definition = S7::class_character,
+    rationale = S7::class_character,
+    expression = S7::class_expression,
+    steps = S7::class_integer
+    ),
+  package = "cruler"
+  )
+
+rule_01 <- rule(
+  id = 1L,
+  name = "HCPCS:EX:01",
+  category = "Invalid HCPCS",
+  definition = "<Date of Service> is [2019-01-01] or after |AND| <HCPCS Code> is [43760]",
+  rationale = "Effective 2019-01-01, HCPCS 43760 is invalid; See 43762 - 43763",
+  expression = expression(dos >= as.Date("2019-01-01") && hcpcs == 43760),
+  steps = 2L
+  )
+
+rule_01
 ```
 
 
@@ -171,6 +204,43 @@ descriptors
 ### Name
 
 ```{r}
+
+# FIX
+"VFC-GA"
+"BCBSMI"
+
+payers <- c("BCBS", "MCD", "VFC-")
+
+other <- c(
+  "INTEG",
+  "LABS",
+  "NEURO",
+  "ORTHO",
+  "MEDSV",
+  "VACCN",
+  "COVID19-",
+  "E&M",
+  "UNVSL",
+  "ICD10-",
+  "RHC",
+  "ANEST",
+  "SURG",
+  "FQHC",
+  "TELEH",
+  "ASC",
+  "DIGES",
+  "RADIO",
+  "PRVNT",
+  "OPTHL",
+  "FOOT",
+  "FERTL",
+  "DME",
+  "AUDIO",
+  "OBGYN")
+```
+
+
+```{r}
 #| label: name
 #| echo: true
 #| message: false
@@ -182,18 +252,21 @@ descriptors |>
     state = if_else(
       str_sub(name, 1, 2) %in% state.abb, 
       str_sub(name, 1, 2), NA_character_),
-    char = strex::str_extract_non_numerics(str_sub(name, 3, -1)),
-    int = strex::str_extract_numbers(name)
+    payer = strex::str_extract_non_numerics(str_sub(name, 3, -1)),
+    n = strex::str_extract_numbers(name)
   ) |> 
-  unnest(c(int, char), keep_empty = TRUE) |> 
+  unnest(c(n, payer), keep_empty = TRUE) |> 
   mutate(
     state = if_else(
-      str_sub(char, -2) %in% state.abb, 
-      str_sub(char, -2), state)
-  )
+      str_sub(payer, -2) %in% state.abb, 
+      str_sub(payer, -2), state)
+  ) |> 
+  # filter(!is.na(state)) |> 
+  slice(701:1380) |> 
+  print(n = 700)
 ```
 
-### Category
+### Sample
 
 ```{r}
 #| label: category
@@ -201,7 +274,7 @@ descriptors |>
 #| message: false
 #| warning: false
 descriptors |>
-  slice_sample(n = 50) |> 
+  slice_sample(n = 15) |> 
   mutate(category = str_wrap(category, width = 50),
          description = str_wrap(description, width = 60),
          rationale = str_wrap(rationale, width = 50)) |>
