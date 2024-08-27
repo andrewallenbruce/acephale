@@ -25,37 +25,14 @@ knitr::opts_chunk$set(
 options(scipen = 999)
 library(here)
 library(tidyverse)
-library(janitor)
 library(gt)
 library(fuimus)
+library(S7)
 
 head_tail <- function(x, n = 5, by = NULL) {
   dplyr::bind_rows(
     dplyr::slice_head(x, n = n, by = dplyr::all_of(by)),
     dplyr::slice_tail(x, n = n, by = dplyr::all_of(by)))
-}
-
-count_unique <- \(df, 
-                  ..., 
-                  .rename_first = "value", 
-                  .set_names, 
-                  .names_to = "variable") {
-  
-  df <- fuimus::df_2_chr(df)
-  df <- dplyr::select(df, ...) |> 
-    names() |> 
-    purrr::map(~ dplyr::count(df, .data[[.x]], sort = TRUE)) |> 
-    purrr::set_names(nm = .set_names)
-  
-  first_column_rename <- \(x, first = .rename_first) {
-    for (i in 1:length(x)) {
-      colnames(x[[i]])[1] <- first
-      }
-    x
-  }
-  
-  first_column_rename(df) |> 
-    purrr::list_rbind(names_to = .names_to)
 }
 
 rules <- read_csv(
@@ -82,308 +59,82 @@ rules <- read_csv(
     rule = str_remove_all(rule, "\\r|\\n")) |> 
   fill(rule) |> 
   select(
-    row,
-    id = id_rule,
-    step = id_order,
-    name = id_name,
+    index = row,
+    number = id_rule,
+    order = id_order,
+    identifier = id_name,
     variable = var,
     action,
     value,
     category,
-    description = rule,
+    definition = rule,
     rationale  = alert
   )
 
+rules[1, 4, drop = TRUE] <- "HCPCS:1"
+rules[2, 4, drop = TRUE] <- "HCPCS:1"
 rules[1, 9, drop = TRUE] <- "CPT Code is [43760] AND Encounter Date of Service after [01/01/2019]"
 rules[2, 9, drop = TRUE] <- "CPT Code is [43760] AND Encounter Date of Service after [01/01/2019]"
-```
 
-
-# Anatomy of a Rule
-
-   - Rule Descriptors
-      - `id`: Unique Numeric Identifier; `<Primary Key>`
-      - `name`: Unique Alphanumeric Identifier; `<Primary Key>`
-      - `category`: High-Level Classification
-      - `description`: Human Readable Description of Rule Steps
-      - `rationale`: Reason for Implementation
-      - `sources`: URLs, References, or Documentation
-  - Step Components
-      - `step`: Indicates Order of Step in Rule Validation
-      - `variable`: Variable to Evaluate
-      - `class`: Variable Data Class
-      - `action`: Operation Performed to Test for Expected State
-      - `method`: Operation Performed to Test for Expected State
-      - `expression`: Actual Code to Run
-      - `value`: Value Representing Expected State of Rule Variable
-
-
-```{r}
-rules[1, 2:10] |> glimpse()
-rules[2, 2:10] |> glimpse()
-```
-
-
-```{r}
-library(S7)
-
-rule <- S7::new_class(
-  "crule",
-  properties = list(
-    id = S7::class_integer,
-    name = S7::class_character,
-    category = S7::class_character,
-    definition = S7::class_character,
-    rationale = S7::class_character,
-    expression = S7::class_expression,
-    steps = S7::class_integer
-    ),
-  package = "cruler"
-  )
-
-rule_01 <- rule(
-  id = 1L,
-  name = "HCPCS:EX:01",
-  category = "Invalid HCPCS",
-  definition = "<Date of Service> is [2019-01-01] or after |AND| <HCPCS Code> is [43760]",
-  rationale = "Effective 2019-01-01, HCPCS 43760 is invalid; See 43762 - 43763",
-  expression = expression(dos >= as.Date("2019-01-01") && hcpcs == 43760),
-  steps = 2L
-  )
-
-rule_01
-```
-
-
-```{r}
-rules[3, 2:10] |> glimpse()
-
-rules[4, 2:10] |> glimpse()
-
-rules[5, 2:10] |> glimpse()
-
-rules[6, 2:10] |> glimpse()
-```
-
-## Descriptors
-
--   [X] `id`
--   [X] `name`: Split letters/numbers, categorize Payer, State, etc.
--   [X] `category`: 
--   [ ] `description`:
--   [ ] `rationale`: Steps are detailed in the rationale that are missing from the ruleset
--   [X] `sources`: Extract urls from `category`
-
-```{r}
-#| label: descriptors
-#| echo: true
-#| message: false
-#| warning: false
 descriptors <- rules |> 
-  select(id, name, category, description, rationale) |> 
+  select(index, number, identifier, category, definition, rationale) |> 
   distinct() |> 
-  mutate(sources = str_extract_all(category,"https?://[^\\s]+"),
+  mutate(source = str_extract_all(category,"https?://[^\\s]+"),
          category = str_remove_all(category,"https?://[^\\s]+")) |>
-  unnest(sources, keep_empty = TRUE) |>
-  separate_longer_delim(sources, delim = "https:") |>
-  mutate(sources = na_if(sources, "") |> str_squish(),
-         sources = if_else(!is.na(sources), str_c("https:", sources), sources),
+  unnest(source, keep_empty = TRUE) |>
+  separate_longer_delim(source, delim = "https:") |>
+  mutate(source = na_if(source, "") |> str_squish(),
+         source = if_else(!is.na(source), str_c("https:", source), source),
          category = na_if(category, "") |> str_squish(),
-         description = str_squish(description),
-         description = str_remove_all(description, "►"),
-         description = gsub(",(?!\\s)", ", ", description, perl = TRUE) |> str_squish(),
+         definition = str_squish(definition),
+         definition = str_remove_all(definition, "►"),
+         definition = gsub(",(?!\\s)", ", ", definition, perl = TRUE) |> str_squish(),
          rationale = str_squish(rationale),
          rationale = str_remove_all(rationale, "►"),
-         rationale = gsub(",(?!\\s)", ", ", rationale, perl = TRUE) |> str_squish()
-         ) |> 
-  nest(sources = c(sources))
+         rationale = gsub(",(?!\\s)", ", ", rationale, perl = TRUE) |> str_squish())
 
-descriptors
-```
+identifier <- descriptors |> 
+  distinct(number, identifier) |> 
+  reframe(number,
+          identifier = str_remove_all(identifier, "-"),
+          payer = if_else(str_detect(identifier, "BCBS|MCD|VFC"), str_extract(identifier, "BCBS|MCD|VFC"), NA_character_),
+          state = if_else(!is.na(payer), str_extract(identifier, paste0(state.abb, collapse = "|")), NA_character_),
+          split = strex::str_split_by_numbers(identifier)) |> 
+  unnest_wider(split, names_sep = "_") |> 
+  mutate(split_1 = case_match(
+    split_1,
+    c("VACCN", "COVID") ~ "VAX",
+    "ICD" ~ "ICD:CM",
+    "ANEST" ~ "ANES",
+    "TELEH" ~ "TELE",
+    "DIGES" ~ "GASTRO",
+    "PRVNT" ~ "PREVENT",
+    "OPTHL" ~ "OPHTH",
+    "FOOT" ~ "PODIA",
+    "FERTL" ~ "FERT",
+    .default = split_1)) |> 
+  group_by(payer) |> 
+  mutate(split_2 = if_else(!is.na(payer), row_number(), as.integer(split_2))) |> 
+  ungroup() |>
+  mutate(split_2 = str_pad(as.character(as.integer(split_2)), width = 3, side = "left", pad = "0")) |> 
+  fuimus::combine(name = payer_state, columns = c("payer", "state"), sep = ":") |> 
+  mutate(split_1 = if_else(!is.na(payer_state), payer_state, split_1),
+         payer_state = NULL) |> 
+  fuimus::combine(name = identifier, columns = c("split_1", "split_2"), sep = ":") |> 
+  mutate(split_1 = NULL,
+         identifier = str_replace(identifier, "VAX:19", "VAX:00"),
+         identifier = str_replace(identifier, "ICD:CM:10", "ICD:CM:"))
 
-### Name
+descriptors <- descriptors |> 
+  select(-identifier) |> 
+  left_join(identifier, by = "number") |> 
+  relocate(identifier, .before = category)
 
-```{r}
-
-# FIX
-"VFC-GA"
-"BCBSMI"
-
-payers <- c("BCBS", "MCD", "VFC-")
-
-other <- c(
-  "INTEG",
-  "LABS",
-  "NEURO",
-  "ORTHO",
-  "MEDSV",
-  "VACCN",
-  "COVID19-",
-  "E&M",
-  "UNVSL",
-  "ICD10-",
-  "RHC",
-  "ANEST",
-  "SURG",
-  "FQHC",
-  "TELEH",
-  "ASC",
-  "DIGES",
-  "RADIO",
-  "PRVNT",
-  "OPTHL",
-  "FOOT",
-  "FERTL",
-  "DME",
-  "AUDIO",
-  "OBGYN")
-```
-
-
-```{r}
-#| label: name
-#| echo: true
-#| message: false
-#| warning: false
-descriptors |> 
-  reframe(
-    id,
-    name,
-    state = if_else(
-      str_sub(name, 1, 2) %in% state.abb, 
-      str_sub(name, 1, 2), NA_character_),
-    payer = strex::str_extract_non_numerics(str_sub(name, 3, -1)),
-    n = strex::str_extract_numbers(name)
-  ) |> 
-  unnest(c(n, payer), keep_empty = TRUE) |> 
-  mutate(
-    state = if_else(
-      str_sub(payer, -2) %in% state.abb, 
-      str_sub(payer, -2), state)
-  ) |> 
-  # filter(!is.na(state)) |> 
-  slice(701:1380) |> 
-  print(n = 700)
-```
-
-### Sample
-
-```{r}
-#| label: category
-#| echo: true
-#| message: false
-#| warning: false
-descriptors |>
-  slice_sample(n = 15) |> 
-  mutate(category = str_wrap(category, width = 50),
-         description = str_wrap(description, width = 60),
-         rationale = str_wrap(rationale, width = 50)) |>
-  select(-sources) |> 
-  gt(rowname_col = "name",
-     groupname_col = "category",
-     row_group_as_column = TRUE) |>
-  cols_align(align = "left", columns = -c(id)) |>
-  cols_align(align = "center", columns = c(id)) |>
-  opt_table_font(font = google_font(name = "Roboto Condensed")) |>
-  opt_all_caps() |>
-  tab_style(
-      style = cell_text(
-        align = "left",
-        weight = "bold",
-        size = px(14),
-        whitespace = "break-spaces",
-        font = google_font(name = "Roboto Mono")),
-      locations = cells_body(columns = c(description))) |>
-  tab_style(
-      style = cell_text(
-        color = "#0B0B35",
-        align = "center",
-        weight = "bold",
-        size = px(16),
-        font = google_font(name = "Roboto Condensed")),
-      locations = cells_body(columns = c(id))) |>
-  gtExtras::gt_add_divider(
-    columns = "description", 
-    style = "solid",
-    weight = "3px",
-    color = "royalblue") |>
-  tab_style(
-    style = cell_text(
-      v_align = "middle", 
-      align = "right",
-      weight = "800"),
-    locations = cells_row_groups()) |> 
-  tab_style(
-    style = cell_text(
-      size = px(16),
-      font = google_font(name = "JetBrains Mono"),
-      v_align = "middle", 
-      align = "center"
-      ),
-    locations = cells_stub()) |> 
-  opt_stylize(add_row_striping = TRUE) |>
-  tab_options(table.width = pct(85),
-              quarto.disable_processing = TRUE)
-```
-
-
-## Components
-
--   [ ] `step`: 
--   [X] `variable`: Recode to standardize
--   [ ] `class`: Variable Data Class
--   [ ] `group`: Variable Grouping
--   [ ] `action`: Remove
--   [ ] `method`: Operation Performed to Test for Expected State
--   [ ] `expression`: Actual Code to Run
--   [ ] `value`: Coerce to correct data type, deal with wildcards
-
-```{r}
-#| label: components
-#| echo: true
-#| message: false
-#| warning: false
 components <- rules |> 
-  select(id, step, variable, action, value) |> 
-  distinct()
-
-components
-```
-
-
-### Variable
-
-   - `hcpcs`: 
-   - `mod_1`: 
-   - `mod_2`:
-   - `mod_3`:
-   - `mod_4`:
-   - `unit`: 
-   - `icd`:
-   - `dos`:
-   - `pos`:
-   - `ub04`:
-   - `ndc`:
-   - `rev_code`:
-   - `cci`:
-   - `lcd`:
-   - `ncd`:
-   - `dob`:
-   - `sex`:
-   - `rendering`:
-   - `referring`:
-   - `primary_class`:
-   - `primary_name`:
-   - `primary_auth`:
-   - `secondary_class`:
-   - `secondary_name`:
-
-```{r}
-#| label: variable
-#| echo: true
-#| message: false
-#| warning: false
-components <- components |>
+  select(number, order, variable, action, value) |> 
+  distinct() |> 
+  left_join(identifier, by = "number") |> 
+  relocate(identifier, .before = variable) |> 
   mutate(variable = case_match(variable,
       c("CPT CODE", 
         "CPT Code", 
@@ -438,19 +189,7 @@ components <- components |>
       c("Primary Insurance Authorization (Presence)", 
         "Primary Insurance Authorization (Presence) is not [Present]") ~ "primary_auth",
       .default = variable) |> 
-      as_factor())
-
-components
-```
-
-### Class & Group
-
-```{r}
-#| label: class_group
-#| echo: true
-#| message: false
-#| warning: false
-components <- components |> 
+      as_factor()) |> 
   mutate(
     class = case_match(variable,
       c("sex", "rendering", "referring", 
@@ -475,31 +214,342 @@ components <- components |>
         "primary_name", "secondary_class", 
         "secondary_name") ~ "payer"
     ) |> as_factor())
+```
 
-components # |> 
-  # select(class, group, variable, action) |> 
-  # arrange(class, group, variable) |>
-  # gt() |>
-  # cols_align(align = "left") |>
-  # opt_table_font(font = google_font(name = "Roboto Condensed")) |>
-  # opt_all_caps() |>
-  # tab_style(
-  #     style = cell_text(
-  #       align = 'left',
-  #       weight = "bold",
-  #       font = google_font(name = "Roboto Mono")),
-  #     locations = cells_body(columns = c(action))) |>
-  # tab_style(
-  #     style = cell_text(
-  #       align = 'left',
-  #       weight = "normal",
-  #       style = "italic",
-  #       decorate = "underline",
-  #       stretch = "condensed",
-  #       font = google_font(name = "Fira Code")),
-  #     locations = cells_body(columns = c(class))) |>
-  # tab_options(table.width = pct(100),
-  #             quarto.disable_processing = TRUE)
+
+# Anatomy of a Rule
+
+   - Rule class
+      - `identifier`: Unique Alphanumeric Identifier; `<Primary Key>`
+      - `category`: High-Level Classification
+      - `definition`: Human Readable Description of Rule Steps
+      - `rationale`: Reason for Implementation
+      - `sources`: URLs, References, or Documentation
+      - `steps`: List of Steps to Evaluate
+  
+  - Step class
+      - `order`: Indicates validation step order. Certain steps must be ahead of others, e.g. dos should always be first
+         - qualifier: identifies records that meet the evaluation criteria; ignored if criteria is not met
+         - final step: result indicates a pass or fail
+      - `variable`: element of claim to evaluate
+      - `method`:
+          - regex: for matching patterns of long lists of HCPCS codes
+          - logical
+          - unary
+          - binary
+          - calculation: days elapsed between date of birth and date of service
+      - `expression`: functional code to call
+      - `value`: must be a valid instance of variable, expected state is evaluated against this value
+
+      
+  - `variable` classes:
+     - Insurance (`payer`)
+       - `name`: BCBS, Medicaid, etc.
+       - `state`: State Abbreviation (optional)
+       - `class`: Self-Pay, Commercial, Medicare, Medicaid, etc.
+     - Date of Service (`dos`)
+       - `date`: Date of Service
+     - Diagnosis (`icd`)
+       - `code`: ICD-10 Code
+     - Provider (`provider`)
+       - `name`: Provider Name
+       - `npi`: NPI
+       - `type`: Rendering, Referring
+       - `credential`: MD, DO, etc.
+     - Procedure (`hcpcs`)
+       - `code`: HCPCS Code
+       - `mod_1`: Modifier 1
+       - `mod_2`: Modifier 2
+       - `mod_3`: Modifier 3
+       - `mod_4`: Modifier 4
+       - `unit`: Number of Units
+     - NDC (`ndc`)
+       - `code`: NDC Code
+
+
+```{r}
+rules[1, ] |> glimpse()
+rules[2, ] |> glimpse()
+```
+
+```{r}
+rules[3, ] |> glimpse()
+rules[4, ] |> glimpse()
+rules[5, ] |> glimpse()
+rules[6, ] |> glimpse()
+```
+
+
+## S7 Class
+
+```{r}
+crule <- S7::new_class(
+  "crule",
+  package = "cruler",
+  properties = list(
+    identifier = S7::class_character,
+    category = S7::class_character,
+    definition = S7::class_character,
+    rationale = S7::class_character,
+    source = S7::new_property(class = S7::class_character, default = NA_character_),
+    steps = S7::new_property(class = S7::class_list, default = list()),
+    timestamp = new_property(class = S7::class_POSIXct, default = as.POSIXct(Sys.time()))
+    )
+  )
+
+crule
+
+hcpcs_exp <- crule(
+  identifier = "HCPCS:EXP:001",
+  category = "Invalid HCPCS",
+  definition = "<Date of Service> is [2019-01-01] or after |AND| <HCPCS Code> is [43760]",
+  rationale = "Effective 2019-01-01, HCPCS 43760 is invalid; See 43762 - 43763",
+  source = "https://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets/Alpha-Numeric-HCPCS")
+
+hcpcs_exp
+
+cvariable <- S7::new_class(
+  "cvariable",
+  package = "cruler",
+  properties = list(
+    name = S7::class_character,
+    group = S7::class_character,
+    attributes = S7::class_list
+    )
+  )
+
+cvariable
+```
+
+```{r}
+#| label: qualify
+#| echo: true
+#| message: false
+#| warning: false
+#| error: true
+rule_001_example <- dplyr::tibble(
+  dos = as.Date(c("2024-01-01", "2018-01-01")),
+  hcpcs = as.character(c(43760, 43760))
+)
+
+rule_001_example2 <- dplyr::tibble(
+  dos = as.Date(c("2017-01-01", "2018-01-01")),
+  hcpcs = as.character(c(43760, 43760))
+)
+
+qualify_date <- function(df) {
+  
+  arg  <- rlang::caller_arg(df)
+  call <- rlang::caller_env()
+  
+  x <- vctrs::vec_slice(df, df[["dos"]] >= as.Date("2019-01-01"))
+  
+  if (vctrs::vec_is_empty(x))  {
+    cli::cli_abort(
+      "No matches for {.strong dos} >= {.val {as.Date('2019-01-01')}} in {.arg {arg}}.", 
+      arg = arg,
+      call = call,
+      class = "check_length"
+      )
+  }
+  return(x)
+}
+
+
+qualify_date(rule_001_example)
+
+qualify_date(rule_001_example2)
+```
+
+
+
+
+
+## Descriptors
+
+-   [X] `identifier`
+-   [X] `name`: Split letters/numbers, categorize Payer, State, etc.
+-   [X] `category`: 
+-   [ ] `description`:
+-   [ ] `rationale`: Steps are detailed in the rationale that are missing from the ruleset
+-   [X] `sources`: Extract urls from `category`
+
+### Cleaning: Category
+
+URLs -> Source
+
+```{r}
+#| label: descriptors
+#| echo: true
+#| message: false
+#| warning: false
+descriptors |> 
+  select(category, rationale) |> 
+  filter(!is.na(category)) |> 
+  distinct(category) |> 
+  print(n = 500)
+```
+
+
+### Sample
+
+```{r}
+#| label: category
+#| echo: true
+#| message: false
+#| warning: false
+descriptors |>
+  slice_sample(n = 15) |> 
+  mutate(category = str_wrap(category, width = 50),
+         definition = str_replace_all(definition, " AND ", "<br><br><b>&&</b><br><br>") |> str_wrap(width = 60),
+         definition = str_replace_all(definition, " OR ", "<br><br><b>||</b><br><br>") |> str_wrap(width = 60),
+         definition = str_remove_all(definition, regex("\\s*\\(\\s*\\d+\\s*\\)\\s*")) |> str_wrap(width = 60),
+         definition = str_squish(definition),
+         rationale = str_wrap(rationale, width = 50)) |>
+  select(-source, -index) |> 
+  gt(rowname_col = "identifier",
+     row_group_as_column = TRUE) |>
+  fmt_markdown(columns = c("definition")) |>
+  cols_align(align = "left", columns = -c(number)) |>
+  cols_align(align = "center", columns = c(number)) |>
+  opt_table_font(font = google_font(name = "Roboto Condensed")) |>
+  opt_all_caps() |>
+  tab_style(
+      style = cell_text(
+        align = "left",
+        weight = "bold",
+        size = px(14),
+        whitespace = "break-spaces",
+        font = google_font(name = "JetBrains Mono")),
+      locations = cells_body(columns = c(definition))) |>
+  tab_style(
+      style = cell_text(
+        color = "#0B0B35",
+        align = "center",
+        weight = "bold",
+        size = px(16),
+        font = google_font(name = "Roboto Condensed")),
+      locations = cells_body(columns = c(number))) |>
+  sub_missing(missing_text = "NO CATEGORY") |>
+  gtExtras::gt_add_divider(
+    columns = "category", 
+    style = "solid",
+    weight = "3px",
+    color = "royalblue") |>  
+  gtExtras::gt_merge_stack(
+    col1 = "category",
+    col2 = "rationale",
+    font_size = c("17px", "16px"),
+    palette = c("darkgreen", "royalblue"),
+    font_weight = c("bold", "normal"),
+    small_cap = FALSE
+  ) |> 
+  tab_style(
+    style = cell_text(
+      v_align = "middle", 
+      align = "right",
+      weight = "800"),
+    locations = cells_row_groups()) |> 
+  tab_style(
+    style = cell_text(
+      size = px(16),
+      font = google_font(name = "JetBrains Mono"),
+      v_align = "middle", 
+      align = "right"
+      ),
+    locations = cells_stub()) |> 
+  opt_stylize(add_row_striping = TRUE) |>
+  tab_options(table.width = pct(85),
+              quarto.disable_processing = TRUE)
+```
+
+
+## Components
+
+-   [ ] `step`: 
+-   [X] `variable`: Recode to standardize
+-   [ ] `class`: Variable Data Class
+-   [ ] `group`: Variable Grouping
+-   [ ] `action`: Remove
+-   [ ] `method`: Operation Performed to Test for Expected State
+-   [ ] `expression`: Actual Code to Run
+-   [ ] `value`: Coerce to correct data type, deal with wildcards
+
+```{r}
+#| label: components
+#| echo: true
+#| message: false
+#| warning: false
+components
+```
+
+
+### Variable
+
+   - `hcpcs`: 
+   - `mod_1`: 
+   - `mod_2`:
+   - `mod_3`:
+   - `mod_4`:
+   - `unit`: 
+   - `icd`:
+   - `dos`:
+   - `pos`:
+   - `ub04`:
+   - `ndc`:
+   - `rev_code`:
+   - `cci`:
+   - `lcd`:
+   - `ncd`:
+   - `dob`:
+   - `sex`:
+   - `rendering`:
+   - `referring`:
+   - `primary_class`:
+   - `primary_name`:
+   - `primary_auth`:
+   - `secondary_class`:
+   - `secondary_name`:
+
+
+
+```{r}
+#| label: class_group
+#| echo: true
+#| message: false
+#| warning: false
+components  |> 
+  filter(!is.na(class)) |>
+  distinct(class, group, variable, action) |>
+  count(class, group, variable, name = "actions") |>
+  arrange(class, group, desc(actions)) |>
+  gt(groupname_col = "class",
+     rowname_col = "group",
+     row_group_as_column = TRUE
+     ) |>
+  cols_align(align = "left") |>
+  opt_table_font(font = google_font(name = "JetBrains Mono"),) |>
+  opt_all_caps(locations = c("column_labels")) |>
+  tab_style(
+      style = cell_text(
+        align = 'left',
+        weight = "normal",
+        font = google_font(name = "Roboto Mono")),
+      locations = cells_stub()) |>
+  tab_style(
+      style = cell_text(
+        color = "royalblue",
+        align = 'right',
+        weight = "normal",
+        # style = "italic",
+        decorate = "underline",
+        # stretch = "condensed",
+        size = px(20),
+        font = google_font(name = "Fira Code")),
+      locations = cells_row_groups()) |>
+  opt_stylize() |>
+  tab_options(table.width = pct(50),
+              quarto.disable_processing = TRUE)
 ```
 
 #### Date of Service
@@ -510,7 +560,7 @@ components |>
   mutate(class = "<date>",
          value = anytime::anydate(value),
          method = if_else(str_detect(action, "after"), ">", "<")) |> 
-  select(id, step, class, variable, method, value) |> 
+  select(number, order, class, group, variable, action, value) |> 
   gt() |>
   cols_align(align = "left") |>
   opt_table_font(font = google_font(name = "Roboto Condensed")) |>
@@ -520,7 +570,7 @@ components |>
         align = 'left',
         weight = "bold",
         font = google_font(name = "Roboto Mono")),
-      locations = cells_body(columns = c(variable, method, value))) |>
+      locations = cells_body(columns = c(variable, action, value))) |>
   tab_style(
       style = cell_text(
         align = 'left',
@@ -567,7 +617,7 @@ components |>
       .default = NA_real_),
     dos = lubridate::today(),
   ) |> 
-  select(id, step, class, variable, method, age, period, days) |> 
+  select(number, order, class, variable, method, age, period, days) |> 
   gt() |>
   cols_align(align = "left") |>
   opt_table_font(font = google_font(name = "Roboto Condensed")) |>
@@ -601,7 +651,7 @@ components |>
          value = as.integer(value),
          method = if_else(str_detect(action, "is not"), "!=", "=="),
          .before = variable) |> 
-  select(id, step, class, variable, method, value, action) |> 
+  select(number, order, class, variable, method, value, action) |> 
   gt() |>
   cols_align(align = "left") |>
   opt_table_font(font = google_font(name = "Roboto Condensed")) |>
@@ -638,7 +688,7 @@ components |>
   mutate(class = "<lgl>", 
          .before = variable, 
          method = if_else(str_detect(action, "is not"), "is.na(x)", "!is.na(x)")) |> 
-  select(id, step, class, variable, method, value, action) |> 
+  select(number, order, class, variable, method, value, action) |> 
   gt() |>
   cols_align(align = "left") |>
   opt_table_font(font = google_font(name = "Roboto Condensed")) |>
@@ -683,7 +733,7 @@ components |>
            .default = NA_character_)
          ) |> 
   filter(!is.na(method)) |> 
-  select(id, step, class, variable, method, value, action, wc, nchar) |> 
+  select(number, order, class, variable, method, value, action, wc, nchar) |> 
   gt() |>
   cols_align(align = "left") |>
   opt_table_font(font = google_font(name = "Roboto Condensed")) |>
@@ -707,6 +757,57 @@ components |>
               quarto.disable_processing = TRUE)
 ```
 
+
+#### HCPCS
+
+```{r}
+components |> 
+  filter(variable == "hcpcs") |>
+  mutate(wc = case_when(str_detect(value, "\\*") ~ 1L, .default = 0L),
+         nchar = if_else(wc == 1, str_count(value, "[[:alnum:]]"), 0L),
+         class = "<chr>",
+         method = case_when(
+           action == "is" & wc == 1 ~ "%in%",
+           action == "is" & wc == 0 ~ "==",
+           .default = NA_character_),
+         value = str_replace_all(value, "\\s|,", " "),
+         value = str_wrap(value, width = 30)
+         ) |> 
+  filter(!is.na(method)) |> 
+  select(number, order, class, variable, method, value, action, wc, nchar) |> 
+  gt() |>
+  cols_align(align = "left") |>
+  opt_table_font(font = google_font(name = "Roboto Condensed")) |>
+  opt_all_caps() |>
+  tab_style(
+      style = cell_text(
+        align = 'left',
+        weight = "bold",
+        font = google_font(name = "Roboto Mono")),
+      locations = cells_body(columns = c(variable, method))) |>
+  tab_style(
+      style = cell_text(
+        align = "left",
+        weight = "bold",
+        size = px(14),
+        whitespace = "break-spaces",
+        font = google_font(name = "JetBrains Mono")),
+      locations = cells_body(columns = c(value))) |>
+  tab_style(
+      style = cell_text(
+        align = 'left',
+        weight = "normal",
+        style = "italic",
+        decorate = "underline",
+        stretch = "condensed",
+        font = google_font(name = "Fira Code")),
+      locations = cells_body(columns = c(class))) |>
+  tab_options(table.width = pct(75),
+              quarto.disable_processing = TRUE)
+```
+
+
+
 ## Unevaluated Code
 
 ```{r}
@@ -715,7 +816,6 @@ components |>
 #| eval: false
 #| message: false
 #| warning: false
-
 categorize_vars |>
   separate_longer_delim(cols = value, delim = ",") |>
   mutate(value = str_squish(value),
@@ -761,7 +861,7 @@ rules_new |>
 ```
 
 
-## Regexes
+### Regexes
 
 ```{r}
 #| label: regex
@@ -769,6 +869,13 @@ rules_new |>
 #| echo: true
 #| message: false
 #| warning: false
+
+c(
+  "^[9][0][4][7][67]$"     = '9047(6|7)', 
+  "^[9][0][56][1-9][0-9]$" = '905*|906*', 
+  "^[9][0][7][1-5][02-9]$" = '907(1|2|3|4|5)',
+  "^[9][1][3][01][0-9]$"   = '913'
+  )
 
 rules_new |>
   filter(wc == 1,
@@ -799,6 +906,8 @@ rules_new |>
               quarto.disable_processing = TRUE)
 ```
 
+
+### HCPCS Search
 
 ```{r}
 #| label: misc
