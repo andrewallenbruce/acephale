@@ -90,3 +90,23 @@ rvu_spec <- cols(
 pprrvu <- read_csv(
   here("posts/claims/data", "results.csv"),
   col_types = rvu_spec)
+
+blog_theme <-
+  theme_minimal(18, base_family = "IBM Plex Mono") +
+  theme(
+    plot.background = element_rect(fill = "#f9fafa", color = NA),
+    plot.title.position = "plot",
+    plot.title = element_text(size = 24, margin = margin(b = 1, unit = "line")),
+    legend.position = c(0, 1),
+    legend.direction = "horizontal",
+    legend.justification = c(0, 1),
+    legend.title.align = 1,
+    axis.title.y = element_text(hjust = 0),
+    axis.title.x = element_text(hjust = 0),
+    panel.grid.major = element_line(color = "#d3d9db"),
+    panel.grid.minor = element_blank()
+  )
+
+theme_set(blog_theme)
+
+type_colors <- c(reply = "#5e5b7f", tweet = "#ef8c02", retweet = "#7ab26f")

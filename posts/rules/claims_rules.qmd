@@ -24,202 +24,20 @@ knitr::opts_chunk$set(
 
 options(scipen = 999)
 library(here)
-library(tidyverse)
 library(gt)
-library(fuimus)
 library(S7)
 
-head_tail <- function(x, n = 5, by = NULL) {
-  dplyr::bind_rows(
-    dplyr::slice_head(x, n = n, by = dplyr::all_of(by)),
-    dplyr::slice_tail(x, n = n, by = dplyr::all_of(by)))
+deparse_substitute <- \(x) {
+    deparse(substitute(x))
 }
 
-rules <- read_csv(
-  here("posts/rules/data/rules_raw.csv"),
-  col_types = cols(
-  row       = col_integer(),
-  id_rule   = col_integer(),
-  id_name   = col_character(),
-  id_order  = col_integer(),
-  category  = col_factor(),
-  alert     = col_character(),
-  var       = col_character(),
-  action    = col_character(),
-  value     = col_character(),
-  rule      = col_character(),
-  x9        = col_character(),
-  x10       = col_character())) |> 
-  mutate(
-    category = remove_quotes(as.character(category)),
-    category = str_remove_all(category, "\\r|\\n"),
-    alert = remove_quotes(alert),
-    alert = str_remove_all(alert, "\\r|\\n"),
-    rule = remove_quotes(rule),
-    rule = str_remove_all(rule, "\\r|\\n")) |> 
-  fill(rule) |> 
-  select(
-    index = row,
-    number = id_rule,
-    order = id_order,
-    identifier = id_name,
-    variable = var,
-    action,
-    value,
-    category,
-    definition = rule,
-    rationale  = alert
-  )
-
-rules[1, 4, drop = TRUE] <- "HCPCS:1"
-rules[2, 4, drop = TRUE] <- "HCPCS:1"
-rules[1, 9, drop = TRUE] <- "CPT Code is [43760] AND Encounter Date of Service after [01/01/2019]"
-rules[2, 9, drop = TRUE] <- "CPT Code is [43760] AND Encounter Date of Service after [01/01/2019]"
-
-descriptors <- rules |> 
-  select(index, number, identifier, category, definition, rationale) |> 
-  distinct() |> 
-  mutate(source = str_extract_all(category,"https?://[^\\s]+"),
-         category = str_remove_all(category,"https?://[^\\s]+")) |>
-  unnest(source, keep_empty = TRUE) |>
-  separate_longer_delim(source, delim = "https:") |>
-  mutate(source = na_if(source, "") |> str_squish(),
-         source = if_else(!is.na(source), str_c("https:", source), source),
-         category = na_if(category, "") |> str_squish(),
-         definition = str_squish(definition),
-         definition = str_remove_all(definition, "►"),
-         definition = gsub(",(?!\\s)", ", ", definition, perl = TRUE) |> str_squish(),
-         rationale = str_squish(rationale),
-         rationale = str_remove_all(rationale, "►"),
-         rationale = gsub(",(?!\\s)", ", ", rationale, perl = TRUE) |> str_squish())
-
-identifier <- descriptors |> 
-  distinct(number, identifier) |> 
-  reframe(number,
-          identifier = str_remove_all(identifier, "-"),
-          payer = if_else(str_detect(identifier, "BCBS|MCD|VFC"), str_extract(identifier, "BCBS|MCD|VFC"), NA_character_),
-          state = if_else(!is.na(payer), str_extract(identifier, paste0(state.abb, collapse = "|")), NA_character_),
-          split = strex::str_split_by_numbers(identifier)) |> 
-  unnest_wider(split, names_sep = "_") |> 
-  mutate(split_1 = case_match(
-    split_1,
-    c("VACCN", "COVID") ~ "VAX",
-    "ICD" ~ "ICD:CM",
-    "ANEST" ~ "ANES",
-    "TELEH" ~ "TELE",
-    "DIGES" ~ "GASTRO",
-    "PRVNT" ~ "PREVENT",
-    "OPTHL" ~ "OPHTH",
-    "FOOT" ~ "PODIA",
-    "FERTL" ~ "FERT",
-    .default = split_1)) |> 
-  group_by(payer) |> 
-  mutate(split_2 = if_else(!is.na(payer), row_number(), as.integer(split_2))) |> 
-  ungroup() |>
-  mutate(split_2 = str_pad(as.character(as.integer(split_2)), width = 3, side = "left", pad = "0")) |> 
-  fuimus::combine(name = payer_state, columns = c("payer", "state"), sep = ":") |> 
-  mutate(split_1 = if_else(!is.na(payer_state), payer_state, split_1),
-         payer_state = NULL) |> 
-  fuimus::combine(name = identifier, columns = c("split_1", "split_2"), sep = ":") |> 
-  mutate(split_1 = NULL,
-         identifier = str_replace(identifier, "VAX:19", "VAX:00"),
-         identifier = str_replace(identifier, "ICD:CM:10", "ICD:CM:"))
-
-descriptors <- descriptors |> 
-  select(-identifier) |> 
-  left_join(identifier, by = "number") |> 
-  relocate(identifier, .before = category)
-
-components <- rules |> 
-  select(number, order, variable, action, value) |> 
-  distinct() |> 
-  left_join(identifier, by = "number") |> 
-  relocate(identifier, .before = variable) |> 
-  mutate(variable = case_match(variable,
-      c("CPT CODE", 
-        "CPT Code", 
-        "CPT code", 
-        "CPT", 
-        "Code Check Expired CPT Alert (Presence)", 
-        "CPT is one of") ~ "hcpcs",
-      c("Mod1", 
-        "CPT Mod1", 
-        "CPT Mod 1", 
-        "CPTMod1", 
-        "Code Check CPT Mod Alert (Presence)", 
-        "CPT MOD1", 
-        "CPT Mod1 (Presence)") ~ "mod_1",
-      c("Mod2", 
-        "CPT MOD2", 
-        "CPT Mod 2", 
-        "CPT Mod2 (Presence)", 
-        "CPTMod2", 
-        "CPT Mod2") ~ "mod_2",
-      "CPT Mod3" ~ "mod_3",
-      "CPT Mod4" ~ "mod_4",
-      "CPT Units" ~ "unit",
-      c("Dx code", 
-        "DX Code", 
-        "Dx Code", 
-        "Code Check Expired DX Alert (Presence)") ~ "icd",
-      c("Encounter Date of Service", 
-        "Date of Service") ~ "dos",
-      c("Location", 
-        "Place of Service") ~ "pos",
-      c("CPT UB04", 
-        "UB04 Bill Type") ~ "ub04",
-      "CPT NDC (Presence)" ~ "ndc",
-      "CPT Rev Code" ~ "rev_code",
-      "Code Check CCI Alert (Presence)" ~ "cci",
-      "Code Check LCD Alert (Presence)" ~ "lcd",
-      "Code Check NCD Alert (Presence)" ~ "ncd",
-      c("Patient Age", 
-        "Code Check Age Alert (Presence)") ~ "dob",
-      c("Patient Sex", 
-        "Code Check Gender Alert (Presence)") ~ "sex",
-      "NA" ~ NA_character_,
-      "Rendering Provider" ~ "rendering",
-      "Referring Provider (Presence)" ~ "referring",
-      c("Primary Insurance Class", 
-        "Primary Insurance class", 
-        "Primary insurance class") ~ "primary_class",
-      "Primary Insurance" ~ "primary_name",
-      "Secondary Insurance Class" ~ "secondary_class",
-      "Secondary Insurance" ~ "secondary_name",
-      c("Primary Insurance Authorization (Presence)", 
-        "Primary Insurance Authorization (Presence) is not [Present]") ~ "primary_auth",
-      .default = variable) |> 
-      as_factor()) |> 
-  mutate(
-    class = case_match(variable,
-      c("sex", "rendering", "referring", 
-        "primary_auth", "primary_class", 
-        "primary_name", "secondary_class", 
-        "secondary_name", "ncd", "lcd", 
-        "cci", "ndc", "ub04", "pos", 
-        "icd", "hcpcs", "mod_1", "mod_2", 
-        "mod_3", "mod_4") ~ "<chr>",
-      c("rev_code", "unit") ~ "<int>",
-      c("dos", "dob") ~ "<date>"
-    ) |> as_factor(),
-    group = case_match(as.character(variable),
-      c("sex", "dos", "dob") ~ "patient",
-      c("rendering", "referring") ~ "provider",
-      c("hcpcs", "mod_1", "mod_2", "mod_3", "mod_4", 
-        "rev_code", "unit", "ndc", "pos") ~ "procedure",
-      c("icd") ~ "diagnosis",
-      c("ub04", "1500") ~ "claim",
-      c("ncd", "lcd", "cci") ~ "ncci",
-      c("primary_auth", "primary_class", 
-        "primary_name", "secondary_class", 
-        "secondary_name") ~ "payer"
-    ) |> as_factor())
+source(here("posts/rules/scripts", "load.R"))
 ```
 
 
 # Anatomy of a Rule
 
-   - Rule class
+   - `rule` class
       - `identifier`: Unique Alphanumeric Identifier; `<Primary Key>`
       - `category`: High-Level Classification
       - `definition`: Human Readable Description of Rule Steps
@@ -227,34 +45,32 @@ components <- rules |>
       - `sources`: URLs, References, or Documentation
       - `steps`: List of Steps to Evaluate
   
-  - Step class
-      - `order`: Indicates validation step order. Certain steps must be ahead of others, e.g. dos should always be first
-         - qualifier: identifies records that meet the evaluation criteria; ignored if criteria is not met
-         - final step: result indicates a pass or fail
+  - `step` class
+      - `order`: Validation step order. Certain steps must be ahead of others, e.g. `dos` should always be first
+         - qualifier: identifies records that meet the evaluation criteria; record is skipped if criteria is not met
+         - validator: result indicates a pass or fail
       - `variable`: element of claim to evaluate
-      - `method`:
+      - `method`: could define different methods for a single variable
           - regex: for matching patterns of long lists of HCPCS codes
-          - logical
-          - unary
-          - binary
           - calculation: days elapsed between date of birth and date of service
-      - `expression`: functional code to call
+          - comparison: check if a value is greater than or less than another value
+          - equality: check if a value is equal to another value
+          - presence: check if a value is present
+      - `condition`: functional code to call based on method selected
       - `value`: must be a valid instance of variable, expected state is evaluated against this value
 
       
   - `variable` classes:
+     - Date of Service (`dos`)
+       - `date`: Date of Service
      - Insurance (`payer`)
        - `name`: BCBS, Medicaid, etc.
        - `state`: State Abbreviation (optional)
        - `class`: Self-Pay, Commercial, Medicare, Medicaid, etc.
-     - Date of Service (`dos`)
-       - `date`: Date of Service
      - Diagnosis (`icd`)
        - `code`: ICD-10 Code
      - Provider (`provider`)
-       - `name`: Provider Name
-       - `npi`: NPI
-       - `type`: Rendering, Referring
+       - `role`: Rendering, Referring
        - `credential`: MD, DO, etc.
      - Procedure (`hcpcs`)
        - `code`: HCPCS Code
@@ -268,8 +84,27 @@ components <- rules |>
 
 
 ```{r}
+brack_txt <- "This is [some text] between [brackets]"
+brack_reg <- r"{\[(.*?)\]}"
+
+paren_txt <- "This is (some text) between (brackets)"
+paren_reg <- r"{\(.*?\)}"
+
+nested_txt <- "This (has brackets) and [square brackets] mixed (together [nested])"
+nested_reg <- r"{\[.*?\]|\(.*?\)}"
+
+stringr::str_extract_all(brack_txt, brack_reg)[[1]]
+stringr::str_extract_all(paren_txt, paren_reg)[[1]]
+stringr::str_extract_all(nested_txt, nested_reg)[[1]]
+
+gsub(paren_reg, "[XXXXX]", paren_txt)
+```
+
+
+```{r}
 rules[1, ] |> glimpse()
 rules[2, ] |> glimpse()
+cat(format(rules[2, 9, drop = TRUE]))
 ```
 
 ```{r}
@@ -277,29 +112,35 @@ rules[3, ] |> glimpse()
 rules[4, ] |> glimpse()
 rules[5, ] |> glimpse()
 rules[6, ] |> glimpse()
+cat(format(rules[3, 9, drop = TRUE]))
+
+glob2rx("[J*]")
 ```
 
 
 ## S7 Class
 
 ```{r}
-crule <- S7::new_class(
-  "crule",
+rule <- S7::new_class(
+  "rule",
   package = "cruler",
   properties = list(
     identifier = S7::class_character,
     category = S7::class_character,
     definition = S7::class_character,
     rationale = S7::class_character,
-    source = S7::new_property(class = S7::class_character, default = NA_character_),
-    steps = S7::new_property(class = S7::class_list, default = list()),
-    timestamp = new_property(class = S7::class_POSIXct, default = as.POSIXct(Sys.time()))
+    source = S7::new_property(class = S7::class_character, 
+                              default = NA_character_),
+    steps = S7::new_property(class = S7::class_list, 
+                             default = list()),
+    timestamp = S7::new_property(class = S7::class_POSIXct, 
+                                 default = as.POSIXct(Sys.time()))
     )
   )
 
-crule
+rule
 
-hcpcs_exp <- crule(
+hcpcs_exp <- rule(
   identifier = "HCPCS:EXP:001",
   category = "Invalid HCPCS",
   definition = "<Date of Service> is [2019-01-01] or after |AND| <HCPCS Code> is [43760]",
@@ -308,8 +149,8 @@ hcpcs_exp <- crule(
 
 hcpcs_exp
 
-cvariable <- S7::new_class(
-  "cvariable",
+variable <- S7::new_class(
+  "variable",
   package = "cruler",
   properties = list(
     name = S7::class_character,
@@ -318,26 +159,36 @@ cvariable <- S7::new_class(
     )
   )
 
-cvariable
+variable
+
+variable(
+  name = "dos",
+  group = "encounter",
+  attributes = list()
+)
 ```
 
 ```{r}
 #| label: qualify
 #| echo: true
-#| message: false
-#| warning: false
+#| message: true
+#| warning: true
 #| error: true
 rule_001_example <- dplyr::tibble(
   dos = as.Date(c("2024-01-01", "2018-01-01")),
-  hcpcs = as.character(c(43760, 43760))
+  hcpcs = as.character(c(43760, 99213))
 )
+
+rule_001_example
 
 rule_001_example2 <- dplyr::tibble(
-  dos = as.Date(c("2017-01-01", "2018-01-01")),
-  hcpcs = as.character(c(43760, 43760))
+  dos = as.Date(c("2017-01-01", "2018-01-01", "2024-01-01")),
+  hcpcs = as.character(c(99213, 99213, 99213))
 )
 
-qualify_date <- function(df) {
+rule_001_example2
+
+qualify_dos <- function(df) {
   
   arg  <- rlang::caller_arg(df)
   call <- rlang::caller_env()
@@ -349,34 +200,54 @@ qualify_date <- function(df) {
       "No matches for {.strong dos} >= {.val {as.Date('2019-01-01')}} in {.arg {arg}}.", 
       arg = arg,
       call = call,
-      class = "check_length"
+      class = "no_qualify_dos"
       )
   }
   return(x)
 }
 
+qualify_dos(rule_001_example)
 
-qualify_date(rule_001_example)
+qualify_dos(rule_001_example2)
 
-qualify_date(rule_001_example2)
+qualify_hcpcs <- function(df) {
+  
+  arg  <- rlang::caller_arg(df)
+  call <- rlang::caller_env()
+  
+  x <- vctrs::vec_slice(df, df[["hcpcs"]] == "43760")
+  
+  if (vctrs::vec_is_empty(x))  {
+    cli::cli_abort(
+      "No matches for {.strong hcpcs} == {.val {rlang::sym('43760')}} in {.arg {arg}}.", 
+      arg = arg,
+      call = call,
+      class = "no_qualify_hcpcs"
+      )
+  }
+  return(x)
+}
+
+qualify_hcpcs(rule_001_example)
+
+qualify_hcpcs(rule_001_example2)
+
+qualify_dos(rule_001_example) |> qualify_hcpcs()
+
+qualify_dos(rule_001_example2) |> qualify_hcpcs()
 ```
 
+## Metadata
 
-
-
-
-## Descriptors
-
--   [X] `identifier`
--   [X] `name`: Split letters/numbers, categorize Payer, State, etc.
--   [X] `category`: 
--   [ ] `description`:
+-   [X] `index`: Row number
+-   [X] `number`: Rule Number
+-   [X] `identifier`: Split letters/numbers, categorize Payer, State, etc.
+-   [ ] `category`: Categories make little sense, need to be reclassified
+-   [ ] `definition`:
 -   [ ] `rationale`: Steps are detailed in the rationale that are missing from the ruleset
--   [X] `sources`: Extract urls from `category`
+-   [X] `source`: Extract urls from `category`
 
-### Cleaning: Category
-
-URLs -> Source
+### Category
 
 ```{r}
 #| label: descriptors
@@ -386,12 +257,20 @@ URLs -> Source
 descriptors |> 
   select(category, rationale) |> 
   filter(!is.na(category)) |> 
-  distinct(category) |> 
-  print(n = 500)
+  distinct(category, .keep_all = TRUE) |> 
+  gt() |> 
+  gtExtras::gt_merge_stack(
+    col1 = "category",
+    col2 = "rationale",
+    font_size = c("17px", "16px"),
+    palette = c("darkgreen", "royalblue"),
+    font_weight = c("bold", "normal"),
+    small_cap = FALSE
+  )
 ```
 
 
-### Sample
+#### Sample
 
 ```{r}
 #| label: category
@@ -400,12 +279,16 @@ descriptors |>
 #| warning: false
 descriptors |>
   slice_sample(n = 15) |> 
-  mutate(category = str_wrap(category, width = 50),
-         definition = str_replace_all(definition, " AND ", "<br><br><b>&&</b><br><br>") |> str_wrap(width = 60),
-         definition = str_replace_all(definition, " OR ", "<br><br><b>||</b><br><br>") |> str_wrap(width = 60),
-         definition = str_remove_all(definition, regex("\\s*\\(\\s*\\d+\\s*\\)\\s*")) |> str_wrap(width = 60),
-         definition = str_squish(definition),
-         rationale = str_wrap(rationale, width = 50)) |>
+  mutate(
+    category = str_wrap(category, width = 50),
+    definition = str_replace_all(definition, " AND ", "<br><br><b>&&</b><br><br>") |>
+      str_wrap(width = 60),
+    definition = str_replace_all(definition, " OR ", "<br><br><b>||</b><br><br>") |>
+      str_wrap(width = 60),
+    definition = str_remove_all(definition, regex("\\s*\\(\\s*\\d+\\s*\\)\\s*")) |>
+      str_wrap(width = 60),
+    definition = str_squish(definition),
+    rationale = str_wrap(rationale, width = 50)) |>
   select(-source, -index) |> 
   gt(rowname_col = "identifier",
      row_group_as_column = TRUE) |>
@@ -466,14 +349,15 @@ descriptors |>
 
 ## Components
 
--   [ ] `step`: 
--   [X] `variable`: Recode to standardize
--   [ ] `class`: Variable Data Class
--   [ ] `group`: Variable Grouping
--   [ ] `action`: Remove
--   [ ] `method`: Operation Performed to Test for Expected State
--   [ ] `expression`: Actual Code to Run
+-   [X] `number`:
+-   [X] `order`:
+-   [X] `identifier`:
+-   [X] `variable`: Recode to standardize names
+-   [X] `class`: Variable Data Class
+-   [X] `group`: Variable Grouping
+-   [ ] `action`: _Remove_ Translate to `condition`
 -   [ ] `value`: Coerce to correct data type, deal with wildcards
+-   [ ] `condition`: Predication function that evaluates to `TRUE` or `FALSE`
 
 ```{r}
 #| label: components
@@ -483,35 +367,33 @@ descriptors |>
 components
 ```
 
+### Variables
 
-### Variable
-
-   - `hcpcs`: 
-   - `mod_1`: 
-   - `mod_2`:
-   - `mod_3`:
-   - `mod_4`:
-   - `unit`: 
-   - `icd`:
-   - `dos`:
-   - `pos`:
-   - `ub04`:
-   - `ndc`:
-   - `rev_code`:
-   - `cci`:
-   - `lcd`:
-   - `ncd`:
-   - `dob`:
-   - `sex`:
-   - `rendering`:
-   - `referring`:
-   - `primary_class`:
-   - `primary_name`:
-   - `primary_auth`:
-   - `secondary_class`:
-   - `secondary_name`:
-
-
+-   [X] `hcpcs`: 
+-   [ ] `mod_1`: 
+-   [ ] `mod_2`:
+-   [ ] `mod_3`:
+-   [ ] `mod_4`:
+-   [X] `unit`: 
+-   [X] `icd`:
+-   [X] `dos`:
+-   [X] `pos`:
+-   [X] `ub04`:
+-   [X] `ndc`:
+-   [ ] `rev_code`:
+-   [ ] `cci`:
+-   [ ] `lcd`:
+-   [ ] `ncd`:
+-   [ ] `dob`:
+-   [ ] `sex`:
+-   [ ] `age`:
+-   [ ] `rendering`:
+-   [ ] `referring`:
+-   [ ] `primary_class`:
+-   [ ] `primary_name`:
+-   [ ] `primary_auth`:
+-   [ ] `secondary_class`:
+-   [ ] `secondary_name`:
 
 ```{r}
 #| label: class_group
@@ -519,32 +401,20 @@ components
 #| message: false
 #| warning: false
 components  |> 
-  filter(!is.na(class)) |>
-  distinct(class, group, variable, action) |>
-  count(class, group, variable, name = "actions") |>
-  arrange(class, group, desc(actions)) |>
-  gt(groupname_col = "class",
-     rowname_col = "group",
+  filter(!is.na(class), !group %in% c("ncci")) |>
+  count(group, variable, name = "steps") |>
+  gt(groupname_col = "group",
      row_group_as_column = TRUE
      ) |>
   cols_align(align = "left") |>
-  opt_table_font(font = google_font(name = "JetBrains Mono"),) |>
+  opt_table_font(font = google_font(name = "JetBrains Mono")) |>
   opt_all_caps(locations = c("column_labels")) |>
-  tab_style(
-      style = cell_text(
-        align = 'left',
-        weight = "normal",
-        font = google_font(name = "Roboto Mono")),
-      locations = cells_stub()) |>
   tab_style(
       style = cell_text(
         color = "royalblue",
         align = 'right',
-        weight = "normal",
-        # style = "italic",
-        decorate = "underline",
-        # stretch = "condensed",
-        size = px(20),
+        weight = "bold",
+        size = px(16),
         font = google_font(name = "Fira Code")),
       locations = cells_row_groups()) |>
   opt_stylize() |>
@@ -552,15 +422,18 @@ components  |>
               quarto.disable_processing = TRUE)
 ```
 
-#### Date of Service
+#### `dos`
 
 ```{r}
-components |> 
+dos <- components |> 
   filter(variable == "dos") |> 
   mutate(class = "<date>",
          value = anytime::anydate(value),
-         method = if_else(str_detect(action, "after"), ">", "<")) |> 
-  select(number, order, class, group, variable, action, value) |> 
+         method = if_else(str_detect(action, "after"), ">", "<"),
+         condition = glue::glue('{variable} {method} {value}')) |> 
+  select(number, identifier, order, condition)
+
+dos |> 
   gt() |>
   cols_align(align = "left") |>
   opt_table_font(font = google_font(name = "Roboto Condensed")) |>
@@ -570,88 +443,107 @@ components |>
         align = 'left',
         weight = "bold",
         font = google_font(name = "Roboto Mono")),
-      locations = cells_body(columns = c(variable, action, value))) |>
-  tab_style(
-      style = cell_text(
-        align = 'left',
-        weight = "normal",
-        style = "italic",
-        decorate = "underline",
-        stretch = "condensed",
-        font = google_font(name = "Fira Code")),
-      locations = cells_body(columns = c(class))) |>
+      locations = cells_body(columns = c(condition))) |>
   opt_stylize() |>
-  tab_options(table.width = pct(100),
+  tab_options(table.width = pct(50),
               quarto.disable_processing = TRUE)
 ```
 
-#### Patient Age
+#### `age`
 
 All ages should be in the same unit of time, in this case, days.
 
 Should be calculated from the encounter's Date of Service (`dos`) and the patient's Date of Birth (`dob`).
 
 ```{r}
-components |> 
-  filter(variable == "dob") |> 
-  mutate(variable = "age",
-         class = "<int>", 
+dos <- components |> 
+  filter(variable == "dos") |> 
+  mutate(class = "<date>",
+         value = anytime::anydate(value),
+         method = if_else(str_detect(action, "after"), ">", "<"),
+         condition = glue::glue('{variable} {method} {value}')) |> 
+  select(number, identifier, order, condition)
+
+age <- components |> 
+  filter(variable == "age") |> 
+  mutate(class = "<int>", 
          age = strex::str_extract_numbers(value),
          period = strex::str_extract_non_numerics(value),
          .before = variable) |> 
   unnest(c(age, period)) |> 
-  mutate(
-    age = as.integer(age),
-    period = str_remove_all(period, "\\s|,"),
-    value = NULL,
-    method = case_match(
-      action,
-      c("is younger than", "younger than") ~ "<",
-      "is older than" ~ ">",
-      "is" ~ "==",
-      .default = NA_character_),
-    days = case_when(
+  mutate(age = as.integer(age),
+         period = str_remove_all(period, "\\s|,"),
+         value = NULL,
+         method = case_match(
+           action,
+           c("is younger than", "younger than") ~ "<",
+           "is older than" ~ ">",
+           "is" ~ "==",
+           .default = NA_character_),
+    value = case_when(
       period == "years" ~ as.duration(years(age)) / ddays(1),
       period == "months" ~ as.duration(months(age)) / ddays(1),
       period == "days" ~ as.duration(days(age)) / ddays(1),
       .default = NA_real_),
-    dos = lubridate::today(),
+    value = as.integer(value),
+    condition = glue::glue('{variable} {method} {value}')
   ) |> 
-  select(number, order, class, variable, method, age, period, days) |> 
+  select(number, identifier, order, condition)
+
+age |> 
   gt() |>
   cols_align(align = "left") |>
   opt_table_font(font = google_font(name = "Roboto Condensed")) |>
-  fmt_integer(columns = c("age", "days")) |>
   opt_all_caps() |>
   tab_style(
       style = cell_text(
         align = 'left',
         weight = "bold",
         font = google_font(name = "Roboto Mono")),
-      locations = cells_body(columns = c(variable, method))) |>
-  tab_style(
-      style = cell_text(
-        align = 'left',
-        weight = "normal",
-        style = "italic",
-        decorate = "underline",
-        stretch = "condensed",
-        font = google_font(name = "Fira Code")),
-      locations = cells_body(columns = c(class))) |>
-  tab_options(table.width = pct(100),
+      locations = cells_body(columns = c(condition))) |>
+  tab_options(table.width = pct(50),
               quarto.disable_processing = TRUE)
 ```
 
-#### Unit (HCPCS)
+#### `sex`
 
 ```{r}
 components |> 
-  filter(variable == "unit") |> 
-  mutate(class = "<int>", 
-         value = as.integer(value),
-         method = if_else(str_detect(action, "is not"), "!=", "=="),
-         .before = variable) |> 
-  select(number, order, class, variable, method, value, action) |> 
+  filter(variable == "sex")
+```
+
+#### `ub04`
+
+```{r}
+components |> 
+  filter(variable == "ub04")
+```
+
+#### `mod_1`
+
+```{r}
+# number 27   identifier MCD:CA:013  mod == SL
+# number 921  identifier DME:028     semicolons to commas
+# number 1061	identifier ANES:010    deal with wildcards
+# number 583	identifier PODIA:004
+# modifiers must be quoted
+# for wildcards longer vectors, can probably use regex
+mod_1 <- components |> 
+  filter(variable == "mod_1") |> 
+  mutate(class = "<chr>",
+         value = if_else(identifier == "MCD:CA:013", "SL", value),
+         commas = str_detect(value, ",|;"),
+         method = if_else(action == "is", "==", "!="),
+         method = if_else(commas, "%in%", method),
+         method = if_else(value == "Present", "!is.na(mod_1)", method),
+         variable = if_else(value == "Present", NA_character_, variable),
+         variable = if_else(commas, "!mod_1", variable),
+         value = if_else(value == "Present", NA_character_, value),
+         value = if_else(commas, glue::glue("c({value})"), value),
+         condition = glue::glue('{variable} {method} {value}', .na = "")) |> 
+  select(number, identifier, order, condition)
+
+mod_1 |> 
   gt() |>
   cols_align(align = "left") |>
   opt_table_font(font = google_font(name = "Roboto Condensed")) |>
@@ -661,21 +553,146 @@ components |>
         align = 'left',
         weight = "bold",
         font = google_font(name = "Roboto Mono")),
-      locations = cells_body(columns = c(variable, method, value))) |>
-  tab_style(
-      style = cell_text(
-        align = 'left',
-        weight = "normal",
-        style = "italic",
-        decorate = "underline",
-        stretch = "condensed",
-        font = google_font(name = "Fira Code")),
-      locations = cells_body(columns = c(class))) |>
-  tab_options(table.width = pct(100),
+      locations = cells_body(columns = c(condition))) |>
+  tab_options(table.width = pct(50),
               quarto.disable_processing = TRUE)
 ```
 
-#### NDC
+#### `mod_2`
+
+```{r}
+components |> 
+  filter(variable == "mod_2") |> 
+  mutate(class = "<chr>",
+         value = if_else(identifier == "MCD:CA:013", "SL", value),
+         commas = str_detect(value, ",|;"),
+         method = if_else(action == "is", "==", "!="),
+         method = if_else(commas, "%in%", method),
+         method = if_else(value == "Present", "!is.na(mod_2)", method),
+         variable = if_else(value == "Present", NA_character_, variable),
+         variable = if_else(commas, "!mod_2", variable),
+         value = if_else(value == "Present", NA_character_, value),
+         value = if_else(commas, glue::glue("c({value})"), value),
+         condition = glue::glue('{variable} {method} {value}', .na = "")) |> 
+  select(number, identifier, order, condition)
+```
+
+#### `mod_3`
+
+```{r}
+components |> 
+  filter(variable == "mod_3") |> 
+  mutate(class = "<chr>",
+         value = if_else(identifier == "MCD:CA:013", "SL", value),
+         commas = str_detect(value, ",|;"),
+         method = if_else(action == "is", "==", "!="),
+         method = if_else(commas, "%in%", method),
+         method = if_else(value == "Present", "!is.na(mod_3)", method),
+         variable = if_else(value == "Present", NA_character_, variable),
+         variable = if_else(commas, "!mod_3", variable),
+         value = if_else(value == "Present", NA_character_, value),
+         value = if_else(commas, glue::glue("c({value})"), value),
+         condition = glue::glue('{variable} {method} {value}', .na = "")) |> 
+  select(number, identifier, order, condition)
+```
+
+#### `mod_4`
+
+```{r}
+components |> 
+  filter(variable == "mod_4") |> 
+  mutate(class = "<chr>",
+         value = if_else(identifier == "MCD:CA:013", "SL", value),
+         commas = str_detect(value, ",|;"),
+         method = if_else(action == "is", "==", "!="),
+         method = if_else(commas, "%in%", method),
+         method = if_else(value == "Present", "!is.na(mod_4)", method),
+         variable = if_else(value == "Present", NA_character_, variable),
+         variable = if_else(commas, "!mod_4", variable),
+         value = if_else(value == "Present", NA_character_, value),
+         value = if_else(commas, glue::glue("c({value})"), value),
+         condition = glue::glue('{variable} {method} {value}', .na = "")) |> 
+  select(number, identifier, order, condition)
+```
+
+#### `rev_code`
+
+```{r}
+components |> 
+  filter(variable == "rev_code")
+```
+
+#### NCCI: Remove
+
+```{r}
+components |> 
+  filter(number == 468) |> 
+  filter(variable == "cci")
+```
+
+```{r}
+components |> 
+  filter(number == 467) |> 
+  filter(variable == "lcd")
+```
+
+```{r}
+components |> 
+  filter(number == 466) |>
+  filter(variable == "ncd")
+```
+
+#### `rendering`
+
+```{r}
+components |> 
+  filter(variable == "rendering")
+```
+
+#### `referring`
+
+```{r}
+components |> 
+  filter(variable == "referring")
+```
+
+#### `primary_class`
+
+```{r}
+components |> 
+  filter(variable == "primary_class")
+```
+
+#### `primary_name`
+
+```{r}
+components |> 
+  filter(variable == "primary_name")
+```
+
+#### `primary_auth`
+
+```{r}
+components |> 
+  filter(variable == "primary_auth")
+```
+
+#### `secondary_class`
+
+```{r}
+components |> 
+  filter(variable == "secondary_class")
+```
+
+#### `secondary_name`
+
+```{r}
+components |> 
+  filter(variable == "secondary_name")
+```
+
+
+#### `ndc`
 
 How can this be represented in relational algebra? Detect presence with regex?
 
@@ -685,9 +702,7 @@ If not present, then is `NA` its' representation? If so, `is.na(x)` would equal 
 ```{r}
 components |> 
   filter(variable == "ndc") |> 
-  mutate(class = "<lgl>", 
-         .before = variable, 
-         method = if_else(str_detect(action, "is not"), "is.na(x)", "!is.na(x)")) |> 
+  mutate(method = if_else(str_detect(action, "is not"), "is.na(x)", "!is.na(x)")) |> 
   select(number, order, class, variable, method, value, action) |> 
   gt() |>
   cols_align(align = "left") |>
@@ -712,12 +727,7 @@ components |>
               quarto.disable_processing = TRUE)
 ```
 
-#### ICD
-
-   * has all
-   * is
-   * is not
-   * is one of
+#### `icd`
 
 some values contain wildcards *
 
@@ -726,12 +736,10 @@ components |>
   filter(variable == "icd") |>
   mutate(wc = case_when(str_detect(value, "\\*") ~ 1L, .default = 0L),
          nchar = if_else(wc == 1, str_count(value, "[[:alnum:]]"), 0L),
-         class = "<chr>",
          method = case_when(
            action == "is" & wc == 1 ~ "%in%",
            action == "is" & wc == 0 ~ "==",
-           .default = NA_character_)
-         ) |> 
+           .default = NA_character_)) |> 
   filter(!is.na(method)) |> 
   select(number, order, class, variable, method, value, action, wc, nchar) |> 
   gt() |>
@@ -758,7 +766,7 @@ components |>
 ```
 
 
-#### HCPCS
+#### `hcpcs`
 
 ```{r}
 components |> 
@@ -806,6 +814,38 @@ components |>
               quarto.disable_processing = TRUE)
 ```
 
+#### `unit`
+
+```{r}
+components |> 
+  filter(variable == "unit") |> 
+  mutate(class = "<int>", 
+         value = as.integer(value),
+         method = if_else(str_detect(action, "is not"), "!=", "=="),
+         .before = variable) |> 
+  select(number, order, class, variable, method, value, action) |> 
+  gt() |>
+  cols_align(align = "left") |>
+  opt_table_font(font = google_font(name = "Roboto Condensed")) |>
+  opt_all_caps() |>
+  tab_style(
+      style = cell_text(
+        align = 'left',
+        weight = "bold",
+        font = google_font(name = "Roboto Mono")),
+      locations = cells_body(columns = c(variable, method, value))) |>
+  tab_style(
+      style = cell_text(
+        align = 'left',
+        weight = "normal",
+        style = "italic",
+        decorate = "underline",
+        stretch = "condensed",
+        font = google_font(name = "Fira Code")),
+      locations = cells_body(columns = c(class))) |>
+  tab_options(table.width = pct(100),
+              quarto.disable_processing = TRUE)
+```
 
 
 ## Unevaluated Code
