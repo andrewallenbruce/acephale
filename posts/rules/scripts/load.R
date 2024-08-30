@@ -9,6 +9,39 @@ head_tail <- function(x, n = 5, by = NULL) {
     dplyr::slice_tail(x, n = n, by = dplyr::all_of(by)))
 }
 
+deparse_substitute <- \(x) {
+  deparse(substitute(x))
+}
+
+gt_var <- \(df) {
+  df |>
+    gt() |>
+    cols_align(align = "left") |>
+    opt_table_font(font = google_font(name = "Roboto Condensed")) |>
+    opt_all_caps() |>
+    tab_style(
+      style = cell_text(
+        align = "left",
+        weight = "bold",
+        size = px(14),
+        whitespace = "break-spaces",
+        font = google_font(name = "JetBrains Mono")
+      ),
+      locations = cells_body(columns = c(value))
+    ) |>
+    tab_style(
+      style = cell_text(
+        align = 'left',
+        weight = "bold",
+        font = google_font(name = "Roboto Mono")
+      ),
+      locations = cells_body(columns = c(condition))
+    ) |>
+    opt_stylize() |>
+    tab_options(table.width = pct(50),
+                quarto.disable_processing = TRUE)
+}
+
 rules <- read_csv(
   here("posts/rules/data/rules_raw.csv"),
   col_types = cols(
@@ -43,7 +76,8 @@ rules <- read_csv(
     category,
     definition = rule,
     rationale  = alert
-  )
+  ) |>
+  filter(!number %in% c(273:274, 293, 450, 466:468, 701))
 
 rules[1, 9, drop = TRUE] <- "CPT Code is [43760] AND Encounter Date of Service after [01/01/2019]"
 rules[2, 9, drop = TRUE] <- "CPT Code is [43760] AND Encounter Date of Service after [01/01/2019]"
@@ -267,3 +301,68 @@ components <- components |>
       ) ~ "payer"
     ) |> as_factor()
   )
+
+
+dos <- components |>
+  filter(variable == "dos") |>
+  mutate(value = anytime::anydate(value) |> as.character(),
+         method = if_else(str_detect(action, "after"), ">", "<"),
+         condition = glue::glue('{variable} {method} "{value}"')) |>
+  select(number, identifier, order, variable, value, condition)
+
+age <- components |>
+  filter(variable == "age") |>
+  mutate(age = strex::str_extract_numbers(value),
+         period = strex::str_extract_non_numerics(value),
+         .before = variable) |>
+  unnest(c(age, period)) |>
+  mutate(age = as.integer(age),
+         period = str_remove_all(period, "\\s|,"),
+         value = NULL,
+         method = case_match(
+           action,
+           c("is younger than", "younger than") ~ "<",
+           "is older than" ~ ">",
+           "is" ~ "==",
+           .default = NA_character_),
+         value = case_when(
+           period == "years" ~ as.duration(years(age)) / ddays(1),
+           period == "months" ~ as.duration(months(age)) / ddays(1),
+           period == "days" ~ as.duration(days(age)) / ddays(1),
+           .default = NA_real_),
+         value = as.integer(value) |> as.character(),
+         condition = glue::glue('{variable} {method} {value}')) |>
+  select(number, identifier, order, variable, value, condition)
+
+ndc <- components |>
+  filter(variable == "ndc") |>
+  mutate(condition = glue::glue('!is.na({variable})')) |>
+  select(number, identifier, order, variable, value, condition)
+
+unit <- components |>
+  filter(variable == "unit") |>
+  mutate(value = as.integer(value),
+         method = if_else(str_detect(action, "is not"), "!=", "=="),
+         value = as.integer(value) |> as.character(),
+         condition = glue::glue('{variable} {method} {value}')) |>
+  select(number, identifier, order, variable, value, condition)
+
+sex <- components |>
+  filter(variable == "sex") |>
+  mutate(
+    value = str_to_title(value),
+    method = if_else(str_detect(action, "is"), "==", "!="),
+    condition = glue::glue('!is.na({variable})'),
+    condition = if_else(value == "Present", glue::glue('!is.na({variable})'), glue::glue('{variable} {method} "{value}"'))) |>
+  select(number, identifier, order, variable, value, condition)
+
+ub04 <- components |>
+  filter(variable == "ub04") |>
+  mutate(
+    value = str_to_upper(value),
+    value = if_else(action == "is not", "FALSE", value),
+    action = "is",
+    method = if_else(str_detect(action, "is"), "==", "!="),
+    condition = glue::glue('{variable} {method} {value}')
+  ) |>
+  select(number, identifier, order, variable, value, condition)

@@ -27,10 +27,6 @@ library(here)
 library(gt)
 library(S7)
 
-deparse_substitute <- \(x) {
-    deparse(substitute(x))
-}
-
 source(here("posts/rules/scripts", "load.R"))
 ```
 
@@ -84,24 +80,6 @@ source(here("posts/rules/scripts", "load.R"))
 
 
 ```{r}
-brack_txt <- "This is [some text] between [brackets]"
-brack_reg <- r"{\[(.*?)\]}"
-
-paren_txt <- "This is (some text) between (brackets)"
-paren_reg <- r"{\(.*?\)}"
-
-nested_txt <- "This (has brackets) and [square brackets] mixed (together [nested])"
-nested_reg <- r"{\[.*?\]|\(.*?\)}"
-
-stringr::str_extract_all(brack_txt, brack_reg)[[1]]
-stringr::str_extract_all(paren_txt, paren_reg)[[1]]
-stringr::str_extract_all(nested_txt, nested_reg)[[1]]
-
-gsub(paren_reg, "[XXXXX]", paren_txt)
-```
-
-
-```{r}
 rules[1, ] |> glimpse()
 rules[2, ] |> glimpse()
 cat(format(rules[2, 9, drop = TRUE]))
@@ -113,8 +91,6 @@ rules[4, ] |> glimpse()
 rules[5, ] |> glimpse()
 rules[6, ] |> glimpse()
 cat(format(rules[3, 9, drop = TRUE]))
-
-glob2rx("[J*]")
 ```
 
 
@@ -161,11 +137,13 @@ variable <- S7::new_class(
 
 variable
 
-variable(
+dos_var <- variable(
   name = "dos",
   group = "encounter",
   attributes = list()
 )
+
+dos_var
 ```
 
 ```{r}
@@ -252,6 +230,7 @@ qualify_dos(rule_001_example2) |> qualify_hcpcs()
 ```{r}
 #| label: descriptors
 #| echo: true
+#| eval: false
 #| message: false
 #| warning: false
 descriptors |> 
@@ -275,6 +254,7 @@ descriptors |>
 ```{r}
 #| label: category
 #| echo: true
+#| eval: false
 #| message: false
 #| warning: false
 descriptors |>
@@ -364,29 +344,27 @@ descriptors |>
 #| echo: true
 #| message: false
 #| warning: false
-components
+components |> 
+  count(variable) |> 
+  print(n = 30)
 ```
 
 ### Variables
 
--   [X] `hcpcs`: 
+-   [X] `dos`:
+-   [X] `age`:
+-   [X] `unit`: 
+-   [X] `ub04`:
+-   [X] `ndc`:
+-   [X] `sex`:
+-   [X] `pos`:
+-   [ ] `rev_code`:
+-   [ ] `icd`:
+-   [ ] `hcpcs`: 
 -   [ ] `mod_1`: 
 -   [ ] `mod_2`:
 -   [ ] `mod_3`:
 -   [ ] `mod_4`:
--   [X] `unit`: 
--   [X] `icd`:
--   [X] `dos`:
--   [X] `pos`:
--   [X] `ub04`:
--   [X] `ndc`:
--   [ ] `rev_code`:
--   [ ] `cci`:
--   [ ] `lcd`:
--   [ ] `ncd`:
--   [ ] `dob`:
--   [ ] `sex`:
--   [ ] `age`:
 -   [ ] `rendering`:
 -   [ ] `referring`:
 -   [ ] `primary_class`:
@@ -395,131 +373,78 @@ components
 -   [ ] `secondary_class`:
 -   [ ] `secondary_name`:
 
+#### Cleaned Variables
+
 ```{r}
-#| label: class_group
+#| label: cleaned_variables
 #| echo: true
+#| eval: true
 #| message: false
 #| warning: false
-components  |> 
-  filter(!is.na(class), !group %in% c("ncci")) |>
-  count(group, variable, name = "steps") |>
-  gt(groupname_col = "group",
-     row_group_as_column = TRUE
-     ) |>
-  cols_align(align = "left") |>
-  opt_table_font(font = google_font(name = "JetBrains Mono")) |>
-  opt_all_caps(locations = c("column_labels")) |>
-  tab_style(
-      style = cell_text(
-        color = "royalblue",
-        align = 'right',
-        weight = "bold",
-        size = px(16),
-        font = google_font(name = "Fira Code")),
-      locations = cells_row_groups()) |>
-  opt_stylize() |>
-  tab_options(table.width = pct(50),
-              quarto.disable_processing = TRUE)
+# Surround dates in quotes
+dos
+
+# Should be in the same unit of time (days) and calculated from the encounter's Date of Service (`dos`) and the patient's Date of Birth (`dob`).
+age
+
+# All check for presence, should simply be `!is.na(ndc)`
+ndc
+
+unit
+
+sex
+
+ub04
 ```
 
-#### `dos`
 
 ```{r}
-dos <- components |> 
-  filter(variable == "dos") |> 
-  mutate(class = "<date>",
-         value = anytime::anydate(value),
-         method = if_else(str_detect(action, "after"), ">", "<"),
-         condition = glue::glue('{variable} {method} {value}')) |> 
-  select(number, identifier, order, condition)
-
-dos |> 
-  gt() |>
-  cols_align(align = "left") |>
-  opt_table_font(font = google_font(name = "Roboto Condensed")) |>
-  opt_all_caps() |>
-  tab_style(
-      style = cell_text(
-        align = 'left',
-        weight = "bold",
-        font = google_font(name = "Roboto Mono")),
-      locations = cells_body(columns = c(condition))) |>
-  opt_stylize() |>
-  tab_options(table.width = pct(50),
-              quarto.disable_processing = TRUE)
+vctrs::vec_c(
+  dos,
+  age,
+  ndc,
+  unit,
+  sex,
+  ub04
+) |> 
+  dplyr::select(
+    number, 
+    identifier, 
+    variable, 
+    order, 
+    condition
+    ) |> 
+  dplyr::arrange(number, order)
 ```
 
-#### `age`
 
-All ages should be in the same unit of time, in this case, days.
-
-Should be calculated from the encounter's Date of Service (`dos`) and the patient's Date of Birth (`dob`).
-
-```{r}
-dos <- components |> 
-  filter(variable == "dos") |> 
-  mutate(class = "<date>",
-         value = anytime::anydate(value),
-         method = if_else(str_detect(action, "after"), ">", "<"),
-         condition = glue::glue('{variable} {method} {value}')) |> 
-  select(number, identifier, order, condition)
-
-age <- components |> 
-  filter(variable == "age") |> 
-  mutate(class = "<int>", 
-         age = strex::str_extract_numbers(value),
-         period = strex::str_extract_non_numerics(value),
-         .before = variable) |> 
-  unnest(c(age, period)) |> 
-  mutate(age = as.integer(age),
-         period = str_remove_all(period, "\\s|,"),
-         value = NULL,
-         method = case_match(
-           action,
-           c("is younger than", "younger than") ~ "<",
-           "is older than" ~ ">",
-           "is" ~ "==",
-           .default = NA_character_),
-    value = case_when(
-      period == "years" ~ as.duration(years(age)) / ddays(1),
-      period == "months" ~ as.duration(months(age)) / ddays(1),
-      period == "days" ~ as.duration(days(age)) / ddays(1),
-      .default = NA_real_),
-    value = as.integer(value),
-    condition = glue::glue('{variable} {method} {value}')
-  ) |> 
-  select(number, identifier, order, condition)
-
-age |> 
-  gt() |>
-  cols_align(align = "left") |>
-  opt_table_font(font = google_font(name = "Roboto Condensed")) |>
-  opt_all_caps() |>
-  tab_style(
-      style = cell_text(
-        align = 'left',
-        weight = "bold",
-        font = google_font(name = "Roboto Mono")),
-      locations = cells_body(columns = c(condition))) |>
-  tab_options(table.width = pct(50),
-              quarto.disable_processing = TRUE)
-```
-
-#### `sex`
+#### Simple
 
 ```{r}
 components |> 
-  filter(variable == "sex")
+  filter(variable == "pos") |> 
+  select(number, identifier, order, variable, action, value) |> 
+  mutate(pos = str_extract_all(value, r'{\((\d+)\)(?:\s*\([^)]*\))?}')) |> 
+  unnest(pos, keep_empty = TRUE) |> 
+  mutate(pos = substr(pos, 2, 3),
+         pos = if_else(is.na(pos) & str_detect(value, "^\\d{2}$"), str_extract(value, "^\\d{2}$"), pos),
+         pos = if_else(is.na(pos) & str_detect(value, "^\\d{2}\\s+"), str_extract(value, "^\\d{2}"), pos)) |>
+  nest(pos = c(pos)) |> 
+  rowwise() |>
+  mutate(pos = map(pos, ~paste0(., collapse = ", "))) |>
+  unnest(cols = pos) |>
+  ungroup() |> 
+  mutate(pos = case_when(
+    number == 1007 ~ "19, 21, 22",
+    number == 1013 ~ "31, 32, 54, 56",
+    number == 1014 ~ "12, 13, 14, 16, 33, 55",
+    number %in% c(1891, 930, 1036) ~ "02, 10",
+    number %in% c(275, 276) ~ "81",
+    .default = pos),
+    value = NULL)
+
+# pos = glue::glue('"{pos}"'),
 ```
-
-#### `ub04`
-
-```{r}
-components |> 
-  filter(variable == "ub04")
-```
-
-#### `mod_1`
 
 ```{r}
 # number 27   identifier MCD:CA:013  mod == SL
@@ -528,10 +453,9 @@ components |>
 # number 583	identifier PODIA:004
 # modifiers must be quoted
 # for wildcards longer vectors, can probably use regex
-mod_1 <- components |> 
-  filter(variable == "mod_1") |> 
-  mutate(class = "<chr>",
-         value = if_else(identifier == "MCD:CA:013", "SL", value),
+components |> 
+  filter(variable %in% c("mod_1", "mod_2", "mod_3", "mod_4")) |> 
+  mutate(value = if_else(identifier == "MCD:CA:013", "SL", value),
          commas = str_detect(value, ",|;"),
          method = if_else(action == "is", "==", "!="),
          method = if_else(commas, "%in%", method),
@@ -540,194 +464,60 @@ mod_1 <- components |>
          variable = if_else(commas, "!mod_1", variable),
          value = if_else(value == "Present", NA_character_, value),
          value = if_else(commas, glue::glue("c({value})"), value),
-         condition = glue::glue('{variable} {method} {value}', .na = "")) |> 
-  select(number, identifier, order, condition)
-
-mod_1 |> 
-  gt() |>
-  cols_align(align = "left") |>
-  opt_table_font(font = google_font(name = "Roboto Condensed")) |>
-  opt_all_caps() |>
-  tab_style(
-      style = cell_text(
-        align = 'left',
-        weight = "bold",
-        font = google_font(name = "Roboto Mono")),
-      locations = cells_body(columns = c(condition))) |>
-  tab_options(table.width = pct(50),
-              quarto.disable_processing = TRUE)
+         condition = glue::glue('{variable} {method} {value}', .na = "")) |>
+  select(number, identifier, order, variable, value, condition)
 ```
 
-#### `mod_2`
-
-```{r}
-components |> 
-  filter(variable == "mod_2") |> 
-  mutate(class = "<chr>",
-         value = if_else(identifier == "MCD:CA:013", "SL", value),
-         commas = str_detect(value, ",|;"),
-         method = if_else(action == "is", "==", "!="),
-         method = if_else(commas, "%in%", method),
-         method = if_else(value == "Present", "!is.na(mod_2)", method),
-         variable = if_else(value == "Present", NA_character_, variable),
-         variable = if_else(commas, "!mod_2", variable),
-         value = if_else(value == "Present", NA_character_, value),
-         value = if_else(commas, glue::glue("c({value})"), value),
-         condition = glue::glue('{variable} {method} {value}', .na = "")) |> 
-  select(number, identifier, order, condition)
-```
-
-#### `mod_3`
-
-```{r}
-components |> 
-  filter(variable == "mod_3") |> 
-  mutate(class = "<chr>",
-         value = if_else(identifier == "MCD:CA:013", "SL", value),
-         commas = str_detect(value, ",|;"),
-         method = if_else(action == "is", "==", "!="),
-         method = if_else(commas, "%in%", method),
-         method = if_else(value == "Present", "!is.na(mod_3)", method),
-         variable = if_else(value == "Present", NA_character_, variable),
-         variable = if_else(commas, "!mod_3", variable),
-         value = if_else(value == "Present", NA_character_, value),
-         value = if_else(commas, glue::glue("c({value})"), value),
-         condition = glue::glue('{variable} {method} {value}', .na = "")) |> 
-  select(number, identifier, order, condition)
-```
-
-#### `mod_4`
-
-```{r}
-components |> 
-  filter(variable == "mod_4") |> 
-  mutate(class = "<chr>",
-         value = if_else(identifier == "MCD:CA:013", "SL", value),
-         commas = str_detect(value, ",|;"),
-         method = if_else(action == "is", "==", "!="),
-         method = if_else(commas, "%in%", method),
-         method = if_else(value == "Present", "!is.na(mod_4)", method),
-         variable = if_else(value == "Present", NA_character_, variable),
-         variable = if_else(commas, "!mod_4", variable),
-         value = if_else(value == "Present", NA_character_, value),
-         value = if_else(commas, glue::glue("c({value})"), value),
-         condition = glue::glue('{variable} {method} {value}', .na = "")) |> 
-  select(number, identifier, order, condition)
-```
-
-#### `rev_code`
+#### Complex
 
 ```{r}
 components |> 
   filter(variable == "rev_code")
 ```
 
-#### NCCI: Remove
-
-```{r}
-components |> 
-  filter(number == 468) |> 
-  filter(variable == "cci")
-```
-
-```{r}
-components |> 
-  filter(number == 467) |> 
-  filter(variable == "lcd")
-```
-
-```{r}
-components |> 
-  filter(number == 466) |>
-  filter(variable == "ncd")
-```
-
-#### `rendering`
 
 ```{r}
 components |> 
   filter(variable == "rendering")
 ```
 
-#### `referring`
 
 ```{r}
 components |> 
   filter(variable == "referring")
 ```
 
-#### `primary_class`
 
 ```{r}
 components |> 
   filter(variable == "primary_class")
 ```
 
-#### `primary_name`
 
 ```{r}
 components |> 
   filter(variable == "primary_name")
 ```
 
-#### `primary_auth`
 
 ```{r}
 components |> 
   filter(variable == "primary_auth")
 ```
 
-#### `secondary_class`
 
 ```{r}
 components |> 
   filter(variable == "secondary_class")
 ```
 
-#### `secondary_name`
 
 ```{r}
 components |> 
   filter(variable == "secondary_name")
 ```
 
-
-#### `ndc`
-
-How can this be represented in relational algebra? Detect presence with regex?
-
-If not present, then is `NA` its' representation? If so, `is.na(x)` would equal `is not present` and `!is.na(x)` would equal `is present`
-
-
-```{r}
-components |> 
-  filter(variable == "ndc") |> 
-  mutate(method = if_else(str_detect(action, "is not"), "is.na(x)", "!is.na(x)")) |> 
-  select(number, order, class, variable, method, value, action) |> 
-  gt() |>
-  cols_align(align = "left") |>
-  opt_table_font(font = google_font(name = "Roboto Condensed")) |>
-  opt_all_caps() |>
-  tab_style(
-      style = cell_text(
-        align = 'left',
-        weight = "bold",
-        font = google_font(name = "Roboto Mono")),
-      locations = cells_body(columns = c(variable, method, value))) |>
-  tab_style(
-      style = cell_text(
-        align = 'left',
-        weight = "normal",
-        style = "italic",
-        decorate = "underline",
-        stretch = "condensed",
-        font = google_font(name = "Fira Code")),
-      locations = cells_body(columns = c(class))) |>
-  tab_options(table.width = pct(100),
-              quarto.disable_processing = TRUE)
-```
-
-#### `icd`
+##### `icd`
 
 some values contain wildcards *
 
@@ -741,32 +531,11 @@ components |>
            action == "is" & wc == 0 ~ "==",
            .default = NA_character_)) |> 
   filter(!is.na(method)) |> 
-  select(number, order, class, variable, method, value, action, wc, nchar) |> 
-  gt() |>
-  cols_align(align = "left") |>
-  opt_table_font(font = google_font(name = "Roboto Condensed")) |>
-  opt_all_caps() |>
-  tab_style(
-      style = cell_text(
-        align = 'left',
-        weight = "bold",
-        font = google_font(name = "Roboto Mono")),
-      locations = cells_body(columns = c(variable, method, value))) |>
-  tab_style(
-      style = cell_text(
-        align = 'left',
-        weight = "normal",
-        style = "italic",
-        decorate = "underline",
-        stretch = "condensed",
-        font = google_font(name = "Fira Code")),
-      locations = cells_body(columns = c(class))) |>
-  tab_options(table.width = pct(100),
-              quarto.disable_processing = TRUE)
+  select(number, order, class, variable, method, value, action, wc, nchar)
 ```
 
 
-#### `hcpcs`
+##### `hcpcs`
 
 ```{r}
 components |> 
@@ -782,69 +551,7 @@ components |>
          value = str_wrap(value, width = 30)
          ) |> 
   filter(!is.na(method)) |> 
-  select(number, order, class, variable, method, value, action, wc, nchar) |> 
-  gt() |>
-  cols_align(align = "left") |>
-  opt_table_font(font = google_font(name = "Roboto Condensed")) |>
-  opt_all_caps() |>
-  tab_style(
-      style = cell_text(
-        align = 'left',
-        weight = "bold",
-        font = google_font(name = "Roboto Mono")),
-      locations = cells_body(columns = c(variable, method))) |>
-  tab_style(
-      style = cell_text(
-        align = "left",
-        weight = "bold",
-        size = px(14),
-        whitespace = "break-spaces",
-        font = google_font(name = "JetBrains Mono")),
-      locations = cells_body(columns = c(value))) |>
-  tab_style(
-      style = cell_text(
-        align = 'left',
-        weight = "normal",
-        style = "italic",
-        decorate = "underline",
-        stretch = "condensed",
-        font = google_font(name = "Fira Code")),
-      locations = cells_body(columns = c(class))) |>
-  tab_options(table.width = pct(75),
-              quarto.disable_processing = TRUE)
-```
-
-#### `unit`
-
-```{r}
-components |> 
-  filter(variable == "unit") |> 
-  mutate(class = "<int>", 
-         value = as.integer(value),
-         method = if_else(str_detect(action, "is not"), "!=", "=="),
-         .before = variable) |> 
-  select(number, order, class, variable, method, value, action) |> 
-  gt() |>
-  cols_align(align = "left") |>
-  opt_table_font(font = google_font(name = "Roboto Condensed")) |>
-  opt_all_caps() |>
-  tab_style(
-      style = cell_text(
-        align = 'left',
-        weight = "bold",
-        font = google_font(name = "Roboto Mono")),
-      locations = cells_body(columns = c(variable, method, value))) |>
-  tab_style(
-      style = cell_text(
-        align = 'left',
-        weight = "normal",
-        style = "italic",
-        decorate = "underline",
-        stretch = "condensed",
-        font = google_font(name = "Fira Code")),
-      locations = cells_body(columns = c(class))) |>
-  tab_options(table.width = pct(100),
-              quarto.disable_processing = TRUE)
+  select(number, order, class, variable, method, value, action, wc, nchar)
 ```
 
 
@@ -900,6 +607,34 @@ rules_new |>
               quarto.disable_processing = TRUE)
 ```
 
+
+```{r}
+#| label: class_group
+#| echo: false
+#| eval: false
+#| message: false
+#| warning: false
+components  |> 
+  filter(!is.na(class), !group %in% c("ncci")) |>
+  count(group, variable, name = "steps") |>
+  gt(groupname_col = "group",
+     row_group_as_column = TRUE
+     ) |>
+  cols_align(align = "left") |>
+  opt_table_font(font = google_font(name = "JetBrains Mono")) |>
+  opt_all_caps(locations = c("column_labels")) |>
+  tab_style(
+      style = cell_text(
+        color = "royalblue",
+        align = 'right',
+        weight = "bold",
+        size = px(16),
+        font = google_font(name = "Fira Code")),
+      locations = cells_row_groups()) |>
+  opt_stylize() |>
+  tab_options(table.width = pct(50),
+              quarto.disable_processing = TRUE)
+```
 
 ### Regexes
 
