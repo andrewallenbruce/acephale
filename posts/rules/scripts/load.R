@@ -77,7 +77,10 @@ rules <- read_csv(
     definition = rule,
     rationale  = alert
   ) |>
-  filter(!number %in% c(273:274, 293, 450, 466:468, 701))
+  filter(
+    !number %in% c(273:274, 293, 450, 466:468, 701),
+    definition != "Delete"
+    )
 
 rules[1, 9, drop = TRUE] <- "CPT Code is [43760] AND Encounter Date of Service after [01/01/2019]"
 rules[2, 9, drop = TRUE] <- "CPT Code is [43760] AND Encounter Date of Service after [01/01/2019]"
@@ -365,4 +368,121 @@ ub04 <- components |>
     method = if_else(str_detect(action, "is"), "==", "!="),
     condition = glue::glue('{variable} {method} {value}')
   ) |>
+  select(number, identifier, order, variable, value, condition)
+
+pos <- components |>
+  filter(variable == "pos") |>
+  select(number, identifier, order, variable, action, value) |>
+  mutate(pos = str_extract_all(value, r'{\((\d+)\)(?:\s*\([^)]*\))?}')) |>
+  unnest(pos, keep_empty = TRUE) |>
+  mutate(pos = substr(pos, 2, 3),
+         pos = if_else(is.na(pos) & str_detect(value, "^\\d{2}$"), str_extract(value, "^\\d{2}$"), pos),
+         pos = if_else(is.na(pos) & str_detect(value, "^\\d{2}\\s+"), str_extract(value, "^\\d{2}"), pos),
+         value = pos,
+         pos = glue::glue("'{pos}'")
+  ) |>
+  nest(pos = c(pos),
+       value = c(value)) |>
+  rowwise() |>
+  mutate(pos = map(pos, ~paste0(., collapse = ", ")),
+         value = map(value, ~paste0(., collapse = ", "))) |>
+  unnest(cols = c(pos, value)) |>
+  ungroup() |>
+  mutate(
+    pos = case_when(
+      number == 1007 ~ "'19', '21', '22'",
+      number == 1013 ~ "'31', '32', '54', '56'",
+      number == 1014 ~ "'12', '13', '14', '16', '33', '55'",
+      number %in% c(1891, 930, 1036) ~ "'02', '10'",
+      number %in% c(275, 276) ~ "'81'",
+      .default = pos),
+    value = case_when(
+      number == 1007 ~ "19, 21, 22",
+      number == 1013 ~ "31, 32, 54, 56",
+      number == 1014 ~ "12, 13, 14, 16, 33, 55",
+      number %in% c(1891, 930, 1036) ~ "02, 10",
+      number %in% c(275, 276) ~ "81",
+      .default = value),
+    pos = glue::glue("c({pos})"),
+    action = if_else(action == "is one of", "is", action),
+    method = "%in%",
+    variable = case_match(action,
+                          "is not" ~ "!pos",
+                          .default = variable),
+    condition = glue::glue('{variable} {method} {pos}'),
+    variable = "pos"
+  ) |>
+  select(number, identifier, order, variable, value, condition)
+
+mod_base <- components |>
+  filter(variable %in% c("mod_1", "mod_2", "mod_3", "mod_4")) |>
+  select(-c(class, group)) |>
+  mutate(value = if_else(identifier == "MCD:CA:013" & variable == "mod_1", "SL", value),
+         chars = nchar(value)) |>
+  arrange(desc(chars))
+
+mod_singles <- mod_base |>
+  filter(
+    chars == 2 | value == "Present",
+    str_detect(value, fixed("*"), negate = TRUE)
+  ) |>
+  mutate(
+    method = if_else(str_detect(action, "is"), "==", "!="),
+    condition = if_else(
+      value == "Present",
+      glue::glue('!is.na({variable})'),
+      glue::glue('{variable} {method} "{value}"'))) |>
+  select(number, identifier, order, variable, value, condition)
+
+mod_wildcards <- mod_base |>
+  filter(str_detect(value, fixed("*"))) |>
+  mutate(
+    method = case_when(
+      action == "is not" & value == "F*, T*" ~ glue::glue("^[^F|T][A-Z0-9]$"),
+      action == "is" & value == "P*" ~ glue::glue("^[P][A-Z0-9]$"),
+      .default = NA_character_),
+    condition = glue::glue('func({variable}, "{method}")')
+  ) |>
+  select(number, identifier, order, variable, value, condition)
+
+mod_multi <- mod_base |>
+  filter(
+    chars > 2,
+    value != "Present",
+    str_detect(value, fixed("*"), negate = TRUE)
+  ) |>
+  mutate(value = str_remove_all(value, " "),
+         value = str_replace_all(value, ";", ","),
+         chars = NULL) |>
+  separate_longer_delim(cols = value, delim = ",") |>
+  mutate(mods = glue::glue("'{value}'")) |>
+  nest(mods = c(mods), value = c(value)) |>
+  rowwise() |>
+  mutate(mods = map(mods, ~paste0(., collapse = ", ")),
+         value = map(value, ~paste0(., collapse = ", "))) |>
+  unnest(cols = c(mods, value)) |>
+  ungroup() |>
+  mutate(mods = glue::glue("c({mods})"),
+         method = "%in%",
+         condition = if_else(action == "is not", glue::glue('!{variable} {method} {mods}'), glue::glue('{variable} {method} {mods}'))) |>
+  select(number, identifier, order, variable, value, condition)
+
+modifiers <- vctrs::vec_c(
+  mod_singles,
+  mod_wildcards,
+  mod_multi
+)
+
+rev_code <- components |>
+  filter(variable == "rev_code") |>
+  mutate(
+    method = if_else(str_detect(action, "is not"), "!=", "=="),
+    condition = glue::glue('{variable} {method} "{value}"')) |>
+  select(number, identifier, order, variable, value, condition)
+
+referring <- components |>
+  filter(variable == "referring") |>
+  mutate(action = "is not",
+         value = "Present",
+         condition = glue::glue('!is.na({variable})')) |>
   select(number, identifier, order, variable, value, condition)

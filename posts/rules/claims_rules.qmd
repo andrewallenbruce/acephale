@@ -351,152 +351,74 @@ components |>
 
 ### Variables
 
--   [X] `dos`:
--   [X] `age`:
--   [X] `unit`: 
--   [X] `ub04`:
--   [X] `ndc`:
--   [X] `sex`:
--   [X] `pos`:
--   [ ] `rev_code`:
--   [ ] `icd`:
--   [ ] `hcpcs`: 
--   [ ] `mod_1`: 
--   [ ] `mod_2`:
--   [ ] `mod_3`:
--   [ ] `mod_4`:
--   [ ] `rendering`:
--   [ ] `referring`:
--   [ ] `primary_class`:
--   [ ] `primary_name`:
--   [ ] `primary_auth`:
--   [ ] `secondary_class`:
--   [ ] `secondary_name`:
+-   [X] `dos`: 81
+-   [X] `age`: 158
+-   [X] `unit`: 13
+-   [X] `ub04`: 106
+-   [X] `ndc`: 23
+-   [X] `sex`: 3
+-   [X] `pos`: 142
+-   [X] `mod_1`, `mod_2`, `mod_3`, `mod_4`: 472
+-   [X] `rev_code`: 19
+-   [X] `referring`: 14
+-   [ ] `icd`: 323
+-   [ ] `hcpcs`: 1071
+-   [ ] `rendering`: 20
+-   [ ] `primary_class`: 371
+-   [ ] `primary_name`: 132
+-   [ ] `primary_auth`: 3
+-   [ ] `secondary_class`: 6
+-   [ ] `secondary_name`: 4
 
-#### Cleaned Variables
+#### Cleaned
 
 ```{r}
 #| label: cleaned_variables
-#| echo: true
-#| eval: true
+#| echo: false
+#| eval: false
 #| message: false
 #| warning: false
-# Surround dates in quotes
 dos
 
-# Should be in the same unit of time (days) and calculated from the encounter's Date of Service (`dos`) and the patient's Date of Birth (`dob`).
+# Should be in the same unit of time (days) and calculated from the 
+# encounter's Date of Service (`dos`) and the patient's Date of Birth (`dob`).
 age
-
-# All check for presence, should simply be `!is.na(ndc)`
-ndc
 
 unit
 
-sex
-
 ub04
+
+# All check for presence, should simply be `!is.na(ndc)`
+ndc
+referring
+sex
+pos
+
+modifiers
+
+rev_code
 ```
 
 
 ```{r}
+#| label: cleaned_rules
+#| echo: true
+#| eval: true
+#| message: false
+#| warning: false
 vctrs::vec_c(
   dos,
   age,
   ndc,
   unit,
   sex,
-  ub04
+  ub04,
+  pos,
+  modifiers,
+  rev_code,
+  referring
 ) |> 
-  dplyr::select(
-    number, 
-    identifier, 
-    variable, 
-    order, 
-    condition
-    ) |> 
   dplyr::arrange(number, order)
-```
-
-
-#### Simple
-
-```{r}
-components |> 
-  filter(variable == "pos") |> 
-  select(number, identifier, order, variable, action, value) |> 
-  mutate(pos = str_extract_all(value, r'{\((\d+)\)(?:\s*\([^)]*\))?}')) |> 
-  unnest(pos, keep_empty = TRUE) |> 
-  mutate(pos = substr(pos, 2, 3),
-         pos = if_else(is.na(pos) & str_detect(value, "^\\d{2}$"), str_extract(value, "^\\d{2}$"), pos),
-         pos = if_else(is.na(pos) & str_detect(value, "^\\d{2}\\s+"), str_extract(value, "^\\d{2}"), pos)) |>
-  nest(pos = c(pos)) |> 
-  rowwise() |>
-  mutate(pos = map(pos, ~paste0(., collapse = ", "))) |>
-  unnest(cols = pos) |>
-  ungroup() |> 
-  mutate(pos = case_when(
-    number == 1007 ~ "19, 21, 22",
-    number == 1013 ~ "31, 32, 54, 56",
-    number == 1014 ~ "12, 13, 14, 16, 33, 55",
-    number %in% c(1891, 930, 1036) ~ "02, 10",
-    number %in% c(275, 276) ~ "81",
-    .default = pos),
-    value = NULL)
-
-# pos = glue::glue('"{pos}"'),
-```
-
-```{r}
-# number 27   identifier MCD:CA:013  mod == SL
-# number 921  identifier DME:028     semicolons to commas
-# number 1061	identifier ANES:010    deal with wildcards
-# number 583	identifier PODIA:004
-# modifiers must be quoted
-# for wildcards longer vectors, can probably use regex
-components |> 
-  filter(variable %in% c("mod_1", "mod_2", "mod_3", "mod_4")) |> 
-  mutate(value = if_else(identifier == "MCD:CA:013", "SL", value),
-         commas = str_detect(value, ",|;"),
-         method = if_else(action == "is", "==", "!="),
-         method = if_else(commas, "%in%", method),
-         method = if_else(value == "Present", "!is.na(mod_1)", method),
-         variable = if_else(value == "Present", NA_character_, variable),
-         variable = if_else(commas, "!mod_1", variable),
-         value = if_else(value == "Present", NA_character_, value),
-         value = if_else(commas, glue::glue("c({value})"), value),
-         condition = glue::glue('{variable} {method} {value}', .na = "")) |>
-  select(number, identifier, order, variable, value, condition)
-```
-
-#### Complex
-
-```{r}
-components |> 
-  filter(variable == "rev_code")
-```
-
-
-```{r}
-components |> 
-  filter(variable == "rendering")
-```
-
-
-```{r}
-components |> 
-  filter(variable == "referring")
-```
-
-
-```{r}
-components |> 
-  filter(variable == "primary_class")
-```
-
-
-```{r}
-components |> 
-  filter(variable == "primary_name")
 ```
 
 
@@ -517,9 +439,27 @@ components |>
   filter(variable == "secondary_name")
 ```
 
-##### `icd`
 
-some values contain wildcards *
+```{r}
+components |> 
+  filter(variable == "primary_class")
+```
+
+
+```{r}
+components |> 
+  filter(variable == "primary_name")
+```
+
+#### Complex
+
+```{r}
+# Need to define MID-LEVEL PROVIDER
+# credentials, taxonomy, etc.
+components |> 
+  filter(variable == "rendering")
+```
+
 
 ```{r}
 components |> 
@@ -534,8 +474,6 @@ components |>
   select(number, order, class, variable, method, value, action, wc, nchar)
 ```
 
-
-##### `hcpcs`
 
 ```{r}
 components |> 
@@ -604,35 +542,6 @@ rules_new |>
         font = google_font(name = "Roboto Mono")),
       locations = cells_body(columns = c(var, action))) |>
   tab_options(table.width = pct(100),
-              quarto.disable_processing = TRUE)
-```
-
-
-```{r}
-#| label: class_group
-#| echo: false
-#| eval: false
-#| message: false
-#| warning: false
-components  |> 
-  filter(!is.na(class), !group %in% c("ncci")) |>
-  count(group, variable, name = "steps") |>
-  gt(groupname_col = "group",
-     row_group_as_column = TRUE
-     ) |>
-  cols_align(align = "left") |>
-  opt_table_font(font = google_font(name = "JetBrains Mono")) |>
-  opt_all_caps(locations = c("column_labels")) |>
-  tab_style(
-      style = cell_text(
-        color = "royalblue",
-        align = 'right',
-        weight = "bold",
-        size = px(16),
-        font = google_font(name = "Fira Code")),
-      locations = cells_row_groups()) |>
-  opt_stylize() |>
-  tab_options(table.width = pct(50),
               quarto.disable_processing = TRUE)
 ```
 
