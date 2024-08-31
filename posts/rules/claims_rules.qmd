@@ -376,8 +376,8 @@ components |>
 -   [X] `rev_code`: 19
 -   [X] `referring`: 14
 -   [X] `icd`: 251
--   [ ] `hcpcs`: 1071
--   [ ] `rendering`: 20
+-   [X] `hcpcs`: 1071
+-   [X] `rendering`: 20
 -   [X] `primary_class`: 371
 -   [X] `primary_name`: 132
 -   [X] `primary_auth`: 3
@@ -392,36 +392,30 @@ components |>
 #| eval: true
 #| message: false
 #| warning: false
-cleaned_steps
+step_ <- cleaned_steps |> 
+  select(
+    identifier,
+    order,
+    condition
+  )
+
+desc_ <- descriptors |> 
+  distinct(identifier, .keep_all = TRUE) |> 
+  select(identifier, definition)
+
+step_ |> 
+  left_join(
+  desc_, 
+  by = join_by(identifier)) |> 
+  reframe(
+    order,
+    condition = str_trunc(condition, 30),
+    definition = str_trunc(definition, width = 80)
+    )
 ```
 
-#### Rendering Provider
 
-```{r}
-# Need to define MID-LEVEL PROVIDER
-# credentials, taxonomy, etc.
-components |> 
-  filter(variable == "rendering")
-```
 
-#### HCPCS Codes
-
-```{r}
-components |> 
-  filter(variable == "hcpcs") |>
-  mutate(wc = case_when(str_detect(value, "\\*") ~ 1L, .default = 0L),
-         nchar = if_else(wc == 1, str_count(value, "[[:alnum:]]"), 0L),
-         class = "<chr>",
-         method = case_when(
-           action == "is" & wc == 1 ~ "%in%",
-           action == "is" & wc == 0 ~ "==",
-           .default = NA_character_),
-         value = str_replace_all(value, "\\s|,", " "),
-         value = str_wrap(value, width = 30)
-         ) |> 
-  filter(!is.na(method)) |> 
-  select(number, order, class, variable, method, value, action, wc, nchar)
-```
 
 
 ```{r}
