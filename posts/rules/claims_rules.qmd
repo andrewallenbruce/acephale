@@ -366,8 +366,8 @@ components |>
 -   [ ] `rendering`: 20
 -   [ ] `primary_class`: 371
 -   [ ] `primary_name`: 132
--   [ ] `primary_auth`: 3
--   [ ] `secondary_class`: 6
+-   [X] `primary_auth`: 3
+-   [X] `secondary_class`: 6
 -   [ ] `secondary_name`: 4
 
 #### Cleaned
@@ -390,8 +390,8 @@ ub04
 
 # All check for presence, should simply be `!is.na(ndc)`
 ndc
-referring
 sex
+referring
 pos
 
 modifiers
@@ -416,7 +416,11 @@ vctrs::vec_c(
   pos,
   modifiers,
   rev_code,
-  referring
+  referring,
+  primary_auth,
+  secondary_class,
+  secondary_name,
+  primary_class
 ) |> 
   dplyr::arrange(number, order)
 ```
@@ -424,31 +428,167 @@ vctrs::vec_c(
 
 ```{r}
 components |> 
-  filter(variable == "primary_auth")
-```
-
-
-```{r}
-components |> 
-  filter(variable == "secondary_class")
-```
-
-
-```{r}
-components |> 
-  filter(variable == "secondary_name")
-```
-
-
-```{r}
-components |> 
-  filter(variable == "primary_class")
-```
-
-
-```{r}
-components |> 
-  filter(variable == "primary_name")
+  filter(variable == "primary_name") |> 
+  mutate(value = str_remove_all(value, regex(r"{\(\d+\)}")),
+         value = str_remove_all(value, regex(r"{\(\D+\)}")),
+         value = str_replace_all(value, " ,", ","),
+         value = str_replace_all(value, ", ", ","),
+         value = str_replace_all(value, " ; ", ","),
+         value = str_replace_all(value, fixed("/"), ","),
+         value = str_replace_all(value, fixed("*"), ""),
+         value = str_replace_all(value, fixed("("), ""),
+         value = str_replace_all(value, fixed("-"), ""),
+         value = str_replace_all(value, fixed(" - "), ""),
+         value = str_replace_all(value, fixed(" -- "), ""),
+         value = str_squish(value)) |>
+  separate_longer_delim(cols = value, delim = ",") |>
+  mutate(
+    value = str_squish(value),
+    value = toupper(value),
+    value = case_match(
+      value,
+      # UHC
+      c("UNITED HEALTHCARE", 
+        "UNITED HEALTHCARE MEDICARE",
+        "UNITED HEALTHCARE MEDICARE PLANS",
+        "SELECT ALL OCCURANCES OF UHC", 
+        "SELECT ALL UHC",
+        "& UHC INSURANCES",
+        "UHC ADV PLAN",
+        "UNITEDHEALTHCARE",
+        "AARP UHC",
+        "UHC COMMUNITY PLAN",
+        "UHC DUAL COMPLETE",
+        "UHC MEDICAID MO",
+        "UHCMEDICARECOMPLETE",
+        "UNITED HEALTH CARE",
+        "UNITED HEALTH SHARED SERVICES",
+        "UNITED HEALTHCARE CLAIM DIVISION",
+        "UNITED HEALTHCARE DUAL COMPLETE",
+        "UNITED HEALTHCARE MEDICARE SOLUTIONS",
+        "UNITED HEALTHCARE RIVER VALLEY",
+        "UNITED HEALTHCARE STUDENT",
+        "UNITED HEALTHCARE STUDENT RESOURCES"
+        ) ~ "UHC",
+      # BCBS
+      c("BLUE SHIELD OF CALIFORNIA", 
+        "BLUE CROSS BLUE SHIELD OF NC",
+        "BLUE CROSS BLUE SHIELD",
+        "BLUE CROSS", 
+        "BLUECROSSKS", 
+        "ALL BLUE CROSS", 
+        "BCBS FEDERAL EMPLOYEE PROGRAM", 
+        "BCBS FLORIDA", 
+        "BCBS ILLINOIS", 
+        "BCBS MI", 
+        "BCBSMI", 
+        "BCBS WI", 
+        "BCBS OF NC",
+        "BLUE CROSS BLUE SHIELD OF SOUTH CAROLINA", 
+        "BCBS AL", 
+        "BCBS AL BLUE ADVANTAGE MEDICARE REPLAC", 
+        "BCBS BCBS",
+        "BCBS AL ALL KIDS MEDICAID CHIP",
+        "BCBS AL FEDERAL EMPLOYEE PROGRAM",
+        "BCBS AL FEDERAL EMPLOYEE PROGRAM PPO",
+        "BCBS AL HSA PPO",
+        "BCBS AL INDEMNITY",
+        "BCBS AL MEDICARE SUPPLEMENT",
+        "BCBS AL OUT OF STATE BLUE CARD",
+        "BCBS AL OUT OF STATE BLUE CARD PPO",
+        "BCBS AL PEEHIP PPO",
+        "BCBS AL POS",
+        "BCBS AL PPO",
+        "BCBS AL PREFERRED CARE",
+        "BCBS AL PREFERRED CARE PPO",
+        "BCBS BCBS HMO",
+        "BLUE CROSS BLUE OPEN ACCESS HMO",
+        "BLUE CROSS BLUE SHIELD OF AL",
+        "BLUE CROSS BLUE SHIELD OF FLORIDA",
+        "BLUE CROSS BLUE SHIELD OF NORTH CAROLINA",
+        "BLUE CROSS BLUE SHIELD PPO",
+        "BLUE CROSS STATE HEALTH BENEFIT PLAN",
+        "BLUE SHIELD",
+        "BLUE SHIELD OF GEORGIA FEDERAL",
+        "BLUE SHIELD OF GEORGIA PPO",
+        "BLUECROSS BLUESHIELD",
+        "BCBS CA",
+        "BCBS FEP",
+        "BCBS MEDICARE",
+        "BCBS OF ALABAMA",
+        "BCBS OF ARKANSAS",
+        "BCBS OF AZ",
+        "BCBS OF GA",
+        "BCBS OF MS",
+        "BCBS OF RI BCBS OF RHODE ISLAND",
+        "BCBS OF SC",
+        "BCBS OF SOUTH CAROLINA",
+        "BCBS OF TEXAS",
+        "BCBS OF VA",
+        "BCBS SC",
+        "BCBS SC BLUE CROSS BLUE SHIELD OF SC",
+        "BCBS TX",
+        "BLUE CARE",
+        "BLUE CROSS & BLUE SHIELD OF MISSISSIPPI",
+        "BLUE CROSS BLUE SHIE",
+        "BLUE CROSS BLUE SHIELD BLUE CARE NETWORK",
+        "BLUE CROSS BLUE SHIELD FASTENAL",
+        "BLUE CROSS BLUE SHIELD OF CALIFORNIA",
+        "BLUE CROSS BLUE SHIELD OF GEORGIA BCB",
+        "BLUE CROSS BLUE SHIELD OF ILLINOIS",
+        "BLUE CROSS BLUE SHIELD OF ILLINOIS BC",
+        "BLUE CROSS BLUE SHIELD OF ILLINOIS BL",
+        "BLUE CROSS BLUE SHIELD OF TENNESSEE",
+        "BLUE CROSS BLUE SHIELD PR",
+        "BLUE CROSS BLUE SHIELDS CANADIAN SERVICE",
+        "BLUE CROSS BLUESHIELD OF TENNESSEE BL",
+        "BLUE CROSS FLORIDA",
+        "BLUE CROSS MEDICARE ADVANTAGE ALL INSTANCES OF BLUE CROSS BLUE SHIELD MEDICARE",
+        "BLUE CROSS OF GA",
+        "BLUE CROSS TOTAL BLUE CROSS TOTAL MED",
+        "BLUE SHIELD OF TEXAS",
+        "BLUECARE PLUS DSNP",
+        "BLUECARE TNCARE",
+        "BLUECROSS",
+        "BLUECROSS BLUE CROSS BLUE SHIELD OF",
+        "BLUECROSS BLUECROSS BLUESHIELD HEALT",
+        "BLUECROSS BLUESHIELD BLUECROSS BLUESH",
+        "BLUECROSS BLUESHIELD OF ILLINOIS BLUE",
+        "BLUECROSS CAPITAL BLUE",
+        "BLUECROSS PEBA",
+        "INDEPENDENCE BLUE CROSS PERSONAL CHOIC",
+        "CAREFIRST BCBS",
+        "FLORIDA BLUE",
+        "SELECT ALL BCBS",
+        "SELECT ALL OCCURANCES OF BCBS",
+        "SELECT ALL OCCURANCES OF HEALTHY BLUE"
+        ) ~ "BCBS",
+      # ANTHEM
+      c("BLUE CROSS ANTHEM", 
+        "ANTHEM BLUE CROSS",
+        "ANTHEM BCBS",
+        "BLUE CROSSCA: ANTHEM BLUE CROSS",
+        "AND ANTHEM PLANS"
+        ) ~ "ANTHEM",
+      .default = value)) |>
+  count(value, sort = TRUE) |> 
+  print(n = 225)
+  # mutate(payers = glue::glue("'{value}'")) |>
+  # nest(payers = c(payers), value = c(value)) |>
+  # rowwise() |>
+  # mutate(payers = map(payers, ~paste0(., collapse = ", ")),
+  #        value = map(value, ~paste0(., collapse = ", "))) |>
+  # unnest(cols = c(payers, value)) |>
+  # ungroup() |> 
+  # mutate(
+  #   method = case_when(
+  #     action == "is" ~ "==", 
+  #     action == "is not" ~ "!=",
+  #     action == "is one of" ~ "%in%"),
+  #   condition = case_when(
+  #     action %in% c("is", "is not") ~ glue::glue('{variable} {method} {payers}'), 
+  #     action == "is one of" ~ glue::glue('{variable} {method} c({payers})'))) |>
+  # select(number, identifier, order, variable, value, condition)
 ```
 
 #### Complex

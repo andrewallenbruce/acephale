@@ -79,11 +79,13 @@ rules <- read_csv(
   ) |>
   filter(
     !number %in% c(273:274, 293, 450, 466:468, 701),
+    !index %in% c(588, 1489),
     definition != "Delete"
     )
 
-rules[1, 9, drop = TRUE] <- "CPT Code is [43760] AND Encounter Date of Service after [01/01/2019]"
-rules[2, 9, drop = TRUE] <- "CPT Code is [43760] AND Encounter Date of Service after [01/01/2019]"
+rules[rules$index == 1, 9, drop = TRUE] <- "CPT Code is [43760] AND Encounter Date of Service after [01/01/2019]"
+rules[rules$index == 2, 9, drop = TRUE] <- "CPT Code is [43760] AND Encounter Date of Service after [01/01/2019]"
+rules[rules$index == 83, 7, drop = TRUE] <- "SL"
 
 descriptors <- rules |>
   select(index, number, identifier, category, definition, rationale) |>
@@ -485,4 +487,85 @@ referring <- components |>
   mutate(action = "is not",
          value = "Present",
          condition = glue::glue('!is.na({variable})')) |>
+  select(number, identifier, order, variable, value, condition)
+
+primary_auth <- components |>
+  filter(variable == "primary_auth") |>
+  mutate(value = "Present",
+         condition = glue::glue('!is.na({variable})')) |>
+  select(number, identifier, order, variable, value, condition)
+
+secondary_class <- components |>
+  filter(variable == "secondary_class") |>
+  mutate(
+    value = if_else(number == 537, "ANY class EXCEPT Medicaid & Medicaid CMO", value),
+    value = str_replace_all(value, ",,", ","),
+    value = str_replace_all(value, ",", ", "),
+    value = str_replace_all(value, "MEDICARE", "Medicare"),
+    value = str_replace_all(value, "MedicareREPLACEMENT", "Medicare Replacement"),
+    value = str_replace_all(value, "MEDICAID", "Medicaid"),
+    value = str_replace_all(value, "MedicaidCMO", "Medicaid CMO"),
+    value = str_replace_all(value, "COMMERCIAL", "Commercial"),
+    condition = case_when(
+      number == 339 ~ glue::glue("{variable} == 'Medicare'"),
+      number == 340 ~ glue::glue("{variable} %in% c('Medicare', 'Medicare Replacement')"),
+      number == 341 ~ glue::glue("{variable} %in% c('Medicaid', 'Medicaid CMO')"),
+      number == 342 ~ glue::glue("{variable} %in% c('Commercial', 'Medicare', 'Medicare Replacement')"),
+      number == 344 ~ glue::glue("{variable} %in% c('Commercial', 'Medicare', 'Medicare Replacement')"),
+      number == 537 ~ glue::glue("!is.na({variable}) & !{variable} %in% c('Medicaid', 'Medicaid CMO')"))) |>
+  select(number, identifier, order, variable, value, condition)
+
+secondary_name <- components |>
+  filter(variable == "secondary_name") |>
+  mutate(
+    value = str_replace(value, "Tricare supplement, Selman", "Tricare Supplement, Selman"),
+    value = str_replace(value, fixed("WA Medicaid (DSHS)"), "Medicaid WA"),
+    value = str_replace(value, fixed("WELLCARE OF GEORGIA, INC (129)"), "Wellcare GA"),
+    value = str_replace(value, "Wellcare Mediaid", "Medicaid Wellcare"),
+    method = if_else(str_detect(action, "is not"), "!=", "=="),
+    condition = glue::glue('{variable} {method} "{value}"'),
+    condition = if_else(
+      value == "Tricare Supplement, Selman",
+      glue::glue("{variable} %in% c('Tricare Supplement', 'Selman')"), value)) |>
+  select(number, identifier, order, variable, value, condition)
+
+primary_class <- components |>
+  filter(variable == "primary_class") |>
+  mutate(value = str_remove_all(value, regex(r"{\(\d+\)}")),
+         value = str_remove_all(value, regex(r"{\(\D+\)}")),
+         value = str_replace_all(value, " ,", ","),
+         value = str_replace_all(value, ", ", ","),
+         value = str_replace_all(value, " ; ", ","),
+         value = str_replace_all(value, fixed("/"), ","),
+         value = str_replace_all(value, fixed("*"), ""),
+         value = if_else(str_detect(value, "Select all|pick all"), "All", value),
+         value = str_squish(value),
+         action = if_else(action == "is on of", "is one of", action)) |>
+  separate_longer_delim(cols = value, delim = ",") |>
+  mutate(value = toupper(value),
+         value = case_match(
+           value,
+           c("MEDICAIDCMO", "MEDICAID MCO", "CMO") ~ "MEDICAID CMO",
+           c("MEDICAREREPLACEMENT", "MEDICAREADVANTAGE", "MEDICARE ADV", "MEDICARE ADVANTAGE") ~ "MEDICARE REPLACEMENT",
+           c("WORKER'S COMP", "WORKERSCOMPENSATION", "WORKERS COMPENSATION", "WORK COMP", "WORKER'SCOMP", "AUTO") ~ "WORKERS COMP",
+           c("KANSAS MEDICAID", "GEORGIA MEDICAID") ~ "MEDICAID",
+           c("MEDICARE PART A", "MEDICARE PART B") ~ "MEDICARE",
+           c("GROUP", "BCBS", "COMMERICAL") ~ "COMMERCIAL",
+           "TRIARE" ~ "TRICARE",
+           .default = value)) |>
+  mutate(payers = glue::glue("'{value}'")) |>
+  nest(payers = c(payers), value = c(value)) |>
+  rowwise() |>
+  mutate(payers = map(payers, ~paste0(., collapse = ", ")),
+         value = map(value, ~paste0(., collapse = ", "))) |>
+  unnest(cols = c(payers, value)) |>
+  ungroup() |>
+  mutate(
+    method = case_when(
+      action == "is" ~ "==",
+      action == "is not" ~ "!=",
+      action == "is one of" ~ "%in%"),
+    condition = case_when(
+      action %in% c("is", "is not") ~ glue::glue('{variable} {method} {payers}'),
+      action == "is one of" ~ glue::glue('{variable} {method} c({payers})'))) |>
   select(number, identifier, order, variable, value, condition)
