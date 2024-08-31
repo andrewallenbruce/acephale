@@ -569,3 +569,288 @@ primary_class <- components |>
       action %in% c("is", "is not") ~ glue::glue('{variable} {method} {payers}'),
       action == "is one of" ~ glue::glue('{variable} {method} c({payers})'))) |>
   select(number, identifier, order, variable, value, condition)
+
+primary_name <- components |>
+  filter(variable == "primary_name") |>
+  mutate(value = str_remove_all(value, regex(r"{\(\d+\)}")),
+         value = str_remove_all(value, regex(r"{\(\D+\)}")),
+         value = str_replace_all(value, " ,", ","),
+         value = str_replace_all(value, ", ", ","),
+         value = str_replace_all(value, " ; ", ","),
+         value = str_replace_all(value, fixed("/"), ","),
+         value = str_replace_all(value, fixed("*"), ""),
+         value = str_replace_all(value, fixed("("), ""),
+         value = str_replace_all(value, fixed("-"), ""),
+         value = str_replace_all(value, fixed(" - "), ""),
+         value = str_replace_all(value, fixed(" -- "), ""),
+         value = str_squish(value)) |>
+  separate_longer_delim(cols = value, delim = ",") |>
+  mutate(
+    value = str_squish(value),
+    value = toupper(value),
+    value = case_match(
+      value,
+      # UHC
+      c("UNITED HEALTHCARE",
+        "UNITED HEALTHCARE MEDICARE",
+        "UNITED HEALTHCARE MEDICARE PLANS",
+        "SELECT ALL OCCURANCES OF UHC",
+        "SELECT ALL UHC",
+        "& UHC INSURANCES",
+        "UHC ADV PLAN",
+        "UNITEDHEALTHCARE",
+        "AARP UHC",
+        "UHC COMMUNITY PLAN",
+        "UHC DUAL COMPLETE",
+        "UHC MEDICAID MO",
+        "UHCMEDICARECOMPLETE",
+        "UNITED HEALTH CARE",
+        "UNITED HEALTH SHARED SERVICES",
+        "UNITED HEALTHCARE CLAIM DIVISION",
+        "UNITED HEALTHCARE DUAL COMPLETE",
+        "UNITED HEALTHCARE MEDICARE SOLUTIONS",
+        "UNITED HEALTHCARE RIVER VALLEY",
+        "UNITED HEALTHCARE STUDENT",
+        "UNITED HEALTHCARE STUDENT RESOURCES"
+      ) ~ "UHC",
+      # BCBS
+      c("BLUE SHIELD OF CALIFORNIA",
+        "BLUE CROSS BLUE SHIELD OF NC",
+        "BLUE CROSS BLUE SHIELD",
+        "BLUE CROSS",
+        "BLUECROSSKS",
+        "ALL BLUE CROSS",
+        "BCBS FEDERAL EMPLOYEE PROGRAM",
+        "BCBS FLORIDA",
+        "BCBS ILLINOIS",
+        "BCBS MI",
+        "BCBSMI",
+        "BCBS WI",
+        "BCBS OF NC",
+        "BLUE CROSS BLUE SHIELD OF SOUTH CAROLINA",
+        "BCBS AL",
+        "BCBS AL BLUE ADVANTAGE MEDICARE REPLAC",
+        "BCBS BCBS",
+        "BCBS AL ALL KIDS MEDICAID CHIP",
+        "BCBS AL FEDERAL EMPLOYEE PROGRAM",
+        "BCBS AL FEDERAL EMPLOYEE PROGRAM PPO",
+        "BCBS AL HSA PPO",
+        "BCBS AL INDEMNITY",
+        "BCBS AL MEDICARE SUPPLEMENT",
+        "BCBS AL OUT OF STATE BLUE CARD",
+        "BCBS AL OUT OF STATE BLUE CARD PPO",
+        "BCBS AL PEEHIP PPO",
+        "BCBS AL POS",
+        "BCBS AL PPO",
+        "BCBS AL PREFERRED CARE",
+        "BCBS AL PREFERRED CARE PPO",
+        "BCBS BCBS HMO",
+        "BLUE CROSS BLUE OPEN ACCESS HMO",
+        "BLUE CROSS BLUE SHIELD OF AL",
+        "BLUE CROSS BLUE SHIELD OF FLORIDA",
+        "BLUE CROSS BLUE SHIELD OF NORTH CAROLINA",
+        "BLUE CROSS BLUE SHIELD PPO",
+        "BLUE CROSS STATE HEALTH BENEFIT PLAN",
+        "BLUE SHIELD",
+        "BLUE SHIELD OF GEORGIA FEDERAL",
+        "BLUE SHIELD OF GEORGIA PPO",
+        "BLUECROSS BLUESHIELD",
+        "BCBS CA",
+        "BCBS FEP",
+        "BCBS MEDICARE",
+        "BCBS OF ALABAMA",
+        "BCBS OF ARKANSAS",
+        "BCBS OF AZ",
+        "BCBS OF GA",
+        "BCBS OF MS",
+        "BCBS OF RI BCBS OF RHODE ISLAND",
+        "BCBS OF SC",
+        "BCBS OF SOUTH CAROLINA",
+        "BCBS OF TEXAS",
+        "BCBS OF VA",
+        "BCBS SC",
+        "BCBS SC BLUE CROSS BLUE SHIELD OF SC",
+        "BCBS TX",
+        "BLUE CARE",
+        "BLUE CROSS & BLUE SHIELD OF MISSISSIPPI",
+        "BLUE CROSS BLUE SHIE",
+        "BLUE CROSS BLUE SHIELD BLUE CARE NETWORK",
+        "BLUE CROSS BLUE SHIELD FASTENAL",
+        "BLUE CROSS BLUE SHIELD OF CALIFORNIA",
+        "BLUE CROSS BLUE SHIELD OF GEORGIA BCB",
+        "BLUE CROSS BLUE SHIELD OF ILLINOIS",
+        "BLUE CROSS BLUE SHIELD OF ILLINOIS BC",
+        "BLUE CROSS BLUE SHIELD OF ILLINOIS BL",
+        "BLUE CROSS BLUE SHIELD OF TENNESSEE",
+        "BLUE CROSS BLUE SHIELD PR",
+        "BLUE CROSS BLUE SHIELDS CANADIAN SERVICE",
+        "BLUE CROSS BLUESHIELD OF TENNESSEE BL",
+        "BLUE CROSS FLORIDA",
+        "BLUE CROSS MEDICARE ADVANTAGE ALL INSTANCES OF BLUE CROSS BLUE SHIELD MEDICARE",
+        "BLUE CROSS OF GA",
+        "BLUE CROSS TOTAL BLUE CROSS TOTAL MED",
+        "BLUE SHIELD OF TEXAS",
+        "BLUECARE PLUS DSNP",
+        "BLUECARE TNCARE",
+        "BLUECROSS",
+        "BLUECROSS BLUE CROSS BLUE SHIELD OF",
+        "BLUECROSS BLUECROSS BLUESHIELD HEALT",
+        "BLUECROSS BLUESHIELD BLUECROSS BLUESH",
+        "BLUECROSS BLUESHIELD OF ILLINOIS BLUE",
+        "BLUECROSS CAPITAL BLUE",
+        "BLUECROSS PEBA",
+        "INDEPENDENCE BLUE CROSS PERSONAL CHOIC",
+        "CAREFIRST BCBS",
+        "FLORIDA BLUE",
+        "SELECT ALL BCBS",
+        "SELECT ALL OCCURANCES OF BCBS",
+        "SELECT ALL OCCURANCES OF HEALTHY BLUE",
+        "VSHP BLUECARE RISK EAST"
+      ) ~ "BCBS",
+      # ANTHEM
+      c("BLUE CROSS ANTHEM",
+        "ANTHEM BLUE CROSS",
+        "ANTHEM BCBS",
+        "BLUE CROSSCA: ANTHEM BLUE CROSS",
+        "AND ANTHEM PLANS"
+      ) ~ "ANTHEM",
+      c("HIGHMARK BCBS",
+        "HIGHMARK BLUE CROSS BLUE SHIELD",
+        "HIGHMARK BLUE SHIELD",
+        "HIGHMARK BLUE SHIELD FREEDOM BLUE MED"
+      ) ~ "HIGHMARK",
+      c("CARESOURCE OH") ~ "CARESOURCE",
+      c("COORDINATED CARE AMBETTER", "COORDINATED CARE") ~ "AMBETTER",
+      c("AETNA MEDICARE") ~ "AETNA",
+      c("AMERIGROUP COMMUNITY CARE TN") ~ "AMERIGROUP",
+      c("MEDCAL", "MEDICAL", "OP MEDICAL") ~ "MEDI-CAL",
+      c("GREAT AMERICAN INSURANCE COMPANY") ~ "GREAT AMERICAN",
+      c("HUMANA MEDICARE", "SELECT ALL HUMANA INSURANCES", "SELECT ALL HUMANA") ~ "HUMANA",
+      c("SELECT ALL OCCURENCES OF CIGNA", "SELECT ALL OCCURANCES OF CIGNA", "CIGNA SELECT ALL CIGNA", "CIGNA MEDICARE") ~ "CIGNA",
+      c("LIBERTY MUTUAL INSURANCE", "LIBERTY MUTAL CORP", "LIBERTY MUTAL", "LIBERTY MEDICAL MAIL") ~ "LIBERTY MUTUAL",
+      c("MCR") ~ "MEDICARE",
+      c("SELECT ALL OCCURANCES OF RAILROAD MEDICARE", "RR MEDICARE") ~ "RAILROAD MEDICARE",
+      c("SELECT ALL OCCURANCES OF HORIZON", "HORIZON BLUE CROSS BLUE SHIELD OF NEW JE") ~ "HORIZON",
+      c("SELECT ALL OCCURANCES OF DMERC", "DMERCJURISDICTIOND", "DMERCB", "DMERC", "DMERCJURISDICTIONA") ~ "DMERC",
+      c("VA CCN OPTUM") ~ "VA",
+      c("MEDCOST PREFERRED") ~ "MEDCOST",
+      c("PEACH STATE") ~ "PEACHSTATE",
+      c("GA MEDICAID",
+        "WA MEDICAID",
+        "PRIMARY INSURANCE CLASS IS MEDICAID",
+        "MEDICAID CA MEDICAL",
+        "MEDICAID OF ARKANSAS",
+        "MEDICAID OF IDAHO",
+        "MEDICAIDOFMO",
+        "MEDICAIDOFVERMONT",
+        "MEDICAIDOFVT",
+        "ARKIDS B") ~ "MEDICAID",
+      c("MEDICARE PART A") ~ "MEDICARE",
+      c("COVID19 HRSA UNINSURED FUND") ~ "COVID HRSA",
+      c("REGENCE BCBS", "REGENCE BLUECROSS BLUESHIELD OF OREGON", "REGENCE BCBS MEDICARE", "REGENCE BLUE SHIELD") ~ "REGENCE",
+      c("WELLCARE OF GEORGIA", "WELLCARE MEDICAID") ~ "WELLCARE",
+      c("SUMMIT AMERICA", "SUMMIT CLAIM CENTER", "SUMMIT CLAIMS CENTER", "SUMMIT INSURANCE", "SUMMITT CLAIMS CENTER") ~ "SUMMIT",
+      c("WEST", "TRIWEST VA", "TRIWEST", "TRICAREWEST", "TRICARE EAST", "TRICARE WEST", "TRICAREFORLIFE", "TRICARENORTH", "TRICAREPRIME", "TRICARESOUTH") ~ "TRICARE",
+      c("ZURICH AMERICAN INSURANCE") ~ "ZURICH",
+      c("INC", "POS") ~ NA_character_,
+      .default = value)) |>
+  filter(!is.na(value)) |>
+  group_by(identifier) |>
+  distinct(value, .keep_all = TRUE) |>
+  ungroup() |>
+  mutate(payers = glue::glue("'{value}'")) |>
+  nest(payers = c(payers), value = c(value)) |>
+  rowwise() |>
+  mutate(payers = map(payers, ~paste0(., collapse = ", ")),
+         value = map(value, ~paste0(., collapse = ", "))) |>
+  unnest(cols = c(payers, value)) |>
+  ungroup() |>
+  mutate(
+    method = case_when(
+      action == "is" ~ "==",
+      action == "is not" ~ "!=",
+      action == "is one of" ~ "%in%"),
+    condition = case_when(
+      action %in% c("is", "is not") ~ glue::glue('{variable} {method} {payers}'),
+      action == "is one of" ~ glue::glue('{variable} {method} c({payers})'))) |>
+  select(number, identifier, order, variable, value, condition)
+
+icd <- components |>
+  filter(variable == "icd") |>
+  mutate(value = str_remove_all(value, regex(r"{\(\d+\)}")),
+         value = str_remove_all(value, regex(r"{\(\D+\)}")),
+         value = str_replace_all(value, " ,", ","),
+         value = str_replace_all(value, ", ", ",")) |>
+  separate_longer_delim(cols = value, delim = ",") |>
+  mutate(wildcard = case_when(str_detect(value, "\\*") ~ 1L, .default = 0L),
+         code = str_replace_all(value, fixed("*"), ""),
+         code = str_replace_all(code, regex("[\\.]$"), ""),
+         action = case_match(action, c("is", "has all", "is one of") ~ "is one of", .default = action),
+         .id = row_number()) |>
+  tidytext::unnest_tokens(
+    output = tokens,
+    input = code,
+    token = stringr::str_split,
+    pattern = "",
+    to_lower = FALSE) |>
+  mutate(tokens = glue::glue("[{tokens}]")) |>
+  nest(tokens = c(tokens)) |>
+  rowwise() |>
+  mutate(tokens = map(tokens, ~paste0(., collapse = ""))) |>
+  unnest(cols = c(tokens)) |>
+  ungroup() |>
+  mutate(code = tokens,
+         tokens = NULL,
+         .id = NULL,
+         commas = NULL,
+         wildcard = NULL) |>
+  group_by(number) |>
+  mutate(order = min(order)) |>
+  nest(code = c(code), value = c(value)) |>
+  rowwise() |>
+  mutate(code = map(code, ~paste0(., collapse = "|")),
+         value = map(value, ~paste0(., collapse = ", "))) |>
+  unnest(cols = c(code, value)) |>
+  ungroup() |>
+  mutate(code = if_else(action == "is not", glue::glue("^(?!{code})"), glue::glue("^{code}")),
+         condition = glue::glue('func({variable}, "{code}")')) |>
+  group_by(number) |>
+  nest(
+    action = c(action),
+    code = c(code),
+    condition = c(condition),
+    value = c(value)) |>
+  rowwise() |>
+  mutate(action = map(action, ~paste0(., collapse = ", ")),
+         code = map(code, ~glue::glue_collapse(., sep = ", ")),
+         condition = map(condition, ~glue::glue_collapse(., sep = " & ")),
+         value = map(value, ~paste0(., collapse = " NOT "))
+  ) |>
+  unnest(cols = c(action, code, condition, value)) |>
+  ungroup() |>
+  select(number, identifier, order, variable, value, condition)
+
+# icd |>
+#   filter(number %in% c(607, 609, 706, 710, 741, 860, 965)) |>
+#   select(-value) |>
+#   filter(identifier %in% c("ICD:CM:115", "ICD:CM:132", "ICD:CM:50", "ICD:CM:90", "INTEG:017", "LABS:034", "OBGYN:001", "VAX:0028", "VAX:0030"))
+
+cleaned_steps <- vctrs::vec_c(
+  dos,
+  age,
+  ndc,
+  unit,
+  sex,
+  ub04,
+  pos,
+  modifiers,
+  rev_code,
+  referring,
+  primary_auth,
+  secondary_class,
+  secondary_name,
+  primary_class,
+  primary_name,
+  icd
+) |>
+  dplyr::arrange(number, order)

@@ -80,23 +80,30 @@ source(here("posts/rules/scripts", "load.R"))
 
 
 ```{r}
-rules[1, ] |> glimpse()
-rules[2, ] |> glimpse()
-cat(format(rules[2, 9, drop = TRUE]))
-```
+# rules[1, ] |> glimpse()
+# rules[2, ] |> glimpse()
+cat(str_wrap(rules[2, 9, drop = TRUE], width = 30))
 
-```{r}
-rules[3, ] |> glimpse()
-rules[4, ] |> glimpse()
-rules[5, ] |> glimpse()
-rules[6, ] |> glimpse()
-cat(format(rules[3, 9, drop = TRUE]))
+# rules[3, ] |> glimpse()
+# rules[4, ] |> glimpse()
+# rules[5, ] |> glimpse()
+# rules[6, ] |> glimpse()
+cat(str_wrap(rules[3, 9, drop = TRUE], width = 30))
+
+cat(str_wrap(rules[7, 9, drop = TRUE], width = 40))
+
+cat(str_wrap(rules[12, 9, drop = TRUE], width = 40))
 ```
 
 
 ## S7 Class
 
 ```{r}
+#| label: s7_class
+#| echo: false
+#| eval: false
+#| message: false
+#| warning: false
 rule <- S7::new_class(
   "rule",
   package = "cruler",
@@ -148,7 +155,8 @@ dos_var
 
 ```{r}
 #| label: qualify
-#| echo: true
+#| echo: false
+#| eval: false
 #| message: true
 #| warning: true
 #| error: true
@@ -217,26 +225,34 @@ qualify_dos(rule_001_example2) |> qualify_hcpcs()
 
 ## Metadata
 
+   * Rulesets
+      * Identifiers: 712
+      * Categories: 621
+      * Definitions: 703
+      * Rationales: 659
+      * Sources: 2
+
 -   [X] `index`: Row number
 -   [X] `number`: Rule Number
 -   [X] `identifier`: Split letters/numbers, categorize Payer, State, etc.
 -   [ ] `category`: Categories make little sense, need to be reclassified
--   [ ] `definition`:
+-   [ ] `definition`: Define Variables, Logic, Remove Parentheses
 -   [ ] `rationale`: Steps are detailed in the rationale that are missing from the ruleset
--   [X] `source`: Extract urls from `category`
+-   [X] `source`??: Extract urls from `category`
 
-### Category
+Need to define `instruction`/`suggestion` variable, taken from `rationale`
+
 
 ```{r}
 #| label: descriptors
-#| echo: true
+#| echo: false
 #| eval: false
 #| message: false
 #| warning: false
 descriptors |> 
-  select(category, rationale) |> 
   filter(!is.na(category)) |> 
-  distinct(category, .keep_all = TRUE) |> 
+  distinct(identifier, .keep_all = TRUE) |> 
+  select(-source, -index) |>
   gt() |> 
   gtExtras::gt_merge_stack(
     col1 = "category",
@@ -248,12 +264,9 @@ descriptors |>
   )
 ```
 
-
-#### Sample
-
 ```{r}
-#| label: category
-#| echo: true
+#| label: sample
+#| echo: false
 #| eval: false
 #| message: false
 #| warning: false
@@ -326,8 +339,9 @@ descriptors |>
               quarto.disable_processing = TRUE)
 ```
 
+## Components of A Step
 
-## Components
+Two types of a step: `qualifier` and `terminator`
 
 -   [X] `number`:
 -   [X] `order`:
@@ -337,7 +351,7 @@ descriptors |>
 -   [X] `group`: Variable Grouping
 -   [ ] `action`: _Remove_ Translate to `condition`
 -   [ ] `value`: Coerce to correct data type, deal with wildcards
--   [ ] `condition`: Predication function that evaluates to `TRUE` or `FALSE`
+-   [ ] `condition`: Predicate function that evaluates to `TRUE` or `FALSE`
 
 ```{r}
 #| label: components
@@ -361,44 +375,16 @@ components |>
 -   [X] `mod_1`, `mod_2`, `mod_3`, `mod_4`: 472
 -   [X] `rev_code`: 19
 -   [X] `referring`: 14
--   [ ] `icd`: 323
+-   [X] `icd`: 251
 -   [ ] `hcpcs`: 1071
 -   [ ] `rendering`: 20
--   [ ] `primary_class`: 371
--   [ ] `primary_name`: 132
+-   [X] `primary_class`: 371
+-   [X] `primary_name`: 132
 -   [X] `primary_auth`: 3
 -   [X] `secondary_class`: 6
--   [ ] `secondary_name`: 4
+-   [X] `secondary_name`: 4
 
 #### Cleaned
-
-```{r}
-#| label: cleaned_variables
-#| echo: false
-#| eval: false
-#| message: false
-#| warning: false
-dos
-
-# Should be in the same unit of time (days) and calculated from the 
-# encounter's Date of Service (`dos`) and the patient's Date of Birth (`dob`).
-age
-
-unit
-
-ub04
-
-# All check for presence, should simply be `!is.na(ndc)`
-ndc
-sex
-referring
-pos
-
-modifiers
-
-rev_code
-```
-
 
 ```{r}
 #| label: cleaned_rules
@@ -406,192 +392,10 @@ rev_code
 #| eval: true
 #| message: false
 #| warning: false
-vctrs::vec_c(
-  dos,
-  age,
-  ndc,
-  unit,
-  sex,
-  ub04,
-  pos,
-  modifiers,
-  rev_code,
-  referring,
-  primary_auth,
-  secondary_class,
-  secondary_name,
-  primary_class
-) |> 
-  dplyr::arrange(number, order)
+cleaned_steps
 ```
 
-
-```{r}
-components |> 
-  filter(variable == "primary_name") |> 
-  mutate(value = str_remove_all(value, regex(r"{\(\d+\)}")),
-         value = str_remove_all(value, regex(r"{\(\D+\)}")),
-         value = str_replace_all(value, " ,", ","),
-         value = str_replace_all(value, ", ", ","),
-         value = str_replace_all(value, " ; ", ","),
-         value = str_replace_all(value, fixed("/"), ","),
-         value = str_replace_all(value, fixed("*"), ""),
-         value = str_replace_all(value, fixed("("), ""),
-         value = str_replace_all(value, fixed("-"), ""),
-         value = str_replace_all(value, fixed(" - "), ""),
-         value = str_replace_all(value, fixed(" -- "), ""),
-         value = str_squish(value)) |>
-  separate_longer_delim(cols = value, delim = ",") |>
-  mutate(
-    value = str_squish(value),
-    value = toupper(value),
-    value = case_match(
-      value,
-      # UHC
-      c("UNITED HEALTHCARE", 
-        "UNITED HEALTHCARE MEDICARE",
-        "UNITED HEALTHCARE MEDICARE PLANS",
-        "SELECT ALL OCCURANCES OF UHC", 
-        "SELECT ALL UHC",
-        "& UHC INSURANCES",
-        "UHC ADV PLAN",
-        "UNITEDHEALTHCARE",
-        "AARP UHC",
-        "UHC COMMUNITY PLAN",
-        "UHC DUAL COMPLETE",
-        "UHC MEDICAID MO",
-        "UHCMEDICARECOMPLETE",
-        "UNITED HEALTH CARE",
-        "UNITED HEALTH SHARED SERVICES",
-        "UNITED HEALTHCARE CLAIM DIVISION",
-        "UNITED HEALTHCARE DUAL COMPLETE",
-        "UNITED HEALTHCARE MEDICARE SOLUTIONS",
-        "UNITED HEALTHCARE RIVER VALLEY",
-        "UNITED HEALTHCARE STUDENT",
-        "UNITED HEALTHCARE STUDENT RESOURCES"
-        ) ~ "UHC",
-      # BCBS
-      c("BLUE SHIELD OF CALIFORNIA", 
-        "BLUE CROSS BLUE SHIELD OF NC",
-        "BLUE CROSS BLUE SHIELD",
-        "BLUE CROSS", 
-        "BLUECROSSKS", 
-        "ALL BLUE CROSS", 
-        "BCBS FEDERAL EMPLOYEE PROGRAM", 
-        "BCBS FLORIDA", 
-        "BCBS ILLINOIS", 
-        "BCBS MI", 
-        "BCBSMI", 
-        "BCBS WI", 
-        "BCBS OF NC",
-        "BLUE CROSS BLUE SHIELD OF SOUTH CAROLINA", 
-        "BCBS AL", 
-        "BCBS AL BLUE ADVANTAGE MEDICARE REPLAC", 
-        "BCBS BCBS",
-        "BCBS AL ALL KIDS MEDICAID CHIP",
-        "BCBS AL FEDERAL EMPLOYEE PROGRAM",
-        "BCBS AL FEDERAL EMPLOYEE PROGRAM PPO",
-        "BCBS AL HSA PPO",
-        "BCBS AL INDEMNITY",
-        "BCBS AL MEDICARE SUPPLEMENT",
-        "BCBS AL OUT OF STATE BLUE CARD",
-        "BCBS AL OUT OF STATE BLUE CARD PPO",
-        "BCBS AL PEEHIP PPO",
-        "BCBS AL POS",
-        "BCBS AL PPO",
-        "BCBS AL PREFERRED CARE",
-        "BCBS AL PREFERRED CARE PPO",
-        "BCBS BCBS HMO",
-        "BLUE CROSS BLUE OPEN ACCESS HMO",
-        "BLUE CROSS BLUE SHIELD OF AL",
-        "BLUE CROSS BLUE SHIELD OF FLORIDA",
-        "BLUE CROSS BLUE SHIELD OF NORTH CAROLINA",
-        "BLUE CROSS BLUE SHIELD PPO",
-        "BLUE CROSS STATE HEALTH BENEFIT PLAN",
-        "BLUE SHIELD",
-        "BLUE SHIELD OF GEORGIA FEDERAL",
-        "BLUE SHIELD OF GEORGIA PPO",
-        "BLUECROSS BLUESHIELD",
-        "BCBS CA",
-        "BCBS FEP",
-        "BCBS MEDICARE",
-        "BCBS OF ALABAMA",
-        "BCBS OF ARKANSAS",
-        "BCBS OF AZ",
-        "BCBS OF GA",
-        "BCBS OF MS",
-        "BCBS OF RI BCBS OF RHODE ISLAND",
-        "BCBS OF SC",
-        "BCBS OF SOUTH CAROLINA",
-        "BCBS OF TEXAS",
-        "BCBS OF VA",
-        "BCBS SC",
-        "BCBS SC BLUE CROSS BLUE SHIELD OF SC",
-        "BCBS TX",
-        "BLUE CARE",
-        "BLUE CROSS & BLUE SHIELD OF MISSISSIPPI",
-        "BLUE CROSS BLUE SHIE",
-        "BLUE CROSS BLUE SHIELD BLUE CARE NETWORK",
-        "BLUE CROSS BLUE SHIELD FASTENAL",
-        "BLUE CROSS BLUE SHIELD OF CALIFORNIA",
-        "BLUE CROSS BLUE SHIELD OF GEORGIA BCB",
-        "BLUE CROSS BLUE SHIELD OF ILLINOIS",
-        "BLUE CROSS BLUE SHIELD OF ILLINOIS BC",
-        "BLUE CROSS BLUE SHIELD OF ILLINOIS BL",
-        "BLUE CROSS BLUE SHIELD OF TENNESSEE",
-        "BLUE CROSS BLUE SHIELD PR",
-        "BLUE CROSS BLUE SHIELDS CANADIAN SERVICE",
-        "BLUE CROSS BLUESHIELD OF TENNESSEE BL",
-        "BLUE CROSS FLORIDA",
-        "BLUE CROSS MEDICARE ADVANTAGE ALL INSTANCES OF BLUE CROSS BLUE SHIELD MEDICARE",
-        "BLUE CROSS OF GA",
-        "BLUE CROSS TOTAL BLUE CROSS TOTAL MED",
-        "BLUE SHIELD OF TEXAS",
-        "BLUECARE PLUS DSNP",
-        "BLUECARE TNCARE",
-        "BLUECROSS",
-        "BLUECROSS BLUE CROSS BLUE SHIELD OF",
-        "BLUECROSS BLUECROSS BLUESHIELD HEALT",
-        "BLUECROSS BLUESHIELD BLUECROSS BLUESH",
-        "BLUECROSS BLUESHIELD OF ILLINOIS BLUE",
-        "BLUECROSS CAPITAL BLUE",
-        "BLUECROSS PEBA",
-        "INDEPENDENCE BLUE CROSS PERSONAL CHOIC",
-        "CAREFIRST BCBS",
-        "FLORIDA BLUE",
-        "SELECT ALL BCBS",
-        "SELECT ALL OCCURANCES OF BCBS",
-        "SELECT ALL OCCURANCES OF HEALTHY BLUE"
-        ) ~ "BCBS",
-      # ANTHEM
-      c("BLUE CROSS ANTHEM", 
-        "ANTHEM BLUE CROSS",
-        "ANTHEM BCBS",
-        "BLUE CROSSCA: ANTHEM BLUE CROSS",
-        "AND ANTHEM PLANS"
-        ) ~ "ANTHEM",
-      .default = value)) |>
-  count(value, sort = TRUE) |> 
-  print(n = 225)
-  # mutate(payers = glue::glue("'{value}'")) |>
-  # nest(payers = c(payers), value = c(value)) |>
-  # rowwise() |>
-  # mutate(payers = map(payers, ~paste0(., collapse = ", ")),
-  #        value = map(value, ~paste0(., collapse = ", "))) |>
-  # unnest(cols = c(payers, value)) |>
-  # ungroup() |> 
-  # mutate(
-  #   method = case_when(
-  #     action == "is" ~ "==", 
-  #     action == "is not" ~ "!=",
-  #     action == "is one of" ~ "%in%"),
-  #   condition = case_when(
-  #     action %in% c("is", "is not") ~ glue::glue('{variable} {method} {payers}'), 
-  #     action == "is one of" ~ glue::glue('{variable} {method} c({payers})'))) |>
-  # select(number, identifier, order, variable, value, condition)
-```
-
-#### Complex
+#### Rendering Provider
 
 ```{r}
 # Need to define MID-LEVEL PROVIDER
@@ -600,20 +404,7 @@ components |>
   filter(variable == "rendering")
 ```
 
-
-```{r}
-components |> 
-  filter(variable == "icd") |>
-  mutate(wc = case_when(str_detect(value, "\\*") ~ 1L, .default = 0L),
-         nchar = if_else(wc == 1, str_count(value, "[[:alnum:]]"), 0L),
-         method = case_when(
-           action == "is" & wc == 1 ~ "%in%",
-           action == "is" & wc == 0 ~ "==",
-           .default = NA_character_)) |> 
-  filter(!is.na(method)) |> 
-  select(number, order, class, variable, method, value, action, wc, nchar)
-```
-
+#### HCPCS Codes
 
 ```{r}
 components |> 
@@ -633,11 +424,9 @@ components |>
 ```
 
 
-## Unevaluated Code
-
 ```{r}
 #| label: vars
-#| echo: true
+#| echo: false
 #| eval: false
 #| message: false
 #| warning: false
@@ -685,12 +474,10 @@ rules_new |>
               quarto.disable_processing = TRUE)
 ```
 
-### Regexes
-
 ```{r}
 #| label: regex
 #| eval: false
-#| echo: true
+#| echo: false
 #| message: false
 #| warning: false
 
@@ -730,13 +517,10 @@ rules_new |>
               quarto.disable_processing = TRUE)
 ```
 
-
-### HCPCS Search
-
 ```{r}
 #| label: misc
 #| eval: false
-#| echo: true
+#| echo: false
 #| message: false
 #| warning: false
 northstar::search_descriptions(hcpcs_desc_type = "Long") |> 
