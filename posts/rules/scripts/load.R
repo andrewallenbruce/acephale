@@ -171,7 +171,9 @@ identifier[1, 2, drop = TRUE] <- "HCPCS:001"
 descriptors <- descriptors |>
   select(-identifier) |>
   left_join(identifier, by = "number") |>
-  relocate(identifier, .before = category)
+  relocate(identifier, .before = category) |>
+  select(-index, -source) |>
+  distinct(number, .keep_all = TRUE)
 
 components <- rules |>
   select(number, order, variable, action, value) |>
@@ -244,103 +246,111 @@ components <- rules |>
 
 rm(identifier)
 
-components <- components |>
-  mutate(
-    class = case_match(
-      variable,
-      c(
-        "sex",
-        "rendering",
-        "referring",
-        "primary_auth",
-        "primary_class",
-        "primary_name",
-        "secondary_class",
-        "secondary_name",
-        "ncd",
-        "lcd",
-        "cci",
-        "ndc",
-        "ub04",
-        "pos",
-        "icd",
-        "hcpcs",
-        "mod_1",
-        "mod_2",
-        "mod_3",
-        "mod_4",
-        "rev_code"
-      ) ~ "<chr>",
-      c("age", "unit") ~ "<int>",
-      c("dos", "dob") ~ "<date>"
-    ) |> as_factor())
-
-components <- components |>
-    mutate(group = case_match(
-      as.character(variable),
-      c(
-        "sex",
-        "dos",
-        "age",
-        "pos",
-        "rendering",
-        "referring") ~ "encounter",
-      c(
-        "hcpcs",
-        "mod_1",
-        "mod_2",
-        "mod_3",
-        "mod_4",
-        "rev_code",
-        "unit",
-        "ndc",
-        "pos",
-        "icd",
-        "ub04"
-      ) ~ "coding",
-      c("ncd", "lcd", "cci") ~ "ncci",
-      c(
-        "primary_auth",
-        "primary_class",
-        "primary_name",
-        "secondary_class",
-        "secondary_name"
-      ) ~ "payer"
-    ) |> as_factor()
-  )
+# components <- components |>
+#   mutate(
+#     class = case_match(
+#       variable,
+#       c(
+#         "sex",
+#         "rendering",
+#         "referring",
+#         "primary_auth",
+#         "primary_class",
+#         "primary_name",
+#         "secondary_class",
+#         "secondary_name",
+#         "ncd",
+#         "lcd",
+#         "cci",
+#         "ndc",
+#         "ub04",
+#         "pos",
+#         "icd",
+#         "hcpcs",
+#         "mod_1",
+#         "mod_2",
+#         "mod_3",
+#         "mod_4",
+#         "rev_code"
+#       ) ~ "<chr>",
+#       c("age", "unit") ~ "<int>",
+#       c("dos", "dob") ~ "<date>"
+#     ) |> as_factor())
+#
+# components <- components |>
+#     mutate(group = case_match(
+#       as.character(variable),
+#       c(
+#         "sex",
+#         "dos",
+#         "age",
+#         "pos",
+#         "rendering",
+#         "referring") ~ "encounter",
+#       c(
+#         "hcpcs",
+#         "mod_1",
+#         "mod_2",
+#         "mod_3",
+#         "mod_4",
+#         "rev_code",
+#         "unit",
+#         "ndc",
+#         "pos",
+#         "icd",
+#         "ub04"
+#       ) ~ "coding",
+#       c("ncd", "lcd", "cci") ~ "ncci",
+#       c(
+#         "primary_auth",
+#         "primary_class",
+#         "primary_name",
+#         "secondary_class",
+#         "secondary_name"
+#       ) ~ "payer"
+#     ) |> as_factor()
+#   )
 
 clean_dos <- \(x = components) {
   x |>
     filter(variable == "dos") |>
-    mutate(value = anytime::anydate(value) |> as.character(),
-           method = if_else(str_detect(action, "after"), ">", "<"),
-           condition = glue::glue('{variable} {method} "{value}"')) |>
+    mutate(
+      value = anytime::anydate(value) |> as.character(),
+      method = if_else(str_detect(action, "after"), ">", "<"),
+      condition = glue::glue('{variable} {method} "{value}"')
+    ) |>
     select(number, identifier, order, variable, value, condition)
 }
 
 clean_age <- \(x = components) {
   x |>
     filter(variable == "age") |>
-    mutate(age = strex::str_extract_numbers(value),
-           period = strex::str_extract_non_numerics(value),
-           .before = variable) |>
+    mutate(
+      age = strex::str_extract_numbers(value),
+      period = strex::str_extract_non_numerics(value),
+      .before = variable
+    ) |>
     unnest(c(age, period)) |>
-    mutate(age = as.integer(age),
-           period = str_remove_all(period, "\\s|,"),
-           value = NULL,
-           method = case_match(
-             action,
-             c("is younger than", "younger than") ~ "<",
-             "is older than" ~ ">",
-             "is" ~ "==",
-             .default = NA_character_),
-           value = case_when(
-             period == "years" ~ as.duration(years(age)) / ddays(1),
-             period == "months" ~ as.duration(months(age)) / ddays(1),
-             period == "days" ~ as.duration(days(age)) / ddays(1),
-             .default = NA_real_),
-           value = as.integer(value) |> as.character(),
-           condition = glue::glue('{variable} {method} {value}')) |>
+    mutate(
+      age = as.integer(age),
+      period = str_remove_all(period, "\\s|,"),
+      value = NULL,
+      method = case_match(
+        action,
+        c("is younger than", "younger than") ~ "<",
+        "is older than" ~ ">",
+        "is" ~ "==",
+        .default = NA_character_
+      ),
+      value = case_when(
+        period == "years" ~ as.duration(years(age)) / ddays(1),
+        period == "months" ~ as.duration(months(age)) / ddays(1),
+        period == "days" ~ as.duration(days(age)) / ddays(1),
+        .default = NA_real_
+      ),
+      value = as.integer(value) |> as.character(),
+      condition = glue::glue('{variable} {method} {value}')
+    ) |>
     select(number, identifier, order, variable, value, condition)
 }
 
@@ -354,10 +364,12 @@ clean_ndc <- \(x = components) {
 clean_unit <- \(x = components) {
   x |>
     filter(variable == "unit") |>
-    mutate(value = as.integer(value),
-           method = if_else(str_detect(action, "is not"), "!=", "=="),
-           value = as.integer(value) |> as.character(),
-           condition = glue::glue('{variable} {method} {value}')) |>
+    mutate(
+      value = as.integer(value),
+      method = if_else(str_detect(action, "is not"), "!=", "=="),
+      value = as.integer(value) |> as.character(),
+      condition = glue::glue('{variable} {method} {value}')
+    ) |>
     select(number, identifier, order, variable, value, condition)
 }
 
@@ -368,7 +380,12 @@ clean_sex <- \(x = components) {
       value = str_to_title(value),
       method = if_else(str_detect(action, "is"), "==", "!="),
       condition = glue::glue('!is.na({variable})'),
-      condition = if_else(value == "Present", glue::glue('!is.na({variable})'), glue::glue('{variable} {method} "{value}"'))) |>
+      condition = if_else(
+        value == "Present",
+        glue::glue('!is.na({variable})'),
+        glue::glue('{variable} {method} "{value}"')
+      )
+    ) |>
     select(number, identifier, order, variable, value, condition)
 }
 
@@ -388,43 +405,52 @@ clean_ub04 <- \(x = components) {
 clean_pos <- \(x = components) {
   x |>
     filter(variable == "pos") |>
-    select(number, identifier, order, variable, action, value) |>
     mutate(pos = str_extract_all(value, r'{\((\d+)\)(?:\s*\([^)]*\))?}')) |>
     unnest(pos, keep_empty = TRUE) |>
-    mutate(pos = substr(pos, 2, 3),
-           pos = if_else(is.na(pos) & str_detect(value, "^\\d{2}$"), str_extract(value, "^\\d{2}$"), pos),
-           pos = if_else(is.na(pos) & str_detect(value, "^\\d{2}\\s+"), str_extract(value, "^\\d{2}"), pos),
-           value = pos,
-           pos = glue::glue("'{pos}'")
+    mutate(
+      pos = substr(pos, 2, 3),
+      pos = if_else(
+        is.na(pos) &
+          str_detect(value, "^\\d{2}$"),
+        str_extract(value, "^\\d{2}$"),
+        pos
+      ),
+      pos = if_else(
+        is.na(pos) &
+          str_detect(value, "^\\d{2}\\s+"),
+        str_extract(value, "^\\d{2}"),
+        pos
+      ),
+      value = pos,
+      pos = glue::glue('"{pos}"')
     ) |>
-    nest(pos = c(pos),
-         value = c(value)) |>
+    nest(pos = c(pos), value = c(value)) |>
     rowwise() |>
-    mutate(pos = map(pos, ~paste0(., collapse = ", ")),
-           value = map(value, ~paste0(., collapse = ", "))) |>
+    mutate(pos = map(pos, ~ glue::glue_collapse(., sep = ", ")),
+           value = map(value, ~ paste0(., collapse = ", "))) |>
     unnest(cols = c(pos, value)) |>
     ungroup() |>
     mutate(
       pos = case_when(
-        number == 1007 ~ "'19', '21', '22'",
-        number == 1013 ~ "'31', '32', '54', '56'",
-        number == 1014 ~ "'12', '13', '14', '16', '33', '55'",
-        number %in% c(1891, 930, 1036) ~ "'02', '10'",
-        number %in% c(275, 276) ~ "'81'",
-        .default = pos),
+        number == 1007 ~ glue::as_glue('"19", "21", "22"'),
+        number == 1013 ~ glue::as_glue('"31", "32", "54", "56"'),
+        number == 1014 ~ glue::as_glue('"12", "13", "14", "16", "33", "55"'),
+        number %in% c(1891, 930, 1036) ~ glue::as_glue('"02", "10"'),
+        number %in% c(275, 276) ~ glue::as_glue('"81"'),
+        .default = pos
+      ),
       value = case_when(
         number == 1007 ~ "19, 21, 22",
         number == 1013 ~ "31, 32, 54, 56",
         number == 1014 ~ "12, 13, 14, 16, 33, 55",
         number %in% c(1891, 930, 1036) ~ "02, 10",
         number %in% c(275, 276) ~ "81",
-        .default = value),
+        .default = value
+      ),
       pos = glue::glue("c({pos})"),
       action = if_else(action == "is one of", "is", action),
       method = "%in%",
-      variable = case_match(action,
-                            "is not" ~ "!pos",
-                            .default = variable),
+      variable = case_match(action, "is not" ~ "!pos", .default = variable),
       condition = glue::glue('{variable} {method} {pos}'),
       variable = "pos"
     ) |>
@@ -432,65 +458,71 @@ clean_pos <- \(x = components) {
 }
 
 clean_mods <- \(x = components) {
-
   mod_base <- x |>
     filter(variable %in% c("mod_1", "mod_2", "mod_3", "mod_4")) |>
-    select(-c(class, group)) |>
-    mutate(value = if_else(identifier == "MCD:CA:013" & variable == "mod_1", "SL", value),
-           chars = nchar(value)) |>
+    mutate(
+      value = if_else(identifier == "MCD:CA:013" &
+                        variable == "mod_1", "SL", value),
+      chars = nchar(value)
+    ) |>
     arrange(desc(chars))
 
   mod_singles <- mod_base |>
-    filter(
-      chars == 2 | value == "Present",
-      str_detect(value, fixed("*"), negate = TRUE)
-    ) |>
+    filter(chars == 2 | value == "Present",
+           str_detect(value, fixed("*"), negate = TRUE)) |>
     mutate(
       method = if_else(str_detect(action, "is"), "==", "!="),
       condition = if_else(
         value == "Present",
         glue::glue('!is.na({variable})'),
-        glue::glue('{variable} {method} "{value}"'))) |>
+        glue::glue('{variable} {method} "{value}"')
+      )
+    ) |>
     select(number, identifier, order, variable, value, condition)
 
   mod_wildcards <- mod_base |>
     filter(str_detect(value, fixed("*"))) |>
     mutate(
       method = case_when(
-        action == "is not" & value == "F*, T*" ~ glue::glue("^[^F|T][A-Z0-9]$"),
-        action == "is" & value == "P*" ~ glue::glue("^[P][A-Z0-9]$"),
-        .default = NA_character_),
+        action == "is not" &
+          value == "F*, T*" ~ glue::glue("^[^F|T][A-Z0-9]$"),
+        action == "is" &
+          value == "P*" ~ glue::glue("^[P][A-Z0-9]$"),
+        .default = NA_character_
+      ),
       condition = glue::glue('func({variable}, "{method}")')
     ) |>
     select(number, identifier, order, variable, value, condition)
 
   mod_multi <- mod_base |>
-    filter(
-      chars > 2,
-      value != "Present",
-      str_detect(value, fixed("*"), negate = TRUE)
+    filter(chars > 2,
+           value != "Present",
+           str_detect(value, fixed("*"), negate = TRUE)) |>
+    mutate(
+      value = str_remove_all(value, " "),
+      value = str_replace_all(value, ";", ","),
+      chars = NULL
     ) |>
-    mutate(value = str_remove_all(value, " "),
-           value = str_replace_all(value, ";", ","),
-           chars = NULL) |>
     separate_longer_delim(cols = value, delim = ",") |>
     mutate(mods = glue::glue("'{value}'")) |>
     nest(mods = c(mods), value = c(value)) |>
     rowwise() |>
-    mutate(mods = map(mods, ~paste0(., collapse = ", ")),
-           value = map(value, ~paste0(., collapse = ", "))) |>
+    mutate(mods = map(mods, ~ paste0(., collapse = ", ")),
+           value = map(value, ~ paste0(., collapse = ", "))) |>
     unnest(cols = c(mods, value)) |>
     ungroup() |>
-    mutate(mods = glue::glue("c({mods})"),
-           method = "%in%",
-           condition = if_else(action == "is not", glue::glue('!{variable} {method} {mods}'), glue::glue('{variable} {method} {mods}'))) |>
+    mutate(
+      mods = glue::glue("c({mods})"),
+      method = "%in%",
+      condition = if_else(
+        action == "is not",
+        glue::glue('!{variable} {method} {mods}'),
+        glue::glue('{variable} {method} {mods}')
+      )
+    ) |>
     select(number, identifier, order, variable, value, condition)
 
-  vctrs::vec_c(
-    mod_singles,
-    mod_wildcards,
-    mod_multi
-  )
+  vctrs::vec_c(mod_singles, mod_wildcards, mod_multi)
 }
 
 clean_rev_code <- \(x = components) {
@@ -498,16 +530,19 @@ clean_rev_code <- \(x = components) {
     filter(variable == "rev_code") |>
     mutate(
       method = if_else(str_detect(action, "is not"), "!=", "=="),
-      condition = glue::glue('{variable} {method} "{value}"')) |>
+      condition = glue::glue('{variable} {method} "{value}"')
+    ) |>
     select(number, identifier, order, variable, value, condition)
 }
 
 clean_referring <- \(x = components) {
   x |>
     filter(variable == "referring") |>
-    mutate(action = "is not",
-           value = "Present",
-           condition = glue::glue('!is.na({variable})')) |>
+    mutate(
+      action = "is not",
+      value = "Present",
+      condition = glue::glue('!is.na({variable})')
+    ) |>
     select(number, identifier, order, variable, value, condition)
 }
 
@@ -520,8 +555,7 @@ clean_primary_auth <- \(x = components) {
 }
 
 clean_secondary_class <- \(x = components) {
-
-   x |>
+  x |>
     filter(variable == "secondary_class") |>
     mutate(
       value = if_else(number == 537, "ANY class EXCEPT Medicaid & Medicaid CMO", value),
@@ -533,12 +567,20 @@ clean_secondary_class <- \(x = components) {
       value = str_replace_all(value, "MedicaidCMO", "Medicaid CMO"),
       value = str_replace_all(value, "COMMERCIAL", "Commercial"),
       condition = case_when(
-        number == 339 ~ glue::glue("{variable} == 'Medicare'"),
-        number == 340 ~ glue::glue("{variable} %in% c('Medicare', 'Medicare Replacement')"),
-        number == 341 ~ glue::glue("{variable} %in% c('Medicaid', 'Medicaid CMO')"),
-        number == 342 ~ glue::glue("{variable} %in% c('Commercial', 'Medicare', 'Medicare Replacement')"),
-        number == 344 ~ glue::glue("{variable} %in% c('Commercial', 'Medicare', 'Medicare Replacement')"),
-        number == 537 ~ glue::glue("!is.na({variable}) & !{variable} %in% c('Medicaid', 'Medicaid CMO')"))) |>
+        number == 339 ~ glue::glue('{variable} == "Medicare"'),
+        number == 340 ~ glue::glue('{variable} %in% c("Medicare", "Medicare Replacement")'),
+        number == 341 ~ glue::glue('{variable} %in% c("Medicaid", "Medicaid CMO")'),
+        number == 342 ~ glue::glue(
+          '{variable} %in% c("Commercial", "Medicare", "Medicare Replacement")'
+        ),
+        number == 344 ~ glue::glue(
+          '{variable} %in% c("Commercial", "Medicare", "Medicare Replacement")'
+        ),
+        number == 537 ~ glue::glue(
+          '!is.na({variable}) & !{variable} %in% c("Medicaid", "Medicaid CMO")'
+        )
+      )
+    ) |>
     select(number, identifier, order, variable, value, condition)
 }
 
@@ -546,7 +588,11 @@ clean_secondary_name <- \(x = components) {
   x |>
     filter(variable == "secondary_name") |>
     mutate(
-      value = str_replace(value, "Tricare supplement, Selman", "Tricare Supplement, Selman"),
+      value = str_replace(
+        value,
+        "Tricare supplement, Selman",
+        "Tricare Supplement, Selman"
+      ),
       value = str_replace(value, fixed("WA Medicaid (DSHS)"), "Medicaid WA"),
       value = str_replace(value, fixed("WELLCARE OF GEORGIA, INC (129)"), "Wellcare GA"),
       value = str_replace(value, "Wellcare Mediaid", "Medicaid Wellcare"),
@@ -554,68 +600,95 @@ clean_secondary_name <- \(x = components) {
       condition = glue::glue('{variable} {method} "{value}"'),
       condition = if_else(
         value == "Tricare Supplement, Selman",
-        glue::glue("{variable} %in% c('Tricare Supplement', 'Selman')"), value)) |>
+        glue::glue('{variable} %in% c("Tricare Supplement", "Selman")'),
+        value
+      )
+    ) |>
     select(number, identifier, order, variable, value, condition)
 }
 
 clean_primary_class <- \(x = components) {
-   x |>
+  x |>
     filter(variable == "primary_class") |>
-    mutate(value = str_remove_all(value, regex(r"{\(\d+\)}")),
-           value = str_remove_all(value, regex(r"{\(\D+\)}")),
-           value = str_replace_all(value, " ,", ","),
-           value = str_replace_all(value, ", ", ","),
-           value = str_replace_all(value, " ; ", ","),
-           value = str_replace_all(value, fixed("/"), ","),
-           value = str_replace_all(value, fixed("*"), ""),
-           value = if_else(str_detect(value, "Select all|pick all"), "All", value),
-           value = str_squish(value),
-           action = if_else(action == "is on of", "is one of", action)) |>
+    mutate(
+      value = str_remove_all(value, regex(r"{\(\d+\)}")),
+      value = str_remove_all(value, regex(r"{\(\D+\)}")),
+      value = str_replace_all(value, " ,", ","),
+      value = str_replace_all(value, ", ", ","),
+      value = str_replace_all(value, " ; ", ","),
+      value = str_replace_all(value, fixed("/"), ","),
+      value = str_replace_all(value, fixed("*"), ""),
+      value = if_else(str_detect(value, "Select all|pick all"), "All", value),
+      value = str_squish(value),
+      action = if_else(action == "is on of", "is one of", action)
+    ) |>
     separate_longer_delim(cols = value, delim = ",") |>
-    mutate(value = toupper(value),
-           value = case_match(
-             value,
-             c("MEDICAIDCMO", "MEDICAID MCO", "CMO") ~ "MEDICAID CMO",
-             c("MEDICAREREPLACEMENT", "MEDICAREADVANTAGE", "MEDICARE ADV", "MEDICARE ADVANTAGE") ~ "MEDICARE REPLACEMENT",
-             c("WORKER'S COMP", "WORKERSCOMPENSATION", "WORKERS COMPENSATION", "WORK COMP", "WORKER'SCOMP", "AUTO") ~ "WORKERS COMP",
-             c("KANSAS MEDICAID", "GEORGIA MEDICAID") ~ "MEDICAID",
-             c("MEDICARE PART A", "MEDICARE PART B") ~ "MEDICARE",
-             c("GROUP", "BCBS", "COMMERICAL") ~ "COMMERCIAL",
-             "TRIARE" ~ "TRICARE",
-             .default = value)) |>
-    mutate(payers = glue::glue("'{value}'")) |>
+    mutate(
+      value = toupper(value),
+      value = case_match(
+        value,
+        c("MEDICAIDCMO", "MEDICAID MCO", "CMO") ~ "MEDICAID CMO",
+        c(
+          "MEDICAREREPLACEMENT",
+          "MEDICAREADVANTAGE",
+          "MEDICARE ADV",
+          "MEDICARE ADVANTAGE"
+        ) ~ "MEDICARE REPLACEMENT",
+        c(
+          "WORKER'S COMP",
+          "WORKERSCOMPENSATION",
+          "WORKERS COMPENSATION",
+          "WORK COMP",
+          "WORKER'SCOMP",
+          "AUTO"
+        ) ~ "WORKERS COMP",
+        c("KANSAS MEDICAID", "GEORGIA MEDICAID") ~ "MEDICAID",
+        c("MEDICARE PART A", "MEDICARE PART B") ~ "MEDICARE",
+        c("GROUP", "BCBS", "COMMERICAL") ~ "COMMERCIAL",
+        "TRIARE" ~ "TRICARE",
+        .default = value
+      )
+    ) |>
+    mutate(payers = glue::glue('"{value}"')) |>
     nest(payers = c(payers), value = c(value)) |>
     rowwise() |>
-    mutate(payers = map(payers, ~paste0(., collapse = ", ")),
-           value = map(value, ~paste0(., collapse = ", "))) |>
+    mutate(
+      payers = map(payers, ~ glue::glue_collapse(., sep = ", ")),
+      value = map(value, ~ paste0(., collapse = ", "))
+    ) |>
     unnest(cols = c(payers, value)) |>
     ungroup() |>
     mutate(
       method = case_when(
         action == "is" ~ "==",
         action == "is not" ~ "!=",
-        action == "is one of" ~ "%in%"),
+        action == "is one of" ~ "%in%"
+      ),
       condition = case_when(
         action %in% c("is", "is not") ~ glue::glue('{variable} {method} {payers}'),
-        action == "is one of" ~ glue::glue('{variable} {method} c({payers})'))) |>
+        action == "is one of" ~ glue::glue('{variable} {method} c({payers})')
+      )
+    ) |>
     select(number, identifier, order, variable, value, condition)
 }
 
 clean_primary_name <- \(x = components) {
   x |>
     filter(variable == "primary_name") |>
-    mutate(value = str_remove_all(value, regex(r"{\(\d+\)}")),
-           value = str_remove_all(value, regex(r"{\(\D+\)}")),
-           value = str_replace_all(value, " ,", ","),
-           value = str_replace_all(value, ", ", ","),
-           value = str_replace_all(value, " ; ", ","),
-           value = str_replace_all(value, fixed("/"), ","),
-           value = str_replace_all(value, fixed("*"), ""),
-           value = str_replace_all(value, fixed("("), ""),
-           value = str_replace_all(value, fixed("-"), ""),
-           value = str_replace_all(value, fixed(" - "), ""),
-           value = str_replace_all(value, fixed(" -- "), ""),
-           value = str_squish(value)) |>
+    mutate(
+      value = str_remove_all(value, regex(r"{\(\d+\)}")),
+      value = str_remove_all(value, regex(r"{\(\D+\)}")),
+      value = str_replace_all(value, " ,", ","),
+      value = str_replace_all(value, ", ", ","),
+      value = str_replace_all(value, " ; ", ","),
+      value = str_replace_all(value, fixed("/"), ","),
+      value = str_replace_all(value, fixed("*"), ""),
+      value = str_replace_all(value, fixed("("), ""),
+      value = str_replace_all(value, fixed("-"), ""),
+      value = str_replace_all(value, fixed(" - "), ""),
+      value = str_replace_all(value, fixed(" -- "), ""),
+      value = str_squish(value)
+    ) |>
     separate_longer_delim(cols = value, delim = ",") |>
     mutate(
       value = str_squish(value),
@@ -623,7 +696,8 @@ clean_primary_name <- \(x = components) {
       value = case_match(
         value,
         # UHC
-        c("UNITED HEALTHCARE",
+        c(
+          "UNITED HEALTHCARE",
           "UNITED HEALTHCARE MEDICARE",
           "UNITED HEALTHCARE MEDICARE PLANS",
           "SELECT ALL OCCURANCES OF UHC",
@@ -646,7 +720,8 @@ clean_primary_name <- \(x = components) {
           "UNITED HEALTHCARE STUDENT RESOURCES"
         ) ~ "UHC",
         # BCBS
-        c("BLUE SHIELD OF CALIFORNIA",
+        c(
+          "BLUE SHIELD OF CALIFORNIA",
           "BLUE CROSS BLUE SHIELD OF NC",
           "BLUE CROSS BLUE SHIELD",
           "BLUE CROSS",
@@ -740,13 +815,15 @@ clean_primary_name <- \(x = components) {
           "VSHP BLUECARE RISK EAST"
         ) ~ "BCBS",
         # ANTHEM
-        c("BLUE CROSS ANTHEM",
+        c(
+          "BLUE CROSS ANTHEM",
           "ANTHEM BLUE CROSS",
           "ANTHEM BCBS",
           "BLUE CROSSCA: ANTHEM BLUE CROSS",
           "AND ANTHEM PLANS"
         ) ~ "ANTHEM",
-        c("HIGHMARK BCBS",
+        c(
+          "HIGHMARK BCBS",
           "HIGHMARK BLUE CROSS BLUE SHIELD",
           "HIGHMARK BLUE SHIELD",
           "HIGHMARK BLUE SHIELD FREEDOM BLUE MED"
@@ -757,17 +834,41 @@ clean_primary_name <- \(x = components) {
         c("AMERIGROUP COMMUNITY CARE TN") ~ "AMERIGROUP",
         c("MEDCAL", "MEDICAL", "OP MEDICAL") ~ "MEDI-CAL",
         c("GREAT AMERICAN INSURANCE COMPANY") ~ "GREAT AMERICAN",
-        c("HUMANA MEDICARE", "SELECT ALL HUMANA INSURANCES", "SELECT ALL HUMANA") ~ "HUMANA",
-        c("SELECT ALL OCCURENCES OF CIGNA", "SELECT ALL OCCURANCES OF CIGNA", "CIGNA SELECT ALL CIGNA", "CIGNA MEDICARE") ~ "CIGNA",
-        c("LIBERTY MUTUAL INSURANCE", "LIBERTY MUTAL CORP", "LIBERTY MUTAL", "LIBERTY MEDICAL MAIL") ~ "LIBERTY MUTUAL",
+        c(
+          "HUMANA MEDICARE",
+          "SELECT ALL HUMANA INSURANCES",
+          "SELECT ALL HUMANA"
+        ) ~ "HUMANA",
+        c(
+          "SELECT ALL OCCURENCES OF CIGNA",
+          "SELECT ALL OCCURANCES OF CIGNA",
+          "CIGNA SELECT ALL CIGNA",
+          "CIGNA MEDICARE"
+        ) ~ "CIGNA",
+        c(
+          "LIBERTY MUTUAL INSURANCE",
+          "LIBERTY MUTAL CORP",
+          "LIBERTY MUTAL",
+          "LIBERTY MEDICAL MAIL"
+        ) ~ "LIBERTY MUTUAL",
         c("MCR") ~ "MEDICARE",
         c("SELECT ALL OCCURANCES OF RAILROAD MEDICARE", "RR MEDICARE") ~ "RAILROAD MEDICARE",
-        c("SELECT ALL OCCURANCES OF HORIZON", "HORIZON BLUE CROSS BLUE SHIELD OF NEW JE") ~ "HORIZON",
-        c("SELECT ALL OCCURANCES OF DMERC", "DMERCJURISDICTIOND", "DMERCB", "DMERC", "DMERCJURISDICTIONA") ~ "DMERC",
+        c(
+          "SELECT ALL OCCURANCES OF HORIZON",
+          "HORIZON BLUE CROSS BLUE SHIELD OF NEW JE"
+        ) ~ "HORIZON",
+        c(
+          "SELECT ALL OCCURANCES OF DMERC",
+          "DMERCJURISDICTIOND",
+          "DMERCB",
+          "DMERC",
+          "DMERCJURISDICTIONA"
+        ) ~ "DMERC",
         c("VA CCN OPTUM") ~ "VA",
         c("MEDCOST PREFERRED") ~ "MEDCOST",
         c("PEACH STATE") ~ "PEACHSTATE",
-        c("GA MEDICAID",
+        c(
+          "GA MEDICAID",
           "WA MEDICAID",
           "PRIMARY INSURANCE CLASS IS MEDICAID",
           "MEDICAID CA MEDICAL",
@@ -776,89 +877,132 @@ clean_primary_name <- \(x = components) {
           "MEDICAIDOFMO",
           "MEDICAIDOFVERMONT",
           "MEDICAIDOFVT",
-          "ARKIDS B") ~ "MEDICAID",
+          "ARKIDS B"
+        ) ~ "MEDICAID",
         c("MEDICARE PART A") ~ "MEDICARE",
         c("COVID19 HRSA UNINSURED FUND") ~ "COVID HRSA",
-        c("REGENCE BCBS", "REGENCE BLUECROSS BLUESHIELD OF OREGON", "REGENCE BCBS MEDICARE", "REGENCE BLUE SHIELD") ~ "REGENCE",
+        c(
+          "REGENCE BCBS",
+          "REGENCE BLUECROSS BLUESHIELD OF OREGON",
+          "REGENCE BCBS MEDICARE",
+          "REGENCE BLUE SHIELD"
+        ) ~ "REGENCE",
         c("WELLCARE OF GEORGIA", "WELLCARE MEDICAID") ~ "WELLCARE",
-        c("SUMMIT AMERICA", "SUMMIT CLAIM CENTER", "SUMMIT CLAIMS CENTER", "SUMMIT INSURANCE", "SUMMITT CLAIMS CENTER") ~ "SUMMIT",
-        c("WEST", "TRIWEST VA", "TRIWEST", "TRICAREWEST", "TRICARE EAST", "TRICARE WEST", "TRICAREFORLIFE", "TRICARENORTH", "TRICAREPRIME", "TRICARESOUTH") ~ "TRICARE",
+        c(
+          "SUMMIT AMERICA",
+          "SUMMIT CLAIM CENTER",
+          "SUMMIT CLAIMS CENTER",
+          "SUMMIT INSURANCE",
+          "SUMMITT CLAIMS CENTER"
+        ) ~ "SUMMIT",
+        c(
+          "WEST",
+          "TRIWEST VA",
+          "TRIWEST",
+          "TRICAREWEST",
+          "TRICARE EAST",
+          "TRICARE WEST",
+          "TRICAREFORLIFE",
+          "TRICARENORTH",
+          "TRICAREPRIME",
+          "TRICARESOUTH"
+        ) ~ "TRICARE",
         c("ZURICH AMERICAN INSURANCE") ~ "ZURICH",
         c("INC", "POS") ~ NA_character_,
-        .default = value)) |>
+        .default = value
+      )
+    ) |>
     filter(!is.na(value)) |>
     group_by(identifier) |>
     distinct(value, .keep_all = TRUE) |>
     ungroup() |>
-    mutate(payers = glue::glue("'{value}'")) |>
+    mutate(payers = glue::glue('"{value}"')) |>
     nest(payers = c(payers), value = c(value)) |>
     rowwise() |>
-    mutate(payers = map(payers, ~paste0(., collapse = ", ")),
-           value = map(value, ~paste0(., collapse = ", "))) |>
+    mutate(payers = map(payers, ~ glue::glue_collapse(., sep = ", ")),
+           value = map(value, ~ paste0(., collapse = ", "))) |>
     unnest(cols = c(payers, value)) |>
     ungroup() |>
     mutate(
       method = case_when(
         action == "is" ~ "==",
         action == "is not" ~ "!=",
-        action == "is one of" ~ "%in%"),
+        action == "is one of" ~ "%in%"
+      ),
       condition = case_when(
         action %in% c("is", "is not") ~ glue::glue('{variable} {method} {payers}'),
-        action == "is one of" ~ glue::glue('{variable} {method} c({payers})'))) |>
+        action == "is one of" ~ glue::glue('{variable} {method} c({payers})')
+      )
+    ) |>
     select(number, identifier, order, variable, value, condition)
 }
 
 clean_icd <- \(x = components) {
   x |>
     filter(variable == "icd") |>
-    mutate(value = str_remove_all(value, regex(r"{\(\d+\)}")),
-           value = str_remove_all(value, regex(r"{\(\D+\)}")),
-           value = str_replace_all(value, " ,", ","),
-           value = str_replace_all(value, ", ", ",")) |>
+    mutate(
+      value = str_remove_all(value, regex(r"{\(\d+\)}")),
+      value = str_remove_all(value, regex(r"{\(\D+\)}")),
+      value = str_replace_all(value, " ,", ","),
+      value = str_replace_all(value, ", ", ",")
+    ) |>
     separate_longer_delim(cols = value, delim = ",") |>
-    mutate(wildcard = case_when(str_detect(value, "\\*") ~ 1L, .default = 0L),
-           code = str_replace_all(value, fixed("*"), ""),
-           code = str_replace_all(code, regex("[\\.]$"), ""),
-           action = case_match(action, c("is", "has all", "is one of") ~ "is one of", .default = action),
-           .id = row_number()) |>
+    mutate(
+      wildcard = case_when(str_detect(value, "\\*") ~ 1L, .default = 0L),
+      code = str_replace_all(value, fixed("*"), ""),
+      code = str_replace_all(code, regex("[\\.]$"), ""),
+      action = case_match(action, c("is", "has all", "is one of") ~ "is one of", .default = action),
+      .id = row_number()
+    ) |>
     tidytext::unnest_tokens(
       output = tokens,
       input = code,
       token = stringr::str_split,
       pattern = "",
-      to_lower = FALSE) |>
+      to_lower = FALSE
+    ) |>
     mutate(tokens = glue::glue("[{tokens}]")) |>
     nest(tokens = c(tokens)) |>
     rowwise() |>
-    mutate(tokens = map(tokens, ~paste0(., collapse = ""))) |>
+    mutate(tokens = map(tokens, ~ paste0(., collapse = ""))) |>
     unnest(cols = c(tokens)) |>
     ungroup() |>
-    mutate(code = tokens,
-           tokens = NULL,
-           .id = NULL,
-           commas = NULL,
-           wildcard = NULL) |>
+    mutate(
+      code = tokens,
+      tokens = NULL,
+      .id = NULL,
+      commas = NULL,
+      wildcard = NULL
+    ) |>
     group_by(number) |>
     mutate(order = min(order)) |>
     nest(code = c(code), value = c(value)) |>
     rowwise() |>
-    mutate(code = map(code, ~paste0(., collapse = "|")),
-           value = map(value, ~paste0(., collapse = ", "))) |>
+    mutate(code = map(code, ~ paste0(., collapse = "|")),
+           value = map(value, ~ paste0(., collapse = ", "))) |>
     unnest(cols = c(code, value)) |>
     ungroup() |>
-    mutate(code = if_else(action == "is not", glue::glue("^(?!{code})"), glue::glue("^{code}")),
-           condition = glue::glue('func({variable}, "{code}")')) |>
+    mutate(
+      code = if_else(
+        action == "is not",
+        glue::glue("^(?!{code})"),
+        glue::glue("^{code}")
+      ),
+      condition = glue::glue('func({variable}, "{code}")')
+    ) |>
     group_by(number) |>
     nest(
       action = c(action),
       code = c(code),
       condition = c(condition),
-      value = c(value)) |>
+      value = c(value)
+    ) |>
     rowwise() |>
-    mutate(action = map(action, ~paste0(., collapse = ", ")),
-           code = map(code, ~glue::glue_collapse(., sep = ", ")),
-           condition = map(condition, ~glue::glue_collapse(., sep = " & ")),
-           value = map(value, ~paste0(., collapse = " NOT "))
+    mutate(
+      action = map(action, ~ paste0(., collapse = ", ")),
+      code = map(code, ~ glue::glue_collapse(., sep = ", ")),
+      condition = map(condition, ~ glue::glue_collapse(., sep = " & ")),
+      value = map(value, ~ paste0(., collapse = " NOT "))
     ) |>
     unnest(cols = c(action, code, condition, value)) |>
     ungroup() |>
@@ -872,54 +1016,69 @@ clean_icd <- \(x = components) {
 clean_hcpcs <- \(x = components) {
   x |>
     filter(variable == "hcpcs") |>
-    mutate(value = str_remove_all(value, regex(r"{\(\d+\)}")),
-           value = str_remove_all(value, regex(r"{\(\D+\)}")),
-           value = str_replace_all(value, " ,", ","),
-           value = str_replace_all(value, ", ", ",")) |>
+    mutate(
+      value = str_remove_all(value, regex(r"{\(\d+\)}")),
+      value = str_remove_all(value, regex(r"{\(\D+\)}")),
+      value = str_replace_all(value, " ,", ","),
+      value = str_replace_all(value, ", ", ",")
+    ) |>
     separate_longer_delim(cols = value, delim = ",") |>
-    mutate(wildcard = case_when(str_detect(value, "\\*") ~ 1L, .default = 0L),
-           code = str_replace_all(value, fixed("*"), ""),
-           code = str_replace_all(code, regex("[\\.]$"), ""),
-           action = case_match(action, c("is", "has all", "is one of") ~ "is one of", .default = action),
-           .id = row_number()) |>
+    mutate(
+      wildcard = case_when(str_detect(value, "\\*") ~ 1L, .default = 0L),
+      code = str_replace_all(value, fixed("*"), ""),
+      code = str_replace_all(code, regex("[\\.]$"), ""),
+      action = case_match(action, c("is", "has all", "is one of") ~ "is one of", .default = action),
+      .id = row_number()
+    ) |>
     tidytext::unnest_tokens(
       output = tokens,
       input = code,
       token = stringr::str_split,
       pattern = "",
-      to_lower = FALSE) |>
+      to_lower = FALSE
+    ) |>
     mutate(tokens = glue::glue("[{tokens}]")) |>
     nest(tokens = c(tokens)) |>
     rowwise() |>
-    mutate(tokens = map(tokens, ~paste0(., collapse = ""))) |>
+    mutate(tokens = map(tokens, ~ paste0(., collapse = ""))) |>
     unnest(cols = c(tokens)) |>
     ungroup() |>
-    mutate(code = tokens,
-           tokens = NULL,
-           .id = NULL,
-           commas = NULL,
-           wildcard = NULL) |>
+    mutate(
+      code = tokens,
+      tokens = NULL,
+      .id = NULL,
+      commas = NULL,
+      wildcard = NULL
+    ) |>
     group_by(number) |>
     mutate(order = min(order)) |>
     nest(code = c(code), value = c(value)) |>
     rowwise() |>
-    mutate(code = map(code, ~paste0(., collapse = "|")),
-           value = map(value, ~paste0(., collapse = ", "))) |>
+    mutate(code = map(code, ~ paste0(., collapse = "|")),
+           value = map(value, ~ paste0(., collapse = ", "))) |>
     unnest(cols = c(code, value)) |>
     ungroup() |>
-    mutate(code = if_else(action == "is not", glue::glue("^(?!{code})"), glue::glue("^{code}")),
-           condition = glue::glue('func({variable}, "{code}")')) |>
+    mutate(
+      code = if_else(
+        action == "is not",
+        glue::glue("^(?!{code})"),
+        glue::glue("^{code}")
+      ),
+      condition = glue::glue('func({variable}, "{code}")')
+    ) |>
     group_by(number) |>
     nest(
       action = c(action),
       code = c(code),
       condition = c(condition),
-      value = c(value)) |>
+      value = c(value)
+    ) |>
     rowwise() |>
-    mutate(action = map(action, ~paste0(., collapse = ", ")),
-           code = map(code, ~glue::glue_collapse(., sep = ", ")),
-           condition = map(condition, ~glue::glue_collapse(., sep = " & ")),
-           value = map(value, ~paste0(., collapse = " NOT "))
+    mutate(
+      action = map(action, ~ paste0(., collapse = ", ")),
+      code = map(code, ~ glue::glue_collapse(., sep = ", ")),
+      condition = map(condition, ~ glue::glue_collapse(., sep = " & ")),
+      value = map(value, ~ paste0(., collapse = " NOT "))
     ) |>
     unnest(cols = c(action, code, condition, value)) |>
     ungroup() |>
@@ -931,42 +1090,45 @@ clean_rendering <- \(x = components) {
   # credentials, taxonomy, etc.
   x |>
     filter(variable == "rendering") |>
-    mutate(value = str_remove_all(value, "\\*"),
-           value = fuimus::remove_quotes(value),
-           action = "is one of",
-           value = case_match(
-             value,
-             c(
-               "MID-LEVEL PROVIDER Select all mid-levels billing incident to for BCBS TX",
-               "Select all midlevel providers",
-               "Select all occurances of MD providers",
-               "MID-LEVEL PROVIDER Select all mid-levels billing incident to for UHC",
-               "SELECT ALL MIDLEVEL PROVIDERS THAT BILL UNDER A MD FOR CIGNA (see guidelines for provider type)",
-               "SELECT ALL MIDLEVEL PROVIDERS THAT BILL UNDER A MD FOR BCBS (see guidelines for provider type)",
-               "SELECT ALL MIDLEVEL PROVIDERS THAT BILL UNDER A MD FOR Healthy Blue (see guidelines for provider type)",
-               "MID-LEVEL PROVIDER Select all mid-levels billing incident to for AMBETTER"
-             ) ~ "Mid-Level (Incident-To)",
-             c("Select all occurances of MD providers") ~ "MD",
-             c("Select all occurances of FNP, NP, DNP, CNS providers") ~ "FNP, NP, DNP, CNS",
-             c(
-               "SELECT ALL PHYSICIAN ASSISTANT PROVIDERS",
-               "Select all occurances of PA providers"
-             ) ~ "PA",
-             "choose all Psychologists" ~ "Psychologist",
-             "choose all Licensed Clinical Social Workers and Licensed Master Social Workers" ~ "LCSW, LMSW",
-             "choose all Licensed Professional Counselors" ~ "LPC",
-             "choose all Licensed Marital and Family Therapists" ~ "LMFT",
-             "choose all Psychology Interns" ~ "Psychology Intern",
-             "choose all Psychiatrists, PCNS, PMHNP, Psychologist, PLP, LCSW, LMSW, LMFT, PLMFT" ~ "Psychiatrist, Psychologist, PCNS, PMHNP, PLP, LCSW, LMSW, LMFT, PLMFT",
-             "choose all LPC, PLPC providers" ~ "LPC, PLPC",
-             .default = value)) |>
+    mutate(
+      value = str_remove_all(value, "\\*"),
+      value = fuimus::remove_quotes(value),
+      action = "is one of",
+      value = case_match(
+        value,
+        c(
+          "MID-LEVEL PROVIDER Select all mid-levels billing incident to for BCBS TX",
+          "Select all midlevel providers",
+          "Select all occurances of MD providers",
+          "MID-LEVEL PROVIDER Select all mid-levels billing incident to for UHC",
+          "SELECT ALL MIDLEVEL PROVIDERS THAT BILL UNDER A MD FOR CIGNA (see guidelines for provider type)",
+          "SELECT ALL MIDLEVEL PROVIDERS THAT BILL UNDER A MD FOR BCBS (see guidelines for provider type)",
+          "SELECT ALL MIDLEVEL PROVIDERS THAT BILL UNDER A MD FOR Healthy Blue (see guidelines for provider type)",
+          "MID-LEVEL PROVIDER Select all mid-levels billing incident to for AMBETTER"
+        ) ~ "Mid-Level (Incident-To)",
+        c("Select all occurances of MD providers") ~ "MD",
+        c("Select all occurances of FNP, NP, DNP, CNS providers") ~ "FNP, NP, DNP, CNS",
+        c(
+          "SELECT ALL PHYSICIAN ASSISTANT PROVIDERS",
+          "Select all occurances of PA providers"
+        ) ~ "PA",
+        "choose all Psychologists" ~ "Psychologist",
+        "choose all Licensed Clinical Social Workers and Licensed Master Social Workers" ~ "LCSW, LMSW",
+        "choose all Licensed Professional Counselors" ~ "LPC",
+        "choose all Licensed Marital and Family Therapists" ~ "LMFT",
+        "choose all Psychology Interns" ~ "Psychology Intern",
+        "choose all Psychiatrists, PCNS, PMHNP, Psychologist, PLP, LCSW, LMSW, LMFT, PLMFT" ~ "Psychiatrist, Psychologist, PCNS, PMHNP, PLP, LCSW, LMSW, LMFT, PLMFT",
+        "choose all LPC, PLPC providers" ~ "LPC, PLPC",
+        .default = value
+      )
+    ) |>
     separate_longer_delim(cols = value, delim = ",") |>
     mutate(value = str_squish(value),
            refs = glue::glue('"{value}"')) |>
     nest(refs = c(refs), value = c(value)) |>
     rowwise() |>
-    mutate(refs = map(refs, ~glue::glue_collapse(., sep = ", ")),
-           value = map(value, ~paste0(., collapse = ", "))) |>
+    mutate(refs = map(refs, ~ glue::glue_collapse(., sep = ", ")),
+           value = map(value, ~ paste0(., collapse = ", "))) |>
     unnest(cols = c(refs, value)) |>
     ungroup() |>
     mutate(condition = glue::glue("{variable} %in% c({refs})")) |>

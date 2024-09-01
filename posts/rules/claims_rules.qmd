@@ -27,7 +27,41 @@ library(here)
 library(gt)
 library(S7)
 
+mask <- function(data, expr) {
+  rlang::eval_tidy(rlang::enquo(expr), data)
+}
+
+# mtcars |> mask(mpg * 20)
+
+# str_remove_all(value, regex(r"{\(\d+\)}"))
+ruleprint <- \(n, x = descriptors, w = 40) {
+  x <- stringr::str_replace_all(x[n, 4, drop = TRUE], stringr::fixed(" AND "), " AND \n")
+  x <- stringr::str_replace_all(x, stringr::fixed(" OR "), " OR \n")
+  cat(x, sep = "\n")
+}
+
+print_list <- function(x, pre = "") {
+  
+  if (length(x) == 0) {cat("<empty>\n")}
+  
+  ns <- names(x)
+  
+  if (length(ns) != length(x)) {stop("all elements must be named")}
+  
+  x <- lapply(x, as.character)
+  
+  cat(sprintf("%s%s : %s", pre, format(ns), x), sep = "\n")
+  
+  invisible(x)
+}
+
 source(here("posts/rules/scripts", "load.R"))
+
+clean_combine <- cleaned_steps |> 
+  left_join(
+    descriptors, 
+    by = join_by(number, identifier)) |> 
+  select(-category)
 ```
 
 
@@ -38,33 +72,34 @@ source(here("posts/rules/scripts", "load.R"))
       - `category`: High-Level Classification
       - `definition`: Human Readable Description of Rule Steps
       - `rationale`: Reason for Implementation
-      - `sources`: URLs, References, or Documentation
+      - `source`: URLs, References, or Documentation
       - `steps`: List of Steps to Evaluate
   
   - `step` class
+      - `type`: `qualifier` or `terminator`
+         - `qualifier`s: identifies records that meet the evaluation criteria; record is skipped if criteria is not met
+         - `terminator`: result indicates a pass or fail
       - `order`: Validation step order. Certain steps must be ahead of others, e.g. `dos` should always be first
-         - qualifier: identifies records that meet the evaluation criteria; record is skipped if criteria is not met
-         - validator: result indicates a pass or fail
       - `variable`: element of claim to evaluate
+      - `value`: valid variable instance, expected state evaluated against it
+      - `condition`: functional code to call based on method selected
+      - `alert`: message to display if `terminator` condition is not met 
       - `method`: could define different methods for a single variable
           - regex: for matching patterns of long lists of HCPCS codes
           - calculation: days elapsed between date of birth and date of service
           - comparison: check if a value is greater than or less than another value
           - equality: check if a value is equal to another value
           - presence: check if a value is present
-      - `condition`: functional code to call based on method selected
-      - `value`: must be a valid instance of variable, expected state is evaluated against this value
 
       
   - `variable` classes:
+     - Insurance `type`: Primary, Secondary, Tertiary
+        - Insurance `class`: Self-Pay, Commercial, Medicare, Medicaid, etc.
+           - Insurance `payer`
+             - `name`: BCBS, Medicaid, etc.
+             - `state`: State Abbreviation (optional)
      - Date of Service (`dos`)
-       - `date`: Date of Service
-     - Insurance (`payer`)
-       - `name`: BCBS, Medicaid, etc.
-       - `state`: State Abbreviation (optional)
-       - `class`: Self-Pay, Commercial, Medicare, Medicaid, etc.
-     - Diagnosis (`icd`)
-       - `code`: ICD-10 Code
+     - ICD-10 Code (`icd`)
      - Provider (`provider`)
        - `role`: Rendering, Referring
        - `credential`: MD, DO, etc.
@@ -75,26 +110,18 @@ source(here("posts/rules/scripts", "load.R"))
        - `mod_3`: Modifier 3
        - `mod_4`: Modifier 4
        - `unit`: Number of Units
-     - NDC (`ndc`)
-       - `code`: NDC Code
-
-
-```{r}
-# rules[1, ] |> glimpse()
-# rules[2, ] |> glimpse()
-cat(str_wrap(rules[2, 9, drop = TRUE], width = 30))
-
-# rules[3, ] |> glimpse()
-# rules[4, ] |> glimpse()
-# rules[5, ] |> glimpse()
-# rules[6, ] |> glimpse()
-cat(str_wrap(rules[3, 9, drop = TRUE], width = 30))
-
-cat(str_wrap(rules[7, 9, drop = TRUE], width = 40))
-
-cat(str_wrap(rules[12, 9, drop = TRUE], width = 40))
-```
-
+     - NDC Code (`ndc`)
+     - Revenue Code (`rev_code`)
+     - Place of Service (`pos`)
+        - `code`: 02, 11, etc.
+        - `type`: Facility, Non-Facility
+        - `description`: Hospital, Clinic, etc.
+     - Patient:
+        - Age (`age`)
+        - Sex (`sex`)
+     - Claim
+        - type: Institutional (`ub04`), Professional (`1500`)
+     
 
 ## S7 Class
 
@@ -104,54 +131,101 @@ cat(str_wrap(rules[12, 9, drop = TRUE], width = 40))
 #| eval: false
 #| message: false
 #| warning: false
-rule <- S7::new_class(
-  "rule",
-  package = "cruler",
+
+step <- S7::new_class(
+  name = "step",
+  package = "crule",
   properties = list(
+    order = S7::class_integer,
+    variable = S7::new_property(class = S7::class_character, default = "var"),
+    value = S7::new_property(class = S7::class_any)
+    ),
+  validator = function(self) {
+    if (length(self@order) != 1)    {"@order must be length 1"}
+    if (length(self@variable) != 1) {"@variable must be length 1"}
+  })
+
+rule <- S7::new_class(
+  name = "rule",
+  package = "crule",
+  properties = list(
+    index = S7::class_integer,
     identifier = S7::class_character,
     category = S7::class_character,
     definition = S7::class_character,
     rationale = S7::class_character,
-    source = S7::new_property(class = S7::class_character, 
-                              default = NA_character_),
-    steps = S7::new_property(class = S7::class_list, 
-                             default = list()),
-    timestamp = S7::new_property(class = S7::class_POSIXct, 
-                                 default = as.POSIXct(Sys.time()))
+    alert = S7::class_character,
+    timestamp = S7::new_property(class = S7::class_Date, default = Sys.Date()),
+    steps = S7::class_vector
     )
   )
+step
+
+step()
 
 rule
 
+rule()
+
+
 hcpcs_exp <- rule(
+  index = 1L,
   identifier = "HCPCS:EXP:001",
   category = "Invalid HCPCS",
-  definition = "<Date of Service> is [2019-01-01] or after |AND| <HCPCS Code> is [43760]",
-  rationale = "Effective 2019-01-01, HCPCS 43760 is invalid; See 43762 - 43763",
-  source = "https://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets/Alpha-Numeric-HCPCS")
-
-hcpcs_exp
-
-variable <- S7::new_class(
-  "variable",
-  package = "cruler",
-  properties = list(
-    name = S7::class_character,
-    group = S7::class_character,
-    attributes = S7::class_list
+  definition = "<DOS> is after [2019-01-01] AND <HCPCS> is [43760]",
+  rationale = "Effective 2019-01-01, HCPCS 43760 is invalid",
+  alert = "See HCPCS [43762, 43763]",
+  steps = c(
+    dos = step(order = 1L,
+               variable = "dos",
+               value = as.Date(c("2019-01-01", "2019-01-01"))),
+    hcpcs = step(order = 2L,
+                 variable = "hcpcs",
+                 value = c("43760"))
     )
   )
 
-variable
+hcpcs_exp
 
-dos_var <- variable(
-  name = "dos",
-  group = "encounter",
-  attributes = list()
+
+
+dos_var <- step(
+  order = 1L,
+  variable = "dos",
+  value = "2019-01-01"
 )
 
-dos_var
+dos_var@condition("2020-01-01")
 ```
+
+
+```{r}
+clean_combine |> 
+  select(number, definition) |> 
+  distinct(number, .keep_all = TRUE) |> 
+  separate_longer_delim(cols = definition, delim = " ( ") |> 
+  separate_longer_delim(cols = definition, delim = " ) ") |> 
+  separate_longer_delim(cols = definition, delim = " AND ") |> 
+  mutate(OR = str_detect(definition, fixed(" OR ")),
+         PARA = str_detect(definition, regex("\\(\\s|\\s\\)")),
+         definition = if_else(PARA, str_remove_all(definition, fixed(" )")), definition),
+         definition = if_else(PARA|OR, glue_chr("<<--{definition}-->>"), definition),
+         OR = NULL,
+         PARA = NULL,
+         definition = str_remove_all(definition, regex(r"{\(\d+\)}")),
+         definition = str_remove_all(definition, regex(r"{\(\D+\)}")),
+         definition = str_replace_all(definition, " ; ", ", "),
+         definition = str_replace_all(definition, ";", ", "),
+         definition = str_replace_all(definition, fixed(" ]"), "]"),
+         # definition = str_replace_all(definition, " ] ", "]"),
+         definition = str_replace_all(definition, " , ", ", "),
+         definition = str_replace_all(definition, " ,", ", "),
+         definition = str_squish(definition)
+         ) |>
+  slice(1000:2000) |>
+  print(n = 100)
+```
+
 
 ```{r}
 #| label: qualify
@@ -249,10 +323,7 @@ Need to define `instruction`/`suggestion` variable, taken from `rationale`
 #| eval: false
 #| message: false
 #| warning: false
-descriptors |> 
-  filter(!is.na(category)) |> 
-  distinct(identifier, .keep_all = TRUE) |> 
-  select(-source, -index) |>
+descriptors |>
   gt() |> 
   gtExtras::gt_merge_stack(
     col1 = "category",
@@ -358,9 +429,7 @@ Two types of a step: `qualifier` and `terminator`
 #| echo: true
 #| message: false
 #| warning: false
-components |> 
-  count(variable) |> 
-  print(n = 30)
+components
 ```
 
 ### Variables
@@ -392,26 +461,7 @@ components |>
 #| eval: true
 #| message: false
 #| warning: false
-step_ <- cleaned_steps |> 
-  select(
-    identifier,
-    order,
-    condition
-  )
-
-desc_ <- descriptors |> 
-  distinct(identifier, .keep_all = TRUE) |> 
-  select(identifier, definition)
-
-step_ |> 
-  left_join(
-  desc_, 
-  by = join_by(identifier)) |> 
-  reframe(
-    order,
-    condition = str_trunc(condition, 30),
-    definition = str_trunc(definition, width = 80)
-    )
+clean_combine
 ```
 
 
