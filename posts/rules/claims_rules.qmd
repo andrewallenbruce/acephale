@@ -34,10 +34,15 @@ mask <- function(data, expr) {
 # mtcars |> mask(mpg * 20)
 
 # str_remove_all(value, regex(r"{\(\d+\)}"))
-ruleprint <- \(n, x = descriptors, w = 40) {
+
+print_rule <- \(n, x = descriptors, w = 40) {
+  
   x <- stringr::str_replace_all(x[n, 4, drop = TRUE], stringr::fixed(" AND "), " AND \n")
+  
   x <- stringr::str_replace_all(x, stringr::fixed(" OR "), " OR \n")
+  
   cat(x, sep = "\n")
+
 }
 
 print_list <- function(x, pre = "") {
@@ -132,12 +137,69 @@ clean_combine <- cleaned_steps |>
 #| message: false
 #| warning: false
 
+element <- S7::new_class(
+  name = "element",
+  package = "crule",
+  properties = list(
+    label = S7::new_property(
+      class = S7::class_character, 
+      default = c("dos", "hcpcs", "pos", "icd", "payer", "provider", "patient"),
+      setter = function(self, value) {
+        self@label = match.arg(value, c("dos", "hcpcs", "pos", "icd", "payer", "provider", "patient"))
+        self
+      }),
+    attributes = S7::new_property(
+      class = S7::class_list
+      )
+  )
+)
+
+element
+
+payer <- element(
+  label = "payer",
+  attributes = list(
+    name = S7::new_property(
+      class = S7::class_character, 
+      default = c("BCBS", "UHC", "Medicaid", "Medicare", "Aetna", "Cigna"),
+      setter = function(self, value) {
+        self@name = match.arg(value, c("BCBS", "UHC", "Medicaid", "Medicare", "Aetna", "Cigna"))
+        self
+      }),
+    type = S7::new_property(
+      class = S7::class_character, 
+      default = c("Primary", "Secondary", "Tertiary"),
+      setter = function(self, value) {
+        self@type = match.arg(value, c("Primary", "Secondary", "Tertiary"))
+        self
+      }),
+    classification = S7::new_property(
+      class = S7::class_character, 
+      default = c("Commercial", "Self-Pay", "Medicare", "Medicaid"),
+      setter = function(self, value) {
+        self@classification = match.arg(value, c("Commercial", "Self-Pay", "Medicare", "Medicaid"))
+        self
+      }),
+    state = S7::new_property(
+      class = S7::class_character, 
+      default = c(state.abb, state.name),
+      setter = function(self, value) {
+        self@state = match.arg(value, c(state.abb, state.name))
+        self
+      })
+    )
+  )
+
+payer@attributes$name
+
+payer()
+
 step <- S7::new_class(
   name = "step",
   package = "crule",
   properties = list(
     order = S7::class_integer,
-    variable = S7::new_property(class = S7::class_character, default = "var"),
+    element = element,
     value = S7::new_property(class = S7::class_any)
     ),
   validator = function(self) {
@@ -156,9 +218,10 @@ rule <- S7::new_class(
     rationale = S7::class_character,
     alert = S7::class_character,
     timestamp = S7::new_property(class = S7::class_Date, default = Sys.Date()),
-    steps = S7::class_vector
+    steps = step
     )
   )
+
 step
 
 step()
@@ -200,30 +263,102 @@ dos_var@condition("2020-01-01")
 
 
 ```{r}
-clean_combine |> 
+dirty_definition <- clean_combine |> 
   select(number, definition) |> 
   distinct(number, .keep_all = TRUE) |> 
-  separate_longer_delim(cols = definition, delim = " ( ") |> 
-  separate_longer_delim(cols = definition, delim = " ) ") |> 
-  separate_longer_delim(cols = definition, delim = " AND ") |> 
-  mutate(OR = str_detect(definition, fixed(" OR ")),
-         PARA = str_detect(definition, regex("\\(\\s|\\s\\)")),
-         definition = if_else(PARA, str_remove_all(definition, fixed(" )")), definition),
-         definition = if_else(PARA|OR, glue_chr("<<--{definition}-->>"), definition),
-         OR = NULL,
-         PARA = NULL,
-         definition = str_remove_all(definition, regex(r"{\(\d+\)}")),
-         definition = str_remove_all(definition, regex(r"{\(\D+\)}")),
-         definition = str_replace_all(definition, " ; ", ", "),
-         definition = str_replace_all(definition, ";", ", "),
-         definition = str_replace_all(definition, fixed(" ]"), "]"),
-         # definition = str_replace_all(definition, " ] ", "]"),
-         definition = str_replace_all(definition, " , ", ", "),
-         definition = str_replace_all(definition, " ,", ", "),
-         definition = str_squish(definition)
-         ) |>
-  slice(1000:2000) |>
-  print(n = 100)
+  mutate(definition = str_remove_all(definition, regex("\\s*\\(\\s*\\d*\\s*\\)\\s*")),
+         definition = str_remove_all(definition, regex("\\(Presence\\)\\s*")),
+         nested = str_extract_all(definition, regex("\\(\\s.*?\\s\\)")),
+         definition = str_replace_all(definition, regex("\\(\\s.*?\\s\\)"), "<<(NESTED)>>")) |> 
+  unnest(nested, keep_empty = TRUE)
+
+clean_nested <- dirty_definition |>
+  select(number, nested) |>
+  filter(!is.na(nested)) |>
+  mutate(nested = str_remove_all(nested, regex("\\(\\s*|\\s*\\)")),
+         nested = str_replace_all(nested, "CPT", "HCPCS"),
+         nested = str_replace_all(nested, "DX", "ICD"),
+         nested = str_remove_all(nested, "Code "),
+         nested = str_replace_all(nested, "HCPCS Mod", "MOD_"),
+         nested = str_replace_all(nested, "HCPCS Rev", "REV"),
+         nested = str_replace_all(nested, "Place of [Ss]ervice", "POS"),
+         nested = str_replace_all(nested, "Patient Age", "AGE"),
+         nested = str_replace_all(nested, "HCPCS Units", "UNIT"),
+         nested = str_replace_all(nested, "Location", "LOCATION"),
+         nested = str_replace_all(nested, "false", "FALSE"),
+         nested = str_replace_all(nested, "true", "TRUE"),
+         nested = str_replace_all(nested, ", months", " MONS"),
+         nested = str_replace_all(nested, ", years", " YRS"),
+         nested = str_replace_all(nested, ", days", " DAYS"),
+         nested = str_replace_all(nested, "younger", "less"),
+         nested = str_replace_all(nested, "older", "greater"),
+         nested = str_replace_all(nested, " ]", "]"),
+         nested = str_replace_all(nested, "is \\[[Nn]ot [Pp]resent\\]", "is not [PRESENT]"),
+         nested = str_replace_all(nested, ";", ","),
+         nested = if_else(!is.na(nested), glue_chr("<<({nested})>>"), nested),
+         nested = case_when(
+           str_detect(nested, "AND") ~ str_replace_all(nested, "AND", "<(AND)>"),
+           str_detect(nested, "OR") ~ str_replace_all(nested, "OR", "<|OR|>"), .default = nested))
+
+dirty_definition |>
+  select(number, definition) |> 
+  distinct(number, .keep_all = TRUE) |> 
+  mutate(definition = str_replace_all(definition, "CPT", "HCPCS"),
+         definition = str_replace_all(definition, "DX", "ICD"),
+         definition =  str_remove_all(definition, "Code "),
+         definition =  str_remove_all(definition, "\\s\\)"),
+         definition = str_replace_all(definition, "HCPCS Mod", "MOD_"),
+         definition = str_replace_all(definition, "HCPCS Rev", "REV"),
+         definition = str_replace_all(definition, "HCPCS NDC", "NDC"),
+         definition = str_replace_all(definition, "Place of [Ss]ervice", "POS"),
+         definition = str_replace_all(definition, "Encounter Date of Service", "DOS"),
+         definition = str_replace_all(definition, "Patient Age", "AGE"),
+         definition = str_replace_all(definition, "Patient Sex", "SEX"),
+         definition = str_replace_all(definition, "HCPCS Units", "UNIT"),
+         definition = str_replace_all(definition, "Location", "LOCATION"),
+         definition = str_replace_all(definition, "false", "FALSE"),
+         definition = str_replace_all(definition, "true", "TRUE"),
+         definition = str_replace_all(definition, ", months", " MONS"),
+         definition = str_replace_all(definition, ", years", " YRS"),
+         definition = str_replace_all(definition, ", days", " DAYS"),
+         definition = str_replace_all(definition, "younger", "less"),
+         definition = str_replace_all(definition, "older", "greater"),
+         definition = str_replace_all(definition, " ]", "]"),
+         definition = str_replace_all(definition, "is \\[[Nn]ot [Pp]resent\\]", "is not [PRESENT]"),
+         definition = str_replace_all(definition, "Present", "PRESENT"),
+         definition = str_replace_all(definition, ";", ",")) |> 
+  print(n = 200)
+
+# clean_combine |> 
+#   pivot_longer(
+#     cols = c(definition, nested),
+#     names_to = "variable",
+#     values_to = "definition") |>
+#   filter(!is.na(definition)) |>
+#   select(number, nested) |>
+#   print(n = 200)
+#   separate_longer_delim(cols = definition, delim = " ( ") |> 
+#   separate_longer_delim(cols = definition, delim = " ) ") |> 
+#   separate_longer_delim(cols = definition, delim = " AND ") |> 
+#   mutate(parentheses = str_extract_all(definition, regex("\\s*\\(\\s*\\d+\\s*\\)\\s*")),
+#     OR = str_detect(definition, fixed(" OR ")),
+#          PARA = str_detect(definition, regex("\\(\\s|\\s\\)")),
+#          definition = if_else(PARA, str_remove_all(definition, fixed(" )")), definition),
+#          definition = if_else(PARA|OR, glue_chr("<<--{definition}-->>"), definition),
+#          OR = NULL,
+#          PARA = NULL,
+#          definition = str_remove_all(definition, regex(r"{\(\d+\)}")),
+#          definition = str_remove_all(definition, regex(r"{\(\D+\)}")),
+#          definition = str_replace_all(definition, " ; ", ", "),
+#          definition = str_replace_all(definition, ";", ", "),
+#          definition = str_replace_all(definition, fixed(" ]"), "]"),
+#          definition = str_replace_all(definition, " ] ", "]"),
+#          definition = str_replace_all(definition, " , ", ", "),
+#          definition = str_replace_all(definition, " ,", ", "),
+#          definition = str_squish(definition)
+#          ) |>
+#   slice(1000:2000) |>
+#   print(n = 100)
 ```
 
 
