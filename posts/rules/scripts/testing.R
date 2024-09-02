@@ -88,3 +88,14 @@ stringr::str_extract_all(nested_txt, nested_reg)[[1]]
 gsub(paren_reg, "[XXXXX]", paren_txt)
 
 glob2rx("[J*]")
+
+srchcol <- function(df, col, search, ignore = TRUE, ...) {
+
+  dplyr::filter(
+    df,
+    stringr::str_detect(!!rlang::sym(col),
+      stringr::regex(search, ignore_case = ignore)))
+}
+
+
+

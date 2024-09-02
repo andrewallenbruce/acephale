@@ -27,46 +27,8 @@ library(here)
 library(gt)
 library(S7)
 
-mask <- function(data, expr) {
-  rlang::eval_tidy(rlang::enquo(expr), data)
-}
-
-# mtcars |> mask(mpg * 20)
-
-# str_remove_all(value, regex(r"{\(\d+\)}"))
-
-print_rule <- \(n, x = descriptors, w = 40) {
-  
-  x <- stringr::str_replace_all(x[n, 4, drop = TRUE], stringr::fixed(" AND "), " AND \n")
-  
-  x <- stringr::str_replace_all(x, stringr::fixed(" OR "), " OR \n")
-  
-  cat(x, sep = "\n")
-
-}
-
-print_list <- function(x, pre = "") {
-  
-  if (length(x) == 0) {cat("<empty>\n")}
-  
-  ns <- names(x)
-  
-  if (length(ns) != length(x)) {stop("all elements must be named")}
-  
-  x <- lapply(x, as.character)
-  
-  cat(sprintf("%s%s : %s", pre, format(ns), x), sep = "\n")
-  
-  invisible(x)
-}
-
 source(here("posts/rules/scripts", "load.R"))
-
-clean_combine <- cleaned_steps |> 
-  left_join(
-    descriptors, 
-    by = join_by(number, identifier)) |> 
-  select(-category)
+source(here("posts/rules/scripts", "functions.R"))
 ```
 
 
@@ -261,6 +223,7 @@ dos_var <- step(
 dos_var@condition("2020-01-01")
 ```
 
+## Cleaning Definitions
 
 ```{r}
 dirty_definition <- clean_combine |> 
@@ -268,14 +231,26 @@ dirty_definition <- clean_combine |>
   distinct(number, .keep_all = TRUE) |> 
   mutate(definition = str_remove_all(definition, regex("\\s*\\(\\s*\\d*\\s*\\)\\s*")),
          definition = str_remove_all(definition, regex("\\(Presence\\)\\s*")),
-         nested = str_extract_all(definition, regex("\\(\\s.*?\\s\\)")),
-         definition = str_replace_all(definition, regex("\\(\\s.*?\\s\\)"), "<<(NESTED)>>")) |> 
-  unnest(nested, keep_empty = TRUE)
+         nest1 = str_extract_all(definition, regex("\\(\\s.*?\\s\\)")),
+         nest2 = str_extract_all(definition, regex("\\(\\(.*\\)\\)")),
+         definition = str_replace_all(definition, regex("\\(\\s.*?\\s\\)"), "<<(NESTED)>>"),
+         definition = str_replace_all(definition, regex("\\(\\(.*\\)\\)"), "<<(NESTED)>>")) |> 
+  unnest(c(nest1, nest2), keep_empty = TRUE)
+```
 
+### Nested Statements
+
+```{r}
+# 314 "POS is notHome)>>"
 clean_nested <- dirty_definition |>
-  select(number, nested) |>
+  select(number, nest1, nest2) |> 
+  pivot_longer(
+    cols = c(nest1, nest2),
+    names_to = "variable",
+    values_to = "nested") |>
   filter(!is.na(nested)) |>
-  mutate(nested = str_remove_all(nested, regex("\\(\\s*|\\s*\\)")),
+  select(number, nested) |>
+  mutate(nested = str_remove_all(nested, regex("\\(\\s*|\\s*\\)|\\((|\\))")),
          nested = str_replace_all(nested, "CPT", "HCPCS"),
          nested = str_replace_all(nested, "DX", "ICD"),
          nested = str_remove_all(nested, "Code "),
@@ -298,8 +273,95 @@ clean_nested <- dirty_definition |>
          nested = if_else(!is.na(nested), glue_chr("<<({nested})>>"), nested),
          nested = case_when(
            str_detect(nested, "AND") ~ str_replace_all(nested, "AND", "<(AND)>"),
-           str_detect(nested, "OR") ~ str_replace_all(nested, "OR", "<|OR|>"), .default = nested))
+           str_detect(nested, "OR") ~ str_replace_all(nested, "OR", "<|OR|>"), .default = nested)) |> 
+  pos_name_to_code(nested) |> 
+  mutate(.id = row_number(), .by = number, .after = number)
 
+clean_nested |> 
+  # filter(number == 210) |> pull(nested)
+  print(n = 200)
+
+cat(c(
+"@hcpcs@ is not [9200*, 92012, 92014] 
+<OR> 
+@hcpcs@ is one of ^[0-8A-CEGHJ-MP-R]|^[9][0134-8]|^[9][2][1-9]|^[9][2][0][26-8]|^[9][2][0][1][589]
+<AND>
+@hcpcs@ is not ^[^9][^9][0-9]"
+))
+
+uniq_nona <- \(x) collapse::funique(collapse::na_rm(x))
+
+x <- c(
+  "0", 
+  "1", 
+  "2", 
+  "3", 
+  "4", 
+  "5", 
+  "6", 
+  "7", 
+  "8", 
+  "A", 
+  "B", 
+  "C", 
+  "E", 
+  "G", 
+  "H", 
+  "J", 
+  "K", 
+  "L", 
+  "M", 
+  "P", 
+  "Q", 
+  "R",
+  "90", 
+  "91", 
+  "93", 
+  "94", 
+  "95", 
+  "96", 
+  "97", 
+  "98", 
+  "921", 
+  "922", 
+  "923", 
+  "924", 
+  "925", 
+  "926", 
+  "927", 
+  "928", 
+  "929", 
+  "9202", 
+  "9206", 
+  "9207", 
+  "9208", 
+  "92015", 
+  "92018", 
+  "92019" 
+  )
+
+ln <- collapse::vlengths(x)
+
+data.frame(
+  x = x,
+  ln = ln
+) |> 
+  group_by(ln) |> 
+  nest() |> 
+  collapse::rsplit(~ ln)
+
+
+#   str_split_fixed("", n = 5) |>
+#     as.data.frame() |>
+#     purrr::map(na_if_common) |> 
+#     purrr::map(uniq_nona)
+# 
+# "^[0-8A-CEGHJ-MP-R]|^[9][0134-8]|^[9][2][1-9]|^[9][2][0][26-8]|^[9][2][0][1][589]"
+```
+
+
+
+```{r}
 dirty_definition |>
   select(number, definition) |> 
   distinct(number, .keep_all = TRUE) |> 
@@ -307,6 +369,7 @@ dirty_definition |>
          definition = str_replace_all(definition, "DX", "ICD"),
          definition =  str_remove_all(definition, "Code "),
          definition =  str_remove_all(definition, "\\s\\)"),
+         definition =  str_remove_all(definition, fixed("GROUP")), # 197
          definition = str_replace_all(definition, "HCPCS Mod", "MOD_"),
          definition = str_replace_all(definition, "HCPCS Rev", "REV"),
          definition = str_replace_all(definition, "HCPCS NDC", "NDC"),
@@ -326,9 +389,15 @@ dirty_definition |>
          definition = str_replace_all(definition, " ]", "]"),
          definition = str_replace_all(definition, "is \\[[Nn]ot [Pp]resent\\]", "is not [PRESENT]"),
          definition = str_replace_all(definition, "Present", "PRESENT"),
-         definition = str_replace_all(definition, ";", ",")) |> 
-  print(n = 200)
-
+         definition = str_replace_all(definition, ";", ","),
+         definition = str_replace_all(definition, "TELEHEALTH PROVIDED IN PATIENT HOMEAND", "TELEHEALTH PROVIDED IN PATIENT HOME] AND"),
+         definition = str_replace_all(definition, "TELEHEALTH PROVIDED OTHER THAN IN PT HOME", "TELEHEALTH PROVIDED OTHER THAN IN PATIENT HOME"),
+         definition = str_replace_all(definition, "TELEHEALTH PROVIDED OTHER THAN PT HOME", "\\[TELEHEALTH PROVIDED OTHER THAN IN PATIENT HOME"),
+         definition = str_replace_all(definition, "INTERMEDIATE CARE FACILITY / MENTALLY RETARDED", "INTERMEDIATE CARE FACILITY/INDIVIDUALS WITH INTELLECTUAL DISABILITIES"),
+         definition = str_replace_all(definition, "PSYCHIATRIC RESIDENTIAL TREATMENT FACILITY", "PSYCHIATRIC RESIDENTIAL TREATMENT CENTER")
+         ) |> 
+  pos_name_to_code(definition) |>
+  print(n = 300)
 # clean_combine |> 
 #   pivot_longer(
 #     cols = c(definition, nested),

@@ -1,46 +1,13 @@
+# Packages ####
+
 library(tidyverse)
 library(fuimus)
 library(strex)
 library(here)
 
-head_tail <- function(x, n = 5, by = NULL) {
-  dplyr::bind_rows(
-    dplyr::slice_head(x, n = n, by = dplyr::all_of(by)),
-    dplyr::slice_tail(x, n = n, by = dplyr::all_of(by)))
-}
 
-deparse_substitute <- \(x) {
-  deparse(substitute(x))
-}
 
-gt_var <- \(df) {
-  df |>
-    gt() |>
-    cols_align(align = "left") |>
-    opt_table_font(font = google_font(name = "Roboto Condensed")) |>
-    opt_all_caps() |>
-    tab_style(
-      style = cell_text(
-        align = "left",
-        weight = "bold",
-        size = px(14),
-        whitespace = "break-spaces",
-        font = google_font(name = "JetBrains Mono")
-      ),
-      locations = cells_body(columns = c(value))
-    ) |>
-    tab_style(
-      style = cell_text(
-        align = 'left',
-        weight = "bold",
-        font = google_font(name = "Roboto Mono")
-      ),
-      locations = cells_body(columns = c(condition))
-    ) |>
-    opt_stylize() |>
-    tab_options(table.width = pct(50),
-                quarto.disable_processing = TRUE)
-}
+# Load CSV ####
 
 rules <- read_csv(
   here("posts/rules/data/rules_raw.csv"),
@@ -56,14 +23,17 @@ rules <- read_csv(
     value     = col_character(),
     rule      = col_character(),
     x9        = col_character(),
-    x10       = col_character())) |>
+    x10       = col_character()
+  )
+) |>
   mutate(
     category = remove_quotes(as.character(category)),
     category = str_remove_all(category, "\\r|\\n"),
     alert = remove_quotes(alert),
     alert = str_remove_all(alert, "\\r|\\n"),
     rule = remove_quotes(rule),
-    rule = str_remove_all(rule, "\\r|\\n")) |>
+    rule = str_remove_all(rule, "\\r|\\n")
+  ) |>
   fill(rule) |>
   select(
     index = row,
@@ -81,7 +51,7 @@ rules <- read_csv(
     !number %in% c(273:274, 293, 450, 466:468, 701),
     !index %in% c(588, 1489),
     definition != "Delete"
-    )
+  )
 
 rules[rules$index == 1, 9, drop = TRUE] <- "CPT Code is [43760] AND Encounter Date of Service after [01/01/2019]"
 rules[rules$index == 2, 9, drop = TRUE] <- "CPT Code is [43760] AND Encounter Date of Service after [01/01/2019]"
@@ -310,6 +280,8 @@ rm(identifier)
 #       ) ~ "payer"
 #     ) |> as_factor()
 #   )
+
+# Cleaning ####
 
 clean_dos <- \(x = components) {
   x |>
@@ -1135,6 +1107,8 @@ clean_rendering <- \(x = components) {
     select(number, identifier, order, variable, value, condition)
 }
 
+# Cleaned ####
+
 cleaned_steps <- vctrs::vec_c(
   clean_dos(),
   clean_age(),
@@ -1156,3 +1130,29 @@ cleaned_steps <- vctrs::vec_c(
   clean_rendering()
 ) |>
   dplyr::arrange(number, order)
+
+rm(clean_age,
+   clean_dos,
+   clean_ndc,
+   clean_unit,
+   clean_sex,
+   clean_ub04,
+   clean_pos,
+   clean_mods,
+   clean_rev_code,
+   clean_referring,
+   clean_primary_auth,
+   clean_secondary_class,
+   clean_secondary_name,
+   clean_primary_class,
+   clean_primary_name,
+   clean_icd,
+   clean_hcpcs,
+   clean_rendering)
+
+
+clean_combine <- cleaned_steps |>
+  left_join(
+    descriptors,
+    by = join_by(number, identifier)) |>
+  select(-category)
