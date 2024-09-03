@@ -1,0 +1,169 @@
+---
+title: "Percentages Changed"
+format:
+  html:
+    reference-location: margin
+    other-links:
+      - text: How You Should Keep Score in Pickup Basketball
+        icon: bookmark-plus
+        href: https://www.bryanshalloway.com/2024/08/27/how-you-should-keep-score-in-pickup-basketball
+      - text: How I Wish We Measured Percentage Change
+        icon: bookmark-plus
+        href: https://patrickjuli.us/2016/01/27/how-i-wish-we-measured-percentage-change/
+      - text: The Logarithmic Harmony of Percent Changes & Growth Rates
+        icon: bookmark-plus
+        href: https://blog.supplysideliberal.com/post/31224211784/the-logarithmic-harmony-of-percent-changes-and
+---
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+#| echo: false
+#| cache: false
+
+knitr::opts_chunk$set(
+  collapse  = FALSE,
+  echo      = TRUE, 
+  message   = FALSE, 
+  warning   = FALSE,
+  error     = TRUE,
+  comment   = "",
+  dpi       = 300, 
+  dev       = "ragg_png",
+  out.width = "100%",
+  fig.align = "center",
+  fig.width = 8
+)
+options(scipen = 999)
+# Packages ####
+
+library(tidyverse)
+library(fuimus)
+library(here)
+
+# Load CSV ####
+
+pct <- read_csv(
+  here("posts/percent/data/platonic.csv"),
+  col_types = cols(
+    platonic = col_double(),
+    midpoint = col_double(),
+    earthly = col_double(),
+    ratio = col_double()))
+
+ex <- dplyr::tibble(
+  platonic = pct$platonic,
+  midpoint = 200 * (exp(platonic / 100) - 1) / (exp(platonic / 100) + 1),
+  earthly = 100 * exp(platonic / 100) - 100,
+  ratio = exp(platonic / 100)
+)
+```
+
+
+
+Percent Changes (%ΔX). Let me preface what I have to say about percent changes by saying that–other than being a clue that a percent change or a ratio expressed as a percentage lurks somewhere close–I view the % sign as being equivalent to 1/100. So, for example, 23% is just another name for .23, and 100% is just another name for 1. Indeed, economists are just as likely to say "with probability 1" as they are to say "with a 100% probability."   
+It turns out that natural logarithms ("ln" or "log") are the perfect way to think about percent changes. Suppose a variable X has a "before" and an "after" value.
+
+   * I want to take the point of view that the change in the natural logarithm is the pure, **Platonic percent change** between before and after. It is calculated as the natural logarithm of Xafter minus the natural logarithm of Xbefore.
+   
+   * I will call the ordinary notion of percent change the **earthly percent change**. It is calculated as the change divided by the starting value, (Xafter - Xbefore)/Xbefore.
+   
+   * In between these two concepts is the **midpoint percent change**. It is calculated as the change divided by the average of the starting and ending values: ( new - old ) / (( new + old ) / 2 )
+
+```{r}
+#| label: pct_changes
+
+platonic_change = \(old, new) {
+  log(new) - log(old)
+}
+
+earthly_change = \(old, new) {
+  (new - old) / old
+}
+
+midpoint_change = \(old, new) {
+  (new - old) / ((new + old) / 2)
+}
+
+platonic_change(old = 1, new = 5) * 100
+midpoint_change(old = 1, new = 5) * 100
+earthly_change(old = 1, new = 5) * 100
+```
+
+Formally, that’s because of these limits:
+$$lim_{x rightarrow infty} {(x-1) over {(x+1)/2}} = 2$$
+
+$$lim_{x rightarrow infty} {(0-x) over {(x+0)/2}} = -2$$
+
+Below is a table showing the relationship between Platonic percent changes, midpoint percent changes and earthly percent changes. In financial terms, one can think of earthly percentage changes as “continuously compounded” versions of Platonic percent changes:
+
+```{r}
+#| label: pct_pos
+ex |> 
+  filter(platonic >= 0) |> 
+  print(n = 20)
+```
+
+There are at least two things to point out in this table:
+
+   * When the percent changes are small, all three concepts are fairly close, but the midpoint percent change is much closer to the Platonic (logarithmic) percent change.
+
+   * A 70% Platonic percent change is very close to being a doubling–which would be a 100% earthly percent change. This is where the “rule of 70” comes from. The rule of 70 is a reflection of the natural logarithm of 2 being equal to approximately .7 = 70%. Similarly, a 140% Platonic percent change is basically two doublings–that is, it is close to multiplying X by a factor of 4; and a 210% Platonic percent change is basically three doublings–that is, it is close to multiplying X by a factor of 8.
+
+
+Let’s look at negative percent changes as well. Here is the table for how the different concepts of negative percent changes compare:
+
+```{r}
+#| label: pct_neg
+ex |> 
+  filter(platonic <= 0) |> 
+  arrange(desc(platonic)) |>
+  print(n = 20)
+```
+
+A key point to make is that with both Platonic (logarithmic) percent changes and midpoint percent changes, equal sized changes of opposite direction cancel each other out. For example, a +50% Platonic percent change, followed by a -50% Platonic percent change, would leave things back where they started. This is true for a +50% midpoint percent change, followed by a -50% midpoint percent change. But, starting from X, a 50% earthly percent change leads to 1.5 X. Following that by a -50% earthly percent change leads to a result of .75 X, which is not at all where things started. This is a very ugly feature of earthly percent changes. That ugliness is one good reason to rise up to the Platonic level, or at least the midpoint level.
+
+Continuous-Time Growth Rates. There are many wonderful things about Platonic percent changes that I can’t go into without breaking my resolve to keep the equation count down. But one of the most wonderful is that to find a growth rate one only has to divide by the time that has elapsed between Xbefore and Xafter. That is, as long as one is using the Platonic percent change %ΔX=log(Xafter)-log(Xbefore),
+
+%ΔX / [time elapsed] = growth rate.
+
+The growth rate here is technically called a “continuous-time growth rate.” The continuous-time growth rate is not only very useful, it is a thing of great beauty.
+
+Update on How the Different Concepts of Percent Change Relate to Each Other.  One of my students asked about how the different percent change concepts relate to each other. For that, I need some equations. And I need “exp” which is the opposite of the natural logarithm “log.” Taking the function exp(X) is the same as taking e, (a number that is famous among mathematicians and equal to 2.718…) to the power X. For the equations below, it is crucial to treat % as another name for 1/100, so that, for example, 5% is the same thing as .05.  
+
+Earthly percent changes are the most familiar. Almost anyone other than an economist who talks about percent changes is talking about earthly percent changes. Most of you learned about earthly percent changes in elementary school. So let me first write down how to get from the earthly percent change to the Platonic and midpoint percent changes. (I won’t try to prove these equations here, just state them.)
+
+```{r}
+#| label: Earthly
+earthly_to_platonic = \(earthly) log(1 + earthly)
+
+earthly_to_midpoint = \(earthly) (2 * earthly) / (2 + earthly)
+```
+
+ If you are trying to figure out the effects of continuously compounded interest, or the effects of some other continuous-time growth rate, you will want to be able go from Platonic percent changes–which come straight from multiplying the growth rate by the amount of elapsed time–to earthly percent changes. For good measure, I will include the formula for midpoint percent changes as well:
+
+
+
+```{r}
+#| label: Platonic
+
+platonic_to_earthly = \(platonic) exp(platonic) - 1
+
+platonic_to_midpoint = \(platonic) (2 * (exp(platonic) - 1)) / (exp(platonic) + 1)
+```
+
+
+I found the function giving the midpoint percent change as a function of the Platonic percent change quite intriguing. For one thing, when I changed signs and put “-Platonic” in the place where you see “Platonic” on the right-hand side of the equation the result equal to -midpoint. When switching the sign of the argument (the inside thing: Platonic) just switches the sign of the overall expression, mathematicians call it an “odd” function (“odd” as in “odd and even” not “odd” as in “strange”). The meaning of this function being odd is that Platonic and midpoint percent changes map into each other the same way for negative changes as for positive changes.  (That isn’t true at all for the earthly percent changes.) The other intriguing thing about the function giving the midpoint percent change as a function of the Platonic percent change is how close it is to giving back the same number. To a fourth-order (the squared term and the fourth power term are zero), the approximation for the function is this:
+
+```{r}
+#| label: Midpoint
+# midpoint = platonic - (platonic^3 / 12) + (5th power and higher terms)
+
+midpoint_to_earthly = \(midpoint) (2 * midpoint) / (2 - midpoint)
+
+midpoint_to_platonic = \(midpoint) log(2 + midpoint) - log(2 - midpoint)
+
+midpoint_to_platonic2 = \(midpoint) log(1 + (midpoint / 2)) - log(1 - (midpoint / 2))
+```
+

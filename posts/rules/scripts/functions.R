@@ -57,6 +57,18 @@ print_rule <- \(n, x = descriptors, w = 40) {
 
 }
 
+print_desc <- \(n) {
+
+  x <- cleaned_definitions[n, 2, drop = TRUE]
+
+  x <- stringr::str_replace_all(x, stringr::fixed(" %AND% "), "\n%AND%\n")
+
+  x <- stringr::str_replace_all(x, stringr::fixed(" %OR% "), "\n%OR%\n")
+
+  cat(x, sep = "\n")
+
+}
+
 print_list <- function(x, pre = "") {
 
   if (length(x) == 0) {cat("<empty>\n")}

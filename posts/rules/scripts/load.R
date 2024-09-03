@@ -5,8 +5,6 @@ library(fuimus)
 library(strex)
 library(here)
 
-
-
 # Load CSV ####
 
 rules <- read_csv(
@@ -53,8 +51,8 @@ rules <- read_csv(
     definition != "Delete"
   )
 
-rules[rules$index == 1, 9, drop = TRUE] <- "CPT Code is [43760] AND Encounter Date of Service after [01/01/2019]"
-rules[rules$index == 2, 9, drop = TRUE] <- "CPT Code is [43760] AND Encounter Date of Service after [01/01/2019]"
+rules[rules$index == 1, 9, drop = TRUE]  <- "CPT Code is [43760] AND Encounter Date of Service after [01/01/2019]"
+rules[rules$index == 2, 9, drop = TRUE]  <- "CPT Code is [43760] AND Encounter Date of Service after [01/01/2019]"
 rules[rules$index == 83, 7, drop = TRUE] <- "SL"
 
 descriptors <- rules |>
@@ -1151,8 +1149,8 @@ rm(clean_age,
    clean_rendering)
 
 
-clean_combine <- cleaned_steps |>
-  left_join(
-    descriptors,
-    by = join_by(number, identifier)) |>
-  select(-category)
+# clean_combine <- cleaned_steps |>
+#   left_join(
+#     descriptors,
+#     by = join_by(number, identifier)) |>
+#   select(-category)
