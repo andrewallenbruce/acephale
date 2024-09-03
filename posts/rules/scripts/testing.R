@@ -81,9 +81,13 @@ paren_reg <- r"{\(.*?\)}"
 nested_txt <- "This (has brackets) and [square brackets] mixed (together [nested])"
 nested_reg <- r"{\[.*?\]|\(.*?\)}"
 
+keyword_txt <- "@hcpcs @pos"
+keyword_reg <- r"{@(\w+)}"
+
 stringr::str_extract_all(brack_txt, brack_reg)[[1]]
 stringr::str_extract_all(paren_txt, paren_reg)[[1]]
 stringr::str_extract_all(nested_txt, nested_reg)[[1]]
+stringr::str_extract_all(keyword_txt, keyword_reg)[[1]]
 
 gsub(paren_reg, "[XXXXX]", paren_txt)
 

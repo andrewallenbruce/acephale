@@ -88,7 +88,7 @@ pos_name_to_code <- \(df, col) {
   dplyr::mutate(
     df,
     "{{ col }}" := stringr::str_replace_all({{ col }}, "PHARMACY", "01"),
-    "{{ col }}" := stringr::str_replace_all({{ col }}, "TELEHEALTH PROVIDED OTHER THAN IN PATIENT HOME", "02"),
+    "{{ col }}" := stringr::str_replace_all({{ col }}, "TELEHEALTH PROVIDED OTHER THAN IN PATIENT HOME|TELEHEALTH PROVIDED OTHER THAN IN PT HOME|TELEHEALTH PROVIDED OTHER THAN PT HOME", "02"),
     "{{ col }}" := stringr::str_replace_all({{ col }}, "SCHOOL", "03"),
     "{{ col }}" := stringr::str_replace_all({{ col }}, "HOMELESS SHELTER", "04"),
     "{{ col }}" := stringr::str_replace_all({{ col }}, "INDIAN HEALTH SERVICE FREE-STANDING FACILITY", "05"),
@@ -139,5 +139,4 @@ pos_name_to_code <- \(df, col) {
     "{{ col }}" := stringr::str_replace_all({{ col }}, "RURAL HEALTH CLINIC", "72"),
     "{{ col }}" := stringr::str_replace_all({{ col }}, "INDEPENDENT LABORATORY", "81"),
     "{{ col }}" := stringr::str_replace_all({{ col }}, "OTHER PLACE OF SERVICE", "99"))
-
 }
