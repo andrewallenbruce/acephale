@@ -5,7 +5,7 @@
 <meta name="generator" content="quarto-1.5.56">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Andrew Allen Bruce">
-<meta name="dcterms.date" content="2024-09-03">
+<meta name="dcterms.date" content="2024-09-04">
 <title>Percentages Changed – acéphale</title>
 <style>
 code{white-space: pre-wrap;}
@@ -200,7 +200,7 @@ window.Quarto = {
       <div>
       <div class="quarto-title-meta-heading">Last updated</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">September 3, 2024</p>
+        <p class="date">September 4, 2024</p>
       </div>
     </div>
     
@@ -253,7 +253,14 @@ It turns out that natural logarithms (“ln” or “log”) are the perfect way
 <p><span class="math display">lim_{x rightarrow infty} {(0-x) over {(x+0)/2}} = -2</span></p>
 <p>Below is a table showing the relationship between Platonic percent changes, midpoint percent changes and earthly percent changes. In financial terms, one can think of earthly percentage changes as “continuously compounded” versions of Platonic percent changes:</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">ex</span> <span class="op">|&gt;</span> </span>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">ex</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html">tibble</a></span><span class="op">(</span></span>
+<span>  platonic <span class="op">=</span> <span class="va">pct</span><span class="op">$</span><span class="va">platonic</span>,</span>
+<span>  midpoint <span class="op">=</span> <span class="fl">200</span> <span class="op">*</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">platonic</span> <span class="op">/</span> <span class="fl">100</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">platonic</span> <span class="op">/</span> <span class="fl">100</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  earthly <span class="op">=</span> <span class="fl">100</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">platonic</span> <span class="op">/</span> <span class="fl">100</span><span class="op">)</span> <span class="op">-</span> <span class="fl">100</span>,</span>
+<span>  ratio <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">platonic</span> <span class="op">/</span> <span class="fl">100</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">ex</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">platonic</span> <span class="op">&gt;=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -873,121 +880,122 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb14-53"><a href="#cb14-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">midpoint =</span> <span class="fu">col_double</span>(),</span>
 <span id="cb14-54"><a href="#cb14-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">earthly =</span> <span class="fu">col_double</span>(),</span>
 <span id="cb14-55"><a href="#cb14-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">ratio =</span> <span class="fu">col_double</span>()))</span>
-<span id="cb14-56"><a href="#cb14-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-57"><a href="#cb14-57" aria-hidden="true" tabindex="-1"></a>ex <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(</span>
-<span id="cb14-58"><a href="#cb14-58" aria-hidden="true" tabindex="-1"></a>  <span class="at">platonic =</span> pct<span class="sc">$</span>platonic,</span>
-<span id="cb14-59"><a href="#cb14-59" aria-hidden="true" tabindex="-1"></a>  <span class="at">midpoint =</span> <span class="dv">200</span> <span class="sc">*</span> (<span class="fu">exp</span>(platonic <span class="sc">/</span> <span class="dv">100</span>) <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> (<span class="fu">exp</span>(platonic <span class="sc">/</span> <span class="dv">100</span>) <span class="sc">+</span> <span class="dv">1</span>),</span>
-<span id="cb14-60"><a href="#cb14-60" aria-hidden="true" tabindex="-1"></a>  <span class="at">earthly =</span> <span class="dv">100</span> <span class="sc">*</span> <span class="fu">exp</span>(platonic <span class="sc">/</span> <span class="dv">100</span>) <span class="sc">-</span> <span class="dv">100</span>,</span>
-<span id="cb14-61"><a href="#cb14-61" aria-hidden="true" tabindex="-1"></a>  <span class="at">ratio =</span> <span class="fu">exp</span>(platonic <span class="sc">/</span> <span class="dv">100</span>)</span>
-<span id="cb14-62"><a href="#cb14-62" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb14-63"><a href="#cb14-63" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-64"><a href="#cb14-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-65"><a href="#cb14-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-66"><a href="#cb14-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-67"><a href="#cb14-67" aria-hidden="true" tabindex="-1"></a>Percent Changes (%ΔX). Let me preface what I have to say about percent changes by saying that–other than being a clue that a percent change or a ratio expressed as a percentage lurks somewhere close–I view the % sign as being equivalent to 1/100. So, for example, 23% is just another name for .23, and 100% is just another name for 1. Indeed, economists are just as likely to say "with probability 1" as they are to say "with a 100% probability."   </span>
-<span id="cb14-68"><a href="#cb14-68" aria-hidden="true" tabindex="-1"></a>It turns out that natural logarithms ("ln" or "log") are the perfect way to think about percent changes. Suppose a variable X has a "before" and an "after" value.</span>
-<span id="cb14-69"><a href="#cb14-69" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-70"><a href="#cb14-70" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span>I want to take the point of view that the change in the natural logarithm is the pure, **Platonic percent change** between before and after. It is calculated as the natural logarithm of Xafter minus the natural logarithm of Xbefore.</span>
-<span id="cb14-71"><a href="#cb14-71" aria-hidden="true" tabindex="-1"></a>   </span>
-<span id="cb14-72"><a href="#cb14-72" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span>I will call the ordinary notion of percent change the **earthly percent change**. It is calculated as the change divided by the starting value, (Xafter - Xbefore)/Xbefore.</span>
-<span id="cb14-73"><a href="#cb14-73" aria-hidden="true" tabindex="-1"></a>   </span>
-<span id="cb14-74"><a href="#cb14-74" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span>In between these two concepts is the **midpoint percent change**. It is calculated as the change divided by the average of the starting and ending values: ( new - old ) / (( new + old ) / 2 )</span>
-<span id="cb14-75"><a href="#cb14-75" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-78"><a href="#cb14-78" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb14-79"><a href="#cb14-79" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: pct_changes</span></span>
-<span id="cb14-80"><a href="#cb14-80" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-81"><a href="#cb14-81" aria-hidden="true" tabindex="-1"></a>platonic_change <span class="ot">=</span> \(old, new) {</span>
-<span id="cb14-82"><a href="#cb14-82" aria-hidden="true" tabindex="-1"></a>  <span class="fu">log</span>(new) <span class="sc">-</span> <span class="fu">log</span>(old)</span>
-<span id="cb14-83"><a href="#cb14-83" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb14-84"><a href="#cb14-84" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-85"><a href="#cb14-85" aria-hidden="true" tabindex="-1"></a>earthly_change <span class="ot">=</span> \(old, new) {</span>
-<span id="cb14-86"><a href="#cb14-86" aria-hidden="true" tabindex="-1"></a>  (new <span class="sc">-</span> old) <span class="sc">/</span> old</span>
-<span id="cb14-87"><a href="#cb14-87" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb14-88"><a href="#cb14-88" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-89"><a href="#cb14-89" aria-hidden="true" tabindex="-1"></a>midpoint_change <span class="ot">=</span> \(old, new) {</span>
-<span id="cb14-90"><a href="#cb14-90" aria-hidden="true" tabindex="-1"></a>  (new <span class="sc">-</span> old) <span class="sc">/</span> ((new <span class="sc">+</span> old) <span class="sc">/</span> <span class="dv">2</span>)</span>
-<span id="cb14-91"><a href="#cb14-91" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb14-92"><a href="#cb14-92" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-93"><a href="#cb14-93" aria-hidden="true" tabindex="-1"></a><span class="fu">platonic_change</span>(<span class="at">old =</span> <span class="dv">1</span>, <span class="at">new =</span> <span class="dv">5</span>) <span class="sc">*</span> <span class="dv">100</span></span>
-<span id="cb14-94"><a href="#cb14-94" aria-hidden="true" tabindex="-1"></a><span class="fu">midpoint_change</span>(<span class="at">old =</span> <span class="dv">1</span>, <span class="at">new =</span> <span class="dv">5</span>) <span class="sc">*</span> <span class="dv">100</span></span>
-<span id="cb14-95"><a href="#cb14-95" aria-hidden="true" tabindex="-1"></a><span class="fu">earthly_change</span>(<span class="at">old =</span> <span class="dv">1</span>, <span class="at">new =</span> <span class="dv">5</span>) <span class="sc">*</span> <span class="dv">100</span></span>
-<span id="cb14-96"><a href="#cb14-96" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-56"><a href="#cb14-56" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-57"><a href="#cb14-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-58"><a href="#cb14-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-59"><a href="#cb14-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-60"><a href="#cb14-60" aria-hidden="true" tabindex="-1"></a>Percent Changes (%ΔX). Let me preface what I have to say about percent changes by saying that–other than being a clue that a percent change or a ratio expressed as a percentage lurks somewhere close–I view the % sign as being equivalent to 1/100. So, for example, 23% is just another name for .23, and 100% is just another name for 1. Indeed, economists are just as likely to say "with probability 1" as they are to say "with a 100% probability."   </span>
+<span id="cb14-61"><a href="#cb14-61" aria-hidden="true" tabindex="-1"></a>It turns out that natural logarithms ("ln" or "log") are the perfect way to think about percent changes. Suppose a variable X has a "before" and an "after" value.</span>
+<span id="cb14-62"><a href="#cb14-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-63"><a href="#cb14-63" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span>I want to take the point of view that the change in the natural logarithm is the pure, **Platonic percent change** between before and after. It is calculated as the natural logarithm of Xafter minus the natural logarithm of Xbefore.</span>
+<span id="cb14-64"><a href="#cb14-64" aria-hidden="true" tabindex="-1"></a>   </span>
+<span id="cb14-65"><a href="#cb14-65" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span>I will call the ordinary notion of percent change the **earthly percent change**. It is calculated as the change divided by the starting value, (Xafter - Xbefore)/Xbefore.</span>
+<span id="cb14-66"><a href="#cb14-66" aria-hidden="true" tabindex="-1"></a>   </span>
+<span id="cb14-67"><a href="#cb14-67" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span>In between these two concepts is the **midpoint percent change**. It is calculated as the change divided by the average of the starting and ending values: ( new - old ) / (( new + old ) / 2 )</span>
+<span id="cb14-68"><a href="#cb14-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-71"><a href="#cb14-71" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-72"><a href="#cb14-72" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: pct_changes</span></span>
+<span id="cb14-73"><a href="#cb14-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-74"><a href="#cb14-74" aria-hidden="true" tabindex="-1"></a>platonic_change <span class="ot">=</span> \(old, new) {</span>
+<span id="cb14-75"><a href="#cb14-75" aria-hidden="true" tabindex="-1"></a>  <span class="fu">log</span>(new) <span class="sc">-</span> <span class="fu">log</span>(old)</span>
+<span id="cb14-76"><a href="#cb14-76" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-77"><a href="#cb14-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-78"><a href="#cb14-78" aria-hidden="true" tabindex="-1"></a>earthly_change <span class="ot">=</span> \(old, new) {</span>
+<span id="cb14-79"><a href="#cb14-79" aria-hidden="true" tabindex="-1"></a>  (new <span class="sc">-</span> old) <span class="sc">/</span> old</span>
+<span id="cb14-80"><a href="#cb14-80" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-81"><a href="#cb14-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-82"><a href="#cb14-82" aria-hidden="true" tabindex="-1"></a>midpoint_change <span class="ot">=</span> \(old, new) {</span>
+<span id="cb14-83"><a href="#cb14-83" aria-hidden="true" tabindex="-1"></a>  (new <span class="sc">-</span> old) <span class="sc">/</span> ((new <span class="sc">+</span> old) <span class="sc">/</span> <span class="dv">2</span>)</span>
+<span id="cb14-84"><a href="#cb14-84" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-85"><a href="#cb14-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-86"><a href="#cb14-86" aria-hidden="true" tabindex="-1"></a><span class="fu">platonic_change</span>(<span class="at">old =</span> <span class="dv">1</span>, <span class="at">new =</span> <span class="dv">5</span>) <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb14-87"><a href="#cb14-87" aria-hidden="true" tabindex="-1"></a><span class="fu">midpoint_change</span>(<span class="at">old =</span> <span class="dv">1</span>, <span class="at">new =</span> <span class="dv">5</span>) <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb14-88"><a href="#cb14-88" aria-hidden="true" tabindex="-1"></a><span class="fu">earthly_change</span>(<span class="at">old =</span> <span class="dv">1</span>, <span class="at">new =</span> <span class="dv">5</span>) <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb14-89"><a href="#cb14-89" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-90"><a href="#cb14-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-91"><a href="#cb14-91" aria-hidden="true" tabindex="-1"></a>Formally, that’s because of these limits:</span>
+<span id="cb14-92"><a href="#cb14-92" aria-hidden="true" tabindex="-1"></a>$$lim_{x rightarrow infty} {(x-1) over {(x+1)/2}} = 2$$</span>
+<span id="cb14-93"><a href="#cb14-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-94"><a href="#cb14-94" aria-hidden="true" tabindex="-1"></a>$$lim_{x rightarrow infty} {(0-x) over {(x+0)/2}} = -2$$</span>
+<span id="cb14-95"><a href="#cb14-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-96"><a href="#cb14-96" aria-hidden="true" tabindex="-1"></a>Below is a table showing the relationship between Platonic percent changes, midpoint percent changes and earthly percent changes. In financial terms, one can think of earthly percentage changes as “continuously compounded” versions of Platonic percent changes:</span>
 <span id="cb14-97"><a href="#cb14-97" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-98"><a href="#cb14-98" aria-hidden="true" tabindex="-1"></a>Formally, that’s because of these limits:</span>
-<span id="cb14-99"><a href="#cb14-99" aria-hidden="true" tabindex="-1"></a>$$lim_{x rightarrow infty} {(x-1) over {(x+1)/2}} = 2$$</span>
-<span id="cb14-100"><a href="#cb14-100" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-101"><a href="#cb14-101" aria-hidden="true" tabindex="-1"></a>$$lim_{x rightarrow infty} {(0-x) over {(x+0)/2}} = -2$$</span>
+<span id="cb14-100"><a href="#cb14-100" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-101"><a href="#cb14-101" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: pct_pos</span></span>
 <span id="cb14-102"><a href="#cb14-102" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-103"><a href="#cb14-103" aria-hidden="true" tabindex="-1"></a>Below is a table showing the relationship between Platonic percent changes, midpoint percent changes and earthly percent changes. In financial terms, one can think of earthly percentage changes as “continuously compounded” versions of Platonic percent changes:</span>
-<span id="cb14-104"><a href="#cb14-104" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-107"><a href="#cb14-107" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb14-108"><a href="#cb14-108" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: pct_pos</span></span>
-<span id="cb14-109"><a href="#cb14-109" aria-hidden="true" tabindex="-1"></a>ex <span class="sc">|&gt;</span> </span>
-<span id="cb14-110"><a href="#cb14-110" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(platonic <span class="sc">&gt;=</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb14-111"><a href="#cb14-111" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">n =</span> <span class="dv">20</span>)</span>
-<span id="cb14-112"><a href="#cb14-112" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-113"><a href="#cb14-113" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-114"><a href="#cb14-114" aria-hidden="true" tabindex="-1"></a>There are at least two things to point out in this table:</span>
-<span id="cb14-115"><a href="#cb14-115" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-116"><a href="#cb14-116" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span>When the percent changes are small, all three concepts are fairly close, but the midpoint percent change is much closer to the Platonic (logarithmic) percent change.</span>
-<span id="cb14-117"><a href="#cb14-117" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-118"><a href="#cb14-118" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span>A 70% Platonic percent change is very close to being a doubling–which would be a 100% earthly percent change. This is where the “rule of 70” comes from. The rule of 70 is a reflection of the natural logarithm of 2 being equal to approximately .7 = 70%. Similarly, a 140% Platonic percent change is basically two doublings–that is, it is close to multiplying X by a factor of 4; and a 210% Platonic percent change is basically three doublings–that is, it is close to multiplying X by a factor of 8.</span>
-<span id="cb14-119"><a href="#cb14-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-103"><a href="#cb14-103" aria-hidden="true" tabindex="-1"></a>ex <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(</span>
+<span id="cb14-104"><a href="#cb14-104" aria-hidden="true" tabindex="-1"></a>  <span class="at">platonic =</span> pct<span class="sc">$</span>platonic,</span>
+<span id="cb14-105"><a href="#cb14-105" aria-hidden="true" tabindex="-1"></a>  <span class="at">midpoint =</span> <span class="dv">200</span> <span class="sc">*</span> (<span class="fu">exp</span>(platonic <span class="sc">/</span> <span class="dv">100</span>) <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> (<span class="fu">exp</span>(platonic <span class="sc">/</span> <span class="dv">100</span>) <span class="sc">+</span> <span class="dv">1</span>),</span>
+<span id="cb14-106"><a href="#cb14-106" aria-hidden="true" tabindex="-1"></a>  <span class="at">earthly =</span> <span class="dv">100</span> <span class="sc">*</span> <span class="fu">exp</span>(platonic <span class="sc">/</span> <span class="dv">100</span>) <span class="sc">-</span> <span class="dv">100</span>,</span>
+<span id="cb14-107"><a href="#cb14-107" aria-hidden="true" tabindex="-1"></a>  <span class="at">ratio =</span> <span class="fu">exp</span>(platonic <span class="sc">/</span> <span class="dv">100</span>)</span>
+<span id="cb14-108"><a href="#cb14-108" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-109"><a href="#cb14-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-110"><a href="#cb14-110" aria-hidden="true" tabindex="-1"></a>ex <span class="sc">|&gt;</span> </span>
+<span id="cb14-111"><a href="#cb14-111" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(platonic <span class="sc">&gt;=</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb14-112"><a href="#cb14-112" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">n =</span> <span class="dv">20</span>)</span>
+<span id="cb14-113"><a href="#cb14-113" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-114"><a href="#cb14-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-115"><a href="#cb14-115" aria-hidden="true" tabindex="-1"></a>There are at least two things to point out in this table:</span>
+<span id="cb14-116"><a href="#cb14-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-117"><a href="#cb14-117" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span>When the percent changes are small, all three concepts are fairly close, but the midpoint percent change is much closer to the Platonic (logarithmic) percent change.</span>
+<span id="cb14-118"><a href="#cb14-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-119"><a href="#cb14-119" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span>A 70% Platonic percent change is very close to being a doubling–which would be a 100% earthly percent change. This is where the “rule of 70” comes from. The rule of 70 is a reflection of the natural logarithm of 2 being equal to approximately .7 = 70%. Similarly, a 140% Platonic percent change is basically two doublings–that is, it is close to multiplying X by a factor of 4; and a 210% Platonic percent change is basically three doublings–that is, it is close to multiplying X by a factor of 8.</span>
 <span id="cb14-120"><a href="#cb14-120" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-121"><a href="#cb14-121" aria-hidden="true" tabindex="-1"></a>Let’s look at negative percent changes as well. Here is the table for how the different concepts of negative percent changes compare:</span>
-<span id="cb14-122"><a href="#cb14-122" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-125"><a href="#cb14-125" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb14-126"><a href="#cb14-126" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: pct_neg</span></span>
-<span id="cb14-127"><a href="#cb14-127" aria-hidden="true" tabindex="-1"></a>ex <span class="sc">|&gt;</span> </span>
-<span id="cb14-128"><a href="#cb14-128" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(platonic <span class="sc">&lt;=</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb14-129"><a href="#cb14-129" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(platonic)) <span class="sc">|&gt;</span></span>
-<span id="cb14-130"><a href="#cb14-130" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">n =</span> <span class="dv">20</span>)</span>
-<span id="cb14-131"><a href="#cb14-131" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-132"><a href="#cb14-132" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-133"><a href="#cb14-133" aria-hidden="true" tabindex="-1"></a>A key point to make is that with both Platonic (logarithmic) percent changes and midpoint percent changes, equal sized changes of opposite direction cancel each other out. For example, a +50% Platonic percent change, followed by a -50% Platonic percent change, would leave things back where they started. This is true for a +50% midpoint percent change, followed by a -50% midpoint percent change. But, starting from X, a 50% earthly percent change leads to 1.5 X. Following that by a -50% earthly percent change leads to a result of .75 X, which is not at all where things started. This is a very ugly feature of earthly percent changes. That ugliness is one good reason to rise up to the Platonic level, or at least the midpoint level.</span>
-<span id="cb14-134"><a href="#cb14-134" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-135"><a href="#cb14-135" aria-hidden="true" tabindex="-1"></a>Continuous-Time Growth Rates. There are many wonderful things about Platonic percent changes that I can’t go into without breaking my resolve to keep the equation count down. But one of the most wonderful is that to find a growth rate one only has to divide by the time that has elapsed between Xbefore and Xafter. That is, as long as one is using the Platonic percent change %ΔX=log(Xafter)-log(Xbefore),</span>
-<span id="cb14-136"><a href="#cb14-136" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-137"><a href="#cb14-137" aria-hidden="true" tabindex="-1"></a>%ΔX / <span class="co">[</span><span class="ot">time elapsed</span><span class="co">]</span> = growth rate.</span>
-<span id="cb14-138"><a href="#cb14-138" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-139"><a href="#cb14-139" aria-hidden="true" tabindex="-1"></a>The growth rate here is technically called a “continuous-time growth rate.” The continuous-time growth rate is not only very useful, it is a thing of great beauty.</span>
-<span id="cb14-140"><a href="#cb14-140" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-141"><a href="#cb14-141" aria-hidden="true" tabindex="-1"></a>Update on How the Different Concepts of Percent Change Relate to Each Other.  One of my students asked about how the different percent change concepts relate to each other. For that, I need some equations. And I need “exp” which is the opposite of the natural logarithm “log.” Taking the function exp(X) is the same as taking e, (a number that is famous among mathematicians and equal to 2.718…) to the power X. For the equations below, it is crucial to treat % as another name for 1/100, so that, for example, 5% is the same thing as .05.  </span>
-<span id="cb14-142"><a href="#cb14-142" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-143"><a href="#cb14-143" aria-hidden="true" tabindex="-1"></a>Earthly percent changes are the most familiar. Almost anyone other than an economist who talks about percent changes is talking about earthly percent changes. Most of you learned about earthly percent changes in elementary school. So let me first write down how to get from the earthly percent change to the Platonic and midpoint percent changes. (I won’t try to prove these equations here, just state them.)</span>
-<span id="cb14-144"><a href="#cb14-144" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-147"><a href="#cb14-147" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb14-148"><a href="#cb14-148" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: Earthly</span></span>
-<span id="cb14-149"><a href="#cb14-149" aria-hidden="true" tabindex="-1"></a>earthly_to_platonic <span class="ot">=</span> \(earthly) <span class="fu">log</span>(<span class="dv">1</span> <span class="sc">+</span> earthly)</span>
-<span id="cb14-150"><a href="#cb14-150" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-151"><a href="#cb14-151" aria-hidden="true" tabindex="-1"></a>earthly_to_midpoint <span class="ot">=</span> \(earthly) (<span class="dv">2</span> <span class="sc">*</span> earthly) <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">+</span> earthly)</span>
-<span id="cb14-152"><a href="#cb14-152" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-153"><a href="#cb14-153" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-154"><a href="#cb14-154" aria-hidden="true" tabindex="-1"></a> If you are trying to figure out the effects of continuously compounded interest, or the effects of some other continuous-time growth rate, you will want to be able go from Platonic percent changes–which come straight from multiplying the growth rate by the amount of elapsed time–to earthly percent changes. For good measure, I will include the formula for midpoint percent changes as well:</span>
-<span id="cb14-155"><a href="#cb14-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-121"><a href="#cb14-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-122"><a href="#cb14-122" aria-hidden="true" tabindex="-1"></a>Let’s look at negative percent changes as well. Here is the table for how the different concepts of negative percent changes compare:</span>
+<span id="cb14-123"><a href="#cb14-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-126"><a href="#cb14-126" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-127"><a href="#cb14-127" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: pct_neg</span></span>
+<span id="cb14-128"><a href="#cb14-128" aria-hidden="true" tabindex="-1"></a>ex <span class="sc">|&gt;</span> </span>
+<span id="cb14-129"><a href="#cb14-129" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(platonic <span class="sc">&lt;=</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb14-130"><a href="#cb14-130" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(platonic)) <span class="sc">|&gt;</span></span>
+<span id="cb14-131"><a href="#cb14-131" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">n =</span> <span class="dv">20</span>)</span>
+<span id="cb14-132"><a href="#cb14-132" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-133"><a href="#cb14-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-134"><a href="#cb14-134" aria-hidden="true" tabindex="-1"></a>A key point to make is that with both Platonic (logarithmic) percent changes and midpoint percent changes, equal sized changes of opposite direction cancel each other out. For example, a +50% Platonic percent change, followed by a -50% Platonic percent change, would leave things back where they started. This is true for a +50% midpoint percent change, followed by a -50% midpoint percent change. But, starting from X, a 50% earthly percent change leads to 1.5 X. Following that by a -50% earthly percent change leads to a result of .75 X, which is not at all where things started. This is a very ugly feature of earthly percent changes. That ugliness is one good reason to rise up to the Platonic level, or at least the midpoint level.</span>
+<span id="cb14-135"><a href="#cb14-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-136"><a href="#cb14-136" aria-hidden="true" tabindex="-1"></a>Continuous-Time Growth Rates. There are many wonderful things about Platonic percent changes that I can’t go into without breaking my resolve to keep the equation count down. But one of the most wonderful is that to find a growth rate one only has to divide by the time that has elapsed between Xbefore and Xafter. That is, as long as one is using the Platonic percent change %ΔX=log(Xafter)-log(Xbefore),</span>
+<span id="cb14-137"><a href="#cb14-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-138"><a href="#cb14-138" aria-hidden="true" tabindex="-1"></a>%ΔX / <span class="co">[</span><span class="ot">time elapsed</span><span class="co">]</span> = growth rate.</span>
+<span id="cb14-139"><a href="#cb14-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-140"><a href="#cb14-140" aria-hidden="true" tabindex="-1"></a>The growth rate here is technically called a “continuous-time growth rate.” The continuous-time growth rate is not only very useful, it is a thing of great beauty.</span>
+<span id="cb14-141"><a href="#cb14-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-142"><a href="#cb14-142" aria-hidden="true" tabindex="-1"></a>Update on How the Different Concepts of Percent Change Relate to Each Other.  One of my students asked about how the different percent change concepts relate to each other. For that, I need some equations. And I need “exp” which is the opposite of the natural logarithm “log.” Taking the function exp(X) is the same as taking e, (a number that is famous among mathematicians and equal to 2.718…) to the power X. For the equations below, it is crucial to treat % as another name for 1/100, so that, for example, 5% is the same thing as .05.  </span>
+<span id="cb14-143"><a href="#cb14-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-144"><a href="#cb14-144" aria-hidden="true" tabindex="-1"></a>Earthly percent changes are the most familiar. Almost anyone other than an economist who talks about percent changes is talking about earthly percent changes. Most of you learned about earthly percent changes in elementary school. So let me first write down how to get from the earthly percent change to the Platonic and midpoint percent changes. (I won’t try to prove these equations here, just state them.)</span>
+<span id="cb14-145"><a href="#cb14-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-148"><a href="#cb14-148" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-149"><a href="#cb14-149" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: Earthly</span></span>
+<span id="cb14-150"><a href="#cb14-150" aria-hidden="true" tabindex="-1"></a>earthly_to_platonic <span class="ot">=</span> \(earthly) <span class="fu">log</span>(<span class="dv">1</span> <span class="sc">+</span> earthly)</span>
+<span id="cb14-151"><a href="#cb14-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-152"><a href="#cb14-152" aria-hidden="true" tabindex="-1"></a>earthly_to_midpoint <span class="ot">=</span> \(earthly) (<span class="dv">2</span> <span class="sc">*</span> earthly) <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">+</span> earthly)</span>
+<span id="cb14-153"><a href="#cb14-153" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-154"><a href="#cb14-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-155"><a href="#cb14-155" aria-hidden="true" tabindex="-1"></a> If you are trying to figure out the effects of continuously compounded interest, or the effects of some other continuous-time growth rate, you will want to be able go from Platonic percent changes–which come straight from multiplying the growth rate by the amount of elapsed time–to earthly percent changes. For good measure, I will include the formula for midpoint percent changes as well:</span>
 <span id="cb14-156"><a href="#cb14-156" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-157"><a href="#cb14-157" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-160"><a href="#cb14-160" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb14-161"><a href="#cb14-161" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: Platonic</span></span>
-<span id="cb14-162"><a href="#cb14-162" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-163"><a href="#cb14-163" aria-hidden="true" tabindex="-1"></a>platonic_to_earthly <span class="ot">=</span> \(platonic) <span class="fu">exp</span>(platonic) <span class="sc">-</span> <span class="dv">1</span></span>
-<span id="cb14-164"><a href="#cb14-164" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-165"><a href="#cb14-165" aria-hidden="true" tabindex="-1"></a>platonic_to_midpoint <span class="ot">=</span> \(platonic) (<span class="dv">2</span> <span class="sc">*</span> (<span class="fu">exp</span>(platonic) <span class="sc">-</span> <span class="dv">1</span>)) <span class="sc">/</span> (<span class="fu">exp</span>(platonic) <span class="sc">+</span> <span class="dv">1</span>)</span>
-<span id="cb14-166"><a href="#cb14-166" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-167"><a href="#cb14-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-158"><a href="#cb14-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-161"><a href="#cb14-161" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-162"><a href="#cb14-162" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: Platonic</span></span>
+<span id="cb14-163"><a href="#cb14-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-164"><a href="#cb14-164" aria-hidden="true" tabindex="-1"></a>platonic_to_earthly <span class="ot">=</span> \(platonic) <span class="fu">exp</span>(platonic) <span class="sc">-</span> <span class="dv">1</span></span>
+<span id="cb14-165"><a href="#cb14-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-166"><a href="#cb14-166" aria-hidden="true" tabindex="-1"></a>platonic_to_midpoint <span class="ot">=</span> \(platonic) (<span class="dv">2</span> <span class="sc">*</span> (<span class="fu">exp</span>(platonic) <span class="sc">-</span> <span class="dv">1</span>)) <span class="sc">/</span> (<span class="fu">exp</span>(platonic) <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb14-167"><a href="#cb14-167" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb14-168"><a href="#cb14-168" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-169"><a href="#cb14-169" aria-hidden="true" tabindex="-1"></a>I found the function giving the midpoint percent change as a function of the Platonic percent change quite intriguing. For one thing, when I changed signs and put “-Platonic” in the place where you see “Platonic” on the right-hand side of the equation the result equal to -midpoint. When switching the sign of the argument (the inside thing: Platonic) just switches the sign of the overall expression, mathematicians call it an “odd” function (“odd” as in “odd and even” not “odd” as in “strange”). The meaning of this function being odd is that Platonic and midpoint percent changes map into each other the same way for negative changes as for positive changes.  (That isn’t true at all for the earthly percent changes.) The other intriguing thing about the function giving the midpoint percent change as a function of the Platonic percent change is how close it is to giving back the same number. To a fourth-order (the squared term and the fourth power term are zero), the approximation for the function is this:</span>
-<span id="cb14-170"><a href="#cb14-170" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-173"><a href="#cb14-173" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb14-174"><a href="#cb14-174" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: Midpoint</span></span>
-<span id="cb14-175"><a href="#cb14-175" aria-hidden="true" tabindex="-1"></a><span class="co"># midpoint = platonic - (platonic^3 / 12) + (5th power and higher terms)</span></span>
-<span id="cb14-176"><a href="#cb14-176" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-177"><a href="#cb14-177" aria-hidden="true" tabindex="-1"></a>midpoint_to_earthly <span class="ot">=</span> \(midpoint) (<span class="dv">2</span> <span class="sc">*</span> midpoint) <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">-</span> midpoint)</span>
-<span id="cb14-178"><a href="#cb14-178" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-179"><a href="#cb14-179" aria-hidden="true" tabindex="-1"></a>midpoint_to_platonic <span class="ot">=</span> \(midpoint) <span class="fu">log</span>(<span class="dv">2</span> <span class="sc">+</span> midpoint) <span class="sc">-</span> <span class="fu">log</span>(<span class="dv">2</span> <span class="sc">-</span> midpoint)</span>
-<span id="cb14-180"><a href="#cb14-180" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-181"><a href="#cb14-181" aria-hidden="true" tabindex="-1"></a>midpoint_to_platonic2 <span class="ot">=</span> \(midpoint) <span class="fu">log</span>(<span class="dv">1</span> <span class="sc">+</span> (midpoint <span class="sc">/</span> <span class="dv">2</span>)) <span class="sc">-</span> <span class="fu">log</span>(<span class="dv">1</span> <span class="sc">-</span> (midpoint <span class="sc">/</span> <span class="dv">2</span>))</span>
-<span id="cb14-182"><a href="#cb14-182" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-169"><a href="#cb14-169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-170"><a href="#cb14-170" aria-hidden="true" tabindex="-1"></a>I found the function giving the midpoint percent change as a function of the Platonic percent change quite intriguing. For one thing, when I changed signs and put “-Platonic” in the place where you see “Platonic” on the right-hand side of the equation the result equal to -midpoint. When switching the sign of the argument (the inside thing: Platonic) just switches the sign of the overall expression, mathematicians call it an “odd” function (“odd” as in “odd and even” not “odd” as in “strange”). The meaning of this function being odd is that Platonic and midpoint percent changes map into each other the same way for negative changes as for positive changes.  (That isn’t true at all for the earthly percent changes.) The other intriguing thing about the function giving the midpoint percent change as a function of the Platonic percent change is how close it is to giving back the same number. To a fourth-order (the squared term and the fourth power term are zero), the approximation for the function is this:</span>
+<span id="cb14-171"><a href="#cb14-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-174"><a href="#cb14-174" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-175"><a href="#cb14-175" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: Midpoint</span></span>
+<span id="cb14-176"><a href="#cb14-176" aria-hidden="true" tabindex="-1"></a><span class="co"># midpoint = platonic - (platonic^3 / 12) + (5th power and higher terms)</span></span>
+<span id="cb14-177"><a href="#cb14-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-178"><a href="#cb14-178" aria-hidden="true" tabindex="-1"></a>midpoint_to_earthly <span class="ot">=</span> \(midpoint) (<span class="dv">2</span> <span class="sc">*</span> midpoint) <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">-</span> midpoint)</span>
+<span id="cb14-179"><a href="#cb14-179" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-180"><a href="#cb14-180" aria-hidden="true" tabindex="-1"></a>midpoint_to_platonic <span class="ot">=</span> \(midpoint) <span class="fu">log</span>(<span class="dv">2</span> <span class="sc">+</span> midpoint) <span class="sc">-</span> <span class="fu">log</span>(<span class="dv">2</span> <span class="sc">-</span> midpoint)</span>
+<span id="cb14-181"><a href="#cb14-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-182"><a href="#cb14-182" aria-hidden="true" tabindex="-1"></a>midpoint_to_platonic2 <span class="ot">=</span> \(midpoint) <span class="fu">log</span>(<span class="dv">1</span> <span class="sc">+</span> (midpoint <span class="sc">/</span> <span class="dv">2</span>)) <span class="sc">-</span> <span class="fu">log</span>(<span class="dv">1</span> <span class="sc">-</span> (midpoint <span class="sc">/</span> <span class="dv">2</span>))</span>
+<span id="cb14-183"><a href="#cb14-183" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

@@ -100,62 +100,64 @@ source(here("posts/rules/scripts", "description.R"))
 #| message: false
 #| warning: false
 
-element <- S7::new_class(
-  name = "element",
-  package = "cruler",
+# variable <- S7::new_class(
+#   name = "variable",
+#   package = "cruler",
+#   properties = list(
+#     name = S7::class_character
+#     )
+#   )
+
+payer <- S7::new_class(
+  name = "payer",
   properties = list(
-    label = S7::new_property(
-      class = S7::class_character, 
-      default = c("dos", "hcpcs", "pos", "icd", "payer", "provider", "patient"),
-      setter = function(self, value) {
-        self@label = match.arg(value, c("dos", "hcpcs", "pos", "icd", "payer", "provider", "patient"))
-        self
-      }),
-    attributes = S7::new_property(
-      class = S7::class_list
-      )
-  )
-)
-
-element
-
-payer <- element(
-  label = "payer",
-  attributes = list(
-    name = S7::new_property(
-      class = S7::class_character, 
-      default = c("BCBS", "UHC", "Medicaid", "Medicare", "Aetna", "Cigna"),
-      setter = function(self, value) {
-        self@name = match.arg(value, c("BCBS", "UHC", "Medicaid", "Medicare", "Aetna", "Cigna"))
-        self
-      }),
-    type = S7::new_property(
+    hierarchy = S7::new_property(
       class = S7::class_character, 
       default = c("Primary", "Secondary", "Tertiary"),
       setter = function(self, value) {
-        self@type = match.arg(value, c("Primary", "Secondary", "Tertiary"))
+        self@hierarchy = match.arg(value, c("Primary", "Secondary", "Tertiary"))
+        self
+      }),
+    name = S7::class_character,
+    state = S7::new_property(
+      class = S7::class_character, 
+      default = state.abb,
+      setter = function(self, value) {
+        self@state = match.arg(value, state.abb)
         self
       }),
     classification = S7::new_property(
       class = S7::class_character, 
-      default = c("Commercial", "Self-Pay", "Medicare", "Medicaid"),
-      setter = function(self, value) {
-        self@classification = match.arg(value, c("Commercial", "Self-Pay", "Medicare", "Medicaid"))
-        self
-      }),
-    state = S7::new_property(
-      class = S7::class_character, 
-      default = c(state.abb, state.name),
-      setter = function(self, value) {
-        self@state = match.arg(value, c(state.abb, state.name))
-        self
-      })
-    )
+      getter = function(self) {
+        dplyr::case_match(
+          self@name,
+          "BCBS" ~ "Commercial",
+          "Medicaid" ~ "Medicaid",
+          "Medicare" ~ "Medicare",
+          "Patient" ~ "Self-Pay",
+          .default = "Other"
+          )
+      }
+    )#,
+  #   validator = function(self) {
+  #   if (length(self@hierarchy) != 1) return("@hierarchy must be length 1")
+  #   if (length(self@name) != 1) return("@name must be length 1")
+  #   if (!missing(self@state)) {
+  #     if (length(self@state) != 1) return("@state must be length 1")
+  #     if (nchar(self@state) != 2) return("@state must be 2 characters")
+  #     if (!self@state %in% state.abb) return("@state must be a valid abbreviation")
+  #   }
+  # }
   )
-
-payer@attributes$name
+)
 
 payer()
+
+bcbcs_ex <- payer("Primary", "BCBS", "TX")
+
+bcbcs_ex@hierarchy
+bcbcs_ex@classification
+bcbcs_ex@state
 
 step <- S7::new_class(
   name = "step",

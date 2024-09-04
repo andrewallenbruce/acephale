@@ -51,13 +51,6 @@ pct <- read_csv(
     midpoint = col_double(),
     earthly = col_double(),
     ratio = col_double()))
-
-ex <- dplyr::tibble(
-  platonic = pct$platonic,
-  midpoint = 200 * (exp(platonic / 100) - 1) / (exp(platonic / 100) + 1),
-  earthly = 100 * exp(platonic / 100) - 100,
-  ratio = exp(platonic / 100)
-)
 ```
 
 
@@ -100,6 +93,14 @@ Below is a table showing the relationship between Platonic percent changes, midp
 
 ```{r}
 #| label: pct_pos
+
+ex <- dplyr::tibble(
+  platonic = pct$platonic,
+  midpoint = 200 * (exp(platonic / 100) - 1) / (exp(platonic / 100) + 1),
+  earthly = 100 * exp(platonic / 100) - 100,
+  ratio = exp(platonic / 100)
+)
+
 ex |> 
   filter(platonic >= 0) |> 
   print(n = 20)
