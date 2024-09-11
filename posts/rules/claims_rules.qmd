@@ -26,12 +26,11 @@ options(scipen = 999)
 library(here)
 library(gt)
 library(S7)
-
 source(here("posts/rules/scripts", "load.R"))
 ```
 
 
-# Anatomy of a Rule
+# Anatomy of a **Rule**
 
 ```{r}
 #| label: rule_definition
@@ -68,35 +67,42 @@ dplyr::tibble(
     "`<list>` of Steps to Evaluate"
   )) |> 
   gt(rowname_col = "name") |>
-    cols_align(align = "left") |>
-    opt_table_font(font = google_font(name = "Roboto")) |>
-    opt_all_caps() |>
+  tab_header("Class: <Rule>") |> 
+  cols_align(align = "left") |>
+  opt_table_font(font = google_font(name = "Roboto")) |>
+  opt_all_caps() |>
   fmt_tf(columns = "optional",
          tf_style = "circles",
          colors = c("black", "grey90")) |>
-    tab_style(
-      style = cell_text(
-        align = "right",
-        weight = "bold",
-        size = px(16),
-        whitespace = "break-spaces",
-        transform = "lowercase",
-        font = google_font(name = "JetBrains Mono")),
-      locations = cells_stub()) |>
-    tab_style(
-      style = cell_text(
-        align = "left",
-        weight = "normal",
-        font = google_font(name = "Roboto Mono")),
-      locations = cells_body(columns = c(description))) |>
-    opt_stylize(add_row_striping = FALSE) |>
+  tab_style(
+    style = cell_text(
+      align = "right",
+      weight = "bold",
+      size = px(16),
+      whitespace = "break-spaces",
+      transform = "lowercase",
+      font = google_font(name = "JetBrains Mono")),
+    locations = cells_stub()) |>
+  tab_style(
+    style = cell_text(
+      align = "left",
+      weight = "normal",
+      font = google_font(name = "Roboto Mono")),
+    locations = cells_body(columns = c(description))) |>
+  tab_style(
+    style = cell_text(
+      align = "left",
+      weight = "bold",
+      font = google_font(name = "JetBrains Mono")),
+    locations = cells_title()) |>
+  opt_stylize(add_row_striping = FALSE) |>
   opt_vertical_padding(scale = 0.35) |> 
   tab_options(column_labels.hidden = TRUE,
               table.width = pct(60),
               quarto.disable_processing = TRUE)
 ```
 
-
+# Anatomy of a **Step**
 
 ```{r}
 #| label: step_definition
@@ -116,89 +122,94 @@ dplyr::tibble(
     "@message"
   ),
   description = c(
-    "<b>@type</b> of Step:<br><br>
-    <b>Qualifier</b>: All but the last step in the rule. Identify claims that meet the criteria for inspection. Claim is skipped if not met.<br><br>
+    "<b>Qualifier</b>: All but the last step in the rule. Identify claims that meet the criteria for inspection. Claim is skipped if not met.<br><br>
     <b>Terminator</b>: Final step, the result of which indicates a pass or fail. Claim is skipped if it passes. If it fails, the full claim information should be returned, along with the rationale for the failure.<br><br>", 
     
-    "<b>@order</b> in which steps are validated. Certain steps must be ahead of others, for instance:<br><br>
+    "Certain steps must be ahead of others, for instance:<br><br>
      Dates should always be first<br><br>
      <b>@dos</b> should always be first if present, unless patient <b>@age</b> is required<br><br>
      If <b>@age</b> is required, it should be first and calculated as the number of days from <b>@dob</b> to <b>@dos</b><br><br>", 
     
-    "Claim element to evaluate", 
+    "Element to evaluate", 
     
-    "Valid <b>@variable</b> value, it's expected state", 
+    "Valid value, <b>@variable</b>'s expected state", 
     
-    "Type of <b>@operation</b> defined for validation:<br><br>
-    <b>Regex</b>: <b>grepl('^I10', icd) | grepl('^J[0-9]{5}', hcpcs)</b><br><br>
-    <b>Calculation</b>: <b>as.integer(dos - dob)</b><br><br>
-    <b>Comparison</b>: <b>x > y, x < y, x >= y, x <= y</b><br><br>
-    <b>Equality</b>: <b>x == y, identical(x, y)</b><br><br>
-    <b>Presence</b>: <b>!is.na(x)</b><br><br>", 
+    "Validation Method:<br><br>
+    <b>Regex</b>: grepl('^I10', icd) | grepl('^J[0-9]{5}', hcpcs)<br><br>
+    <b>Calculation</b>: as.integer(dos - dob)<br><br>
+    <b>Comparison</b>: x > y, x < y, x >= y, x <= y<br><br>
+    <b>Equality</b>: x == y, identical(x, y)<br><br>
+    <b>Presence</b>: !is.na(x)<br><br>", 
     
     "Functional R code to call based on <b>@operation</b> selected", 
     
     "Message to report if final <b>@terminator</b> step is not met"
   )) |> 
   gt(rowname_col = "name") |>
-    cols_align(align = "left") |>
-    opt_table_font(font = google_font(name = "Roboto")) |>
-    tab_style(
-      style = cell_text(
-        align = "right",
-        v_align = "top",
-        weight = "bold",
-        size = px(16),
-        whitespace = "break-spaces",
-        transform = "lowercase",
-        font = google_font(name = "JetBrains Mono")),
-      locations = cells_stub()) |>
-    tab_style(
-      style = cell_text(
-        align = "left",
-        v_align = "top",
-        weight = "normal",
-        font = google_font(name = "Roboto Mono")),
-      locations = cells_body(columns = c(description))) |>
-    opt_stylize(add_row_striping = TRUE) |>
+  tab_header("Class: <Step>") |> 
+  cols_align(align = "left") |>
+  opt_table_font(font = google_font(name = "Roboto")) |>
+  tab_style(
+    style = cell_text(
+      align = "right",
+      v_align = "top",
+      weight = "bold",
+      size = px(16),
+      whitespace = "break-spaces",
+      transform = "lowercase",
+      font = google_font(name = "JetBrains Mono")),
+    locations = cells_stub()) |>
+  tab_style(
+    style = cell_text(
+      align = "left",
+      v_align = "top",
+      weight = "normal",
+      font = google_font(name = "Roboto Mono")),
+    locations = cells_body(columns = c(description))) |>
+  tab_style(
+    style = cell_text(
+      align = "left",
+      weight = "bold",
+      font = google_font(name = "JetBrains Mono")),
+    locations = cells_title()) |>
+  opt_stylize(add_row_striping = TRUE) |>
   opt_vertical_padding(scale = 0.35) |> 
   fmt_markdown() |> 
   tab_options(column_labels.hidden = TRUE,
-              table.width = pct(50),
+              table.width = pct(60),
               quarto.disable_processing = TRUE)
 ```
 
-      
-  - `variable` classes:
-     - Insurance `type`: Primary, Secondary, Tertiary
-        - Insurance `class`: Self-Pay, Commercial, Medicare, Medicaid, etc.
-           - Insurance `payer`
-             - `name`: BCBS, Medicaid, etc.
-             - `state`: State Abbreviation (optional)
-     - Date of Service (`dos`)
-     - ICD-10 Code (`icd`)
-     - Provider (`provider`)
-       - `role`: Rendering, Referring
-       - `credential`: MD, DO, etc.
-     - Procedure (`hcpcs`)
-       - `code`: HCPCS Code
-       - `mod_1`: Modifier 1
-       - `mod_2`: Modifier 2
-       - `mod_3`: Modifier 3
-       - `mod_4`: Modifier 4
-       - `unit`: Number of Units
-     - NDC Code (`ndc`)
-     - Revenue Code (`rev_code`)
-     - Place of Service (`pos`)
-        - `code`: 02, 11, etc.
-        - `type`: Facility, Non-Facility
-        - `description`: Hospital, Clinic, etc.
-     - Patient:
-        - Age (`age`)
-        - Sex (`sex`)
-     - Claim
-        - type: Institutional (`ub04`), Professional (`1500`)
-     
+# Anatomy of a **Variable**
+
+   - **`payer` **
+     - `level`: Primary, Secondary, Tertiary
+     - `group`: Self-Pay, Commercial, Medicare, Medicaid, etc.
+     - `name`: BCBS, Medicaid, etc.
+     - `state`: State Abbreviation (optional)
+   - **`provider`**
+     - `role`: Rendering, Referring
+     - `credential`: MD, DO, etc.
+   - **`procedure`**
+     - `hcpcs`: HCPCS Code
+     - `mod_1`: Modifier 1
+     - `mod_2`: Modifier 2
+     - `mod_3`: Modifier 3
+     - `mod_4`: Modifier 4
+     - `unit`: HCPCS Units of Service
+     - `ndc`: National Drug Code
+     - `rev_code`: Revenue Code
+   - **`pos`**: Place of Service
+     - `code`: 02, 11, etc.
+     - `type`: **Facility** or **Non-Facility**
+     - `description`: Hospital, Clinic, etc.
+     - `claim`: `ub04` (Institutional) or `1500` (Professional)
+   - **`patient`**:
+     - `dos`: Date of Service
+     - `dob`: Date of Birth
+     - `age`
+     - `sex`
+   - `icd`: ICD-10-CM Code
 
 ## S7 Classes
 
