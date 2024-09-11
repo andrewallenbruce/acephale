@@ -225,3 +225,131 @@ data.frame(
 #     purrr::map(uniq_nona)
 #
 # "^[0-8A-CEGHJ-MP-R]|^[9][0134-8]|^[9][2][1-9]|^[9][2][0][26-8]|^[9][2][0][1][589]"
+
+
+
+
+## LOGICAL TESTING ####
+
+c(TRUE, FALSE, TRUE) & c(TRUE, TRUE, FALSE)
+
+c(1, 0, 1) & c(1, 1, 0)
+
+c(TRUE, FALSE, TRUE) | c(TRUE, TRUE, FALSE)
+
+c(1, 0, 1) | c(1, 1, 0)
+
+
+head_tail(rules_new, n = 10, by = c("var", "action")) |>
+  gt() |>
+  cols_align(align = "left") |>
+  opt_table_font(font = google_font(name = "Roboto Condensed")) |>
+  opt_all_caps() |>
+  tab_style(
+    style = cell_text(
+      align = 'left',
+      weight = "bold",
+      font = google_font(name = "Roboto Mono")),
+    locations = cells_body(columns = c(var, action, value))) |>
+  tab_options(table.width = pct(100),
+              quarto.disable_processing = TRUE)
+
+rules_new |>
+  filter(!is.na(var)) |>
+  group_by(var) |>
+  count(action) |>
+  ungroup() |>
+  arrange(var, desc(n), action) |>
+  gt(groupname_col = "var", row_group_as_column = TRUE) |>
+  cols_align(align = "left") |>
+  opt_table_font(
+    font = google_font(name = "Roboto Condensed"),
+    weight = "bold"
+  ) |>
+  opt_all_caps() |>
+  tab_style(
+    style = cell_text(
+      align = 'left',
+      weight = "normal",
+      font = google_font(name = "Roboto Mono")),
+    locations = cells_body(columns = c(var, action))) |>
+  tab_options(table.width = pct(100),
+              quarto.disable_processing = TRUE)
+
+
+
+## REGEX TESTING ####
+c(
+  "^[9][0][4][7][67]$"     = '9047(6|7)',
+  "^[9][0][56][1-9][0-9]$" = '905*|906*',
+  "^[9][0][7][1-5][02-9]$" = '907(1|2|3|4|5)',
+  "^[9][1][3][01][0-9]$"   = '913'
+)
+
+rules_new |>
+  filter(wc == 1,
+         var == "hcpcs") |>
+  mutate(value = str_remove_all(value, "\\*"),
+         chars = 5 - str_length(value),
+         .after = value) |>
+  mutate(
+    regex = case_when(
+      chars == 0 ~ glue_chr("^<<value>>$", .open = "<<", .close = ">>"),
+      chars == 1 ~ glue_chr("^<<value>>[0-9]$", .open = "<<", .close = ">>"),
+      chars > 1 ~ glue_chr("^<<value>>[0-9]{<<chars>>}$", .open = "<<", .close = ">>")),
+    regex = case_when(neg == 1L ~ glue_chr('!{regex}'), .default = regex),
+    .after = regex
+  ) |>
+  head_tail(n = 10, by = c("var", "action")) |>
+  gt() |>
+  cols_align(align = "left") |>
+  opt_table_font(font = google_font(name = "Roboto Condensed")) |>
+  opt_all_caps() |>
+  tab_style(
+    style = cell_text(
+      align = 'left',
+      weight = "bold",
+      font = google_font(name = "Roboto Mono")),
+    locations = cells_body(columns = c(regex))) |>
+  tab_options(table.width = pct(100),
+              quarto.disable_processing = TRUE)
+
+
+
+northstar::search_descriptions() |>
+  distinct(hcpcs_code, .keep_all = TRUE) |>
+  # dplyr::mutate(not_hcpcs = !grepl("^99[0-9]{3}$", hcpcs_code)) |>
+  # filter(!grepl("^99[0-9]{3,3}$", hcpcs_code)) |>
+  # dplyr::mutate(has_hcpcs = grepl("^J[0-9]{4}$", hcpcs_code)) |>
+  filter(str_detect(hcpcs_code, regex("^[J][0-9A-Z]{4}$"))) |>
+  filter(str_detect(hcpcs_code, regex("^(?!5405)(?<![0-9]{1})$"))) |>
+  print(n = 200)
+
+# Match strings that don't start with "99" and don't end with 3 digits
+pattern <- "^(?!99).*(?<![0-9]{3})$"
+
+# Negation pattern
+"^(?!9938[0-9]{1}$)"
+
+# Begins with 0, ends with digit
+"^0.*\\d$"
+
+# Begins with 0, ends with letter
+"^0.*[A-Z]$"
+
+# Match strings that don't start with "a" and don't end with "z"
+pattern <- "^(?!a).*[^z]$"
+grep(pattern, c("apple", "banana", "cherry"), value = TRUE)
+# Output: "banana" "cherry"
+
+stringr::str_detect("99202", stringr::regex("^[992]{3}.*"))
+
+grep("^[992]{3}.*", "99202", value = TRUE, invert = TRUE)
+
+
+pattern = dplyr::case_when(
+  chars == 0 & negation == FALSE ~ glue::glue("^<value>$", .open = "<", .close = ">"),
+  chars > 0  & negation == FALSE ~ glue::glue("^<value>[0-9]{<chars>}$", .open = "<", .close = ">"),
+  chars == 0 & negation == TRUE ~ glue::glue("^(?!<value>)$", .open = "<", .close = ">"),
+  chars > 0  & negation == TRUE ~ glue::glue("^(?!<<value>>)(?<![0-9]{<<chars>>})$", .open = "<<", .close = ">>")
+)
