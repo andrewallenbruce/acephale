@@ -1,6 +1,9 @@
 r"[nav\to\file\path.ext]"
 
 
+## Years/Months to Days Functions ####
+Sys.Date() - (as.duration(years(21)) / ddays(1))
+
 brackets <- function(x, y) {
   paste0(r"--{[}--", x, r"--{]}--")
 }
@@ -353,3 +356,31 @@ pattern = dplyr::case_when(
   chars == 0 & negation == TRUE ~ glue::glue("^(?!<value>)$", .open = "<", .close = ">"),
   chars > 0  & negation == TRUE ~ glue::glue("^(?!<<value>>)(?<![0-9]{<<chars>>})$", .open = "<<", .close = ">>")
 )
+
+# - `rule` class
+# - `index`: Unique Rule Number
+# - `identifier`: Unique Alphanumeric Identifier
+# - `category`: High-Level Classification
+# - `definition`: Human Readable Description of Rule Steps
+# - `rationale`: Reason for Implementation
+# - `source`: URLs, References, or Documentation
+# - **`steps`**: `<list>` of Steps to Evaluate
+
+# - `step` class
+# - `type`:
+#   - `qualifier`: All steps in the `<rule>` but the last (`steps[1:length(steps) - 1]`). Identify claims that meet the criteria for inspection. Claim is skipped if not met.
+# - `terminator`: Final step, the result of which indicates a pass or fail. Claim is skipped if it passes. If it fails, the full claim information should be returned, along with the `rationale` for the failure
+# - `order`: Order in which steps are validated. Certain steps must be ahead of others:
+#   - Dates should always be first
+# - `<dos>` should always be first if present, unless patient `<age>` is required
+# - If patient `<age>` is required, it should be first and, ideally, calculated as the number of days from `<dob>` to `<dos>`
+# - **`variable`**: element of claim to evaluate
+# - `value`: valid variable value, expected state
+# - `operation`: could define different methods for a single variable
+# - regex: matching patterns of lists of HCPCS, wildcards, etc.
+# - calculation: days elapsed between date of birth and date of service
+# - comparison: check if a value is greater than or less than another value
+# - equality: check if a value is equal to another value
+# - presence: check if a value is present, e.g. `!is.na(x)`
+# - `condition`: functional code to call based on method selected
+# - `alert`: message to display if final `terminator` condition is not met

@@ -33,29 +33,140 @@ source(here("posts/rules/scripts", "load.R"))
 
 # Anatomy of a Rule
 
-   - `rule` class
-      - `identifier`: Unique Alphanumeric Identifier; `<Primary Key>`
-      - `category`: High-Level Classification
-      - `definition`: Human Readable Description of Rule Steps
-      - `rationale`: Reason for Implementation
-      - `source`: URLs, References, or Documentation
-      - `steps`: List of Steps to Evaluate
-  
-  - `step` class
-      - `type`: `qualifier` or `terminator`
-         - `qualifier`s: identifies records that meet the evaluation criteria; record is skipped if criteria is not met
-         - `terminator`: result indicates a pass or fail
-      - `order`: Validation step order. Certain steps must be ahead of others, e.g. `dos` should always be first
-      - `variable`: element of claim to evaluate
-      - `value`: valid variable instance, expected state evaluated against it
-      - `condition`: functional code to call based on method selected
-      - `alert`: message to display if `terminator` condition is not met 
-      - `method`: could define different methods for a single variable
-          - regex: for matching patterns of long lists of HCPCS codes
-          - calculation: days elapsed between date of birth and date of service
-          - comparison: check if a value is greater than or less than another value
-          - equality: check if a value is equal to another value
-          - presence: check if a value is present
+```{r}
+#| label: rule_definition
+#| echo: false
+#| eval: true
+#| message: false
+#| warning: false
+
+dplyr::tibble(
+  name = c(
+    "@index", 
+    "@identifier", 
+    "@category", 
+    "@definition",
+    "@rationale", 
+    "@source",
+    "@steps"
+  ),
+  optional = c(
+    TRUE, 
+    TRUE, 
+    FALSE, 
+    TRUE, 
+    FALSE, 
+    FALSE, 
+    TRUE),
+  description = c(
+    "Unique Rule Number", 
+    "Unique Alphanumeric Identifier", 
+    "High-Level Classification", 
+    "Human Readable Description of Rule Steps", 
+    "Reason for Implementation", 
+    "URLs, References, or Documentation", 
+    "`<list>` of Steps to Evaluate"
+  )) |> 
+  gt(rowname_col = "name") |>
+    cols_align(align = "left") |>
+    opt_table_font(font = google_font(name = "Roboto")) |>
+    opt_all_caps() |>
+  fmt_tf(columns = "optional",
+         tf_style = "circles",
+         colors = c("black", "grey90")) |>
+    tab_style(
+      style = cell_text(
+        align = "right",
+        weight = "bold",
+        size = px(16),
+        whitespace = "break-spaces",
+        transform = "lowercase",
+        font = google_font(name = "JetBrains Mono")),
+      locations = cells_stub()) |>
+    tab_style(
+      style = cell_text(
+        align = "left",
+        weight = "normal",
+        font = google_font(name = "Roboto Mono")),
+      locations = cells_body(columns = c(description))) |>
+    opt_stylize(add_row_striping = FALSE) |>
+  opt_vertical_padding(scale = 0.35) |> 
+  tab_options(column_labels.hidden = TRUE,
+              table.width = pct(60),
+              quarto.disable_processing = TRUE)
+```
+
+
+
+```{r}
+#| label: step_definition
+#| echo: false
+#| eval: true
+#| message: false
+#| warning: false
+
+dplyr::tibble(
+  name = c(
+    "@type", 
+    "@order", 
+    "@variable",
+    "@value", 
+    "@operation", 
+    "@condition",
+    "@message"
+  ),
+  description = c(
+    "<b>@type</b> of Step:<br><br>
+    <b>Qualifier</b>: All but the last step in the rule. Identify claims that meet the criteria for inspection. Claim is skipped if not met.<br><br>
+    <b>Terminator</b>: Final step, the result of which indicates a pass or fail. Claim is skipped if it passes. If it fails, the full claim information should be returned, along with the rationale for the failure.<br><br>", 
+    
+    "<b>@order</b> in which steps are validated. Certain steps must be ahead of others, for instance:<br><br>
+     Dates should always be first<br><br>
+     <b>@dos</b> should always be first if present, unless patient <b>@age</b> is required<br><br>
+     If <b>@age</b> is required, it should be first and calculated as the number of days from <b>@dob</b> to <b>@dos</b><br><br>", 
+    
+    "Claim element to evaluate", 
+    
+    "Valid <b>@variable</b> value, it's expected state", 
+    
+    "Type of <b>@operation</b> defined for validation:<br><br>
+    <b>Regex</b>: <b>grepl('^I10', icd) | grepl('^J[0-9]{5}', hcpcs)</b><br><br>
+    <b>Calculation</b>: <b>as.integer(dos - dob)</b><br><br>
+    <b>Comparison</b>: <b>x > y, x < y, x >= y, x <= y</b><br><br>
+    <b>Equality</b>: <b>x == y, identical(x, y)</b><br><br>
+    <b>Presence</b>: <b>!is.na(x)</b><br><br>", 
+    
+    "Functional R code to call based on <b>@operation</b> selected", 
+    
+    "Message to report if final <b>@terminator</b> step is not met"
+  )) |> 
+  gt(rowname_col = "name") |>
+    cols_align(align = "left") |>
+    opt_table_font(font = google_font(name = "Roboto")) |>
+    tab_style(
+      style = cell_text(
+        align = "right",
+        v_align = "top",
+        weight = "bold",
+        size = px(16),
+        whitespace = "break-spaces",
+        transform = "lowercase",
+        font = google_font(name = "JetBrains Mono")),
+      locations = cells_stub()) |>
+    tab_style(
+      style = cell_text(
+        align = "left",
+        v_align = "top",
+        weight = "normal",
+        font = google_font(name = "Roboto Mono")),
+      locations = cells_body(columns = c(description))) |>
+    opt_stylize(add_row_striping = TRUE) |>
+  opt_vertical_padding(scale = 0.35) |> 
+  fmt_markdown() |> 
+  tab_options(column_labels.hidden = TRUE,
+              table.width = pct(50),
+              quarto.disable_processing = TRUE)
+```
 
       
   - `variable` classes:
@@ -89,66 +200,86 @@ source(here("posts/rules/scripts", "load.R"))
         - type: Institutional (`ub04`), Professional (`1500`)
      
 
-## S7 Class
+## S7 Classes
+
+**Patient** Class:
 
 ```{r}
-#| label: s7_class
-#| echo: false
-#| eval: false
+#| label: s7_class_patient
+#| echo: true
+#| eval: true
 #| message: false
 #| warning: false
 
-Sys.Date() - (as.duration(years(21)) / ddays(1))
-
-encounter <- S7::new_class(
-  name = "encounter",
-  package = "cruler",
-  properties = list(
-    dos = S7::class_Date,
-    pos = S7::class_character,
-    referring = S7::class_character,
-    rendering = S7::class_character
-    )
-  )
-
-
 patient <- S7::new_class(
   name = "patient",
-  package = "cruler",
+  package = "crules",
   properties = list(
-    dob = S7::class_Date,
     sex = S7::class_character,
+    dos = S7::new_property(
+      class = S7::class_Date,
+      default = Sys.Date(),
+      setter = function(self, value) {
+        self@dos <- as.Date(value)
+        self
+      }),
+    dob = S7::new_property(
+      class = S7::class_Date,
+      setter = function(self, value) {
+        self@dob <- as.Date(value)
+        self
+      }),
     age = S7::new_property(
       class = S7::class_integer, 
       getter = function(self) {
-        as.integer(Sys.Date() - self@dob)
+        as.integer(self@dos - self@dob)
       })
-    )
-  )
+    ),
+  validator = function(self) {
+    if (length(self@sex) != 1)                       return("@sex must be length 1")
+    if (!self@sex %in% c("Male", "Female", "Other")) return("@sex must be Male, Female, or Other")
+    if (length(self@dos) != 1)                       return("@dos must be length 1")
+    if (length(self@dob) != 1)                       return("@dob must be length 1")
+    if (length(self@age) != 1)                       return("@age must be length 1")
+    if (self@dob >= self@dos)                        return("@dob must be before @dos")
+    if (self@age <= 0)                               return("@age must be greater than 0 days")
+  }
+)
 
-patient(dob = as.Date("2003-09-04"), sex = "Male")
+patient
+
+patient(dob = "2024-08-03", 
+        dos = "2024-08-04", 
+        sex = "Male")
+
+pt_one <- patient(
+  dob = "2024-08-03", 
+  dos = "2024-08-04", 
+  sex = "Male")
+
+pt_one@dob <- "2021-07-31"
+
+pt_one
+```
+
+**Payer** Class:
+
+```{r}
+#| label: s7_class_payer
+#| echo: true
+#| eval: true
+#| message: false
+#| warning: false
 
 payer <- S7::new_class(
   name = "payer",
-  package = "cruler",
+  package = "crules",
   properties = list(
-    hierarchy = S7::new_property(
-      class = S7::class_character, 
-      default = c("Primary", "Secondary", "Tertiary"),
-      setter = function(self, value) {
-        self@hierarchy = match.arg(value, c("Primary", "Secondary", "Tertiary"))
-        self
-      }),
     name = S7::class_character,
-    state = S7::new_property(
-      class = S7::class_character, 
-      default = state.abb,
-      setter = function(self, value) {
-        self@state = match.arg(value, state.abb)
-        self
-      }),
+    state = S7::class_character,
+    hierarchy = S7::class_character,
     classification = S7::new_property(
-      class = S7::class_character, 
+      class = S7::class_character,
       getter = function(self) {
         dplyr::case_match(
           self@name,
@@ -156,46 +287,106 @@ payer <- S7::new_class(
           "Medicaid" ~ "Medicaid",
           "Medicare" ~ "Medicare",
           "Patient" ~ "Self-Pay",
-          .default = "Other"
-          )
-      }
-    )#,
-  #   validator = function(self) {
-  #   if (length(self@hierarchy) != 1) return("@hierarchy must be length 1")
-  #   if (length(self@name) != 1) return("@name must be length 1")
-  #   if (!missing(self@state)) {
-  #     if (length(self@state) != 1) return("@state must be length 1")
-  #     if (nchar(self@state) != 2) return("@state must be 2 characters")
-  #     if (!self@state %in% state.abb) return("@state must be a valid abbreviation")
-  #   }
-  # }
-  )
+          .default = "Other")
+      })
+    ),
+    validator = function(self) {
+    if (length(self@name) != 1)       return("@name must be length 1")
+    if (length(self@hierarchy) != 1)  return("@hierarchy must be length 1")
+   }
 )
 
-payer()
+payer(name = "BCBS", 
+      hierarchy = "Primary", 
+      state = "TX")
 
-bcbcs_ex <- payer("Primary", "BCBS", "TX")
+bcbcs_tx <- payer(
+  name = "BCBS", 
+  hierarchy = "Primary", 
+  state = "TX")
 
-bcbcs_ex@hierarchy
-bcbcs_ex@classification
-bcbcs_ex@state
+bcbcs_tx
 
+bcbcs_tx@name <- "Medicaid"
+
+bcbcs_tx
+```
+
+
+**Encounter** Class:
+
+```{r}
+#| label: s7_class_encounter
+#| echo: true
+#| eval: true
+#| message: false
+#| warning: false
+
+encounter <- S7::new_class(
+  name = "encounter",
+  package = "crules",
+  properties = list(
+    pos = S7::class_character,
+    referring = S7::class_character,
+    rendering = S7::class_character,
+    patient = S7::new_property(class = patient),
+    payer = S7::new_property(class = payer)
+    )
+  )
+
+encounter(
+  pos = "11", 
+  referring = "1234567890", 
+  rendering = "0987654321",
+  patient(
+    dob = "2020-08-04", 
+    dos = "2024-08-04", 
+    sex = "Male"
+  ),
+  payer(
+    name = "BCBS", 
+    hierarchy = "Primary", 
+    state = "TX")
+)
+```
+
+**Step** Class:
+
+```{r}
+#| label: s7_class_step
+#| echo: true
+#| eval: true
+#| message: false
+#| warning: false
 step <- S7::new_class(
   name = "step",
-  package = "crule",
+  package = "crules",
   properties = list(
     order = S7::class_integer,
-    element = element,
+    variable = S7::class_character,
     value = S7::new_property(class = S7::class_any)
     ),
   validator = function(self) {
-    if (length(self@order) != 1)    {"@order must be length 1"}
-    if (length(self@variable) != 1) {"@variable must be length 1"}
+    if (length(self@order) != 1)    return("@order must be length 1")
+    if (length(self@variable) != 1) return("@variable must be length 1")
   })
 
+step(order = 1L, 
+     variable = "dos", 
+     value = "2024-08-04")
+```
+
+**Rule** Class:
+
+```{r}
+#| label: s7_class_rule
+#| echo: true
+#| eval: false
+#| message: false
+#| warning: false
 rule <- S7::new_class(
   name = "rule",
-  package = "crule",
+  package = "crules",
   properties = list(
     index = S7::class_integer,
     identifier = S7::class_character,
@@ -204,17 +395,9 @@ rule <- S7::new_class(
     rationale = S7::class_character,
     alert = S7::class_character,
     timestamp = S7::new_property(class = S7::class_Date, default = Sys.Date()),
-    steps = step
+    steps = S7::new_property(class = step)
     )
   )
-
-step
-
-step()
-
-rule
-
-rule()
 
 
 hcpcs_exp <- rule(
@@ -251,7 +434,7 @@ dos_var@condition("2020-01-01")
 
 ```{r}
 #| label: qualify
-#| echo: false
+#| echo: true
 #| eval: false
 #| message: true
 #| warning: true
@@ -359,14 +542,16 @@ print_desc(1000)
 
 Need to define `instruction`/`suggestion` variable, taken from `rationale`
 
+## Descriptors
 
 ```{r}
 #| label: descriptors_gt
 #| echo: false
-#| eval: false
+#| eval: true
 #| message: false
 #| warning: false
 descriptors |>
+  slice_sample(n = 10) |>
   gt() |> 
   gtExtras::gt_merge_stack(
     col1 = "category",
@@ -378,26 +563,28 @@ descriptors |>
   )
 ```
 
+## Definitions
+
 ```{r}
-#| label: sample
+#| label: definitions_gt
 #| echo: false
-#| eval: false
+#| eval: true
 #| message: false
 #| warning: false
-descriptors |>
-  slice_sample(n = 15) |> 
+cleaned_definitions |>
+  slice_sample(n = 10) |> 
   mutate(
-    category = str_wrap(category, width = 50),
+    # category = str_wrap(category, width = 50),
     definition = str_replace_all(definition, " AND ", "<br><br><b>&&</b><br><br>") |>
       str_wrap(width = 60),
     definition = str_replace_all(definition, " OR ", "<br><br><b>||</b><br><br>") |>
       str_wrap(width = 60),
     definition = str_remove_all(definition, regex("\\s*\\(\\s*\\d+\\s*\\)\\s*")) |>
       str_wrap(width = 60),
-    definition = str_squish(definition),
-    rationale = str_wrap(rationale, width = 50)) |>
-  select(-source, -index) |> 
-  gt(rowname_col = "identifier",
+    definition = str_squish(definition)
+    # rationale = str_wrap(rationale, width = 50)
+    ) |>
+  gt(rowname_col = "number",
      row_group_as_column = TRUE) |>
   fmt_markdown(columns = c("definition")) |>
   cols_align(align = "left", columns = -c(number)) |>
@@ -421,19 +608,19 @@ descriptors |>
         font = google_font(name = "Roboto Condensed")),
       locations = cells_body(columns = c(number))) |>
   sub_missing(missing_text = "NO CATEGORY") |>
-  gtExtras::gt_add_divider(
-    columns = "category", 
-    style = "solid",
-    weight = "3px",
-    color = "royalblue") |>  
-  gtExtras::gt_merge_stack(
-    col1 = "category",
-    col2 = "rationale",
-    font_size = c("17px", "16px"),
-    palette = c("darkgreen", "royalblue"),
-    font_weight = c("bold", "normal"),
-    small_cap = FALSE
-  ) |> 
+  # gtExtras::gt_add_divider(
+  #   columns = "category", 
+  #   style = "solid",
+  #   weight = "3px",
+  #   color = "royalblue") |>  
+  # gtExtras::gt_merge_stack(
+  #   col1 = "category",
+  #   col2 = "rationale",
+  #   font_size = c("17px", "16px"),
+  #   palette = c("darkgreen", "royalblue"),
+  #   font_weight = c("bold", "normal"),
+  #   small_cap = FALSE
+  # ) |> 
   tab_style(
     style = cell_text(
       v_align = "middle", 
@@ -449,7 +636,7 @@ descriptors |>
       ),
     locations = cells_stub()) |> 
   opt_stylize(add_row_striping = TRUE) |>
-  tab_options(table.width = pct(85),
+  tab_options(table.width = pct(50),
               quarto.disable_processing = TRUE)
 ```
 
