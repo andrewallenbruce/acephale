@@ -44,7 +44,8 @@ cleaned_definitions <- read_csv(
       gsub("@ub04\\sis\\s\\[FALSE\\]|@ub04\\sis\\sFALSE|@ub04\\sis\\snot\\s\\[TRUE\\]", "@claim is not [UB04]", definition, ignore.case = TRUE),
       definition)
     ) |>
-  pos_name_to_code(definition) |>
+  pos_to_code(definition) |>
+  # pos_name_to_code(definition) |>
   mutate(
     definition = str_remove_all(definition, regex("\\(|\\)")),
     definition = str_replace_all(definition, regex("\\[\\s"), "["),

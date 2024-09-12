@@ -1,40 +1,9 @@
 r"[nav\to\file\path.ext]"
 
-
 ## Years/Months to Days Functions ####
-Sys.Date() - (as.duration(years(21)) / ddays(1))
+lubridate::as.duration(lubridate::years(21)) / lubridate::ddays(1)
 
-brackets <- function(x, y) {
-  paste0(r"--{[}--", x, r"--{]}--")
-}
-
-parentheses <- function(x, y) {
-  paste0(r"--{(}--", x, r"--{)}--")
-}
-
-arrows <- function(x, y) {
-  paste0(r"--{<}--", x, r"--{>}--")
-}
-
-br("x")
-
-keywords <- function(x) {
-
-  keys <- c(
-    "hcpcs", "unit", "mod_1", "mod_2", "mod_3", "mod_3", "pos",
-    "pos_type", "dos", "age", "sex", "icd", "ndc", "rev", "claim",
-    "referring", "rendering", "credential",
-    "primary_name", "secondary_name", "tertiary_name",
-    "primary_class", "secondary_class", "tertiary_class",
-    "primary_state", "secondary_state", "tertiary_state"
-               )
-
-  if (grepl(paste0(keys, collapse = "|"), x)) {
-    return(paste0(r"--(@)--", x))
-    }
-}
-
-keywords("hcpcs")
+Sys.Date() - lubridate::as.duration(lubridate::years(21)) / lubridate::ddays(1)
 
 fuimus::construct_regex(c('90476', '90477', '905', '906', '9071', '9072', '9073', '9074', '9075', '913'))
 
@@ -45,6 +14,13 @@ hcpcs <- northstar::search_descriptions() |>
     type = hcpcs_desc_type,
     description = hcpcs_description) |>
   distinct(hcpcs)
+
+hcpcs |>
+  mutate(char_1 = substr(hcpcs, 1, 1),
+         char_12 = substr(hcpcs, 1, 2),
+         char_123 = substr(hcpcs, 1, 3)) |>
+  count(char_1, char_12, char_123, sort = TRUE) |>
+  print(n = 300)
 
 c(
   "^[9][0][4][7][67]$"     = '^9047[67]$|^90[56]\\d+$|^907[1-5]\\d+$|^913[01]\\d+$',
@@ -57,7 +33,7 @@ x <- c(hcpcs = c('9071', '9072', '9073', '9074', '9075'))
 
 
 
-collapse::vlengths(x, use.names = TRUE)
+collapse::vlengths(x, use.names = FALSE)
 
 
 # regex method
@@ -72,11 +48,15 @@ vctrs::vec_slice(
 x <- "S"
 x <- c('904', '905', '906', '907', '913')
 
-vctrs::vec_slice(
-  hcpcs,
-  stringfish::sf_substr(
-    hcpcs$hcpcs, 1,
-    collapse::fmin(stringfish::sf_nchar(x))) %in% x)
+bench::mark(
+  iterations = 1000,
+  substr = vctrs::vec_slice(hcpcs, stringfish::sf_substr(hcpcs$hcpcs, 1, collapse::fmin(stringfish::sf_nchar(x))) %in% x),
+  regex = vctrs::vec_slice(hcpcs, stringfish::sf_grepl(hcpcs$hcpcs, "^(90[4567][0-9]{2}|913[0-9]{2})$"))
+)
+# Regex is the clear winner
+#  expression  min     median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time
+#  1 substr    1.39ms  1.76ms  542.     444.6KB    5.47    990    10   1.83s
+#  2 regex     1.58ms  1.82ms  519.     75.3KB     0.520   999     1   1.92s
 
 
 "<[^>]+>" # Find any HTML tag
@@ -111,7 +91,7 @@ stringr::str_extract_all(keyword_txt, keyword_reg)[[1]]
 
 gsub(paren_reg, "[XXXXX]", paren_txt)
 
-glob2rx("[J*]")
+glob2rx("J*")
 
 srchcol <- function(df, col, search, ignore = TRUE, ...) {
 
@@ -165,6 +145,7 @@ uniq_nona <- \(x) collapse::funique(collapse::na_rm(x))
 x <- c(
   "0",
   "1",
+  "1",
   "2",
   "3",
   "4",
@@ -211,15 +192,51 @@ x <- c(
   "92019"
 )
 
-ln <- collapse::vlengths(x)
+glue::as_glue(x)
 
-data.frame(
-  x = x,
-  ln = ln
-) |>
-  group_by(ln) |>
-  nest() |>
-  collapse::rsplit(~ ln)
+
+
+
+"^([012345678ABCEGHJKLMPQR][0-9A-Z]{4,4})$|^(9[01345678][0-9A-Z]{3,3})$|^(92[123456789][0-9A-Z]{2,2})$|^(920[2678][0-9A-Z]{1,1})|^(9201[589])$"
+
+vctrs::vec_slice(
+  hcpcs, stringfish::sf_grepl(hcpcs$hcpcs, "^[012345678ABCEGHJKLMPQR][0-9A-Z]{4,4}$")) # 16874
+vctrs::vec_slice(
+  hcpcs, stringfish::sf_grepl(hcpcs$hcpcs, "^9[01345678][0-9A-Z]{3,3}$")) # 802
+vctrs::vec_slice(
+  hcpcs, stringfish::sf_grepl(hcpcs$hcpcs, "^92[123456789][0-9A-Z]{2,2}$")) # 172
+vctrs::vec_slice(
+  hcpcs, stringfish::sf_grepl(hcpcs$hcpcs, "^920[2678][0-9A-Z]{1,1}$")) # 10
+vctrs::vec_slice(
+  hcpcs, stringfish::sf_grepl(hcpcs$hcpcs, "^9201[589]$")) # 3
+
+sum(16874, 802, 172, 10, 3) # 17861
+
+
+# 17861
+
+
+
+bench::mark(
+  iterations = 10000,
+  regular = vctrs::vec_slice(hcpcs, stringfish::sf_grepl(hcpcs$hcpcs, "^([012345678ABCEGHJKLMPQR][0-9A-Z]{4,4})$|^(9[01345678][0-9A-Z]{3,3})$|^(92[123456789][0-9A-Z]{2,2})$|^(920[2678][0-9A-Z]{1,1})|^(9201[589])$")),
+  hyphen_1dig_post = vctrs::vec_slice(hcpcs, stringfish::sf_grepl(hcpcs$hcpcs, "^([0-8A-CEGHJ-MP-R][0-9A-Z]{4})$|^(9[013-8][0-9A-Z]{3})$|^(92[1-9][0-9A-Z]{2})$|^(920[26-8][0-9A-Z]{1})|^(9201[589])$"))
+)
+
+#   expression      min median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time
+# 1 regular      3.29ms 3.81ms      257.     283KB     1.42  9945    55      38.7s
+# 2 hyphen       3.23ms 3.77ms      258.     283KB     1.46  9944    56      38.5s
+# 2 hyp_1d_post  3.13ms 3.57ms      279.     283KB     1.57  9944    56      35.6s
+
+
+
+# data.frame(
+#   x = x,
+#   ln = ln
+# ) |>
+#   group_by(ln) |>
+#   nest() |>
+#   collapse::rsplit(~ ln)
 
 
 #   str_split_fixed("", n = 5) |>

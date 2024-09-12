@@ -170,13 +170,13 @@ dplyr::tibble(
     style = cell_text(
       align = "left",
       weight = "bold",
-      font = google_font(name = "JetBrains Mono")),
+      font = google_font(name = "Roboto Mono")),
     locations = cells_title()) |>
   opt_stylize(add_row_striping = TRUE) |>
   opt_vertical_padding(scale = 0.35) |> 
   fmt_markdown() |> 
   tab_options(column_labels.hidden = TRUE,
-              table.width = pct(60),
+              table.width = pct(70),
               quarto.disable_processing = TRUE)
 ```
 
@@ -188,11 +188,13 @@ dplyr::tibble(
      - `name`: BCBS, Medicaid, etc.
      - `state`: State Abbreviation (optional)
    - **`provider`**
-     - `role`: Rendering, Referring
+     - `npi`: National Provider Identifier
+     - `taxonomy`: Taxonomy Code
      - `credential`: MD, DO, etc.
+     - `role`: Rendering, Referring, Supervising, Ordering
    - **`procedure`**
-     - `hcpcs`: HCPCS Code
-     - `mod_1`: Modifier 1
+     - `hcpcs`: HCPCS Code: `^[A-CEGHJ-MP-V0-9][0-9]{3,3}[AFMTU0-9]$`
+     - `mod_1`: Modifier 1: `^[A-HJ-NP-VXZ1-9][0-9A-Z]$`
      - `mod_2`: Modifier 2
      - `mod_3`: Modifier 3
      - `mod_4`: Modifier 4
@@ -200,10 +202,14 @@ dplyr::tibble(
      - `ndc`: National Drug Code
      - `rev_code`: Revenue Code
    - **`pos`**: Place of Service
-     - `code`: 02, 11, etc.
+     - `code`: 02, 11, etc. `^[0-9]{2}$`
      - `type`: **Facility** or **Non-Facility**
      - `description`: Hospital, Clinic, etc.
-     - `claim`: `ub04` (Institutional) or `1500` (Professional)
+     - `claim`: 
+        -  **Institutional**: Facility
+           - `(ub04|1450|cms-1450)`
+        -  **Professional**: Non-Facility
+           - `(hcfa|1500|cms-1500)`
    - **`patient`**:
      - `dos`: Date of Service
      - `dob`: Date of Birth

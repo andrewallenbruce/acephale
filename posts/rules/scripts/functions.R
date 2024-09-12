@@ -1,51 +1,39 @@
 # Functions ####
-
 head_tail <- function(x, n = 5, by = NULL) {
   dplyr::bind_rows(
     dplyr::slice_head(x, n = n, by = dplyr::all_of(by)),
     dplyr::slice_tail(x, n = n, by = dplyr::all_of(by)))
 }
 
-deparse_substitute <- \(x) {
-  deparse(substitute(x))
-}
+deparse_substitute <- \(x) deparse(substitute(x))
 
-mask <- function(data, expr) {
-  rlang::eval_tidy(rlang::enquo(expr), data)
-}
+mask <- \(data, expr) rlang::eval_tidy(rlang::enquo(expr), data)
 
-mtcars |> mask(mpg * 20)
+# mtcars |> mask(mpg * 20)
 
 # REGEX FUNCTIONS ####
-known_patterns <- c("[0-9]", "[A-Z]", "[[:punct:]]")
+known_patterns <- c("[0-9]", "[A-Za-z]", "[[:punct:]]")
 
 split_by_length <- \(x) split(x, nchar(x))
 
-escape_regex <-\(x) gsub(".", "\\.", x, fixed = TRUE)
+escape_period <- \(x) gsub(".", "\\.", x, fixed = TRUE)
 
 find_common_substrings <- \(s, tolerance = 0.95, missing = "#") {
+  s <- splits
 
   df <- t(
     as.data.frame(
-      purrr::map(s, ~strsplit(.x, NULL)[[1]])))
+      purrr::map(s, ~strsplit(.x, "")[[1]])
+      )
+    )
 
-  most_matching <- apply(
-    df, 2,
-    \(x) names(which.max(table(x))))
+  most_matching <- apply(df, 2, \(x) names(which.max(table(x))))
 
-  prop_matching <- sapply(
-    seq_len(ncol(df)),
-    \(x) sum(df[ , x] == most_matching[x]) / nrow(df))
+  prop_matching <- sapply(seq_len(ncol(df)), \(x) sum(df[ , x] == most_matching[x]) / nrow(df))
 
   exact_matches <- prop_matching >= tolerance
 
-  paste0(
-    ifelse(
-      exact_matches,
-      most_matching,
-      missing
-      ),
-    collapse = "")
+  paste0(ifelse(exact_matches, most_matching, missing), collapse = "")
 
 }
 
@@ -68,9 +56,9 @@ detect_pattern <- function(s, ...) {
     best_pat[symbol] <- known_patterns[which.max(pat)]
   }
 
-  detected_pattern <- escape_regex(paste0(ifelse(charvec == missing_char, best_pat, charvec), collapse = ""))
+  detected_pattern <- escape_period(paste0(ifelse(charvec == missing_char, best_pat, charvec), collapse = ""))
 
-  return(detected_pattern)
+  detected_pattern
 
 }
 
@@ -102,7 +90,11 @@ categorise_regex <- function(strings, tolerance = 0.95) {
           format(length(unlist(purrr::map(result, "matches"))) / (
             length(unlist(purrr::map(result, "nonmatches"))) + length(unlist(purrr::map(result, "matches")))), digits = 3),
           "% ) strings **\n")
-  purrr::walk2(result, names(result), ~{
+
+  purrr::walk2(
+    result,
+    names(result),
+    ~{
     n_match <- length(.x$matches)
     n_nonmatch <- length(.x$nonmatch)
     n_results <- n_match + n_nonmatch
@@ -114,6 +106,7 @@ categorise_regex <- function(strings, tolerance = 0.95) {
   })
 
   return(invisible(result))
+
 }
 
 #####################
@@ -186,16 +179,78 @@ print_list <- function(x, pre = "") {
   invisible(x)
 }
 
+# pos_expr <- northstar::search_pos() |>
+#   reframe(name = toupper(pos_name) |> str_replace_all("PATIENT’S", "PATIENT"),
+#           pos = pos_code) |>
+#   filter(name != "UNASSIGNED") |>
+#   mutate(expr = glue::glue('"{{ col }}" := stringfish::sf_gsub({{ col }}, "<<name>>", "<<pos>>", nthreads = getOption("stringfish.nthreads", 4L))', .sep = ", ", .open = "<<", .close = ">>")) |>
+#   pull(expr)
+#
+# glue::glue('dplyr::mutate(
+# {glue::glue_collapse(pos_expr, last = "", sep = ",\n")})')
 
-pos_expr <- northstar::search_pos() |>
-  reframe(name = toupper(pos_name) |> str_replace_all("PATIENT’S", "PATIENT"),
-          pos = pos_code) |>
-  filter(name != "UNASSIGNED") |>
-  mutate(expr = glue::glue('definition = str_replace_all(definition, "{name}", "{pos}"), ')) |>
-  pull(expr)
 #
 # pos_expr |>
 #   cat(sep = "\n")
+
+pos_to_code <- \(df, col) {
+  dplyr::mutate(
+    df,
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "PHARMACY", "01", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "TELEHEALTH PROVIDED OTHER THAN IN PATIENT HOME|TELEHEALTH PROVIDED OTHER THAN IN PT HOME|TELEHEALTH PROVIDED OTHER THAN PT HOME", "02", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "SCHOOL", "03", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "HOMELESS SHELTER", "04", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "INDIAN HEALTH SERVICE FREE-STANDING FACILITY|INDIAN HEALTH SERVICE - FREE-SANDNG", "05", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "INDIAN HEALTH SERVICE PROVIDER-BASED FACILITY|INDIAN HEALTH SERVICE - PROVIDER-BASED", "06", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "TRIBAL 638 FREE-STANDING FACILITY|TRIBAL 638 FREE-SANDNG FACILITY", "07", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "TRIBAL 638 PROVIDER-BASED FACILITY|TRIBAL 638 PROVIDER-BASED", "08", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "PRISON/CORRECTIONAL FACILITY", "09", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "TELEHEALTH PROVIDED IN PATIENT HOME", "10", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "OFFICE", "11", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "HOME", "12", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "ASSISTED LIVING FACILITY", "13", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "GROUP HOME", "14", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "MOBILE UNIT", "15", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "TEMPORARY LODGING", "16", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "WALK-IN RETAIL HEALTH CLINIC", "17", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "PLACE OF EMPLOYMENT/WORKSITE", "18", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "OFF CAMPUS-OUTPATIENT HOSPITAL", "19", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "URGENT CARE FACILITY", "20", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "INPATIENT HOSPITAL", "21", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "ON CAMPUS-OUTPATIENT HOSPITAL", "22", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "EMERGENCY ROOM-HOSPITAL|EMERGENCY ROOM - HOSPITAL", "23", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "AMBULATORY SURGICAL CENTER", "24", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "BIRTHING CENTER", "25", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "MILITARY TREATMENT FACILITY", "26", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "OUTREACH SITE/STREET", "27", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "SKILLED NURSING FACILITY", "31", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "NURSING FACILITY", "32", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "CUSTODIAL CARE FACILITY", "33", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "HOSPICE", "34", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "AMBULANCE-LAND", "41", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "AMBULANCE-AIR OR WATER", "42", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "INDEPENDENT CLINIC", "49", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "FEDERALLY QUALIFIED HEALTH CENTER", "50", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "INPATIENT PSYCHIATRIC FACILITY", "51", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "PSYCHIATRIC FACILITY-PARTIAL HOSPITALIZATION|PSYCHIATRIC FACILITY - PARTIAL HOSPITALIZATION", "52", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "COMMUNITY MENTAL HEALTH CENTER", "53", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "INTERMEDIATE CARE FACILITY/INDIVIDUALS WITH INTELLECTUAL DISABILITIES", "54", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "RESIDENTIAL SUBSTANCE ABUSE TREATMENT FACILITY", "55", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "PSYCHIATRIC RESIDENTIAL TREATMENT CENTER", "56", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "NON-RESIDENTIAL SUBSTANCE ABUSE TREATMENT FACILITY|NON-RESIDENTIAL SUBSTANCE ABUSE FACILITY", "57", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "NON-RESIDENTIAL OPIOID TREATMENT FACILITY", "58", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "MASS IMMUNIZATION CENTER", "60", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "COMPREHENSIVE INPATIENT REHABILITATION FACILITY", "61", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "COMPREHENSIVE OUTPATIENT REHABILITATION FACILITY", "62", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "END-STAGE RENAL DISEASE TREATMENT FACILITY|END STAGE RENAL DISEASE TREATMENT FACILITY", "65", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "PROGRAMS OF ALL-INCLUSIVE CARE FOR THE ELDERLY (PACE) CENTER", "66", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "STATE OR LOCAL PUBLIC HEALTH CLINIC", "71", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "RURAL HEALTH", "72", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "INDEPENDENT LABORATORY", "81", nthreads = getOption("stringfish.nthreads", 4L)),
+    "{{ col }}" := stringfish::sf_gsub({{ col }}, "OTHER PLACE OF SERVICE", "99", nthreads = getOption("stringfish.nthreads", 4L))
+  )
+}
+
 
 pos_name_to_code <- \(df, col) {
   dplyr::mutate(
@@ -264,6 +319,34 @@ str_vector <- function(x, qchar = c("single", "double")) {
   )
 }
 
+bracks <- \(x) paste0(r"--{[}--", x, r"--{]}--")
+
+parens <- \(x) paste0(r"--{(}--", x, r"--{)}--")
+
+arrows <- \(x) paste0(r"--{<}--", x, r"--{>}--")
+
+bracks("x")
+
+keywords <- function(x) {
+
+  keys <- c(
+    "hcpcs", "unit", "mod_1", "mod_2", "mod_3", "mod_3", "pos",
+    "pos", "dos", "age", "sex", "icd", "ndc", "rev", "claim",
+    "referring", "rendering", "credential",
+    "primary_name", "secondary_name", "tertiary_name",
+    "primary_class", "secondary_class", "tertiary_class",
+    "primary_state", "secondary_state", "tertiary_state"
+  )
+
+  if (grepl(paste0(keys, collapse = "|"), x)) {
+    return(
+      paste0(r"--(@)--", x)
+      )
+  }
+}
+
+keywords("hcpcs")
+
 glue_bracket <- \(x) glue::glue("[{x}]")
 
 glue_parens <- \(x) glue::glue("({x})")
@@ -304,3 +387,88 @@ time_format <- function(secs) {
     }, secs)
   }
 }
+
+hcpcs_to_regex <- \(x) {
+
+  uq_rm_na <- \(x) collapse::funique(collapse::na_rm(x))
+
+  split_by_length <- \(x) split(x, nchar(x))
+
+  postfix <- \(x) {
+    d <- 5 - collapse::fmax(collapse::vlengths(x))
+    if (d > 0 & d < 5) glue::glue("[0-9A-Z]{<<d>>,<<d>>}", .open = "<<", .close = ">>")
+    else NA_character_
+  }
+
+  process_split <- \(split, post) {
+
+    len <- collapse::vlengths(split)
+
+    if (collapse::allv(len,  1)) {
+
+      pre <- glue::glue_collapse(split)
+      return(glue::glue("[<<pre>>]", .open = "<<", .close = ">>") + post)
+
+    }
+
+    if (collapse::allv(len,  2)) {
+
+      pre <- uq_rm_na(stringfish::sf_substr(split, 1, 1))
+      mid <- glue::glue_collapse(uq_rm_na(stringfish::sf_substr(split, 2, 2)))
+      return(glue::glue("<<pre>>[<<mid>>]", .open = "<<", .close = ">>") + post)
+
+    }
+
+    if (collapse::allv(len,  3)) {
+
+      pre <- uq_rm_na(stringfish::sf_substr(split, 1, 2))
+      mid <- glue::glue_collapse(uq_rm_na(stringfish::sf_substr(split, 3, 3)))
+      return(glue::glue("<<pre>>[<<mid>>]", .open = "<<", .close = ">>") + post)
+
+    }
+
+    if (collapse::allv(len,  4)) {
+
+      pre <- uq_rm_na(stringfish::sf_substr(split, 1, 3))
+      mid <- glue::glue_collapse(uq_rm_na(stringfish::sf_substr(split, 4, 4)))
+      return(glue::glue("<<pre>>[<<mid>>]", .open = "<<", .close = ">>") + post)
+
+    }
+
+    if (collapse::allv(len,  5)) {
+
+      pre <- uq_rm_na(stringfish::sf_substr(split, 1, 4))
+      mid <- glue::glue_collapse(uq_rm_na(stringfish::sf_substr(split, 5, 5)))
+      return(glue::glue("<<pre>>[<<mid>>]", .open = "<<", .close = ">>"))
+
+    } else {
+
+      glue::glue("ERROR: <<split>>::<<post>>", .open = "<<", .close = ">>")
+
+    }
+  }
+
+  x <- gsub(" ", "", uq_rm_na(x))
+
+  split <- split_by_length(x)
+
+  post <- purrr::map_vec(split, postfix)
+
+  processed <- purrr::map2_vec(splits, post, process_split)
+
+  glue::glue_collapse(
+    glue::glue("^({processed})$"),
+    sep = "|")
+
+  # vctrs::vec_slice(
+  # hcpcs,
+  # stringfish::sf_grepl(
+  # hcpcs$hcpcs,
+  # "^9201[589]$"
+  # )
+  # )
+
+}
+
+
+# hcpcs_to_regex(x)
