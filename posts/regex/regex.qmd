@@ -1,0 +1,309 @@
+---
+title: "Vectors to Regex"
+subtitle: "Attempting A Functional Regex Translator"
+description: "Notes on building a regex translator from a vector of equal length strings to a regex pattern."
+format:
+  html:
+    reference-location: margin
+    other-links:
+      - text: Regex Cheatsheet
+        icon: bookmark-plus
+        href: https://github.com/raredd/regex
+      - text: RexEgg
+        icon: bookmark-plus
+        href: https://www.rexegg.com/
+      - text: Regex in R
+        icon: bookmark-plus
+        href: https://stat.ethz.ch/R-manual/R-devel/library/base/html/regex.html
+---
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+#| echo: false
+#| cache: false
+
+knitr::opts_chunk$set(
+  collapse  = FALSE,
+  echo      = TRUE, 
+  message   = FALSE, 
+  warning   = FALSE,
+  error     = TRUE,
+  comment   = "",
+  dpi       = 300, 
+  dev       = "ragg_png",
+  out.width = "100%",
+  fig.align = "center",
+  fig.width = 8
+)
+options(scipen = 999)
+library(tidyverse)
+library(rlang)
+library(cli)
+```
+
+
+# Links
+
+   - [Regex Cheatsheet](https://github.com/raredd/regex)
+   - [Learn Regex](https://github.com/ziishaned/learn-regex)
+   - [Evaluating strings as code](https://josiahparry.com/posts/2024-06-13-eval-strings)
+   - [Building rules from code operands](https://github.com/Permian-Global-Research/rsi)
+   - [Filter logic](https://github.com/atorus-research/ardis/blob/main/R/denom.R)
+   - [Regular-Expression.info](https://www.regular-expressions.info/tutorial.html)
+   - [RexEgg](https://www.rexegg.com/)
+   - [Regular Expressions as used in R](https://stat.ethz.ch/R-manual/R-devel/library/base/html/regex.html)
+   - [Debuggex](https://www.debuggex.com/)
+   
+
+# Packages
+
+   - [**textshape**](https://github.com/trinker/textshape)
+   - [**stringr.plus**](https://github.com/johncassil/stringr.plus)
+   - [**regexmagic**](https://github.com/jonocarroll/regexmagic)
+   - [**makeunique**](https://github.com/selkamand/makeunique)
+   - [**similiars**](https://github.com/davidsjoberg/similiars)
+   - [strex](https://github.com/rorynolan/strex/)
+   - [stringfish]()
+   - [collapse]()
+   - [kit]()
+   - [cheapr]()
+   - [stringi]()
+   - [qdapRegex](https://github.com/trinker/qdapRegex)
+
+# Functions
+
+   - [mark::globbing](https://github.com/jmbarbone/mark/blob/main/R/glob.R)
+   - [RUtil::make_unique_comb](https://github.com/raivokolde/RUtil/blob/master/Source/R/make_unique_comb.r)
+   - [mirmisc::longest_common_substring](https://github.com/mirvie/mirmisc/blob/main/R/utils.R)
+   - [hutils::longest prefix/suffix](https://github.com/HughParsonage/hutils/blob/master/R/longest_affix.R)
+   - [tidyext::combn_2_col](https://github.com/m-clark/tidyext/blob/master/R/combn_2_col.R)
+
+### Check Digit Calculation
+
+```{r}
+#| label: regex
+#| eval: false
+#| echo: true
+#' Construct regex patterns
+#'
+#' @param x `<chr>` vector
+#'
+#' @examples
+#' # construct_regex(search_descriptions()$hcpcs_code)
+#'
+#' # construct_regex(search_adjustments()$adj_code)
+#'
+#' # Incorrect output:
+#' "^[A-DM-PWY1-9][AIOR0-9]?[0-9]?{3}$"
+#'
+#' # Digits at the end should be:
+#' "^[A-DM-PWY1-9][AIOR0-9]?[0-9]{0,3}?$"
+#'
+#' # Test adj codes
+#' adj <- c("4", "CO", "P6", "100",
+#'          "B19", "MA22", "MA124", "N766")
+#'
+#' construct_regex(adj)
+#'
+#' @returns `<chr>` regex vector
+#'
+#' @autoglobal
+#'
+#' @export
+construct_regex <- function(x) {
+
+  uniq_nona <- \(x) collapse::funique(collapse::na_rm(x))
+
+  x <- gsub(" ", "", uniq_nona(x))
+
+  vecs <- stringr::str_split_fixed(
+    x, "",
+    n = max(
+      collapse::vlengths(x)
+    )
+  ) |>
+    as.data.frame() |>
+    purrr::map(na_if_common)
+
+  to_brackets <- vecs |>
+    purrr::map(uniq_nona) |>
+    purrr::map(pos_re)
+
+  qmark <- names(which(purrr::map_lgl(vecs, anyNA)))
+
+  to_vec <- to_brackets |>
+    purrr::map(id_runs)
+
+  nobrack <- which(stringr::str_detect(to_vec, "\\[|\\]", negate = TRUE))
+
+  to_vec[nobrack] <- purrr::map(to_vec[nobrack], \(x) paste0("[", x, "]"))
+
+  if (!vctrs::vec_is_empty(qmark)) {
+    to_vec[qmark] <- purrr::map(
+      to_vec[qmark], \(x) paste0(x, "?"))
+  }
+
+  to_vec <- purrr::list_c(to_vec)
+
+  if (collapse::any_duplicated(to_vec)) {
+
+    # TODO THIS MUST COME BEFORE APPLYING QUESTION MARKS
+    # probably need to vectorize this, will surely
+    # have more than one unique duplicate out of order
+
+    dupe_idx <- which(collapse::fduplicated(to_vec, all = TRUE))
+
+    rp <- paste0(to_vec[dupe_idx][1], "{", length(dupe_idx), "}")
+
+    to_vec[dupe_idx] <- rp
+
+    to_vec <- collapse::funique(to_vec)
+
+  }
+
+  x <- paste0("^", fuimus::collapser(to_vec), "$")
+
+  return(x)
+}
+
+#' Internal function for `construct_regex()`
+#'
+#' @param x `<chr>` vector
+#'
+#' @returns `<chr>` vector
+#'
+#' @autoglobal
+#'
+#' @noRd
+pos_re <- function(x) {
+
+  sorted   <- stringr::str_sort(x, numeric = TRUE)
+  alphabet <- purrr::list_c(strex::str_extract_non_numerics(sorted))
+  numbers  <- purrr::list_c(strex::str_extract_numbers(sorted))
+
+  paste0(
+    fuimus::collapser(alphabet),
+    fuimus::collapser(numbers)
+  )
+}
+
+#' Internal function for `construct_regex()`
+#'
+#' @param x `<chr>` vector
+#'
+#' @returns `<chr>` vector
+#'
+#' @autoglobal
+#'
+#' @noRd
+id_runs <- function(x) {
+
+  vec <- c(LETTERS, 0:9)
+
+  vec <- rlang::set_names(rep(0, length(vec)), vec)
+
+  test <- fuimus::splitter(x)
+
+  vecna <- vec[test]
+
+  vecna <- vecna[!is.na(vecna)]
+
+  vec[names(vecna)] <- 1
+
+  vec_group <- dplyr::tibble(
+    value = names(vec),
+    key = vec,
+    idx = 1:length(vec),
+    group = dplyr::consecutive_id(key)
+  ) |>
+    dplyr::mutate(
+      group_size = dplyr::n(),
+      .by = group
+    ) |>
+    dplyr::filter(
+      key == 1,
+      group_size >= 3
+    ) |>
+    dplyr::select(
+      value,
+      group
+    )
+
+  if (vctrs::vec_is_empty(vec_group)) return(x)
+
+  xgroups <- unname(
+    split(
+      vec_group,
+      vec_group$group
+    )
+  ) |>
+    purrr::map(
+      purrr::pluck("value")
+    ) |>
+    purrr::map(
+      paste0,
+      collapse = ""
+    ) |>
+    purrr::list_c()
+
+  replacements <- dplyr::left_join(
+    dplyr::slice_min(
+      vec_group,
+      by = group,
+      order_by = value
+    ) |>
+      dplyr::rename(start = value),
+    dplyr::slice_max(
+      vec_group,
+      by = group,
+      order_by = value
+    ) |>
+      dplyr::rename(end = value),
+    by = dplyr::join_by(group)
+  ) |>
+    glue::glue_data(
+      "{start}-{end}"
+    ) |>
+    as.vector()
+
+  res <- stringi::stri_replace_all_regex(
+    x,
+    xgroups,
+    replacements,
+    vectorize_all = FALSE)
+
+  paste0("[", res, "]")
+}
+
+#' Internal function for `construct_regex2()`
+#'
+#' @param x `<chr>` vector
+#'
+#' @returns `<chr>` vector
+#'
+#' @autoglobal
+#'
+#' @noRd
+pos_nchar <- function(x) {
+
+  ch <- range(collapse::vlengths(x))
+
+  ifelse(
+    ch[1] == ch[2],
+    paste0("{", ch[1], "}"),
+    paste0("{", ch[1], ",", ch[2], "}")
+  )
+
+}
+```
+
+
+
+{{< pagebreak >}}
+
+```{r}
+sessioninfo::session_info(pkgs = "loaded", info = "packages")
+```
+

@@ -219,7 +219,82 @@ dplyr::tibble(
 
 ## S7 Classes
 
-**Patient** Class:
+::: {.panel-tabset}
+
+## Step
+
+```{r}
+#| label: s7_class_step
+#| echo: true
+#| eval: true
+#| message: false
+#| warning: false
+step <- S7::new_class(
+  name = "step",
+  package = "crules",
+  properties = list(
+    order = S7::class_integer,
+    variable = S7::class_character,
+    value = S7::new_property(class = S7::class_any)
+    ),
+  validator = function(self) {
+    if (length(self@order) != 1)    return("@order must be length 1")
+    if (length(self@variable) != 1) return("@variable must be length 1")
+  })
+
+step(order = 1L, 
+     variable = "dos", 
+     value = "2024-08-04")
+```
+
+## Rule
+
+```{r}
+#| label: s7_class_rule
+#| echo: true
+#| eval: true
+#| message: false
+#| warning: false
+rule <- S7::new_class(
+  name = "rule",
+  package = "crules",
+  properties = list(
+    index = S7::class_numeric,
+    identifier = S7::class_character,
+    category = S7::class_character,
+    definition = S7::class_character,
+    rationale = S7::class_character,
+    alert = S7::class_character,
+    timestamp = S7::new_property(
+      class = S7::class_Date,
+      getter = function(self) clock::date_now(zone = "")),
+    steps = S7::class_list
+    )
+  )
+
+rule
+
+rule(
+  index = 1L,
+  identifier = "HCPCS:EXP:001",
+  category = "Invalid HCPCS",
+  definition = "<DOS> is after [2019-01-01] AND <HCPCS> is [43760]",
+  rationale = "Effective 2019-01-01, HCPCS 43760 is invalid",
+  alert = "See HCPCS [43762, 43763]"
+  # steps = c(
+  #   dos = step(order = 1L,
+  #              variable = "dos",
+  #              value = as.Date(c("2019-01-01", "2019-01-01"))),
+  #   hcpcs = step(order = 2L,
+  #                variable = "hcpcs",
+  #                value = c("43760"))
+  #   )
+  )
+```
+
+## Variable
+
+### Patient
 
 ```{r}
 #| label: s7_class_patient
@@ -231,6 +306,7 @@ dplyr::tibble(
 patient <- S7::new_class(
   name = "patient",
   package = "crules",
+  # parent = "step",
   properties = list(
     sex = S7::class_character,
     dos = S7::new_property(
@@ -279,7 +355,7 @@ pt_one@dob <- "2021-07-31"
 pt_one
 ```
 
-**Payer** Class:
+### Payer
 
 ```{r}
 #| label: s7_class_payer
@@ -330,7 +406,7 @@ bcbcs_tx
 ```
 
 
-**Encounter** Class:
+### Encounter
 
 ```{r}
 #| label: s7_class_encounter
@@ -351,7 +427,7 @@ encounter <- S7::new_class(
     )
   )
 
-encounter(
+enc <- encounter(
   pos = "11", 
   referring = "1234567890", 
   rendering = "0987654321",
@@ -363,95 +439,19 @@ encounter(
   payer(
     name = "BCBS", 
     hierarchy = "Primary", 
-    state = "TX")
-)
+    state = "TX"))
+
+enc@patient@dob <- "2023-07-31"
+
+enc
 ```
 
-**Step** Class:
-
-```{r}
-#| label: s7_class_step
-#| echo: true
-#| eval: true
-#| message: false
-#| warning: false
-step <- S7::new_class(
-  name = "step",
-  package = "crules",
-  properties = list(
-    order = S7::class_integer,
-    variable = S7::class_character,
-    value = S7::new_property(class = S7::class_any)
-    ),
-  validator = function(self) {
-    if (length(self@order) != 1)    return("@order must be length 1")
-    if (length(self@variable) != 1) return("@variable must be length 1")
-  })
-
-step(order = 1L, 
-     variable = "dos", 
-     value = "2024-08-04")
-```
-
-**Rule** Class:
-
-```{r}
-#| label: s7_class_rule
-#| echo: true
-#| eval: false
-#| message: false
-#| warning: false
-rule <- S7::new_class(
-  name = "rule",
-  package = "crules",
-  properties = list(
-    index = S7::class_integer,
-    identifier = S7::class_character,
-    category = S7::class_character,
-    definition = S7::class_character,
-    rationale = S7::class_character,
-    alert = S7::class_character,
-    timestamp = S7::new_property(class = S7::class_Date, default = Sys.Date()),
-    steps = S7::new_property(class = step)
-    )
-  )
-
-
-hcpcs_exp <- rule(
-  index = 1L,
-  identifier = "HCPCS:EXP:001",
-  category = "Invalid HCPCS",
-  definition = "<DOS> is after [2019-01-01] AND <HCPCS> is [43760]",
-  rationale = "Effective 2019-01-01, HCPCS 43760 is invalid",
-  alert = "See HCPCS [43762, 43763]",
-  steps = c(
-    dos = step(order = 1L,
-               variable = "dos",
-               value = as.Date(c("2019-01-01", "2019-01-01"))),
-    hcpcs = step(order = 2L,
-                 variable = "hcpcs",
-                 value = c("43760"))
-    )
-  )
-
-hcpcs_exp
-
-
-
-dos_var <- step(
-  order = 1L,
-  variable = "dos",
-  value = "2019-01-01"
-)
-
-dos_var@condition("2020-01-01")
-```
-
+::: 
 
 
 ```{r}
 #| label: qualify
-#| echo: true
+#| echo: false
 #| eval: false
 #| message: true
 #| warning: true
@@ -554,8 +554,8 @@ print_desc(1000)
 -   [X] `identifier`: Split letters/numbers, categorize Payer, State, etc.
 -   [ ] `category`: Categories make little sense, need to be reclassified
 -   [ ] `definition`: Define Variables, Logic, Remove Parentheses
--   [ ] `rationale`: Steps are detailed in the rationale that are missing from the ruleset
--   [X] `source`??: Extract urls from `category`
+-   [ ] `rationale`: Steps are detailed in the rationale that are missing from the rule set
+-   [X] `source`: *Optional*; Extract urls from `category`
 
 Need to define `instruction`/`suggestion` variable, taken from `rationale`
 

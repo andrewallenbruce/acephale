@@ -855,8 +855,8 @@ Next Multiple of Ten
 <span></span>
 <span><span class="fu">random_npi_generator</span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> [1] "1255615695" "1477461964" "1365987271" "2806926764" "2717405105"
- [6] "1696127188" "2911632560" "2148259863" "2525975845" "1728271659"</code></pre>
+<pre><code> [1] "2696494380" "2135388628" "1651223692" "1915226655" "2294191867"
+ [6] "1495806462" "1187483847" "1751828296" "2930032174" "2800126084"</code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
@@ -866,7 +866,7 @@ Next Multiple of Ten
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">/</span> <span class="va">n</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>, <span class="st">"%"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "10.048%"</code></pre>
+<pre><code>[1] "9.947%"</code></pre>
 </div>
 <div class="sourceCode" id="cb61"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="http://bench.r-lib.org/reference/mark.html">mark</a></span><span class="op">(</span></span>
 <span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map_lgl</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">is_valid_npi</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -875,17 +875,17 @@ Next Multiple of Ten
 <pre><code>Rows: 1
 Columns: 13
 $ expression &lt;bch:expr&gt; &lt;purrr::map_lgl(x, is_valid_npi)&gt;
-$ min        &lt;bch:tm&gt; 18.9s
-$ median     &lt;bch:tm&gt; 18.9s
-$ `itr/sec`  &lt;dbl&gt; 0.05282657
-$ mem_alloc  &lt;bch:byt&gt; 391KB
-$ `gc/sec`   &lt;dbl&gt; 7.923986
+$ min        &lt;bch:tm&gt; 21.9s
+$ median     &lt;bch:tm&gt; 21.9s
+$ `itr/sec`  &lt;dbl&gt; 0.04556892
+$ mem_alloc  &lt;bch:byt&gt; 2.38MB
+$ `gc/sec`   &lt;dbl&gt; 6.880907
 $ n_itr      &lt;int&gt; 1
-$ n_gc       &lt;dbl&gt; 150
-$ total_time &lt;bch:tm&gt; 18.9s
-$ result     &lt;list&gt; &lt;FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALS…
-$ memory     &lt;list&gt; [&lt;Rprofmem[11292 x 3]&gt;]
-$ time       &lt;list&gt; 18.9s
+$ n_gc       &lt;dbl&gt; 151
+$ total_time &lt;bch:tm&gt; 21.9s
+$ result     &lt;list&gt; &lt;FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, FALSE,…
+$ memory     &lt;list&gt; [&lt;Rprofmem[14588 x 3]&gt;]
+$ time       &lt;list&gt; 21.9s
 $ gc         &lt;list&gt; [&lt;tbl_df[1 x 3]&gt;]</code></pre>
 </div>
 </div>
@@ -903,7 +903,7 @@ $ gc         &lt;list&gt; [&lt;tbl_df[1 x 3]&gt;]</code></pre>
  collate  English_United States.utf8
  ctype    English_United States.utf8
  tz       America/Los_Angeles
- date     2024-09-12
+ date     2024-09-18
  pandoc   3.1.11 @ C:/Program Files/RStudio/resources/app/bin/quarto/bin/tools/ (via rmarkdown)
 
 ─ Packages ───────────────────────────────────────────────────────────────────
@@ -914,7 +914,7 @@ $ gc         &lt;list&gt; [&lt;tbl_df[1 x 3]&gt;]</code></pre>
    colorspace     2.1-1       2024-07-26 [1] CRAN (R 4.3.2)
    digest         0.6.37      2024-08-19 [1] CRAN (R 4.3.2)
    dplyr        * 1.1.4       2023-11-17 [1] CRAN (R 4.3.2)
-   evaluate       0.24.0      2024-06-10 [1] CRAN (R 4.3.2)
+   evaluate       1.0.0       2024-09-17 [1] CRAN (R 4.3.3)
    fansi          1.0.6       2023-12-08 [1] CRAN (R 4.3.2)
    fastmap        1.2.0       2024-05-15 [1] CRAN (R 4.3.2)
    forcats      * 1.0.0       2023-01-29 [1] CRAN (R 4.3.2)
@@ -936,9 +936,9 @@ $ gc         &lt;list&gt; [&lt;tbl_df[1 x 3]&gt;]</code></pre>
    profmem        0.6.0       2020-12-13 [1] CRAN (R 4.3.3)
    purrr        * 1.0.2       2023-08-10 [1] CRAN (R 4.3.2)
    R6             2.5.1       2021-08-19 [1] CRAN (R 4.3.2)
-   ragg           1.3.2       2024-05-15 [1] CRAN (R 4.3.2)
+   ragg           1.3.3       2024-09-11 [1] CRAN (R 4.3.2)
    Rcpp           1.0.13      2024-07-17 [1] CRAN (R 4.3.2)
- D RcppParallel   5.1.9       2024-08-19 [1] CRAN (R 4.3.2)
+ D RcppParallel   5.1.9       2024-08-19 [1] CRAN (R 4.3.3)
    readr        * 2.1.5       2024-01-10 [1] CRAN (R 4.3.2)
    rlang        * 1.1.4       2024-06-04 [1] CRAN (R 4.3.3)
    rmarkdown      2.28        2024-08-17 [1] CRAN (R 4.3.3)
