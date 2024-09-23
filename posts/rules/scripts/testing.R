@@ -101,37 +101,6 @@ srchcol <- function(df, col, search, ignore = TRUE, ...) {
       stringr::regex(search, ignore_case = ignore)))
 }
 
-# clean_combine |>
-#   pivot_longer(
-#     cols = c(definition, nested),
-#     names_to = "variable",
-#     values_to = "definition") |>
-#   filter(!is.na(definition)) |>
-#   select(number, nested) |>
-#   print(n = 200)
-#   separate_longer_delim(cols = definition, delim = " ( ") |>
-#   separate_longer_delim(cols = definition, delim = " ) ") |>
-#   separate_longer_delim(cols = definition, delim = " AND ") |>
-#   mutate(parentheses = str_extract_all(definition, regex("\\s*\\(\\s*\\d+\\s*\\)\\s*")),
-#     OR = str_detect(definition, fixed(" OR ")),
-#          PARA = str_detect(definition, regex("\\(\\s|\\s\\)")),
-#          definition = if_else(PARA, str_remove_all(definition, fixed(" )")), definition),
-#          definition = if_else(PARA|OR, glue_chr("<<--{definition}-->>"), definition),
-#          OR = NULL,
-#          PARA = NULL,
-#          definition = str_remove_all(definition, regex(r"{\(\d+\)}")),
-#          definition = str_remove_all(definition, regex(r"{\(\D+\)}")),
-#          definition = str_replace_all(definition, " ; ", ", "),
-#          definition = str_replace_all(definition, ";", ", "),
-#          definition = str_replace_all(definition, fixed(" ]"), "]"),
-#          definition = str_replace_all(definition, " ] ", "]"),
-#          definition = str_replace_all(definition, " , ", ", "),
-#          definition = str_replace_all(definition, " ,", ", "),
-#          definition = str_squish(definition)
-#          ) |>
-#   slice(1000:2000) |>
-#   print(n = 100)
-
 cat(c(
   "@hcpcs@ is not [9200*, 92012, 92014]
 <OR>
@@ -297,6 +266,36 @@ rules_new |>
               quarto.disable_processing = TRUE)
 
 
+# clean_combine |>
+#   pivot_longer(
+#     cols = c(definition, nested),
+#     names_to = "variable",
+#     values_to = "definition") |>
+#   filter(!is.na(definition)) |>
+#   select(number, nested) |>
+#   print(n = 200)
+#   separate_longer_delim(cols = definition, delim = " ( ") |>
+#   separate_longer_delim(cols = definition, delim = " ) ") |>
+#   separate_longer_delim(cols = definition, delim = " AND ") |>
+#   mutate(parentheses = str_extract_all(definition, regex("\\s*\\(\\s*\\d+\\s*\\)\\s*")),
+#     OR = str_detect(definition, fixed(" OR ")),
+#          PARA = str_detect(definition, regex("\\(\\s|\\s\\)")),
+#          definition = if_else(PARA, str_remove_all(definition, fixed(" )")), definition),
+#          definition = if_else(PARA|OR, glue_chr("<<--{definition}-->>"), definition),
+#          OR = NULL,
+#          PARA = NULL,
+#          definition = str_remove_all(definition, regex(r"{\(\d+\)}")),
+#          definition = str_remove_all(definition, regex(r"{\(\D+\)}")),
+#          definition = str_replace_all(definition, " ; ", ", "),
+#          definition = str_replace_all(definition, ";", ", "),
+#          definition = str_replace_all(definition, fixed(" ]"), "]"),
+#          definition = str_replace_all(definition, " ] ", "]"),
+#          definition = str_replace_all(definition, " , ", ", "),
+#          definition = str_replace_all(definition, " ,", ", "),
+#          definition = str_squish(definition)
+#          ) |>
+#   slice(1000:2000) |>
+#   print(n = 100)
 
 ## REGEX TESTING ####
 c(

@@ -15,6 +15,8 @@ format:
       - text: Regex in R
         icon: bookmark-plus
         href: https://stat.ethz.ch/R-manual/R-devel/library/base/html/regex.html
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r}
@@ -81,6 +83,68 @@ library(cli)
    - [mirmisc::longest_common_substring](https://github.com/mirvie/mirmisc/blob/main/R/utils.R)
    - [hutils::longest prefix/suffix](https://github.com/HughParsonage/hutils/blob/master/R/longest_affix.R)
    - [tidyext::combn_2_col](https://github.com/m-clark/tidyext/blob/master/R/combn_2_col.R)
+
+
+# Problem
+
+```{r}
+#| label: problem
+c(
+  0:8, 
+  "A",
+  "B",
+  "C",
+  "E",
+  "G",
+  "H",
+  "J",
+  "K",
+  "L",
+  "M",
+  "P",
+  "Q",
+  "R",
+  "90",
+  "91",
+  "93",
+  "94",
+  "95",
+  "96",
+  "97",
+  "98",
+  "921",
+  "922",
+  "923",
+  "924",
+  "925",
+  "926",
+  "927",
+  "928",
+  "929",
+  "9202",
+  "9206",
+  "9207",
+  "9208",
+  "92015",
+  "92018",
+  "92019"
+  )
+```
+
+
+# Solution
+
+```{r}
+#| label: solution
+c(
+  "^[9][0][4][7][67]$"     = '9047(6|7)',
+  "^[9][0][56][1-9][0-9]$" = '905*|906*',
+  "^[9][0][7][1-5][02-9]$" = '907(1|2|3|4|5)',
+  "^[9][1][3][01][0-9]$"   = '913'
+)
+```
+
+
 
 ### Check Digit Calculation
 
@@ -305,7 +369,12 @@ pos_nchar <- function(x) {
 
 {{< pagebreak >}}
 
+
+# Session Information
+
 ```{r}
+#| label: sessioninfo
+#| echo: false
+#| eval: true
 sessioninfo::session_info(pkgs = "loaded", info = "packages")
 ```
-
