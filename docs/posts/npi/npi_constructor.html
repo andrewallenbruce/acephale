@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.5.56">
+<meta name="generator" content="quarto-1.6.10">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Andrew Allen Bruce">
-<meta name="dcterms.date" content="2024-08-24">
-<meta name="description" content="A guide to National Provider Identifiers and the CMS standard for NPI validation.">
-<title>Building an NPI Constructor – acéphale</title>
+<meta name="dcterms.date" content="2024-09-23">
+<meta name="description" content="Experimenting with the CMS standard for NPI validation.">
+<title>NPIs &amp; Luhn’s Algorithm – acéphale</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -68,10 +68,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-e35a3eef73e84bd85e8cd71f678c35a7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light"><script id="quarto-search-options" type="application/json">{
+<link href="../../site_libs/bootstrap/bootstrap-1b96d3e72871e9b600efc1b010129afa.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/quarto-contrib/material-icons-0.14.2/mi.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
   "collapse-after": 3,
@@ -138,12 +139,12 @@ window.Quarto = {
   typesetMath
 };
 </script>
-<meta property="og:title" content="Building an NPI Constructor – acéphale">
-<meta property="og:description" content="A guide to National Provider Identifiers and the CMS standard for NPI validation.">
+<meta property="og:title" content="NPIs &amp; Luhn’s Algorithm – acéphale">
+<meta property="og:description" content="Experimenting with the CMS standard for NPI validation.">
 <meta property="og:site_name" content="acéphale">
 <meta property="og:locale" content="en_US">
-<meta name="twitter:title" content="Building an NPI Constructor – acéphale">
-<meta name="twitter:description" content="A guide to National Provider Identifiers and the CMS standard for NPI validation.">
+<meta name="twitter:title" content="NPIs &amp; Luhn’s Algorithm – acéphale">
+<meta name="twitter:description" content="Experimenting with the CMS standard for NPI validation.">
 <meta name="twitter:creator" content="@andrewallbruce">
 <meta name="twitter:card" content="summary">
 </head>
@@ -184,11 +185,11 @@ window.Quarto = {
       </div> <!-- /container-fluid -->
     </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full"><div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <div class="quarto-title-block"><div><h1 class="title">Building an NPI Constructor</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
-            <p class="subtitle lead">Validating National Provider Identifiers with Luhn’s Algorithm</p>
+      <div class="quarto-title-block"><div><h1 class="title">NPIs &amp; Luhn’s Algorithm</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+            <p class="subtitle lead">Step-by-step National Provider Identifier Validation with Luhn’s Algorithm</p>
                   <div>
         <div class="description">
-          A guide to National Provider Identifiers and the CMS standard for NPI validation.
+          Experimenting with the CMS standard for NPI validation.
         </div>
       </div>
                 </div>
@@ -207,7 +208,7 @@ window.Quarto = {
       <div>
       <div class="quarto-title-meta-heading">Last updated</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">August 24, 2024</p>
+        <p class="date">September 23, 2024</p>
       </div>
     </div>
     
@@ -253,11 +254,11 @@ window.Quarto = {
 <p>The following is an excerpt from the CMS document on the NPI check digit calculation, <a href="https://www.cms.gov/Regulations-and-Guidance/Administrative-Simplification/NationalProvIdentStand/Downloads/NPIcheckdigit.pdf">Requirements for National Provider Identifier (NPI) and NPI Check Digit (2004-01-23)</a>.</p>
 <section id="sec-requirements" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="sec-requirements">NPI Requirements</h2>
 <ul>
-<li><p>Must consist of 10 numeric digits, with the 10<sup>th</sup> as the check digit.</p></li>
-<li><p>Have no embedded intelligence.</p></li>
-<li><p>Begin with a <code>1</code> or <code>2</code>.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p></li>
-<li><p>Be generated by a scattering algorithm using all possible numeric combinations.</p></li>
-<li><p>Be unique, without requiring database access for verification.</p></li>
+<li><p><span class="material-icons " style="">wrong_location Must consist of <strong>10</strong> numeric digits, with the 10<sup>th</sup> as the check digit.</span></p></li>
+<li><p><span class="material-icons " style="">explore_off Have no embedded intelligence. fmd_bad</span></p></li>
+<li><p><span class="material-icons " style="">lightbulb_circle Begin with a <code>1</code> or <code>2</code>.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> 123</span></p></li>
+<li><p><span class="material-icons " style="">pattern cyclone Be generated by a scattering algorithm using all possible numeric combinations.</span></p></li>
+<li><p><span class="material-icons " style="">fingerprint Be unique, without requiring database access for verification.</span></p></li>
 </ul><div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Use of other first digits for the NPI must be coordinated with the use of first digits by the standard health plan identifier, when it is adopted.</p></div></div></section><section id="sec-checkdigit" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="sec-checkdigit">NPI Check Digit</h2>
 <p>The check digit is calculated using the <a href="https://en.wikipedia.org/wiki/Luhn_algorithm">Luhn formula</a> for computing the modulus 10 <em>double-add-double</em> check digit.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
 <div class="no-row-height column-margin column-container"><div id="fn3"><p><sup>3</sup>&nbsp;This algorithm is recognized as an ISO standard (ISO/IEC 7812) and is the specified check digit algorithm to be used for the card issuer identifier on a standard health identification card.</p></div></div><p>When an NPI is used as a card issuer identifier on a standard health identification card, it is prefixed with <strong>80840</strong>, in which <strong>80</strong> indicates <em>health applications</em> and <strong>840</strong> indicates the <em>United States</em>. To enable this feature for any NPI, the check digit will always be calculated as if the prefix is present. For a non-prefixed NPI, this is accomplished by adding the constant <strong>24</strong> in step 2 of the calculation.</p>
@@ -855,8 +856,8 @@ Next Multiple of Ten
 <span></span>
 <span><span class="fu">random_npi_generator</span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> [1] "2696494380" "2135388628" "1651223692" "1915226655" "2294191867"
- [6] "1495806462" "1187483847" "1751828296" "2930032174" "2800126084"</code></pre>
+<pre><code> [1] "1400389811" "1707542509" "2307093018" "2312531816" "2959983757"
+ [6] "2176998257" "1083460633" "2811485005" "2694465236" "1127744728"</code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
@@ -866,7 +867,7 @@ Next Multiple of Ten
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">/</span> <span class="va">n</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>, <span class="st">"%"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "9.947%"</code></pre>
+<pre><code>[1] "9.998%"</code></pre>
 </div>
 <div class="sourceCode" id="cb61"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="http://bench.r-lib.org/reference/mark.html">mark</a></span><span class="op">(</span></span>
 <span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map_lgl</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">is_valid_npi</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -875,17 +876,17 @@ Next Multiple of Ten
 <pre><code>Rows: 1
 Columns: 13
 $ expression &lt;bch:expr&gt; &lt;purrr::map_lgl(x, is_valid_npi)&gt;
-$ min        &lt;bch:tm&gt; 21.9s
-$ median     &lt;bch:tm&gt; 21.9s
-$ `itr/sec`  &lt;dbl&gt; 0.04556892
+$ min        &lt;bch:tm&gt; 19.2s
+$ median     &lt;bch:tm&gt; 19.2s
+$ `itr/sec`  &lt;dbl&gt; 0.05213992
 $ mem_alloc  &lt;bch:byt&gt; 2.38MB
-$ `gc/sec`   &lt;dbl&gt; 6.880907
+$ `gc/sec`   &lt;dbl&gt; 7.873129
 $ n_itr      &lt;int&gt; 1
 $ n_gc       &lt;dbl&gt; 151
-$ total_time &lt;bch:tm&gt; 21.9s
-$ result     &lt;list&gt; &lt;FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, FALSE,…
-$ memory     &lt;list&gt; [&lt;Rprofmem[14588 x 3]&gt;]
-$ time       &lt;list&gt; 21.9s
+$ total_time &lt;bch:tm&gt; 19.2s
+$ result     &lt;list&gt; &lt;TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE…
+$ memory     &lt;list&gt; [&lt;Rprofmem[14506 x 3]&gt;]
+$ time       &lt;list&gt; 19.2s
 $ gc         &lt;list&gt; [&lt;tbl_df[1 x 3]&gt;]</code></pre>
 </div>
 </div>
@@ -903,7 +904,7 @@ $ gc         &lt;list&gt; [&lt;tbl_df[1 x 3]&gt;]</code></pre>
  collate  English_United States.utf8
  ctype    English_United States.utf8
  tz       America/Los_Angeles
- date     2024-09-18
+ date     2024-09-23
  pandoc   3.1.11 @ C:/Program Files/RStudio/resources/app/bin/quarto/bin/tools/ (via rmarkdown)
 
 ─ Packages ───────────────────────────────────────────────────────────────────
@@ -925,7 +926,7 @@ $ gc         &lt;list&gt; [&lt;tbl_df[1 x 3]&gt;]</code></pre>
    hms            1.1.3       2023-03-21 [1] CRAN (R 4.3.2)
    htmltools      0.5.8.1     2024-04-04 [1] CRAN (R 4.3.2)
    htmlwidgets    1.6.4       2023-12-06 [1] CRAN (R 4.3.2)
-   jsonlite       1.8.8       2023-12-04 [1] CRAN (R 4.3.2)
+   jsonlite       1.8.9       2024-09-20 [1] CRAN (R 4.3.2)
    knitr          1.48        2024-07-07 [1] CRAN (R 4.3.3)
    lifecycle      1.0.4       2023-11-07 [1] CRAN (R 4.3.2)
    lubridate    * 1.9.3       2023-09-27 [1] CRAN (R 4.3.2)
@@ -1445,9 +1446,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
 <div class="sourceCode" id="cb65" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Building an NPI Constructor"</span></span>
-<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Validating National Provider Identifiers with Luhn's Algorithm"</span></span>
-<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> "A guide to National Provider Identifiers and the CMS standard for NPI validation."</span></span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "NPIs &amp; Luhn's Algorithm"</span></span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Step-by-step National Provider Identifier Validation with Luhn's Algorithm"</span></span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> "Experimenting with the CMS standard for NPI validation."</span></span>
 <span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
 <span id="cb65-6"><a href="#cb65-6" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
 <span id="cb65-7"><a href="#cb65-7" aria-hidden="true" tabindex="-1"></a><span class="co">    reference-location: margin</span></span>
@@ -1500,15 +1501,15 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb65-54"><a href="#cb65-54" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb65-55"><a href="#cb65-55" aria-hidden="true" tabindex="-1"></a><span class="fu">## NPI Requirements {#sec-requirements}</span></span>
 <span id="cb65-56"><a href="#cb65-56" aria-hidden="true" tabindex="-1"></a>   </span>
-<span id="cb65-57"><a href="#cb65-57" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span>Must consist of 10 numeric digits, with the 10&lt;sup&gt;th&lt;/sup&gt; as the check digit.</span>
+<span id="cb65-57"><a href="#cb65-57" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span>{{&lt; mi wrong_location &gt;}} Must consist of **10** numeric digits, with the 10&lt;sup&gt;th&lt;/sup&gt; as the check digit.</span>
 <span id="cb65-58"><a href="#cb65-58" aria-hidden="true" tabindex="-1"></a>   </span>
-<span id="cb65-59"><a href="#cb65-59" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span>Have no embedded intelligence.</span>
+<span id="cb65-59"><a href="#cb65-59" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span>{{&lt; mi explore_off &gt;}} Have no embedded intelligence. fmd_bad</span>
 <span id="cb65-60"><a href="#cb65-60" aria-hidden="true" tabindex="-1"></a>   </span>
-<span id="cb65-61"><a href="#cb65-61" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span>Begin with a <span class="in">`1`</span> or <span class="in">`2`</span>.^<span class="co">[</span><span class="ot">Use of other first digits for the NPI must be coordinated with the use of first digits by the standard health plan identifier, when it is adopted.</span><span class="co">]</span></span>
+<span id="cb65-61"><a href="#cb65-61" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span>{{&lt; mi lightbulb_circle &gt;}} Begin with a <span class="in">`1`</span> or <span class="in">`2`</span>.^<span class="co">[</span><span class="ot">Use of other first digits for the NPI must be coordinated with the use of first digits by the standard health plan identifier, when it is adopted.</span><span class="co">]</span> 123</span>
 <span id="cb65-62"><a href="#cb65-62" aria-hidden="true" tabindex="-1"></a>   </span>
-<span id="cb65-63"><a href="#cb65-63" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span>Be generated by a scattering algorithm using all possible numeric combinations.</span>
+<span id="cb65-63"><a href="#cb65-63" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span>{{&lt; mi pattern &gt;}} cyclone Be generated by a scattering algorithm using all possible numeric combinations.</span>
 <span id="cb65-64"><a href="#cb65-64" aria-hidden="true" tabindex="-1"></a>   </span>
-<span id="cb65-65"><a href="#cb65-65" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span>Be unique, without requiring database access for verification.</span>
+<span id="cb65-65"><a href="#cb65-65" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span>{{&lt; mi fingerprint &gt;}} Be unique, without requiring database access for verification.</span>
 <span id="cb65-66"><a href="#cb65-66" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb65-67"><a href="#cb65-67" aria-hidden="true" tabindex="-1"></a><span class="fu">## NPI Check Digit {#sec-checkdigit}</span></span>
 <span id="cb65-68"><a href="#cb65-68" aria-hidden="true" tabindex="-1"></a></span>
