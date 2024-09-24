@@ -7,19 +7,18 @@ Sys.Date() - lubridate::as.duration(lubridate::years(21)) / lubridate::ddays(1)
 
 fuimus::construct_regex(c('90476', '90477', '905', '906', '9071', '9072', '9073', '9074', '9075', '913'))
 
+fuimus::construct_regex(hcpcs)
+
 hcpcs <- northstar::search_descriptions() |>
-  select(
-    hcpcs = hcpcs_code,
-    section = hcpcs_section,
-    type = hcpcs_desc_type,
-    description = hcpcs_description) |>
-  distinct(hcpcs)
+  dplyr::select(hcpcs = hcpcs_code) |>
+  dplyr::distinct(hcpcs)
 
 hcpcs |>
-  mutate(char_1 = substr(hcpcs, 1, 1),
-         char_12 = substr(hcpcs, 1, 2),
-         char_123 = substr(hcpcs, 1, 3)) |>
-  count(char_1, char_12, char_123, sort = TRUE) |>
+  dplyr::mutate(
+    char_1 = substr(hcpcs, 1, 1),
+    char_12 = substr(hcpcs, 1, 2),
+    char_123 = substr(hcpcs, 1, 3)) |>
+  dplyr::count(char_1, char_12, char_123, sort = TRUE) |>
   print(n = 300)
 
 c(
@@ -35,6 +34,16 @@ x <- c(hcpcs = c('9071', '9072', '9073', '9074', '9075'))
 
 collapse::vlengths(x, use.names = FALSE)
 
+
+hcpcs <- stringfish::convert_to_sf(hcpcs$hcpcs)
+
+pattern1 <- "^9047[67]$|^90[56]\\d+$|^907[1-5]\\d+$|^913[01]\\d+$"
+pattern2 <- "^9047[67]$|^90[56][0-9A-Z]{2}$|^907[1-5][0-9A-Z]{1}$|^913[01][0-9A-Z]{1}$"
+
+hcpcs[which(stringfish::sf_grepl(hcpcs, "^9047[67]$|^90[56]\\d+$|^907[1-5]\\d+$|^913[01]\\d+$"))]
+
+hcpcs[which(stringfish::sf_grepl(hcpcs, pattern1))]
+hcpcs[which(stringfish::sf_grepl(hcpcs, pattern2))]
 
 # regex method
 vctrs::vec_slice(
