@@ -76,7 +76,7 @@ library(cli)
    - [**qdapRegex**](https://github.com/trinker/qdapRegex)
    - [**charcuterie**](https://github.com/jonocarroll/charcuterie)
 
-# Functions
+# Examples
 
    - [mark::globbing](https://github.com/jmbarbone/mark/blob/main/R/glob.R)
    - [RUtil::make_unique_comb](https://github.com/raivokolde/RUtil/blob/master/Source/R/make_unique_comb.r)
@@ -84,120 +84,171 @@ library(cli)
    - [hutils::longest prefix/suffix](https://github.com/HughParsonage/hutils/blob/master/R/longest_affix.R)
    - [tidyext::combn_2_col](https://github.com/m-clark/tidyext/blob/master/R/combn_2_col.R)
 
-
-# Problem
+# Functions
 
 ```{r}
-#| label: problem
-c(
-  0:8, 
-  "A",
-  "B",
-  "C",
-  "E",
-  "G",
-  "H",
-  "J",
-  "K",
-  "L",
-  "M",
-  "P",
-  "Q",
-  "R",
-  "90",
-  "91",
-  "93",
-  "94",
-  "95",
-  "96",
-  "97",
-  "98",
-  "921",
-  "922",
-  "923",
-  "924",
-  "925",
-  "926",
-  "927",
-  "928",
-  "929",
-  "9202",
-  "9206",
-  "9207",
-  "9208",
-  "92015",
-  "92018",
-  "92019"
-  )
+#| label: fuimus_northstar
+fuimus::construct_regex(northstar::search_descriptions()$hcpcs_code)
+# "^[A-CEGHJ-MP-V0-9][0-9]{3}[AFMTU0-9]$"
+
+fuimus::construct_regex(procedural::order()$code)
+# "^[B-DF-HX0-9][A-HJ-N0-Z]{5}[A-DF-HJ-NP-T0-Z]$"
+#                      ^^^                 ^^^
+# 0-Z should be [0-9A-Z]
 ```
 
 
-# Solution
-
 ```{r}
-#| label: solution
-c(
-  "^[9][0][4][7][67]$"     = '9047(6|7)',
-  "^[9][0][56][1-9][0-9]$" = '905*|906*',
-  "^[9][0][7][1-5][02-9]$" = '907(1|2|3|4|5)',
-  "^[9][1][3][01][0-9]$"   = '913'
-)
-```
-
-
-
-### Check Digit Calculation
-
-```{r}
-#| label: regex
-#| eval: false
+#| label: pos_re
 #| echo: true
-#' Construct regex patterns
-#'
-#' @param x `<chr>` vector
-#'
-#' @examples
-#' # construct_regex(search_descriptions()$hcpcs_code)
-#'
-#' # construct_regex(search_adjustments()$adj_code)
-#'
-#' # Incorrect output:
-#' "^[A-DM-PWY1-9][AIOR0-9]?[0-9]?{3}$"
-#'
-#' # Digits at the end should be:
-#' "^[A-DM-PWY1-9][AIOR0-9]?[0-9]{0,3}?$"
-#'
-#' # Test adj codes
-#' adj <- c("4", "CO", "P6", "100",
-#'          "B19", "MA22", "MA124", "N766")
-#'
-#' construct_regex(adj)
-#'
-#' @returns `<chr>` regex vector
-#'
-#' @autoglobal
-#'
-#' @export
+#| eval: true
+pos_re <- function(x) {
+  sorted   <- stringr::str_sort(x, numeric = TRUE)
+  alphabet <- purrr::list_c(strex::str_extract_non_numerics(sorted))
+  numbers  <- purrr::list_c(strex::str_extract_numbers(sorted))
+  paste0(fuimus::collapser(alphabet), fuimus::collapser(numbers))
+}
+```
+
+```{r}
+#| label: id_runs
+#| echo: true
+#| eval: true
+id_runs <- function(x) {
+  vec               <- c(LETTERS, 0:9)
+  vec               <- rlang::set_names(rep(0, length(vec)), vec)
+  test              <- fuimus::splitter(x)
+  vecna             <- vec[test]
+  vecna             <- vecna[!is.na(vecna)]
+  vec[names(vecna)] <- 1
+
+  vec_group <- dplyr::tibble(value = names(vec),
+                             key = vec,
+                             idx = 1:length(vec),
+                             group = dplyr::consecutive_id(key)) |>
+    dplyr::mutate(group_size = dplyr::n(),
+                  .by = group) |>
+    dplyr::filter(key == 1, group_size >= 3) |>
+    dplyr::select(value, group)
+
+  if (vctrs::vec_is_empty(vec_group)) return(x)
+
+  xgroups <- unname(split(vec_group, vec_group$group)) |>
+    purrr::map(purrr::pluck("value")) |>
+    purrr::map(paste0, collapse = "") |>
+    purrr::list_c()
+
+  replacements <- dplyr::left_join(
+    dplyr::slice_min(vec_group, by = group, order_by = value) |> dplyr::rename(start = value),
+    dplyr::slice_max(vec_group, by = group, order_by = value) |> dplyr::rename(end = value),
+    by = dplyr::join_by(group)) |>
+    glue::glue_data("{start}-{end}") |>
+    as.vector()
+
+  res <- stringi::stri_replace_all_regex(x, xgroups, replacements, vectorize_all = FALSE)
+
+  paste0("[", res, "]")
+}
+```
+
+```{r}
+#| label: id_runs2
+#| echo: true
+#| eval: true
+id_runs2 <- function(x) {
+  
+  extract_chars <- \(x) stringr::str_extract_all(x, "[A-Z]")[[1]]
+  extract_nums <- \(x) stringr::str_extract_all(x, "[0-9]")[[1]]
+  
+  test <- list(
+    char = purrr::map(x, extract_chars)[[1]],
+    numb = purrr::map(x, extract_nums)[[1]])
+  
+  vec <- list(
+    char = rlang::set_names(rep(0, length(LETTERS)), LETTERS),
+    numb = rlang::set_names(rep(0, length(as.character(0:9))), as.character(0:9)))
+  
+  vna <- list(
+    char = vec$char[test$char],
+    numb = vec$numb[test$numb])
+  
+  vna <- list(
+    char = vna$char[!is.na(vna$char)],
+    numb = vna$numb[!is.na(vna$numb)])
+  
+  vec$char[names(vna$char)] <- 1
+  vec$numb[names(vna$numb)] <- 1
+  
+  group_char <- dplyr::tibble(
+    value = names(vec$char),
+    key = vec$char,
+    idx = 1:length(vec$char),
+    group = dplyr::consecutive_id(key)) |>
+    dplyr::mutate(group_size = dplyr::n(), .by = group) |>
+    dplyr::filter(key == 1, group_size >= 3) |>
+    dplyr::select(value, group)
+  
+  group_numb <- dplyr::tibble(
+    value = names(vec$numb),
+    key = vec$numb,
+    idx = 1:length(vec$numb),
+    group = dplyr::consecutive_id(key)) |>
+    dplyr::mutate(group_size = dplyr::n(), .by = group) |>
+    dplyr::filter(key == 1, group_size >= 3) |>
+    dplyr::select(value, group)
+  
+  xgroups_char <- unname(split(group_char, group_char$group)) |>
+    purrr::map(purrr::pluck("value")) |>
+    purrr::map(paste0, collapse = "") |>
+    purrr::list_c()
+  
+  xgroups_numb <- unname(split(group_numb, group_numb$group)) |>
+    purrr::map(purrr::pluck("value")) |>
+    purrr::map(paste0, collapse = "") |>
+    purrr::list_c()
+  
+  replace_char <- dplyr::left_join(
+    dplyr::slice_min(group_char, by = group, order_by = value) |> dplyr::rename(start = value),
+    dplyr::slice_max(group_char, by = group, order_by = value) |> dplyr::rename(end = value),
+    by = dplyr::join_by(group)) |>
+    glue::glue_data("{start}-{end}") |>
+    as.vector()
+  
+  replace_numb <- dplyr::left_join(
+    dplyr::slice_min(group_numb, by = group, order_by = value) |> dplyr::rename(start = value),
+    dplyr::slice_max(group_numb, by = group, order_by = value) |> dplyr::rename(end = value),
+    by = dplyr::join_by(group)) |>
+    glue::glue_data("{start}-{end}") |>
+    as.vector()
+  
+  orig <- list(
+    char = paste0(test$char, collapse = ""),
+    numb = paste0(test$numb, collapse = ""))
+  
+  res <- list(
+    char = stringi::stri_replace_all_regex(orig$char, xgroups_char, replace_char, vectorize_all = FALSE),
+    numb = stringi::stri_replace_all_regex(orig$numb, xgroups_numb, replace_numb, vectorize_all = FALSE))
+  
+  paste0("[", res$char, res$numb, "]")
+}
+```
+
+
+```{r}
+#| label: construct_regex
+#| echo: true
+#| eval: true
 construct_regex <- function(x) {
 
-  uniq_nona <- \(x) collapse::funique(collapse::na_rm(x))
+  x <- gsub(" ", "", fuimus::uniq_rmna(x))
 
-  x <- gsub(" ", "", uniq_nona(x))
-
-  vecs <- stringr::str_split_fixed(
-    x, "",
-    n = max(
-      collapse::vlengths(x)
-    )
-  ) |>
+  vecs <- stringr::str_split_fixed(x, "", n = max(collapse::vlengths(x))) |>
     as.data.frame() |>
     purrr::map(na_if_common)
 
   to_brackets <- vecs |>
-    purrr::map(uniq_nona) |>
+    purrr::map(fuimus::uniq_rmna) |>
     purrr::map(pos_re)
-
-  qmark <- names(which(purrr::map_lgl(vecs, anyNA)))
 
   to_vec <- to_brackets |>
     purrr::map(id_runs)
@@ -205,11 +256,6 @@ construct_regex <- function(x) {
   nobrack <- which(stringr::str_detect(to_vec, "\\[|\\]", negate = TRUE))
 
   to_vec[nobrack] <- purrr::map(to_vec[nobrack], \(x) paste0("[", x, "]"))
-
-  if (!vctrs::vec_is_empty(qmark)) {
-    to_vec[qmark] <- purrr::map(
-      to_vec[qmark], \(x) paste0(x, "?"))
-  }
 
   to_vec <- purrr::list_c(to_vec)
 
@@ -233,142 +279,83 @@ construct_regex <- function(x) {
 
   return(x)
 }
-
-#' Internal function for `construct_regex()`
-#'
-#' @param x `<chr>` vector
-#'
-#' @returns `<chr>` vector
-#'
-#' @autoglobal
-#'
-#' @noRd
-pos_re <- function(x) {
-
-  sorted   <- stringr::str_sort(x, numeric = TRUE)
-  alphabet <- purrr::list_c(strex::str_extract_non_numerics(sorted))
-  numbers  <- purrr::list_c(strex::str_extract_numbers(sorted))
-
-  paste0(
-    fuimus::collapser(alphabet),
-    fuimus::collapser(numbers)
-  )
-}
-
-#' Internal function for `construct_regex()`
-#'
-#' @param x `<chr>` vector
-#'
-#' @returns `<chr>` vector
-#'
-#' @autoglobal
-#'
-#' @noRd
-id_runs <- function(x) {
-
-  vec <- c(LETTERS, 0:9)
-
-  vec <- rlang::set_names(rep(0, length(vec)), vec)
-
-  test <- fuimus::splitter(x)
-
-  vecna <- vec[test]
-
-  vecna <- vecna[!is.na(vecna)]
-
-  vec[names(vecna)] <- 1
-
-  vec_group <- dplyr::tibble(
-    value = names(vec),
-    key = vec,
-    idx = 1:length(vec),
-    group = dplyr::consecutive_id(key)
-  ) |>
-    dplyr::mutate(
-      group_size = dplyr::n(),
-      .by = group
-    ) |>
-    dplyr::filter(
-      key == 1,
-      group_size >= 3
-    ) |>
-    dplyr::select(
-      value,
-      group
-    )
-
-  if (vctrs::vec_is_empty(vec_group)) return(x)
-
-  xgroups <- unname(
-    split(
-      vec_group,
-      vec_group$group
-    )
-  ) |>
-    purrr::map(
-      purrr::pluck("value")
-    ) |>
-    purrr::map(
-      paste0,
-      collapse = ""
-    ) |>
-    purrr::list_c()
-
-  replacements <- dplyr::left_join(
-    dplyr::slice_min(
-      vec_group,
-      by = group,
-      order_by = value
-    ) |>
-      dplyr::rename(start = value),
-    dplyr::slice_max(
-      vec_group,
-      by = group,
-      order_by = value
-    ) |>
-      dplyr::rename(end = value),
-    by = dplyr::join_by(group)
-  ) |>
-    glue::glue_data(
-      "{start}-{end}"
-    ) |>
-    as.vector()
-
-  res <- stringi::stri_replace_all_regex(
-    x,
-    xgroups,
-    replacements,
-    vectorize_all = FALSE)
-
-  paste0("[", res, "]")
-}
-
-#' Internal function for `construct_regex2()`
-#'
-#' @param x `<chr>` vector
-#'
-#' @returns `<chr>` vector
-#'
-#' @autoglobal
-#'
-#' @noRd
-pos_nchar <- function(x) {
-
-  ch <- range(collapse::vlengths(x))
-
-  ifelse(
-    ch[1] == ch[2],
-    paste0("{", ch[1], "}"),
-    paste0("{", ch[1], ",", ch[2], "}")
-  )
-
-}
 ```
-
-
 
 {{< pagebreak >}}
 
+# HCPCS
+
+```{r}
+#| label: hcpcs_tests
+#| echo: true
+#| eval: true
+hcpcs_tests <- list(
+  one = c(0:9, LETTERS),               # "^[0-9A-Z]{5}$"
+  two = c(as.character(90:98)),        # "^[9][0-8][0-9]{3}$"
+  three = c(as.character(921:929)),    # "^[9][2][1-9][0-9]{2}$"
+  four = c(as.character(9202:9208)),   # "^[9][2][0][2-8][0-9]{1}$"
+  five = c(as.character(92015:92019))) # "^[9][2][0][1][5-9]$"
+
+hcpcs_tests
+```
+
+
+```{r}
+#| label: build_hcpcs_regex
+#| echo: true
+#| eval: true
+build_hcpcs_regex <- function(x) {
+  
+  x <- gsub(" ", "", fuimus::uniq_rmna(x))
+  
+  vecs <- stringr::str_split_fixed(
+    x, "", n = max(collapse::vlengths(x))) |>
+    as.data.frame() |>
+    purrr::map(fuimus::na_if_common)
+  
+  to_brackets <- vecs |>
+    purrr::map(fuimus::uniq_rmna) |>
+    purrr::map(pos_re)
+  
+  if (length(to_brackets) == 1) {
+    to_vec <- purrr::map(to_brackets, id_runs2)
+  }
+  
+  if (length(to_brackets) > 1) {
+    to_vec <- purrr::map(to_brackets, id_runs)
+  }
+  
+  nobrack <- which(stringr::str_detect(to_vec, "\\[|\\]", negate = TRUE))
+  
+  to_vec[nobrack] <- purrr::map(to_vec[nobrack], \(x) paste0("[", x, "]"))
+  
+  to_vec <- purrr::list_c(to_vec)
+  
+  if (collapse::any_duplicated(to_vec)) {
+    
+    # TODO THIS MUST COME BEFORE APPLYING QUESTION MARKS
+    # probably need to vectorize this, will surely
+    # have more than one unique duplicate out of order
+    
+    dupe_idx <- which(collapse::fduplicated(to_vec, all = TRUE))
+    
+    rp <- paste0(to_vec[dupe_idx][1], "{", length(dupe_idx), "}")
+    
+    to_vec[dupe_idx] <- rp
+    
+    to_vec <- fuimus::uniq_rmna(to_vec)
+    
+  }
+  paste0("^", fuimus::collapser(to_vec), "$")
+}
+
+build_hcpcs_regex(hcpcs_tests$one)
+build_hcpcs_regex(hcpcs_tests$two)
+```
+
+
+<br>
+<br>
 
 # Session Information
 

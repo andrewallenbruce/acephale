@@ -73,8 +73,6 @@ bench::mark(
 "https?://[^\\s]+"
 
 library(tidytext)
-
-
 descriptors |>
   select(id, description) |>
   unnest_tokens(word, description, to_lower = FALSE, token = "ptb") |>
@@ -101,14 +99,6 @@ stringr::str_extract_all(keyword_txt, keyword_reg)[[1]]
 gsub(paren_reg, "[XXXXX]", paren_txt)
 
 glob2rx("J*")
-
-srchcol <- function(df, col, search, ignore = TRUE, ...) {
-
-  dplyr::filter(
-    df,
-    stringr::str_detect(!!rlang::sym(col),
-      stringr::regex(search, ignore_case = ignore)))
-}
 
 cat(c(
   "@hcpcs@ is not [9200*, 92012, 92014]
@@ -173,27 +163,18 @@ x <- c(
 glue::as_glue(x)
 
 
+hcpcs <- northstar::search_descriptions() |>
+  dplyr::select(hcpcs = hcpcs_code) |>
+  dplyr::distinct(hcpcs)
 
+# "^([012345678ABCEGHJKLMPQR][0-9A-Z]{4,4})$|^(9[01345678][0-9A-Z]{3,3})$|^(92[123456789][0-9A-Z]{2,2})$|^(920[2678][0-9A-Z]{1,1})|^(9201[589])$"
 
-"^([012345678ABCEGHJKLMPQR][0-9A-Z]{4,4})$|^(9[01345678][0-9A-Z]{3,3})$|^(92[123456789][0-9A-Z]{2,2})$|^(920[2678][0-9A-Z]{1,1})|^(9201[589])$"
-
-vctrs::vec_slice(
-  hcpcs, stringfish::sf_grepl(hcpcs$hcpcs, "^[012345678ABCEGHJKLMPQR][0-9A-Z]{4,4}$")) # 16874
-vctrs::vec_slice(
-  hcpcs, stringfish::sf_grepl(hcpcs$hcpcs, "^9[01345678][0-9A-Z]{3,3}$")) # 802
-vctrs::vec_slice(
-  hcpcs, stringfish::sf_grepl(hcpcs$hcpcs, "^92[123456789][0-9A-Z]{2,2}$")) # 172
-vctrs::vec_slice(
-  hcpcs, stringfish::sf_grepl(hcpcs$hcpcs, "^920[2678][0-9A-Z]{1,1}$")) # 10
-vctrs::vec_slice(
-  hcpcs, stringfish::sf_grepl(hcpcs$hcpcs, "^9201[589]$")) # 3
-
+vctrs::vec_slice(hcpcs, stringfish::sf_grepl(hcpcs$hcpcs, "^[0-8A-CEGHJ-MP-R][0-9A-Z]{4}$")) # 16874
+vctrs::vec_slice(hcpcs, stringfish::sf_grepl(hcpcs$hcpcs, "^[9][013-8][0-9A-Z]{3}$")) # 802
+vctrs::vec_slice(hcpcs, stringfish::sf_grepl(hcpcs$hcpcs, "^[9][2][1-9][0-9A-Z]{2}$")) # 172
+vctrs::vec_slice(hcpcs, stringfish::sf_grepl(hcpcs$hcpcs, "^[9][2][0][26-8][0-9A-Z]{1}$")) # 10
+vctrs::vec_slice(hcpcs, stringfish::sf_grepl(hcpcs$hcpcs, "^[9][2][0][1][589]$")) # 3
 sum(16874, 802, 172, 10, 3) # 17861
-
-
-# 17861
-
-
 
 bench::mark(
   iterations = 10000,
@@ -216,12 +197,6 @@ bench::mark(
 #   nest() |>
 #   collapse::rsplit(~ ln)
 
-
-#   str_split_fixed("", n = 5) |>
-#     as.data.frame() |>
-#     purrr::map(na_if_common) |>
-#     purrr::map(uniq_nona)
-#
 # "^[0-8A-CEGHJ-MP-R]|^[9][0134-8]|^[9][2][1-9]|^[9][2][0][26-8]|^[9][2][0][1][589]"
 
 
