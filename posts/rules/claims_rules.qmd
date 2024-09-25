@@ -30,6 +30,15 @@ source(here("posts/rules/scripts", "load.R"))
 ```
 
 
+# Goal
+
+To build a composable, portable, and extensible healthcare claims rules engine. The engine will be used to evaluate claims data for compliance with a set of rules. The rules will be defined in a structured format and will be evaluated using R code, but should be general enough to be easily translated to another language. The goal is to create a flexible and extensible system that can be used to evaluate claims data in a variety of scenarios, pre- or post.
+
+## Similar Work
+
+   - [queryBuilder](https://github.com/r-world-devs/queryBuilder)
+   - [healthdb](https://github.com/KevinHzq/healthdb)
+
 # Anatomy of a **Rule**
 
 ```{r}
@@ -186,7 +195,7 @@ dplyr::tibble(
      - `level`: Primary, Secondary, Tertiary
      - `group`: Self-Pay, Commercial, Medicare, Medicaid, etc.
      - `name`: BCBS, Medicaid, etc.
-     - `state`: State Abbreviation (optional)
+     - `state`: State Abbreviation *(optional)*
    - **`provider`**
      - `npi`: National Provider Identifier
      - `taxonomy`: Taxonomy Code
@@ -280,16 +289,7 @@ rule(
   category = "Invalid HCPCS",
   definition = "<DOS> is after [2019-01-01] AND <HCPCS> is [43760]",
   rationale = "Effective 2019-01-01, HCPCS 43760 is invalid",
-  alert = "See HCPCS [43762, 43763]"
-  # steps = c(
-  #   dos = step(order = 1L,
-  #              variable = "dos",
-  #              value = as.Date(c("2019-01-01", "2019-01-01"))),
-  #   hcpcs = step(order = 2L,
-  #                variable = "hcpcs",
-  #                value = c("43760"))
-  #   )
-  )
+  alert = "See HCPCS [43762, 43763]")
 ```
 
 ## Variable
@@ -302,11 +302,9 @@ rule(
 #| eval: true
 #| message: false
 #| warning: false
-
 patient <- S7::new_class(
   name = "patient",
   package = "crules",
-  # parent = "step",
   properties = list(
     sex = S7::class_character,
     dos = S7::new_property(
@@ -363,15 +361,14 @@ pt_one
 #| eval: true
 #| message: false
 #| warning: false
-
 payer <- S7::new_class(
   name = "payer",
   package = "crules",
   properties = list(
     name = S7::class_character,
     state = S7::class_character,
-    hierarchy = S7::class_character,
-    classification = S7::new_property(
+    level = S7::class_character,
+    group = S7::new_property(
       class = S7::class_character,
       getter = function(self) {
         dplyr::case_match(
@@ -384,18 +381,18 @@ payer <- S7::new_class(
       })
     ),
     validator = function(self) {
-    if (length(self@name) != 1)       return("@name must be length 1")
-    if (length(self@hierarchy) != 1)  return("@hierarchy must be length 1")
+    if (length(self@name) != 1)  return("@name must be length 1")
+    if (length(self@level) != 1) return("@level must be length 1")
    }
 )
 
 payer(name = "BCBS", 
-      hierarchy = "Primary", 
+      level = "Primary", 
       state = "TX")
 
 bcbcs_tx <- payer(
   name = "BCBS", 
-  hierarchy = "Primary", 
+  level = "Primary", 
   state = "TX")
 
 bcbcs_tx
@@ -414,7 +411,6 @@ bcbcs_tx
 #| eval: true
 #| message: false
 #| warning: false
-
 encounter <- S7::new_class(
   name = "encounter",
   package = "crules",
@@ -438,7 +434,7 @@ enc <- encounter(
   ),
   payer(
     name = "BCBS", 
-    hierarchy = "Primary", 
+    level = "Primary", 
     state = "TX"))
 
 enc@patient@dob <- "2023-07-31"
@@ -451,8 +447,8 @@ enc
 
 ```{r}
 #| label: qualify
-#| echo: false
-#| eval: false
+#| echo: true
+#| eval: true
 #| message: true
 #| warning: true
 #| error: true
@@ -625,19 +621,6 @@ cleaned_definitions |>
         font = google_font(name = "Roboto Condensed")),
       locations = cells_body(columns = c(number))) |>
   sub_missing(missing_text = "NO CATEGORY") |>
-  # gtExtras::gt_add_divider(
-  #   columns = "category", 
-  #   style = "solid",
-  #   weight = "3px",
-  #   color = "royalblue") |>  
-  # gtExtras::gt_merge_stack(
-  #   col1 = "category",
-  #   col2 = "rationale",
-  #   font_size = c("17px", "16px"),
-  #   palette = c("darkgreen", "royalblue"),
-  #   font_weight = c("bold", "normal"),
-  #   small_cap = FALSE
-  # ) |> 
   tab_style(
     style = cell_text(
       v_align = "middle", 
@@ -653,7 +636,7 @@ cleaned_definitions |>
       ),
     locations = cells_stub()) |> 
   opt_stylize(add_row_striping = TRUE) |>
-  tab_options(table.width = pct(50),
+  tab_options(table.width = pct(100),
               quarto.disable_processing = TRUE)
 ```
 
@@ -705,7 +688,6 @@ A **terminator** is the final step, analogous to a `stopifnot()` statement that 
 #| eval: true
 #| message: false
 #| warning: false
-
 dos <- Sys.Date()
 
 condition <- cleaned_steps |> 
@@ -719,7 +701,9 @@ condition |>
   rlang::parse_expr() |> 
   rlang::eval_bare()
 
-cleaned_steps
+cleaned_steps |> 
+  select(number, variable, action, condition) |> 
+  print(n = 100)
 ```
 
 
@@ -729,7 +713,8 @@ cleaned_steps
 #| eval: true
 #| message: false
 #| warning: false
-cleaned_definitions
+cleaned_definitions |> 
+  print(n = 100)
 ```
 
 ```{r}
@@ -738,12 +723,18 @@ cleaned_definitions
 #| eval: true
 #| message: false
 #| warning: false
-descriptors
+descriptors |> 
+  reframe(
+    number, 
+    rationale = glue::glue("{str_wrap(rationale, width = 100)}")) |> 
+  print(n = 100)
 ```
 
 
 {{< pagebreak >}}
 
+<br>
+<br>
 
 # Session Information
 

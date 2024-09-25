@@ -5,7 +5,7 @@
 <meta name="generator" content="quarto-1.6.10">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Andrew Allen Bruce">
-<meta name="dcterms.date" content="2024-09-23">
+<meta name="dcterms.date" content="2024-09-25">
 <title>Medical Codes as Matrices – acéphale</title>
 <style>
 code{white-space: pre-wrap;}
@@ -158,7 +158,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div>
       <div class="quarto-title-meta-heading">Last updated</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">September 23, 2024</p>
+        <p class="date">September 25, 2024</p>
       </div>
     </div>
     
@@ -197,7 +197,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/traversc/stringfish">stringfish</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://jrnold.github.io/ggthemes/">ggthemes</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/coatless-rpkg/drawr">drawr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/coatless-rpkg/paintr">paintr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://andrewallenbruce.github.io/fuimus/">fuimus</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/andrewallenbruce/procedural">procedural</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://andrewallenbruce.github.io/northstar/">northstar</a></span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -329,7 +329,7 @@ V 0 0 0 0 0</code></pre>
 <span>                    possible <span class="op">=</span> <span class="va">med</span><span class="op">$</span><span class="va">p_pcs</span><span class="op">)</span></span>
 <span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/drawr/man/draw-matrix.html">gdraw_matrix</a></span><span class="op">(</span></span>
+<span><span class="fu"><a href="http://r-pkg.thecoatlessprofessor.com/drawr/reference/paint-matrix.html">gpaint_matrix</a></span><span class="op">(</span></span>
 <span>  <span class="va">x_pcs</span>, </span>
 <span>  highlight_area <span class="op">=</span> <span class="va">x_pcs</span> <span class="op">==</span> <span class="fl">1</span>, </span>
 <span>  show_indices <span class="op">=</span> <span class="st">"none"</span>,</span>
@@ -361,7 +361,7 @@ V 0 0 0 0 0</code></pre>
 <span>                      possible <span class="op">=</span> <span class="va">med</span><span class="op">$</span><span class="va">p_hcp</span><span class="op">)</span></span>
 <span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/drawr/man/draw-matrix.html">gdraw_matrix</a></span><span class="op">(</span></span>
+<span><span class="fu"><a href="http://r-pkg.thecoatlessprofessor.com/drawr/reference/paint-matrix.html">gpaint_matrix</a></span><span class="op">(</span></span>
 <span>  <span class="va">x_hcpcs</span>, </span>
 <span>  highlight_area <span class="op">=</span> <span class="va">x_hcpcs</span> <span class="op">==</span> <span class="fl">1</span>, </span>
 <span>  show_indices <span class="op">=</span> <span class="st">"none"</span>,</span>
@@ -393,67 +393,68 @@ V 0 0 0 0 0</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>═ Session info ═══════════════════════════════════════════════════════════════
 ─ Packages ───────────────────────────────────────────────────────────────────
- ! package      * version     date (UTC) lib source
-   cli            3.6.3.9000  2024-06-25 [1] Github (r-lib/cli@d9febb5)
-   collapse       2.0.16      2024-08-21 [1] CRAN (R 4.3.2)
-   colorspace     2.1-1       2024-07-26 [1] CRAN (R 4.3.2)
-   digest         0.6.37      2024-08-19 [1] CRAN (R 4.3.2)
-   dplyr        * 1.1.4       2023-11-17 [1] CRAN (R 4.3.2)
-   drawr        * 0.0.1       2024-02-01 [1] Github (coatless-rpkg/drawr@4ad307f)
-   evaluate       1.0.0       2024-09-17 [1] CRAN (R 4.3.3)
-   fansi          1.0.6       2023-12-08 [1] CRAN (R 4.3.2)
-   farver         2.1.2       2024-05-13 [1] CRAN (R 4.3.3)
-   fastmap        1.2.0       2024-05-15 [1] CRAN (R 4.3.2)
-   forcats      * 1.0.0       2023-01-29 [1] CRAN (R 4.3.2)
-   fuimus       * 0.0.2       2024-09-23 [1] local
-   generics       0.1.3       2022-07-05 [1] CRAN (R 4.3.2)
-   ggplot2      * 3.5.1       2024-04-23 [1] CRAN (R 4.3.2)
-   ggthemes     * 5.1.0       2024-02-10 [1] CRAN (R 4.3.3)
-   glue           1.7.0       2024-01-09 [1] CRAN (R 4.3.2)
-   gtable         0.3.5       2024-04-22 [1] CRAN (R 4.3.3)
-   hms            1.1.3       2023-03-21 [1] CRAN (R 4.3.2)
-   htmltools      0.5.8.1     2024-04-04 [1] CRAN (R 4.3.2)
-   htmlwidgets    1.6.4       2023-12-06 [1] CRAN (R 4.3.2)
-   jsonlite       1.8.9       2024-09-20 [1] CRAN (R 4.3.2)
-   knitr          1.48        2024-07-07 [1] CRAN (R 4.3.3)
-   lifecycle      1.0.4       2023-11-07 [1] CRAN (R 4.3.2)
-   lubridate    * 1.9.3       2023-09-27 [1] CRAN (R 4.3.2)
-   magrittr       2.0.3       2022-03-30 [1] CRAN (R 4.3.2)
-   munsell        0.5.1       2024-04-01 [1] CRAN (R 4.3.3)
-   northstar    * 0.0.7       2024-07-30 [1] Github (andrewallenbruce/northstar@5c01119)
-   pillar         1.9.0       2023-03-22 [1] CRAN (R 4.3.2)
-   pkgconfig      2.0.3       2019-09-22 [1] CRAN (R 4.3.2)
-   procedural   * 0.0.1       2024-08-04 [1] Github (andrewallenbruce/procedural@fae6eb1)
-   purrr        * 1.0.2       2023-08-10 [1] CRAN (R 4.3.2)
-   R6             2.5.1       2021-08-19 [1] CRAN (R 4.3.2)
-   ragg           1.3.3       2024-09-11 [1] CRAN (R 4.3.2)
-   Rcpp           1.0.13      2024-07-17 [1] CRAN (R 4.3.2)
- D RcppParallel   5.1.9       2024-08-19 [1] CRAN (R 4.3.3)
-   readr        * 2.1.5       2024-01-10 [1] CRAN (R 4.3.2)
-   rlang          1.1.4       2024-06-04 [1] CRAN (R 4.3.3)
-   rmarkdown      2.28        2024-08-17 [1] CRAN (R 4.3.3)
-   rstudioapi     0.16.0.9000 2024-06-04 [1] Github (rstudio/rstudioapi@a985492)
-   scales         1.3.0       2023-11-28 [1] CRAN (R 4.3.2)
-   sessioninfo    1.2.2       2021-12-06 [1] CRAN (R 4.3.2)
-   stringfish   * 0.16.0      2023-11-28 [1] CRAN (R 4.3.2)
-   stringi        1.8.4       2024-05-06 [1] CRAN (R 4.3.3)
-   stringr      * 1.5.1       2023-11-14 [1] CRAN (R 4.3.2)
-   systemfonts    1.1.0       2024-05-15 [1] CRAN (R 4.3.2)
-   textshaping    0.4.0       2024-05-24 [1] CRAN (R 4.3.2)
-   tibble       * 3.2.1       2023-03-20 [1] CRAN (R 4.3.2)
-   tidyr        * 1.3.1       2024-01-24 [1] CRAN (R 4.3.2)
-   tidyselect     1.2.1       2024-03-11 [1] CRAN (R 4.3.3)
-   tidyverse    * 2.0.0       2023-02-22 [1] CRAN (R 4.3.2)
-   timechange     0.3.0       2024-01-18 [1] CRAN (R 4.3.2)
-   tzdb           0.4.0       2023-05-12 [1] CRAN (R 4.3.2)
-   utf8           1.2.4       2023-10-22 [1] CRAN (R 4.3.2)
-   vctrs          0.6.5       2023-12-01 [1] CRAN (R 4.3.2)
-   withr          3.0.1       2024-07-31 [1] CRAN (R 4.3.2)
-   xfun           0.47        2024-08-17 [1] CRAN (R 4.3.3)
-   yaml           2.3.10      2024-07-26 [1] CRAN (R 4.3.2)
-   zeallot        0.1.0       2018-01-28 [1] CRAN (R 4.3.2)
+ ! package      * version date (UTC) lib source
+   cli            3.6.3   2024-06-21 [1] RSPM (R 4.4.0)
+   collapse       2.0.16  2024-08-21 [1] RSPM (R 4.4.0)
+   colorspace     2.1-1   2024-07-26 [1] RSPM (R 4.4.0)
+   digest         0.6.37  2024-08-19 [1] RSPM (R 4.4.0)
+   dplyr        * 1.1.4   2023-11-17 [1] RSPM (R 4.4.0)
+   evaluate       1.0.0   2024-09-17 [1] RSPM (R 4.4.0)
+   fansi          1.0.6   2023-12-08 [1] RSPM (R 4.4.0)
+   farver         2.1.2   2024-05-13 [1] RSPM (R 4.4.0)
+   fastmap        1.2.0   2024-05-15 [1] RSPM (R 4.4.0)
+   forcats      * 1.0.0   2023-01-29 [1] RSPM (R 4.4.0)
+   fuimus       * 0.0.2   2024-09-25 [1] Github (andrewallenbruce/fuimus@a26e056)
+   generics       0.1.3   2022-07-05 [1] RSPM (R 4.4.0)
+   ggplot2      * 3.5.1   2024-04-23 [1] RSPM (R 4.4.0)
+   ggthemes     * 5.1.0   2024-02-10 [1] RSPM (R 4.4.0)
+   glue           1.7.0   2024-01-09 [1] RSPM (R 4.4.0)
+   gtable         0.3.5   2024-04-22 [1] RSPM (R 4.4.0)
+   hms            1.1.3   2023-03-21 [1] RSPM (R 4.4.0)
+   htmltools      0.5.8.1 2024-04-04 [1] RSPM (R 4.4.0)
+   htmlwidgets    1.6.4   2023-12-06 [1] RSPM (R 4.4.0)
+   jsonlite       1.8.9   2024-09-20 [1] RSPM (R 4.4.0)
+   knitr          1.48    2024-07-07 [1] CRAN (R 4.4.1)
+   lifecycle      1.0.4   2023-11-07 [1] RSPM (R 4.4.0)
+   lubridate    * 1.9.3   2023-09-27 [1] RSPM (R 4.4.0)
+   magrittr       2.0.3   2022-03-30 [1] RSPM (R 4.4.0)
+   munsell        0.5.1   2024-04-01 [1] RSPM (R 4.4.0)
+   northstar    * 0.0.7   2024-07-30 [1] Github (andrewallenbruce/northstar@5c01119)
+   paintr       * 0.0.1   2024-09-25 [1] Github (coatless-rpkg/paintr@075e925)
+   pillar         1.9.0   2023-03-22 [1] RSPM (R 4.4.0)
+   pkgconfig      2.0.3   2019-09-22 [1] RSPM (R 4.4.0)
+   procedural   * 0.0.1   2024-08-17 [1] Github (andrewallenbruce/procedural@fae6eb1)
+   purrr        * 1.0.2   2023-08-10 [1] RSPM (R 4.4.0)
+   R6             2.5.1   2021-08-19 [1] RSPM (R 4.4.0)
+   ragg           1.3.3   2024-09-11 [1] RSPM (R 4.4.0)
+   Rcpp           1.0.13  2024-07-17 [1] RSPM (R 4.4.0)
+ D RcppParallel   5.1.9   2024-08-19 [1] RSPM (R 4.4.0)
+   readr        * 2.1.5   2024-01-10 [1] RSPM (R 4.4.0)
+   rlang          1.1.4   2024-06-04 [1] RSPM (R 4.4.0)
+   rmarkdown      2.28    2024-08-17 [1] CRAN (R 4.4.1)
+   rstudioapi     0.16.0  2024-03-24 [1] RSPM (R 4.4.0)
+   scales         1.3.0   2023-11-28 [1] RSPM (R 4.4.0)
+   sessioninfo    1.2.2   2021-12-06 [1] RSPM (R 4.4.0)
+   stringfish   * 0.16.0  2023-11-28 [1] RSPM
+   stringi        1.8.4   2024-05-06 [1] RSPM (R 4.4.0)
+   stringr      * 1.5.1   2023-11-14 [1] RSPM (R 4.4.0)
+   systemfonts    1.1.0   2024-05-15 [1] RSPM (R 4.4.0)
+   textshaping    0.4.0   2024-05-24 [1] RSPM (R 4.4.0)
+   tibble       * 3.2.1   2023-03-20 [1] RSPM (R 4.4.0)
+   tidyr        * 1.3.1   2024-01-24 [1] RSPM (R 4.4.0)
+   tidyselect     1.2.1   2024-03-11 [1] RSPM (R 4.4.0)
+   tidyverse    * 2.0.0   2023-02-22 [1] RSPM (R 4.4.0)
+   timechange     0.3.0   2024-01-18 [1] RSPM (R 4.4.0)
+   tzdb           0.4.0   2023-05-12 [1] RSPM (R 4.4.0)
+   utf8           1.2.4   2023-10-22 [1] RSPM (R 4.4.0)
+   vctrs          0.6.5   2023-12-01 [1] RSPM (R 4.4.0)
+   withr          3.0.1   2024-07-31 [1] RSPM (R 4.4.0)
+   xfun           0.47    2024-08-17 [1] RSPM (R 4.4.0)
+   yaml           2.3.10  2024-07-26 [1] RSPM (R 4.4.0)
+   zeallot        0.1.0   2018-01-28 [1] RSPM
 
- [1] C:/Program Files/R/R-4.3.2/library
+ [1] C:/Users/Andrew/AppData/Local/R/win-library/4.4
+ [2] C:/Program Files/R/R-4.4.1/library
 
  D ── DLL MD5 mismatch, broken installation.
 
@@ -965,7 +966,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringfish)</span>
 <span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggthemes)</span>
-<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(drawr)</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(paintr)</span>
 <span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fuimus)</span>
 <span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(procedural)</span>
 <span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(northstar)</span>
@@ -1048,7 +1049,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb10-121"><a href="#cb10-121" aria-hidden="true" tabindex="-1"></a>                    <span class="at">possible =</span> med<span class="sc">$</span>p_pcs)</span>
 <span id="cb10-122"><a href="#cb10-122" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-123"><a href="#cb10-123" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-124"><a href="#cb10-124" aria-hidden="true" tabindex="-1"></a><span class="fu">gdraw_matrix</span>(</span>
+<span id="cb10-124"><a href="#cb10-124" aria-hidden="true" tabindex="-1"></a><span class="fu">gpaint_matrix</span>(</span>
 <span id="cb10-125"><a href="#cb10-125" aria-hidden="true" tabindex="-1"></a>  x_pcs, </span>
 <span id="cb10-126"><a href="#cb10-126" aria-hidden="true" tabindex="-1"></a>  <span class="at">highlight_area =</span> x_pcs <span class="sc">==</span> <span class="dv">1</span>, </span>
 <span id="cb10-127"><a href="#cb10-127" aria-hidden="true" tabindex="-1"></a>  <span class="at">show_indices =</span> <span class="st">"none"</span>,</span>
@@ -1078,7 +1079,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb10-153"><a href="#cb10-153" aria-hidden="true" tabindex="-1"></a>                      <span class="at">possible =</span> med<span class="sc">$</span>p_hcp)</span>
 <span id="cb10-154"><a href="#cb10-154" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-155"><a href="#cb10-155" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-156"><a href="#cb10-156" aria-hidden="true" tabindex="-1"></a><span class="fu">gdraw_matrix</span>(</span>
+<span id="cb10-156"><a href="#cb10-156" aria-hidden="true" tabindex="-1"></a><span class="fu">gpaint_matrix</span>(</span>
 <span id="cb10-157"><a href="#cb10-157" aria-hidden="true" tabindex="-1"></a>  x_hcpcs, </span>
 <span id="cb10-158"><a href="#cb10-158" aria-hidden="true" tabindex="-1"></a>  <span class="at">highlight_area =</span> x_hcpcs <span class="sc">==</span> <span class="dv">1</span>, </span>
 <span id="cb10-159"><a href="#cb10-159" aria-hidden="true" tabindex="-1"></a>  <span class="at">show_indices =</span> <span class="st">"none"</span>,</span>
