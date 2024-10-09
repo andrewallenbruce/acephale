@@ -562,11 +562,11 @@ Next Multiple of Ten
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Abort if `x` is `length(x) != 1`</span></span>
 <span><span class="va">check_length</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  </span>
-<span>  <span class="va">arg</span>  <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/caller_arg.html">caller_arg</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
-<span>  <span class="va">call</span> <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/stack.html">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="va">arg</span>  <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rlang/man/caller_arg.html">caller_arg</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span>  <span class="va">call</span> <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rlang/man/stack.html">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
 <span>  </span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">!=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu">cli</span><span class="fu">::</span><span class="fu"><a href="https://cli.r-lib.org/reference/cli_abort.html">cli_abort</a></span><span class="op">(</span></span>
+<span>    <span class="fu">cli</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/cli/man/cli_abort.html">cli_abort</a></span><span class="op">(</span></span>
 <span>      <span class="st">"{.arg {arg}} must be of length 1."</span>, </span>
 <span>      arg <span class="op">=</span> <span class="va">arg</span>, </span>
 <span>      call <span class="op">=</span> <span class="va">call</span>,</span>
@@ -578,7 +578,7 @@ Next Multiple of Ten
 <span><span class="co"># If `x` is a `&lt;numeric&gt;` </span></span>
 <span><span class="co"># vector, coerce to `&lt;character&gt;`</span></span>
 <span><span class="va">numeric_to_char</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/type-predicates.html">is_character</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span> </span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rlang/man/type-predicates.html">is_character</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span> </span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
 <span>  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
 <span>    <span class="va">x</span>  </span>
@@ -589,11 +589,11 @@ Next Multiple of Ten
 <span><span class="co"># elements are not numbers</span></span>
 <span><span class="va">check_chars_numeric</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  </span>
-<span>  <span class="va">arg</span>  <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/caller_arg.html">caller_arg</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
-<span>  <span class="va">call</span> <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/stack.html">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="va">arg</span>  <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rlang/man/caller_arg.html">caller_arg</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span>  <span class="va">call</span> <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rlang/man/stack.html">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
 <span>  </span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu">stringfish</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/stringfish/man/sf_grepl.html">sf_grepl</a></span><span class="op">(</span><span class="va">x</span>, <span class="st">"^[[:digit:]]+$"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu">cli</span><span class="fu">::</span><span class="fu"><a href="https://cli.r-lib.org/reference/cli_abort.html">cli_abort</a></span><span class="op">(</span></span>
+<span>    <span class="fu">cli</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/cli/man/cli_abort.html">cli_abort</a></span><span class="op">(</span></span>
 <span>      <span class="st">"An {.arg {arg}} must contain numbers only."</span>, </span>
 <span>      arg <span class="op">=</span> <span class="va">arg</span>, </span>
 <span>      call <span class="op">=</span> <span class="va">call</span>,</span>
@@ -606,11 +606,11 @@ Next Multiple of Ten
 <span><span class="co"># 10 characters long</span></span>
 <span><span class="va">check_nchars_10</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  </span>
-<span>  <span class="va">arg</span>  <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/caller_arg.html">caller_arg</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
-<span>  <span class="va">call</span> <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/stack.html">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="va">arg</span>  <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rlang/man/caller_arg.html">caller_arg</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span>  <span class="va">call</span> <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rlang/man/stack.html">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
 <span>  </span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="fu">stringfish</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/stringfish/man/sf_nchar.html">sf_nchar</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">!=</span> <span class="fl">10L</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu">cli</span><span class="fu">::</span><span class="fu"><a href="https://cli.r-lib.org/reference/cli_abort.html">cli_abort</a></span><span class="op">(</span></span>
+<span>    <span class="fu">cli</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/cli/man/cli_abort.html">cli_abort</a></span><span class="op">(</span></span>
 <span>      <span class="st">"An {.arg {arg}} must be 10 characters long."</span>, </span>
 <span>      arg <span class="op">=</span> <span class="va">arg</span>, </span>
 <span>      call <span class="op">=</span> <span class="va">call</span>,</span>
@@ -622,11 +622,11 @@ Next Multiple of Ten
 <span><span class="co"># Must begin with 1 or 2</span></span>
 <span><span class="va">check_first_char</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  </span>
-<span>  <span class="va">arg</span>  <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/caller_arg.html">caller_arg</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
-<span>  <span class="va">call</span> <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/stack.html">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="va">arg</span>  <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rlang/man/caller_arg.html">caller_arg</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span>  <span class="va">call</span> <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rlang/man/stack.html">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
 <span>  </span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu">stringfish</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/stringfish/man/sf_substr.html">sf_substr</a></span><span class="op">(</span><span class="va">x</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"1"</span>, <span class="st">"2"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu">cli</span><span class="fu">::</span><span class="fu"><a href="https://cli.r-lib.org/reference/cli_abort.html">cli_abort</a></span><span class="op">(</span></span>
+<span>    <span class="fu">cli</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/cli/man/cli_abort.html">cli_abort</a></span><span class="op">(</span></span>
 <span>      <span class="st">"An {.arg {arg}} must start with a 1 or 2."</span>, </span>
 <span>      arg <span class="op">=</span> <span class="va">arg</span>, </span>
 <span>      call <span class="op">=</span> <span class="va">call</span>,</span>
@@ -644,12 +644,12 @@ Next Multiple of Ten
 </div>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">npi_inform</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">msg</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  </span>
-<span>  <span class="va">arg</span>  <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/caller_arg.html">caller_arg</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
-<span>  <span class="va">call</span> <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/stack.html">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="va">arg</span>  <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rlang/man/caller_arg.html">caller_arg</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span>  <span class="va">call</span> <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rlang/man/stack.html">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
 <span>  </span>
-<span>  <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/abort.html">inform</a></span><span class="op">(</span></span>
+<span>  <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rlang/man/abort.html">inform</a></span><span class="op">(</span></span>
 <span>    message <span class="op">=</span> <span class="op">(</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"*"</span> <span class="op">=</span> <span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html">glue</a></span><span class="op">(</span><span class="st">"{msg}: {x}"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"*"</span> <span class="op">=</span> <span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/glue/man/glue.html">glue</a></span><span class="op">(</span><span class="st">"{msg}: {x}"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>    use_cli_format <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>    arg <span class="op">=</span> <span class="va">arg</span>,</span>
 <span>    call <span class="op">=</span> <span class="va">call</span>,</span>
@@ -659,12 +659,12 @@ Next Multiple of Ten
 <span></span>
 <span><span class="va">npi_alert_invalid</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  </span>
-<span>  <span class="va">arg</span>  <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/caller_arg.html">caller_arg</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
-<span>  <span class="va">call</span> <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/stack.html">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="va">arg</span>  <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rlang/man/caller_arg.html">caller_arg</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span>  <span class="va">call</span> <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rlang/man/stack.html">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
 <span>  </span>
-<span>  <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/abort.html">inform</a></span><span class="op">(</span></span>
+<span>  <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rlang/man/abort.html">inform</a></span><span class="op">(</span></span>
 <span>    message <span class="op">=</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"x"</span> <span class="op">=</span> <span class="st">"NPI is invalid"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>    body <span class="op">=</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"!"</span> <span class="op">=</span> <span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html">glue</a></span><span class="op">(</span><span class="st">"{x} != {y}"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    body <span class="op">=</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"!"</span> <span class="op">=</span> <span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/glue/man/glue.html">glue</a></span><span class="op">(</span><span class="st">"{x} != {y}"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>    use_cli_format <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>    arg <span class="op">=</span> <span class="va">arg</span>,</span>
 <span>    call <span class="op">=</span> <span class="va">call</span>,</span>
@@ -674,12 +674,12 @@ Next Multiple of Ten
 <span></span>
 <span><span class="va">npi_alert_valid</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  </span>
-<span>  <span class="va">arg</span>  <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/caller_arg.html">caller_arg</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
-<span>  <span class="va">call</span> <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/stack.html">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="va">arg</span>  <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rlang/man/caller_arg.html">caller_arg</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span>  <span class="va">call</span> <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rlang/man/stack.html">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
 <span>  </span>
-<span>  <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/abort.html">inform</a></span><span class="op">(</span></span>
+<span>  <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rlang/man/abort.html">inform</a></span><span class="op">(</span></span>
 <span>    message <span class="op">=</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"v"</span> <span class="op">=</span> <span class="st">"NPI is valid"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>    body <span class="op">=</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"&gt;"</span> <span class="op">=</span> <span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html">glue</a></span><span class="op">(</span><span class="st">"{x} == {y}"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    body <span class="op">=</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"&gt;"</span> <span class="op">=</span> <span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/glue/man/glue.html">glue</a></span><span class="op">(</span><span class="st">"{x} == {y}"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>    use_cli_format <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>    arg <span class="op">=</span> <span class="va">arg</span>,</span>
 <span>    call <span class="op">=</span> <span class="va">call</span>,</span>
@@ -885,23 +885,37 @@ Next Multiple of Ten
 <span></span>
 <span><span class="fu">random_npi_generator</span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "1121349749" "2837130795" "1413370969"</code></pre>
+<pre><code>[1] "1261402146" "2847538135" "1408848029"</code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode" id="cb58"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">100000</span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">random_npi_generator</span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
-<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">x</span><span class="op">[</span><span class="fu">collapse</span><span class="fu">::</span><span class="fu"><a href="https://sebkrantz.github.io/collapse/reference/efficient-programming.html">whichv</a></span><span class="op">(</span><span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map_lgl</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">is_valid_npi</span><span class="op">)</span>, <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">x</span><span class="op">[</span><span class="fu">collapse</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/collapse/man/efficient-programming.html">whichv</a></span><span class="op">(</span><span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/purrr/man/map.html">map_lgl</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">is_valid_npi</span><span class="op">)</span>, <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">/</span> <span class="va">n</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>, <span class="st">"%"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "10.008%"</code></pre>
+<pre><code>[1] "9.994%"</code></pre>
 </div>
-<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">bench</span><span class="fu">::</span><span class="fu">mark</span><span class="op">(</span></span>
-<span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map_lgl</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">is_valid_npi</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html">glimpse</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in loadNamespace(x): there is no package called 'bench'</code></pre>
+<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/bench/man/mark.html">mark</a></span><span class="op">(</span></span>
+<span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/purrr/man/map.html">map_lgl</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">is_valid_npi</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/pillar/man/glimpse.html">glimpse</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 1
+Columns: 13
+$ expression &lt;bch:expr&gt; &lt;purrr::map_lgl(x, is_valid_npi)&gt;
+$ min        &lt;bch:tm&gt; 18.9s
+$ median     &lt;bch:tm&gt; 18.9s
+$ `itr/sec`  &lt;dbl&gt; 0.05284285
+$ mem_alloc  &lt;bch:byt&gt; 391KB
+$ `gc/sec`   &lt;dbl&gt; 7.397999
+$ n_itr      &lt;int&gt; 1
+$ n_gc       &lt;dbl&gt; 140
+$ total_time &lt;bch:tm&gt; 18.9s
+$ result     &lt;list&gt; &lt;FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE…
+$ memory     &lt;list&gt; [&lt;Rprofmem[16456 x 3]&gt;]
+$ time       &lt;list&gt; 18.9s
+$ gc         &lt;list&gt; [&lt;tbl_df[1 x 3]&gt;]</code></pre>
 </div>
 </div>
 <div style="page-break-after: always;"></div>
@@ -912,6 +926,7 @@ Next Multiple of Ten
 <pre><code>═ Session info ═══════════════════════════════════════════════════════════════
 ─ Packages ───────────────────────────────────────────────────────────────────
  ! package      * version date (UTC) lib source
+   bench          1.1.3   2023-05-04 [1] RSPM (R 4.4.0)
    cli          * 3.6.3   2024-06-21 [1] RSPM (R 4.4.0)
    collapse       2.0.16  2024-08-21 [1] RSPM (R 4.4.0)
    colorspace     2.1-1   2024-07-26 [1] RSPM (R 4.4.0)
@@ -936,6 +951,7 @@ Next Multiple of Ten
    munsell        0.5.1   2024-04-01 [1] RSPM (R 4.4.0)
    pillar         1.9.0   2023-03-22 [1] RSPM (R 4.4.0)
    pkgconfig      2.0.3   2019-09-22 [1] RSPM (R 4.4.0)
+   profmem        0.6.0   2020-12-13 [1] RSPM (R 4.4.0)
    purrr        * 1.0.2   2023-08-10 [1] RSPM (R 4.4.0)
    R6             2.5.1   2021-08-19 [1] RSPM (R 4.4.0)
    ragg           1.3.3   2024-09-11 [1] RSPM (R 4.4.0)
@@ -947,7 +963,7 @@ Next Multiple of Ten
    rstudioapi     0.16.0  2024-03-24 [1] RSPM (R 4.4.0)
    scales         1.3.0   2023-11-28 [1] RSPM (R 4.4.0)
    sessioninfo    1.2.2   2021-12-06 [1] RSPM (R 4.4.0)
-   stringfish     0.16.0  2023-11-28 [1] RSPM
+   stringfish     0.16.0  2023-11-28 [1] RSPM (R 4.4.0)
    stringi        1.8.4   2024-05-06 [1] RSPM (R 4.4.0)
    stringr      * 1.5.1   2023-11-14 [1] RSPM (R 4.4.0)
    systemfonts    1.1.0   2024-05-15 [1] RSPM (R 4.4.0)
