@@ -170,13 +170,21 @@ hcpcs_tests <- vctrs::vec_c(
   c(as.character(92015:92019)),  # "^[9][2][0][1][5-9]$"
   long_test)
 
-long_test2 <- vctrs::vec_c(
+# long_test2 <- vctrs::vec_c(
+#   stringfish::sf_substr(long_test, 1, 1),
+#   stringfish::sf_substr(long_test, 1, 2),
+#   stringfish::sf_substr(long_test, 1, 3),
+#   stringfish::sf_substr(long_test, 1, 4),
+#   stringfish::sf_substr(long_test, 1, 5)
+#   )
+
+long_test2 <- stringfish::sf_concat(
   stringfish::sf_substr(long_test, 1, 1),
   stringfish::sf_substr(long_test, 1, 2),
   stringfish::sf_substr(long_test, 1, 3),
   stringfish::sf_substr(long_test, 1, 4),
   stringfish::sf_substr(long_test, 1, 5)
-  )
+)
 ```
 
 
@@ -406,7 +414,7 @@ groups
 #| label: group_hcpcs_1
 group_hcpcs_1 <- function(x) {
   
-  if(!rlang::has_name(x, "x1")) return(NULL)
+  if (!rlang::has_name(x, "x1")) return(NULL)
   
   fuimus::uniq_rmna(x[["x1"]])
 
@@ -421,7 +429,7 @@ group1
 #| label: group_hcpcs_2
 group_hcpcs_2 <- function(x) {
   
-  if(!rlang::has_name(x, "x2")) return(NULL)
+  if (!rlang::has_name(x, "x2")) return(NULL)
 
   base <- dplyr::tibble(
     code = x[["x2"]],
@@ -471,7 +479,7 @@ group2
 #| label: group_hcpcs_3
 group_hcpcs_3 <- function(x) {
   
-  if(!rlang::has_name(x, "x3")) return(NULL)
+  if (!rlang::has_name(x, "x3")) return(NULL)
 
   base <- dplyr::tibble(
     code = x[["x3"]],
@@ -523,7 +531,7 @@ group3
 #| label: group_hcpcs_4
 group_hcpcs_4 <- function(x) {
   
-  if(!rlang::has_name(x, "x4")) return(NULL)
+  if (!rlang::has_name(x, "x4")) return(NULL)
 
   base <- dplyr::tibble(
     code = x[["x4"]],
@@ -578,7 +586,7 @@ group4
 #| label: group_hcpcs_5
 group_hcpcs_5 <- function(x) {
   
-  if(!rlang::has_name(x, "x5")) return(NULL)
+  if (!rlang::has_name(x, "x5")) return(NULL)
 
   base <- dplyr::tibble(
     code = x[["x5"]],
@@ -812,11 +820,9 @@ concatenate_regex(families_regex, orphan_regex)
 
 {{< pagebreak >}}
 
-# HCPCS
-
 ```{r}
 #| label: hcpcs_tests
-#| echo: true
+#| echo: false
 #| eval: false
 hcpcs_tests <- list(
   one = c(0:9, "J*", LETTERS),         # "^[0-9A-Z]{5}$"
@@ -830,7 +836,7 @@ hcpcs_tests
 
 sapply(hcpcs_tests$two, agrep, hcpcs_tests$two)
 
-mapply(agrep, hcpcs_tests$two, hcpcs_tests$two, value=TRUE)
+mapply(agrep, hcpcs_tests$two, hcpcs_tests$two, value = TRUE)
 
 hcpcs_tests$two[hcpcs_tests$two == hcpcs_tests$three]
 
