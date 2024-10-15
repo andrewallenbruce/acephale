@@ -43,6 +43,7 @@ options(scipen = 999)
 library(tidyverse)
 library(rlang)
 library(cli)
+library(zeallot)
 
 long_test <- stringfish::convert_to_sf(c(
   "0214T", 
@@ -162,21 +163,13 @@ long_test <- stringfish::convert_to_sf(c(
   "G0415", 
   "S2342"))
 
-hcpcs_tests <- vctrs::vec_c(
+hcpcs_tests <- stringfish::sf_concat(
   c(0:9, "J*", LETTERS),         # "^[0-9A-Z]{5}$"
   c(as.character(90:98)),        # "^[9][0-8][0-9]{3}$"
   c(as.character(921:929)),      # "^[9][2][1-9][0-9]{2}$"
   c(as.character(9202:9208)),    # "^[9][2][0][2-8][0-9]{1}$"
   c(as.character(92015:92019)),  # "^[9][2][0][1][5-9]$"
   long_test)
-
-# long_test2 <- vctrs::vec_c(
-#   stringfish::sf_substr(long_test, 1, 1),
-#   stringfish::sf_substr(long_test, 1, 2),
-#   stringfish::sf_substr(long_test, 1, 3),
-#   stringfish::sf_substr(long_test, 1, 4),
-#   stringfish::sf_substr(long_test, 1, 5)
-#   )
 
 long_test2 <- stringfish::sf_concat(
   stringfish::sf_substr(long_test, 1, 1),
@@ -303,8 +296,8 @@ reduce_runs2 <- function(x) {
     numb = purrr::map(x, pull_numb) |> purrr::list_c() |> purrr::compact() |> purrr::list_c())
   
   vec <- list(
-    char = rlang::set_names(rep(0, length(LETTERS)), LETTERS),
-    numb = rlang::set_names(rep(0, length(as.character(0:9))), as.character(0:9)))
+    char = rlang::set_names(rep(0, 26), LETTERS),
+    numb = rlang::set_names(rep(0, 10), as.character(0:9)))
   
   vna <- list(
     char = vec$char[test$char],
@@ -387,28 +380,39 @@ reduce_runs2 <- function(x) {
 }
 ```
 
-# Split Vector by Number of Characters
+# Split Into Groups
+
+First, this function removes the wildcard character (`*`) and any whitespace. Then, it splits the character vector into a list of vectors based on the number of characters in each element. 
 
 ```{r}
 #| label: group_split_length
 group_split_length <- function(x) {
   
+  stopifnot(is.character(x))
+  
   x <- gsub("\\*", "", x)
+  
   x <- gsub(" ", "", x)
+  
   x <- fuimus::uniq_rmna(x)
+  
   x <- collapse::rsplit(x, collapse::vlengths(x))
+  
   names(x) <- paste0("x", names(x))
+  
   x
 }
 
-# group_split_length(long_test)
-
-groups <- group_split_length(long_test2)
-
-groups
+group_split_length(long_test2)
 ```
 
-# Grouping Vectors by Character Count
+# Grouping Vectors
+
+Groups each set of vectors into groupable regex patterns.
+
+## Group 1
+
+The only thing to be done here is check that the vector is not empty.
 
 ```{r}
 #| label: group_hcpcs_1
@@ -416,13 +420,12 @@ group_hcpcs_1 <- function(x) {
   
   if (!rlang::has_name(x, "x1")) return(NULL)
   
-  fuimus::uniq_rmna(x[["x1"]])
+  x[["x1"]]
 
 }
 
-group1 <- group_hcpcs_1(groups)
-
-group1
+group_split_length(long_test2) |> 
+  group_hcpcs_1()
 ```
 
 ```{r}
@@ -470,9 +473,8 @@ group_hcpcs_2 <- function(x) {
   grouped[collapse::radixorderv(collapse::vlengths(grouped), sort = TRUE)]
 }
 
-group2 <- group_hcpcs_2(groups)
-
-group2
+group_split_length(long_test2) |> 
+  group_hcpcs_2()
 ```
 
 ```{r}
@@ -522,9 +524,8 @@ group_hcpcs_3 <- function(x) {
   grouped[collapse::radixorderv(collapse::vlengths(grouped), sort = TRUE)]
 }
 
-group3 <- group_hcpcs_3(groups)
-
-group3
+group_split_length(long_test2) |> 
+  group_hcpcs_3()
 ```
 
 ```{r}
@@ -576,9 +577,8 @@ group_hcpcs_4 <- function(x) {
   grouped[collapse::radixorderv(collapse::vlengths(grouped), sort = TRUE)]
 }
 
-group4 <- group_hcpcs_4(groups)
-
-group4
+group_split_length(long_test2) |> 
+  group_hcpcs_4()
 ```
 
 
@@ -635,72 +635,120 @@ group_hcpcs_5 <- function(x) {
   grouped[collapse::radixorderv(collapse::vlengths(grouped), sort = TRUE)]
 }
 
-group5 <- group_hcpcs_5(groups)
-
-group5
+group_split_length(long_test2) |> 
+  group_hcpcs_5()
 ```
 
-# Separate Orphans from Families
+# Process Groups
+
+```{r}
+#| label: process_groups
+process_groups <- function(x) {
+  
+  # if (is.null(x)) return(NULL)
+  
+  g <- group_split_length(x)
+  
+  list(
+    g1 = group_hcpcs_1(g),
+    g2 = group_hcpcs_2(g),
+    g3 = group_hcpcs_3(g),
+    g4 = group_hcpcs_4(g),
+    g5 = group_hcpcs_5(g)
+  )
+}
+
+groups <- process_groups(long_test2)
+```
+
+
+# Separate Orphans & Families
+
+**TODO:** This needs to be done by group as opposed to lumping all orphan character lengths together, so as to create a more human-readable regex output.
 
 ```{r}
 #| label: pull_orphans
-pull_orphans  <- function(x) {
-  if(is.null(x)) return(NULL)
-  x[which(collapse::vlengths(x) == 1)] |> purrr::list_c()
+pull_orphs <- function(x) {
+  
+  if (is.null(x)) return(NULL)
+  
+  x[collapse::whichv(collapse::vlengths(x), 1)] |> purrr::list_c()
+
 }
 
-pull_families <- function(x) {
-  if(is.null(x)) return(NULL)
-  x[which(collapse::vlengths(x) != 1)]
+pull_fams <- function(x) {
+  
+  if (is.null(x)) return(NULL)
+  
+  x[collapse::whichv(collapse::vlengths(x), 1, TRUE)]
+
 }
 
-orphans <- list(
-  o2 = pull_orphans(group2),
-  o3 = pull_orphans(group3),
-  o4 = pull_orphans(group4),
-  o5 = pull_orphans(group5))
+get_orphans <- function(x) {
+  list(
+    o2 = pull_orphs(x$g2),
+    o3 = pull_orphs(x$g3),
+    o4 = pull_orphs(x$g4),
+    o5 = pull_orphs(x$g5))
+}
 
-families <- list(
-  f1 = group_hcpcs_1(groups),
-  f2 = pull_families(group2),
-  f3 = pull_families(group3),
-  f4 = pull_families(group4),
-  f5 = pull_families(group5)
-)
+get_families <- function(x) {
+  list(
+    f1 = x$g1,
+    f2 = pull_fams(x$g2),
+    f3 = pull_fams(x$g3),
+    f4 = pull_fams(x$g4),
+    f5 = pull_fams(x$g5))
+}
 
-orphans
+orphans  <- get_orphans(groups)
 
-families
+families <- get_families(groups)
 ```
 
 ## Process Orphans
 
+**TODO:** If a HCPCS *wildcard*, e.g. `(nchar < 5)`, begins with a letter ala "C7501*", the regex postfix should be `[0-9]{n}`, not `[0-9A-Z]{n}`.
+
 ```{r}
 #| label: process_orphans
+vectoregex <- function(x, n) {
+  
+  if (is.null(x)) {
+    NULL
+  } else if (is.null(n)){
+    as.character(glue::glue_collapse(glue::glue('(^{x}$)', x = x), sep = "|"))
+    } else {
+      as.character(glue::glue_collapse(glue::glue('(^<<x>>[0-9A-Z]{<<n>>}$)', x = x, n = n, .open = "<<", .close = ">>"), sep = "|"))
+    }
+}
+
 process_orphans <- function(x) {
+  
   orph <- list(
-    o2 = if (!is.null(x$o2)) as.character(glue::glue_collapse(glue::glue('(^{x}[0-9A-Z]{{3}}$)', x = x$o2), sep = "|")) else NULL,
-    o3 = if (!is.null(x$o3)) as.character(glue::glue_collapse(glue::glue('(^{x}[0-9A-Z]{{2}}$)', x = x$o3), sep = "|")) else NULL,
-    o4 = if (!is.null(x$o4)) as.character(glue::glue_collapse(glue::glue('(^{x}[0-9A-Z]{{1}}$)', x = x$o4), sep = "|")) else NULL,
-    o5 = if (!is.null(x$o5)) as.character(glue::glue_collapse(glue::glue('(^{x}$)', x = x$o5), sep = "|")) else NULL
-  ) |> 
+    o2 = vectoregex(x$o2, 3),
+    o3 = vectoregex(x$o3, 2),
+    o4 = vectoregex(x$o4, 1),
+    o5 = vectoregex(x$o5, NULL)) |> 
     purrr::compact()
   
   as.character(glue::glue_collapse(orph, sep = "|"))
+
 }
 
-orphan_regex <- process_orphans(orphans)
+orphan_regex <- process_orphans(sep)
 
 orphan_regex
 ```
 
+### Test Orphans Regex
 
 ```{r}
-#| label: testing_orphans
+#| label: test_orphans
 hcpcs_codes <- collapse::funique(
   northstar::search_descriptions()$hcpcs_code)
 
-test_search <- vctrs::vec_slice(
+test_orphans <- vctrs::vec_slice(
   hcpcs_codes, 
   stringfish::sf_grepl(
     hcpcs_codes, 
@@ -708,10 +756,8 @@ test_search <- vctrs::vec_slice(
     )
   )
 
-length(hcpcs_codes)
-length(test_search)
-
-# all(orphans$o5 %in% test_search)
+length(hcpcs_codes)  # 18903
+length(test_orphans) # 1521
 ```
 
 
@@ -723,11 +769,9 @@ length(test_search)
 #| label: process_hcpcs_1
 process_hcpcs_1 <- function(x) {
   
-  if(is.null(x)) return(NULL)
+  if (!rlang::has_name(x, "f1")) return(NULL)
   
-  re <- fuimus::na_if_common(x) |> 
-    fuimus::uniq_rmna() |> 
-    sort_order() |> 
+  re <- sort_order(x[["f1"]]) |> 
     reduce_runs2()
   
   if (re == "[A-Z0-9]") {
@@ -741,9 +785,7 @@ process_hcpcs_1 <- function(x) {
     }
 }
 
-process_hcpcs_1(group1)
-
-process_hcpcs_1(c(LETTERS, 0:9, LETTERS))
+process_hcpcs_1(families)
 ```
 
 ## Groups Larger Than 1
@@ -752,11 +794,16 @@ process_hcpcs_1(c(LETTERS, 0:9, LETTERS))
 #| label: process_hcpcs_2
 process_hcpcs_2 <- function(x) {
   
-  if(is.null(x)) return(NULL)
+  if (is.null(x)) return(NULL)
   
-  vecs <- stringr::str_split_fixed(x, "", n = max(collapse::vlengths(x))) |>
-    as.data.frame() |>
-    purrr::map(fuimus::na_if_common)
+  vecs <- stringr::str_split_fixed(
+    x, 
+    "", 
+    n = collapse::fmax(
+      collapse::vlengths(x)
+      )
+    ) |>
+    as.data.frame()
   
   to_brackets <- vecs |>
     purrr::map(fuimus::uniq_rmna) |>
@@ -767,7 +814,7 @@ process_hcpcs_2 <- function(x) {
   
   multi_chars <- unname(nchar(to_vec) > 1)
   
-  nobrack <- stringr::str_detect(to_vec[multi_chars], "\\[|\\]", negate = TRUE)
+  nobrack <- stringr::str_detect(to_vec[multi_chars], "\\[|\\]", TRUE)
 
   to_vec[multi_chars] <- if (any(nobrack)) purrr::map_chr(to_vec[multi_chars], \(x) paste0("[", x, "]")) else to_vec[multi_chars]
 
@@ -775,6 +822,8 @@ process_hcpcs_2 <- function(x) {
 
   fuimus::collapser(to_vec)
 }
+
+purrr::map_chr(families$f5, process_hcpcs_2)
 ```
 
 
@@ -783,20 +832,19 @@ process_hcpcs_2 <- function(x) {
 process_families <- function(x) {
   
   x <- list(
-    f1 = process_hcpcs_1(families$f1),
+    f1 = process_hcpcs_1(families),
     f2 = purrr::map_chr(families$f2, process_hcpcs_2),
     f3 = purrr::map_chr(families$f3, process_hcpcs_2),
     f4 = purrr::map_chr(families$f4, process_hcpcs_2),
     f5 = purrr::map_chr(families$f5, process_hcpcs_2)
   )
   
-  
   fam <- list(
-    f1 = if (!is.null(x$f1)) x$f1 else NULL,
-    f2 = if (!is.null(x$f2)) as.character(glue::glue_collapse(glue::glue('(^{x}[0-9A-Z]{{3}}$)', x = x$f2), sep = "|")) else NULL,
-    f3 = if (!is.null(x$f3)) as.character(glue::glue_collapse(glue::glue('(^{x}[0-9A-Z]{{2}}$)', x = x$f3), sep = "|")) else NULL,
-    f4 = if (!is.null(x$f4)) as.character(glue::glue_collapse(glue::glue('(^{x}[0-9A-Z]{{1}}$)', x = x$f4), sep = "|")) else NULL,
-    f5 = if (!is.null(x$f5)) as.character(glue::glue_collapse(glue::glue('(^{x}$)', x = x$f5), sep = "|")) else NULL
+    f1 = x$f1,
+    f2 = vectoregex(x$x2, 3),
+    f3 = vectoregex(x$f3, 2),
+    f4 = vectoregex(x$f4, 1),
+    f5 = vectoregex(x$f5, NULL)
   ) |> 
     purrr::compact()
   
@@ -808,13 +856,46 @@ families_regex <- process_families(families)
 families_regex
 ```
 
+### Test Families Regex
+
+```{r}
+#| label: test_families
+test_families <- vctrs::vec_slice(
+  hcpcs_codes, 
+  stringfish::sf_grepl(
+    hcpcs_codes, 
+    families_regex
+    )
+  )
+
+length(hcpcs_codes)   # 18903
+length(test_families) # 11900
+```
+
+## Concatenate Regex
 
 ```{r}
 concatenate_regex <- function(x, y) {
   as.character(glue::glue_collapse(c(x, y), sep = "|"))
 }
 
-concatenate_regex(families_regex, orphan_regex)
+whole_regex <- concatenate_regex(families_regex, orphan_regex)
+```
+
+### Test Whole Regex
+
+```{r}
+#| label: test_whole
+test_whole <- vctrs::vec_slice(
+  hcpcs_codes, 
+  stringfish::sf_grepl(
+    hcpcs_codes, 
+    whole_regex
+    )
+  )
+
+length(hcpcs_codes) # 18903
+length(test_whole)  # 11900
 ```
 
 
@@ -845,63 +926,6 @@ Reduce(intersect, list(hcpcs_tests$two, hcpcs_tests$three))
 rbind(hcpcs_tests$two, hcpcs_tests$three)
 ```
 
-
-```{r}
-#| label: build_hcpcs_regex
-#| echo: false
-#| eval: false
-build_hcpcs_regex <- function(x) {
-  
-  x <- gsub(" ", "", fuimus::uniq_rmna(x))
-  
-  vecs <- stringr::str_split_fixed(
-    x, "", n = max(collapse::vlengths(x))) |>
-    as.data.frame() |>
-    purrr::map(fuimus::na_if_common)
-  
-  to_brackets <- vecs |>
-    purrr::map(fuimus::uniq_rmna) |>
-    purrr::map(pos_re)
-  
-  if (length(to_brackets) == 1) {to_vec <- purrr::map(to_brackets, id_runs2)}
-  if (length(to_brackets) > 1)  {to_vec <- purrr::map(to_brackets, id_runs)}
-  
-  nobrack         <- which(stringr::str_detect(to_vec, "\\[|\\]", negate = TRUE))
-  to_vec[nobrack] <- purrr::map(to_vec[nobrack], \(x) paste0("[", x, "]"))
-  to_vec          <- purrr::list_c(to_vec)
-  
-  if (collapse::any_duplicated(to_vec)) {
-    
-    # TODO probably need to vectorize this, will surely
-    # have more than one unique duplicate out of order
-    
-    dupe_idx <- which(collapse::fduplicated(to_vec, all = TRUE))
-    
-    rp <- paste0(to_vec[dupe_idx][1], "{", length(dupe_idx), "}")
-    
-    to_vec[dupe_idx] <- rp
-    
-    to_vec <- fuimus::uniq_rmna(to_vec)
-    
-  }
-  # paste0("^", fuimus::collapser(to_vec), "$")
-  fuimus::collapser(to_vec)
-}
-```
-
-
-```{r}
-#| label: build_hcpcs_regex_tests
-#| echo: false
-#| eval: false
-build_hcpcs_regex(hcpcs_tests$one)
-build_hcpcs_regex(hcpcs_tests$two)
-build_hcpcs_regex(hcpcs_tests$three)
-build_hcpcs_regex(hcpcs_tests$four)
-build_hcpcs_regex(hcpcs_tests$five)
-
-purrr::map_chr(hcpcs_tests$long, build_hcpcs_regex)
-```
 
 ```{r}
 #| label: hcpcs_regex_long
