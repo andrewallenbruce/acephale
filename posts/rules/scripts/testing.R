@@ -386,3 +386,39 @@ pattern = dplyr::case_when(
 # - presence: check if a value is present, e.g. `!is.na(x)`
 # - `condition`: functional code to call based on method selected
 # - `alert`: message to display if final `terminator` condition is not met
+
+
+re2r::show_regex("#?([a-f0-9]{6}|[a-f0-9]{3})")
+
+
+# > last|> dplyr::count(group_id, a2)
+# A tibble: 13 × 3
+#   group_id a2        n
+#   <chr>    <chr> <int>
+#   1 2        0         1
+#   2 2        2         1
+#   3 2        7         1
+#   4 3        0         1
+#   5 3        1         1
+#   6 3        2         1
+#   7 3        4         1
+#   8 3        5         1
+#   9 3        6         1
+#  10 9        2         1
+#  11 9        5         1
+#  12 C        7         1
+#  13 C        9         1
+
+# > last|> dplyr::count(group_id, name = "g")
+# A tibble: 4 × 2
+#   group_id     g
+#   <chr>    <int>
+#   1 2            3
+#   2 3            6
+#   3 9            2
+#   4 C            2
+
+
+
+
+
