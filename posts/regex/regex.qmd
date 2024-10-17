@@ -201,7 +201,9 @@ all_hcpcs_codes <- stringfish::convert_to_sf(
 ```
 
 
-# Links
+::: {#nte-references .callout-tip collapse="true"}
+
+## References
 
    - [Regex Cheatsheet](https://github.com/raredd/regex)
    - [Learn Regex](https://github.com/ziishaned/learn-regex)
@@ -212,9 +214,14 @@ all_hcpcs_codes <- stringfish::convert_to_sf(
    - [RexEgg](https://www.rexegg.com/)
    - [Regular Expressions as used in R](https://stat.ethz.ch/R-manual/R-devel/library/base/html/regex.html)
    - [Debuggex](https://www.debuggex.com/)
-   
 
-# Packages
+::: 
+
+<br>
+
+::: {#nte-packages .callout-tip collapse="true"}
+
+## Packages
 
    - [**textshape**](https://github.com/trinker/textshape)
    - [**stringr.plus**](https://github.com/johncassil/stringr.plus)
@@ -231,7 +238,8 @@ all_hcpcs_codes <- stringfish::convert_to_sf(
    - [**qdapRegex**](https://github.com/trinker/qdapRegex)
    - [**charcuterie**](https://github.com/jonocarroll/charcuterie)
 
-# Examples
+
+### Functions
 
    - [mark::globbing](https://github.com/jmbarbone/mark/blob/main/R/glob.R)
    - [RUtil::make_unique_comb](https://github.com/raivokolde/RUtil/blob/master/Source/R/make_unique_comb.r)
@@ -239,95 +247,131 @@ all_hcpcs_codes <- stringfish::convert_to_sf(
    - [hutils::longest prefix/suffix](https://github.com/HughParsonage/hutils/blob/master/R/longest_affix.R)
    - [tidyext::combn_2_col](https://github.com/m-clark/tidyext/blob/master/R/combn_2_col.R)
 
+::: 
 
-# Clean Character Vector
+<br>
 
-First, this function removes the wildcard character (`*`) and any whitespace. Then, it removes any `NA` values.
+# Notes on HCPCS Codes
+
+HCPCS Codes
+5 characters long
+Begins with one of [A-CEGHJ-MP-V0-9]
+Followed by any 3 digits, [0-9]{3}
+Ends with one of [AFMTU0-9]
+
+
+HCPCS Level I (CPT)
+5 characters long
+Begins with any 4 digits, [0-9]{4}
+Ends with one of [AFMTU0-9]
+
+HCPCS Level II
+5 characters long
+Begins with one of [A-CEGHJ-MP-V]
+Ends with any 4 digits, [0-9]{4}
+
+CPT Category I
+5 characters long
+Begins with any 4 digits, [0-9]{4}
+Ends with one of [AMU0-9]
+
+CPT Category II
+5 characters long
+Begins with any 4 digits, [0-9]{4}
+Ends with an [F]
+
+CPT Category III
+5 characters long
+Begins with any 4 digits, [0-9]{4}
+Ends with a [T]
+
+# Building the Function
+
+Preprocessing
+Initial Split
+Remove Redundancies
+
+## Preprocessing
+
+::: {#preprocessing .callout-note appearance="simple"}
+
+## `clean_vec()`
+
+   - Check that input is a character vector. 
+   - Remove wildcards (`*`), whitespace and `NA` values.
+   - Remove any `NA` values and keep only unique values.
 
 ```{r}
-#| label: clean_char
-clean_char <- function(x) {
+#| label: clean_vec
+clean_vec <- function(x) {
+  
   stopifnot(is.character(x))
-  x <- gsub("\\*", "", x)
-  x <- gsub(" ", "", x)
-  x <- fuimus::uniq_rmna(x)
+  
+  stringfish::sf_convert(
+    fuimus::uniq_rmna(
+      stringfish::sf_gsub(
+        x, "\\*|\\s", "", 
+      nthreads = 4L)
+    )) |> 
+    stringr::str_sort()
+
 }
+
+clean_vec(all_tests)
 ```
 
 
-# Split Into Groups
+## Group Lengths
 
-Then, it splits the character vector into a list of vectors based on the number of characters in each element. 
+   - Clean input vector.
+   - Split into groups by lengths.
+   - Prefix names with an "x".
 
 ```{r}
-#| label: group_split_length
-group_split_length <- function(x) {
+#| label: group_lengths
+group_lengths <- function(x) {
   
-  x <- clean_char(x)
+  x <- clean_vec(x)
   
-  x <- collapse::rsplit(x, collapse::vlengths(x))
-  
-  names(x) <- paste0("x", names(x))
-  
-  x
+  x <- collapse::rsplit(x,
+    collapse::vlengths(x))
+
+    rlang::set_names(x,
+      paste0("x", names(x)))
 }
 
-group_split_length(all_tests)
+group_lengths(all_tests)
 ```
 
-# Remove Redundancies
+## Remove Redundancies
 
-After splitting into groups, we need to remove any redundant searches. For example if a vector has `"A"` and `"A0"`, we only need to keep `"A"`.
+Remove any redundant searches. 
+For example if a vector has `"A"` and `"A0"`, we only need to keep `"A"`.
 
 ```{r}
 #| label: remove_redundancies
-redo <- \(x, y, n) {
-  
-  x[!stringfish::sf_substr(x, 1, n, nthreads = 4L) %in% y]
-  
+rmrd <- \(x, y, n = 1) {
+  x <- x[!stringfish::sf_substr(x, 1, n, nthreads = 4L) %in% y]
 }
 
-redundant <- \(x) {
+remove_redos <- \(x) {
   
-  x <- list(
-    x1 = x$x1,
-    x2 = redo(x$x2, x$x1, 1),
-    x3 = redo(x$x3, x$x1, 1),
-    x4 = redo(x$x4, x$x1, 1),
-    x5 = redo(x$x5, x$x1, 1)
-  )
+  c(x1, x2, x3, x4, x5) %<-% x
   
-  x <- list(
-    x1 = x$x1,
-    x2 = x$x2,
-    x3 = redo(x$x3, x$x2, 2),
-    x4 = redo(x$x4, x$x2, 2),
-    x5 = redo(x$x5, x$x2, 2)
-  )
-  
-  x <- list(
-    x1 = x$x1,
-    x2 = x$x2,
-    x3 = x$x3,
-    x4 = redo(x$x4, x$x3, 3),
-    x5 = redo(x$x5, x$x3, 3)
-  )
-  
-  x <- list(
-    x1 = x$x1,
-    x2 = x$x2,
-    x3 = x$x3,
-    x4 = x$x4,
-    x5 = redo(x$x5, x$x4, 4)
-  )
-  
-  purrr::compact(x)
+  list(
+    x1,
+    rmrd(x2, x1),
+    rmrd(x3, x1) |> rmrd(x2, 2),
+    rmrd(x4, x1) |> rmrd(x2, 2) |> rmrd(x3, 3),
+    rmrd(x5, x1) |> rmrd(x2, 2) |> rmrd(x3, 3) |> rmrd(x4, 4)
+  ) |> 
+    purrr::compact()
   
 }
 
 all_tests |> 
-  group_split_length() |> 
-  redundant()
+  group_lengths() |> 
+  remove_redos()
 ```
 
 # Grouping Vectors
@@ -344,13 +388,14 @@ The only thing to be done here is check that the vector is not empty.
 #| label: group_hcpcs_1
 group_hcpcs_1 <- function(x) {
   
-  if (!rlang::has_name(x, "x1")) return(NULL)
+  # if (!rlang::has_name(x, "x1")) return(NULL)
   
-  x[["x1"]]
+  x[[1]]
 
 }
-group_split_length(all_tests) |> 
-  redundant() |> 
+all_tests |> 
+  group_lengths() |> 
+  remove_redos() |> 
   group_hcpcs_1()
 ```
 
@@ -360,10 +405,10 @@ group_split_length(all_tests) |>
 #| label: group_hcpcs_2
 group_hcpcs_2 <- function(x) {
   
-  if (!rlang::has_name(x, "x2")) return(NULL)
+  # if (!rlang::has_name(x, "x2")) return(NULL)
 
   indices <- dplyr::tibble(
-    code     = stringr::str_sort(x[["x2"]], numeric = TRUE),
+    code     = stringr::str_sort(x[[2]], numeric = TRUE),
     group_id = stringfish::sf_substr(code, 1, 1),
     a2       = stringfish::sf_substr(code, 2, 2)) |> 
     dplyr::mutate(i2 = dplyr::consecutive_id(a2), .by = group_id) |> 
@@ -383,17 +428,17 @@ group_hcpcs_2 <- function(x) {
   
   rest <- indices[(!indices$code %in% c(orphans, last$code)), ]
 
-  grouped <- vctrs::vec_c(
+  vctrs::vec_c(
     as.list(orphans),
     vctrs::vec_chop(last$code, sizes = vctrs::vec_run_sizes(last$group_id)),
     vctrs::vec_chop(rest$code, sizes = vctrs::vec_run_sizes(rest$group_id))
   )
-  grouped[collapse::radixorderv(collapse::vlengths(grouped))]
+  # grouped[collapse::radixorderv(collapse::vlengths(grouped))]
 }
 
 all_tests |> 
-  group_split_length() |> 
-  redundant() |> 
+  group_lengths() |> 
+  remove_redos() |> 
   group_hcpcs_2()
 ```
 
@@ -446,7 +491,7 @@ group_hcpcs_3 <- function(x) {
   grouped[collapse::radixorderv(collapse::vlengths(grouped), sort = TRUE)]
 }
 
-group_split_length(long_test2) |> 
+group_lengths(long_test2) |> 
   group_hcpcs_3()
 ```
 
@@ -501,7 +546,7 @@ group_hcpcs_4 <- function(x) {
   grouped[collapse::radixorderv(collapse::vlengths(grouped), sort = TRUE)]
 }
 
-group_split_length(long_test2) |> 
+group_lengths(long_test2) |> 
   group_hcpcs_4()
 ```
 
@@ -560,7 +605,7 @@ group_hcpcs_5 <- function(x) {
   grouped[collapse::radixorderv(collapse::vlengths(grouped), sort = TRUE)]
 }
 
-group_split_length(long_test2) |> 
+group_lengths(long_test2) |> 
   group_hcpcs_5()
 ```
 
@@ -570,7 +615,7 @@ group_split_length(long_test2) |>
 #| label: process_groups
 process_groups <- function(x) {
   
-  g <- group_split_length(x)
+  g <- group_lengths(x)
   
   list(
     g1 = group_hcpcs_1(g),
@@ -707,8 +752,8 @@ get_numb(c(LETTERS, 0:9))
 pull_char <- \(x) stringr::str_extract_all(x, stringr::regex("[A-Z]"))
 pull_numb <- \(x) stringr::str_extract_all(x, stringr::regex("[0-9]"))
 
-pull_char(c(LETTERS, 0:9))
-pull_numb(c(LETTERS, 0:9))
+# pull_char(c(LETTERS, 0:9))
+# pull_numb(c(LETTERS, 0:9))
 ```
 
 ### Sort & Order
