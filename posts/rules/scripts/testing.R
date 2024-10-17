@@ -162,8 +162,7 @@ x <- c(
 
 glue::as_glue(x)
 
-
-hcpcs <- northstar::search_descriptions() |>
+hcpcs <- northstar::search_descriptions()$hcpcscode |>
   dplyr::select(hcpcs = hcpcs_code) |>
   dplyr::distinct(hcpcs)
 
@@ -420,5 +419,36 @@ re2r::show_regex("#?([a-f0-9]{6}|[a-f0-9]{3})")
 
 
 
+c(
+  # singles
+  "^15777$",
+  "^76514$",
+  "^E0675$",
+  "^S2342$",
 
+  "^021[4-9]T$",
+  "^022[0-2]T$",
+  "^026[3569]T$",
+  "^027[45]T$",
+
+
+  "^0329T$",
+  "^0330T$",
+  "^0422T$",
+
+  "^044[45]T$",
+  "^050[67]T$",
+
+  "^20939$",
+
+  "^2251[0-5]$",
+  "^2252[67]$",
+  "^2719[78]$",
+
+  "^3080[12]$",
+
+  "^31231$",
+  "^32673$", #36
+  NULL
+)
 

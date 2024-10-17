@@ -34,92 +34,120 @@ library(procedural)
 library(northstar)
 ```
 
-# Function
+# Coding Terminologies
 
 ```{r}
+#| label: pcs_list
 #| echo: true
 #| message: false
 #| warning: false
+pcs <- dplyr::lst(
+  c = c(0:9, fuimus::splitter("ABCDEFGHJKLMNPQRSTUVWXYZ")),
+  p = rlang::seq2_along(1, c),
+  a = 1:7)
 
-med <- dplyr::lst(
-  c_pcs = c(0:9, LETTERS[c(which(LETTERS %in% splitter("ABCDEFGHJKLMNPQRSTUVWXYZ")))]),
-  c_hcp = c(0:9, LETTERS[c(which(LETTERS %in% splitter("ABCEFGHJKLMPQRSTUV")))]),
-  p_pcs = 1:length(c_pcs),
-  p_hcp = 1:length(c_hcp),
-  a_pcs = 1:7,
-  a_hcp = 1:5
-  )
+pcs
+```
 
-med_lookup <- function(code, constants, possible) {
+
+```{r}
+#| label: hcpcs_list
+#| echo: true
+#| message: false
+#| warning: false
+hcpcs <- dplyr::lst(
+  c = c(0:9, fuimus::splitter("ABCEFGHJKLMPQRSTUV")),
+  p = rlang::seq2_along(1, c),
+  a = 1:5)
+
+hcpcs
+```
+
+## Lookup
+
+```{r}
+#| label: lookup
+#| echo: true
+#| message: false
+#| warning: false
+look <- \(code, constants, possible) {
   
-  code <- splitter(sf_toupper(code))
+  code <- fuimus::splitter(
+    stringfish::sf_toupper(code))
+  
   names(possible) <- constants
-  unname(possible[code])
   
+  unname(possible[code])
 }
 
-med_matrix <- function(code, axis, constants, possible) {
+look("0G9000Z", pcs$c, pcs$p)
+
+look("99213", hcpcs$c, hcpcs$p)
+```
+
+## Make Matrix
+
+```{r}
+#| label: medtrix
+#| echo: true
+#| message: false
+#| warning: false
+medtrix <- \(code, system) {
+  
+  constants <- system$c
+  possible  <- system$p
+  axis      <- system$a
   
   m <- matrix(data     = 0L,
               nrow     = length(constants),
               ncol     = length(axis),
               dimnames = list(constants, axis))
   
-  x <- med_lookup(code, constants, possible)
+  x <- look(code, constants, possible)
   
-  for (i in axis) {
-    m[x[i], i] <- 1L
-  }
+  for (i in axis) { m[x[i], i] <- 1L }
   
   return(m)
 }
 ```
 
-# Test
+**ICD-10-PCS:**
 
 ```{r}
+#| label: medtrix_pcs
 #| echo: true
 #| message: false
 #| warning: false
-med_matrix(code = "0G9000Z", 
-           axis = med$a_pcs, 
-           constants = med$c_pcs, 
-           possible = med$p_pcs)
+medtrix(code = "0G9000Z", system = pcs)
 ```
 
+**HCPCS (CPT):**
 
 ```{r}
+#| label: medtrix_hcpcs
 #| echo: true
 #| message: false
 #| warning: false
-med_matrix(code = "99213", 
-           axis = med$a_hcp, 
-           constants = med$c_hcp, 
-           possible = med$p_hcp)
+medtrix(code = "99213", system = hcpcs)
 ```
 
-
-# Draw
+# Plot Matrix
 
 ```{r}
 #| echo: true
 #| message: false
 #| warning: false
-x_pcs <- med_matrix(code = "0G9000Z", 
-                    axis = med$a_pcs, 
-                    constants = med$c_pcs, 
-                    possible = med$p_pcs)
-
+mpcs <- medtrix(code = "0G9000Z", system = pcs)
 
 gpaint_matrix(
-  x_pcs, 
-  highlight_area = x_pcs == 1, 
+  mpcs, 
+  highlight_area = mpcs == 1, 
   show_indices = "none",
   graph_title = "ICD-10-PCS Code 0G9000Z",
   graph_subtitle = NULL) + 
   theme_solid() + 
-  ylim(rev(rownames(x_pcs))) + 
-  xlim(colnames(x_pcs)) + 
+  ylim(rev(rownames(mpcs))) + 
+  xlim(colnames(mpcs)) + 
   xlab("") + 
   ylab("") +
   theme(
@@ -127,29 +155,24 @@ gpaint_matrix(
     axis.text.x = element_text(size = 11),
     axis.text.y = element_text(size = 11),
     axis.ticks.x = element_blank(),
-    axis.ticks.y = element_blank(),
-    )
+    axis.ticks.y = element_blank())
 ```
 
 ```{r}
 #| echo: true
 #| message: false
 #| warning: false
-x_hcpcs <- med_matrix(code = "99213", 
-                      axis = med$a_hcp, 
-                      constants = med$c_hcp, 
-                      possible = med$p_hcp)
-
+mhcpcs <- medtrix(code = "99213", system = hcpcs)
 
 gpaint_matrix(
-  x_hcpcs, 
-  highlight_area = x_hcpcs == 1, 
+  mhcpcs, 
+  highlight_area = mhcpcs == 1, 
   show_indices = "none",
   graph_title = "HCPCS Code 99213",
   graph_subtitle = NULL) + 
   theme_solid() + 
-  ylim(rev(rownames(x_hcpcs))) + 
-  xlim(colnames(x_hcpcs)) + 
+  ylim(rev(rownames(mhcpcs))) + 
+  xlim(colnames(mhcpcs)) + 
   xlab("") + 
   ylab("") +
   theme(
@@ -157,8 +180,7 @@ gpaint_matrix(
     axis.text.x = element_text(size = 11),
     axis.text.y = element_text(size = 11),
     axis.ticks.x = element_blank(),
-    axis.ticks.y = element_blank(),
-    )
+    axis.ticks.y = element_blank())
 ```
 
 

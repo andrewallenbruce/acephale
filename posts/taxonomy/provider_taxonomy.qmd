@@ -262,7 +262,7 @@ dplyr::tibble(
 #| warning: false
 #| code-fold: false
 #| echo: false
-#| eval: false
+#| eval: true
 xwalk <- provider::taxonomy_crosswalk(tidy = FALSE) |> 
   janitor::clean_names() |> 
   dplyr::slice(1:558) |> 
@@ -306,8 +306,7 @@ xwalk |>
     tax_code = provider_taxonomy_code,
     tax_grouping = dplyr::na_if(tax1, ""),
     tax_classification = dplyr::na_if(tax2, ""),
-    tax_specialization = dplyr::na_if(specialization, "")
-    ) |>
+    tax_specialization = dplyr::na_if(specialization, "")) |>
   dplyr::slice(1:30) |>
   gt::gt() |> 
   gt::opt_table_font(gt::google_font(name = "Karla")) |>
@@ -333,9 +332,7 @@ xwalk |>
     locations = gt::cells_body(columns = c(med_spec, tax_code))
   ) |> 
   gt::sub_missing(missing_text = "---") |> 
-  gt::tab_options(
-    quarto.disable_processing = TRUE
-  )
+  gt::tab_options(quarto.disable_processing = TRUE)
 ```
 
 ## Sources
