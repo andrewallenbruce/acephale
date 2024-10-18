@@ -71,7 +71,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-e35a3eef73e84bd85e8cd71f678c35a7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-1b96d3e72871e9b600efc1b010129afa.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-7fc80ce40cf8b163542981deb2101893.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <link href="../../site_libs/quarto-contrib/material-icons-0.14.2/mi.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -201,7 +201,7 @@ window.Quarto = {
       <div>
       <div class="quarto-title-meta-heading">Author</div>
       <div class="quarto-title-meta-contents">
-               <p><a href="https://andrewallenbruce.github.io">Andrew Allen Bruce, B.F.A., A.A.S., RHIT (AHIMA), CPC (AAPC), CPPM (AAPC)</a> <a href="mailto:andrewallenbruce@gmail.com" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> </p>
+               <p><a href="https://andrewallenbruce.github.io">Andrew Allen Bruce</a> <a href="mailto:andrewallenbruce@gmail.com" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> </p>
             </div>
     </div>
       
@@ -218,15 +218,15 @@ window.Quarto = {
   
   </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="2"><h2 id="toc-title">Contents</h2>
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="3"><h2 id="toc-title">Contents</h2>
    
   <ul>
 <li>
 <a href="#sec-cmsstandard" id="toc-sec-cmsstandard" class="nav-link active" data-scroll-target="#sec-cmsstandard"><span class="header-section-number">1</span> CMS NPI Standard</a>
   <ul class="collapse">
-<li><a href="#sec-requirements" id="toc-sec-requirements" class="nav-link" data-scroll-target="#sec-requirements">NPI Requirements</a></li>
+<li><a href="#sec-requirements" id="toc-sec-requirements" class="nav-link" data-scroll-target="#sec-requirements"><span class="header-section-number">1.1</span> NPI Requirements</a></li>
   <li>
-<a href="#sec-checkdigit" id="toc-sec-checkdigit" class="nav-link" data-scroll-target="#sec-checkdigit">NPI Check Digit</a>
+<a href="#sec-checkdigit" id="toc-sec-checkdigit" class="nav-link" data-scroll-target="#sec-checkdigit"><span class="header-section-number">1.2</span> NPI Check Digit</a>
   <ul class="collapse">
 <li><a href="#check-digit-calculation" id="toc-check-digit-calculation" class="nav-link" data-scroll-target="#check-digit-calculation">Check Digit Calculation</a></li>
   </ul>
@@ -236,10 +236,10 @@ window.Quarto = {
   <li>
 <a href="#sec-goals" id="toc-sec-goals" class="nav-link" data-scroll-target="#sec-goals"><span class="header-section-number">2</span> Function Goals</a>
   <ul class="collapse">
-<li><a href="#validating-the-input" id="toc-validating-the-input" class="nav-link" data-scroll-target="#validating-the-input">Validating the Input</a></li>
-  <li><a href="#cli-messages" id="toc-cli-messages" class="nav-link" data-scroll-target="#cli-messages">CLI Messages</a></li>
-  <li><a href="#constructor-function" id="toc-constructor-function" class="nav-link" data-scroll-target="#constructor-function">Constructor Function</a></li>
-  <li><a href="#minimal-validator" id="toc-minimal-validator" class="nav-link" data-scroll-target="#minimal-validator">Minimal Validator</a></li>
+<li><a href="#validating-the-input" id="toc-validating-the-input" class="nav-link" data-scroll-target="#validating-the-input"><span class="header-section-number">2.1</span> Validating the Input</a></li>
+  <li><a href="#cli-messages" id="toc-cli-messages" class="nav-link" data-scroll-target="#cli-messages"><span class="header-section-number">2.2</span> CLI Messages</a></li>
+  <li><a href="#constructor-function" id="toc-constructor-function" class="nav-link" data-scroll-target="#constructor-function"><span class="header-section-number">2.3</span> Constructor Function</a></li>
+  <li><a href="#minimal-validator" id="toc-minimal-validator" class="nav-link" data-scroll-target="#minimal-validator"><span class="header-section-number">2.4</span> Minimal Validator</a></li>
   </ul>
 </li>
   <li><a href="#session-information" id="toc-session-information" class="nav-link" data-scroll-target="#session-information"><span class="header-section-number">3</span> Session Information</a></li>
@@ -253,7 +253,8 @@ window.Quarto = {
 <div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;NPPES is the National Plan and Provider Enumeration System (NPPES) NPI Registry, a free directory of all active NPI records.</p></div></div><section id="sec-cmsstandard" class="level1 page-columns page-full" data-number="1"><h1 data-number="1">
 <span class="header-section-number">1</span> CMS NPI Standard</h1>
 <p>The following is an excerpt from the CMS document on the NPI check digit calculation, <a href="https://www.cms.gov/Regulations-and-Guidance/Administrative-Simplification/NationalProvIdentStand/Downloads/NPIcheckdigit.pdf">Requirements for National Provider Identifier (NPI) and NPI Check Digit (2004-01-23)</a>.</p>
-<section id="sec-requirements" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="sec-requirements">NPI Requirements</h2>
+<section id="sec-requirements" class="level2 page-columns page-full" data-number="1.1"><h2 data-number="1.1" class="anchored" data-anchor-id="sec-requirements">
+<span class="header-section-number">1.1</span> NPI Requirements</h2>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 26%">
@@ -282,7 +283,8 @@ window.Quarto = {
 <td>Be unique, without requiring database access for verification.</td>
 </tr>
 </tbody>
-</table><div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Use of other first digits for the NPI must be coordinated with the use of first digits by the standard health plan identifier, when it is adopted.</p></div></div></section><section id="sec-checkdigit" class="level2 page-columns page-full"><h2 class="anchored" data-anchor-id="sec-checkdigit">NPI Check Digit</h2>
+</table><div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Use of other first digits for the NPI must be coordinated with the use of first digits by the standard health plan identifier, when it is adopted.</p></div></div></section><section id="sec-checkdigit" class="level2 page-columns page-full" data-number="1.2"><h2 data-number="1.2" class="anchored" data-anchor-id="sec-checkdigit">
+<span class="header-section-number">1.2</span> NPI Check Digit</h2>
 <p>The check digit is calculated using the <a href="https://en.wikipedia.org/wiki/Luhn_algorithm">Luhn formula</a> for computing the modulus 10 <em>double-add-double</em> check digit.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
 <div class="no-row-height column-margin column-container"><div id="fn3"><p><sup>3</sup>&nbsp;This algorithm is recognized as an ISO standard (ISO/IEC 7812) and is the specified check digit algorithm to be used for the card issuer identifier on a standard health identification card.</p></div></div><p>When an NPI is used as a card issuer identifier on a standard health identification card, it is prefixed with <strong>80840</strong>, in which <strong>80</strong> indicates <em>health applications</em> and <strong>840</strong> indicates the <em>United States</em>. To enable this feature for any NPI, the check digit will always be calculated as if the prefix is present. For a non-prefixed NPI, this is accomplished by adding the constant <strong>24</strong> in step 2 of the calculation.</p>
 <section id="check-digit-calculation" class="level3"><h3 class="anchored" data-anchor-id="check-digit-calculation">Check Digit Calculation</h3>
@@ -547,7 +549,8 @@ Next Multiple of Ten
 <span class="header-section-number">2</span> Function Goals</h1>
 <p>I want to build a function that constructs a valid NPI from a 10-digit NPI “candidate.” The function should print the validation steps to the console. If the input is syntactically valid, it should return the original NPI invisibly along with a <code>success!</code> message. If invalid, it should return the valid NPI with a <code>warning!</code> message.</p>
 <p>There should also be a <code>verbose</code> option to silence the messages and return only the valid NPI. And finally, a minimal version that simply returns <code>TRUE</code> or <code>FALSE</code>.</p>
-<section id="validating-the-input" class="level2"><h2 class="anchored" data-anchor-id="validating-the-input">Validating the Input</h2>
+<section id="validating-the-input" class="level2" data-number="2.1"><h2 data-number="2.1" class="anchored" data-anchor-id="validating-the-input">
+<span class="header-section-number">2.1</span> Validating the Input</h2>
 <ul>
 <li>Input string (<code>x</code>) validation order:
 <ul>
@@ -644,7 +647,8 @@ Next Multiple of Ten
 <span><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
-</section><section id="cli-messages" class="level2"><h2 class="anchored" data-anchor-id="cli-messages">CLI Messages</h2>
+</section><section id="cli-messages" class="level2" data-number="2.2"><h2 data-number="2.2" class="anchored" data-anchor-id="cli-messages">
+<span class="header-section-number">2.2</span> CLI Messages</h2>
 <div class="cell" data-layout-align="center">
 <div class="code-with-filename">
 <div class="code-with-filename-file">
@@ -696,7 +700,8 @@ Next Multiple of Ten
 <span><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
-</section><section id="constructor-function" class="level2"><h2 class="anchored" data-anchor-id="constructor-function">Constructor Function</h2>
+</section><section id="constructor-function" class="level2" data-number="2.3"><h2 data-number="2.3" class="anchored" data-anchor-id="constructor-function">
+<span class="header-section-number">2.3</span> Constructor Function</h2>
 <div class="cell" data-layout-align="center">
 <div class="code-with-filename">
 <div class="code-with-filename-file">
@@ -820,7 +825,8 @@ Next Multiple of Ten
 </div>
 </div>
 <div style="page-break-after: always;"></div>
-</section></section><section id="minimal-validator" class="level2"><h2 class="anchored" data-anchor-id="minimal-validator">Minimal Validator</h2>
+</section></section><section id="minimal-validator" class="level2" data-number="2.4"><h2 data-number="2.4" class="anchored" data-anchor-id="minimal-validator">
+<span class="header-section-number">2.4</span> Minimal Validator</h2>
 <div class="cell" data-layout-align="center">
 <div class="code-with-filename">
 <div class="code-with-filename-file">
@@ -893,7 +899,7 @@ Next Multiple of Ten
 <span></span>
 <span><span class="fu">random_npi_generator</span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "2989030063" "2726135851" "1308560040"</code></pre>
+<pre><code>[1] "1024000889" "2979177284" "2525746474"</code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
@@ -903,7 +909,7 @@ Next Multiple of Ten
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">/</span> <span class="va">n</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>, <span class="st">"%"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "9.894%"</code></pre>
+<pre><code>[1] "9.938%"</code></pre>
 </div>
 <div class="sourceCode" id="cb64"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="http://bench.r-lib.org/reference/mark.html">mark</a></span><span class="op">(</span></span>
 <span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map_lgl</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">is_valid_npi</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -912,17 +918,17 @@ Next Multiple of Ten
 <pre><code>Rows: 1
 Columns: 13
 $ expression &lt;bch:expr&gt; &lt;purrr::map_lgl(x, is_valid_npi)&gt;
-$ min        &lt;bch:tm&gt; 18.6s
-$ median     &lt;bch:tm&gt; 18.6s
-$ `itr/sec`  &lt;dbl&gt; 0.05363483
+$ min        &lt;bch:tm&gt; 19.2s
+$ median     &lt;bch:tm&gt; 19.2s
+$ `itr/sec`  &lt;dbl&gt; 0.05218122
 $ mem_alloc  &lt;bch:byt&gt; 391KB
-$ `gc/sec`   &lt;dbl&gt; 7.562512
+$ `gc/sec`   &lt;dbl&gt; 7.357551
 $ n_itr      &lt;int&gt; 1
 $ n_gc       &lt;dbl&gt; 141
-$ total_time &lt;bch:tm&gt; 18.6s
-$ result     &lt;list&gt; &lt;FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE…
-$ memory     &lt;list&gt; [&lt;Rprofmem[14837 x 3]&gt;]
-$ time       &lt;list&gt; 18.6s
+$ total_time &lt;bch:tm&gt; 19.2s
+$ result     &lt;list&gt; &lt;TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE…
+$ memory     &lt;list&gt; [&lt;Rprofmem[16735 x 3]&gt;]
+$ time       &lt;list&gt; 19.2s
 $ gc         &lt;list&gt; [&lt;tbl_df[1 x 3]&gt;]</code></pre>
 </div>
 </div>
@@ -2117,7 +2123,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </div> <!-- /content -->
 <footer class="footer"><div class="nav-footer">
     <div class="nav-footer-left">
-<p>© Copyright 2024 Andrew Allen Bruce. Except where otherwise noted, all text and images licensed CC-BY-NC 4.0.</p>
+<p>© Copyright 2024 Andrew Allen Bruce.</p>
 </div>   
     <div class="nav-footer-center">
       &nbsp;

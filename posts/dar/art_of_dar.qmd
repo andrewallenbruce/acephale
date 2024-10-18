@@ -127,6 +127,7 @@ The contractual adjustment introduces a critical inefficiency to the healthcare 
 
 This issue is much too complex for me to properly do justice to here. It is, however, an essential concept to grasp when trying to understand healthcare reimbursement. In other words, healthcare reimbursement is crazy, not you.
 
+::: 
 
 {{< pagebreak >}}
 
@@ -140,13 +141,6 @@ $$ \overline{dar} = \ earb \div (\ gc \ \div \ n_{days}\ )\ $$
 $$ \overline{dar_t} = \frac{arb_t}{gc_t\div n_{days}} $$
 
 Where:
-
-```{r}
-dplyr::tibble(
-  
-)
-```
-
 
 $t = \text{Time Period}$  The subscript $t$ denotes the time period being measured.
 
@@ -169,7 +163,6 @@ Let’s say we want to calculate $\overline{dar_t}$ for the current month. Our G
 
 ```{r}
 #| label: tbl-ex-1
-#| tbl-cap: "Step 1"
 #| echo: true
 ex <- tibble(
   ndays = days_in_month(today()),
@@ -194,7 +187,6 @@ We have the three numbers we need, let’s plug them into our formula:
 
 ```{r}
 #| label: tbl-ex-2
-#| tbl-cap: "Step 2"
 #| echo: true
 ex <- ex |> 
   mutate(

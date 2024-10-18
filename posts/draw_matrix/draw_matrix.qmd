@@ -26,6 +26,7 @@ knitr::opts_chunk$set(
 options(scipen = 999)
 
 library(tidyverse)
+library(rlang)
 library(stringfish)
 library(ggthemes)
 library(paintr)
@@ -41,9 +42,9 @@ library(northstar)
 #| echo: true
 #| message: false
 #| warning: false
-pcs <- dplyr::lst(
-  c = c(0:9, fuimus::splitter("ABCDEFGHJKLMNPQRSTUVWXYZ")),
-  p = rlang::seq2_along(1, c),
+pcs <- lst(
+  c = c(0:9, grep("[^IO]", LETTERS, value = TRUE)),
+  p = seq2_along(1, c),
   a = 1:7)
 
 pcs
@@ -55,9 +56,9 @@ pcs
 #| echo: true
 #| message: false
 #| warning: false
-hcpcs <- dplyr::lst(
-  c = c(0:9, fuimus::splitter("ABCEFGHJKLMPQRSTUV")),
-  p = rlang::seq2_along(1, c),
+hcpcs <- lst(
+  c = c(0:9, grep("[^DINOW-Z]", LETTERS, value = TRUE)),
+  p = seq2_along(1, c),
   a = 1:5)
 
 hcpcs
@@ -70,19 +71,19 @@ hcpcs
 #| echo: true
 #| message: false
 #| warning: false
-look <- \(code, constants, possible) {
+look <- \(code, system) {
   
-  code <- fuimus::splitter(
-    stringfish::sf_toupper(code))
+  constants <- system$c
+  possible  <- system$p
   
   names(possible) <- constants
   
-  unname(possible[code])
+  unname(possible[splitter(sf_toupper(code))])
 }
 
-look("0G9000Z", pcs$c, pcs$p)
+look("0G9000Z", pcs)
 
-look("99213", hcpcs$c, hcpcs$p)
+look("99213", hcpcs)
 ```
 
 ## Make Matrix
@@ -103,9 +104,11 @@ medtrix <- \(code, system) {
               ncol     = length(axis),
               dimnames = list(constants, axis))
   
-  x <- look(code, constants, possible)
+  x <- look(code, system)
   
-  for (i in axis) { m[x[i], i] <- 1L }
+  for (i in axis) { 
+    m[x[i], i] <- 1L 
+    }
   
   return(m)
 }
@@ -143,8 +146,8 @@ gpaint_matrix(
   mpcs, 
   highlight_area = mpcs == 1, 
   show_indices = "none",
-  graph_title = "ICD-10-PCS Code 0G9000Z",
-  graph_subtitle = NULL) + 
+  graph_title = "ICD-10-PCS Code 0G9000Z"
+  ) + 
   theme_solid() + 
   ylim(rev(rownames(mpcs))) + 
   xlim(colnames(mpcs)) + 
@@ -168,8 +171,7 @@ gpaint_matrix(
   mhcpcs, 
   highlight_area = mhcpcs == 1, 
   show_indices = "none",
-  graph_title = "HCPCS Code 99213",
-  graph_subtitle = NULL) + 
+  graph_title = "HCPCS Code 99213") + 
   theme_solid() + 
   ylim(rev(rownames(mhcpcs))) + 
   xlim(colnames(mhcpcs)) + 
