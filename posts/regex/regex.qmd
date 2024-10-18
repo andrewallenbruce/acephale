@@ -203,7 +203,9 @@ all_hcpcs_codes <- stringfish::convert_to_sf(
 
 ::: {#nte-references .callout-tip collapse="true"}
 
-## References
+## Links
+
+### Reference
 
    - [Regex Cheatsheet](https://github.com/raredd/regex)
    - [Learn Regex](https://github.com/ziishaned/learn-regex)
@@ -215,13 +217,7 @@ all_hcpcs_codes <- stringfish::convert_to_sf(
    - [Regular Expressions as used in R](https://stat.ethz.ch/R-manual/R-devel/library/base/html/regex.html)
    - [Debuggex](https://www.debuggex.com/)
 
-::: 
-
-<br>
-
-::: {#nte-packages .callout-tip collapse="true"}
-
-## Packages
+### Packages
 
    - [**textshape**](https://github.com/trinker/textshape)
    - [**stringr.plus**](https://github.com/johncassil/stringr.plus)
@@ -238,7 +234,6 @@ all_hcpcs_codes <- stringfish::convert_to_sf(
    - [**qdapRegex**](https://github.com/trinker/qdapRegex)
    - [**charcuterie**](https://github.com/jonocarroll/charcuterie)
 
-
 ### Functions
 
    - [mark::globbing](https://github.com/jmbarbone/mark/blob/main/R/glob.R)
@@ -249,51 +244,55 @@ all_hcpcs_codes <- stringfish::convert_to_sf(
 
 ::: 
 
-<br>
+::: {#note-hcpcs .callout-note appearance="simple"}
 
-# Notes on HCPCS Codes
+## Notes on HCPCS
 
-HCPCS Codes
-5 characters long
-Begins with one of [A-CEGHJ-MP-V0-9]
-Followed by any 3 digits, [0-9]{3}
-Ends with one of [AFMTU0-9]
+### HCPCS
+   - 5 characters
+   - Start: 1 of `c("ABCEGHJKLMPQRSTUV0123456789")`
+   - Then:  3 of `c("0123456789")`
+   - End:   1 of `c("AFMTU0123456789")`
+   - Regex: `(^[A-CEGHJ-MP-V0-9][0-9]{3}[AFMTU0-9]$)`
 
+### HCPCS Level I (CPT)
+   - Start: 4 of `c("0123456789")`
+   - End:   1 of `c("AFMTU0123456789")`
+   - Regex: `(^[A-CEGHJ-MP-V0-9][0-9]{3}[AFMTU0-9]$)`
+   
+#### CPT Category I
+   - Start: 4 of `c("0123456789")`
+   - End:   1 of `c("AFMTU0123456789")`
+   - Regex: `(^[A-CEGHJ-MP-V0-9][0-9]{3}[AMU0-9]$)`
 
-HCPCS Level I (CPT)
-5 characters long
-Begins with any 4 digits, [0-9]{4}
-Ends with one of [AFMTU0-9]
+#### CPT Category II
+   - Start: 4 of `c("0123456789")`
+   - End:   1 of `c("F")`
+   - Regex: `(^[0-9]{4}F$)`
 
-HCPCS Level II
-5 characters long
-Begins with one of [A-CEGHJ-MP-V]
-Ends with any 4 digits, [0-9]{4}
+#### CPT Category III
+   - Start: 4 of `c("0123456789")`
+   - End:   1 of `c("T")`
+   - Regex: `(^[0-9]{4}T$)`
 
-CPT Category I
-5 characters long
-Begins with any 4 digits, [0-9]{4}
-Ends with one of [AMU0-9]
+### HCPCS Level II
+   - Start: 1 of `c("ABCEGHJKLMPQRSTUV")`
+   - End:   4 of `c("0123456789")`
+   - Regex: `(^[A-CEGHJ-MP-V][0-9]{3}[0-9]$)`
 
-CPT Category II
-5 characters long
-Begins with any 4 digits, [0-9]{4}
-Ends with an [F]
-
-CPT Category III
-5 characters long
-Begins with any 4 digits, [0-9]{4}
-Ends with a [T]
+::: 
 
 # Building the Function
 
-Preprocessing
-Initial Split
-Remove Redundancies
+   - Preprocessing
+   - Initial Split
+   - Remove Redundancies
+
+**TODO:** If a *wildcard* (`nchar(hcpcs) < 5`) begins with a *letter* (`"C7501*"`), the *postfix* should be **`[0-9]{n}`**, not `[0-9A-Z]{n}`.
 
 ## Preprocessing
 
-::: {#preprocessing .callout-note appearance="simple"}
+::: {.panel-tabset}
 
 ## `clean_vec()`
 
@@ -321,7 +320,7 @@ clean_vec(all_tests)
 ```
 
 
-## Group Lengths
+## `group_lengths()`
 
    - Clean input vector.
    - Split into groups by lengths.
@@ -343,10 +342,10 @@ group_lengths <- function(x) {
 group_lengths(all_tests)
 ```
 
-## Remove Redundancies
+## `remove_redos()`
 
-Remove any redundant searches. 
-For example if a vector has `"A"` and `"A0"`, we only need to keep `"A"`.
+   - Remove any redundant searches. 
+   - For example if a vector has `"A"` and `"A0"`, we only need to keep `"A"`.
 
 ```{r}
 #| label: remove_redundancies
@@ -374,13 +373,17 @@ all_tests |>
   remove_redos()
 ```
 
+:::
+
 # Grouping Vectors
 
 Groups each set of vectors into groupable regex patterns.
 
-## Group 1
+::: {.panel-tabset}
 
-TODO: Eliminate this step.
+## G1
+
+**TODO:** Eliminate this step.
 
 The only thing to be done here is check that the vector is not empty.
 
@@ -399,7 +402,7 @@ all_tests |>
   group_hcpcs_1()
 ```
 
-## Group 2
+## G2
 
 ```{r}
 #| label: group_hcpcs_2
@@ -442,7 +445,7 @@ all_tests |>
   group_hcpcs_2()
 ```
 
-## Group 3
+## G3
 
 ```{r}
 #| label: group_hcpcs_3
@@ -483,19 +486,19 @@ group_hcpcs_3 <- function(x) {
     dplyr::filter(!code %in% c(orphans, dplyr::pull(last, code))) |>
     fuimus::combine(group_id, columns = c("a1", "a2"), sep = "")
 
-  grouped <- vctrs::vec_c(
+  vctrs::vec_c(
     as.list(orphans),
     vctrs::vec_chop(last$code, sizes = vctrs::vec_run_sizes(last$group_id)),
     vctrs::vec_chop(rest$code, sizes = vctrs::vec_run_sizes(rest$group_id))
   )
-  grouped[collapse::radixorderv(collapse::vlengths(grouped), sort = TRUE)]
+  # grouped[collapse::radixorderv(collapse::vlengths(grouped), sort = TRUE)]
 }
 
 group_lengths(long_test2) |> 
   group_hcpcs_3()
 ```
 
-## Group 4
+## G4
 
 ```{r}
 #| label: group_hcpcs_4
@@ -538,19 +541,19 @@ group_hcpcs_4 <- function(x) {
     dplyr::filter(!code %in% c(orphans, dplyr::pull(last, code))) |>
     fuimus::combine(group_id, columns = c("a1", "a2", "a3"), sep = "")
 
-  grouped <- vctrs::vec_c(
+  vctrs::vec_c(
     as.list(orphans),
     vctrs::vec_chop(last$code, sizes = vctrs::vec_run_sizes(last$group_id)),
     vctrs::vec_chop(rest$code, sizes = vctrs::vec_run_sizes(rest$group_id))
   )
-  grouped[collapse::radixorderv(collapse::vlengths(grouped), sort = TRUE)]
+  # grouped[collapse::radixorderv(collapse::vlengths(grouped), sort = TRUE)]
 }
 
 group_lengths(long_test2) |> 
   group_hcpcs_4()
 ```
 
-## Group 5
+## G5
 
 ```{r}
 #| label: group_hcpcs_5
@@ -597,19 +600,19 @@ group_hcpcs_5 <- function(x) {
     dplyr::filter(!code %in% c(orphans, dplyr::pull(last, code))) |>
     fuimus::combine(group_id, columns = c("a1", "a2", "a3", "a4"), sep = "")
 
-  grouped <- vctrs::vec_c(
+  vctrs::vec_c(
     as.list(orphans),
     vctrs::vec_chop(last$code, sizes = vctrs::vec_run_sizes(last$group_id)),
     vctrs::vec_chop(rest$code, sizes = vctrs::vec_run_sizes(rest$group_id))
   )
-  grouped[collapse::radixorderv(collapse::vlengths(grouped), sort = TRUE)]
+  # grouped[collapse::radixorderv(collapse::vlengths(grouped), sort = TRUE)]
 }
 
 group_lengths(long_test2) |> 
   group_hcpcs_5()
 ```
 
-# Process Groups
+## Process Groups
 
 ```{r}
 #| label: process_groups
@@ -627,10 +630,17 @@ process_groups <- function(x) {
 }
 
 groups <- process_groups(long_test2)
+
+groups
 ```
 
+::: 
 
-# Orphans & Families
+# Orphans
+
+::: {.panel-tabset}
+
+## `get_orphans()`
 
 **TODO:** This needs to be done by group as opposed to lumping all orphan character lengths together, so as to create a more human-readable regex output.
 
@@ -675,8 +685,6 @@ families <- get_families(groups)
 ```
 
 ## Process Orphans
-
-**TODO:** If a HCPCS *wildcard*, e.g. `(nchar < 5)`, begins with a letter ala "C7501*", the regex postfix should be `[0-9]{n}`, not `[0-9A-Z]{n}`.
 
 ```{r}
 #| label: process_orphans
@@ -728,6 +736,7 @@ length(hcpcs_codes)  # 18903
 length(test_orphans) # 1521
 ```
 
+::: 
 
 ## Process Families
 
