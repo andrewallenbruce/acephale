@@ -51,123 +51,38 @@ library(compiler)
 
 long_test <- stringfish::convert_to_sf(
   c(
-    "0214T", 
-    "0215T",
-    "0217T", 
-    "0218T", 
-    "0219T", 
-    "0220T", 
-    "0221T", 
-    "0222T", 
-    "0263T", 
-    "0265T", 
-    "0266T", 
-    "0269T", 
-    "0274T", 
-    "0275T", 
-    "0329T", 
-    "0330T", 
-    "0422T", 
-    "0444T", 
-    "0445T", 
-    "0506T", 
-    "0507T", 
-    "15777", 
-    "20939", 
-    "22510", 
-    "22511", 
-    "22512", 
-    "22513", 
-    "22514", 
-    "22515", 
-    "22526", 
-    "22527", 
-    "27197", 
-    "27198", 
-    "30801", 
-    "30802", 
-    "31231", 
-    "32673", 
-    "34713", 
-    "34714", 
-    "34715", 
-    "34716", 
-    "34717", 
-    "36221", 
-    "34812", 
-    "34820", 
-    "34833", 
-    "34834", 
-    "35572", 
-    "50300", 
-    "50540", 
-    "54420", 
-    "54430", 
-    "55200", 
-    "55250", 
-    "55300", 
-    "58575", 
-    "58600", 
-    "58605", 
-    "58700", 
-    "58720", 
-    "58800", 
-    "58805", 
-    "58900", 
-    "58920", 
-    "58925", 
-    "58940", 
-    "58943", 
-    "61000", 
-    "61001", 
-    "61253", 
-    "63035", 
-    "63043", 
-    "63044", 
-    "63045", 
-    "63046", 
-    "63047", 
-    "63048", 
-    "64421", 
-    "64480", 
-    "64484", 
-    "64491", 
-    "64492", 
-    "64494", 
-    "64495", 
-    "64634", 
-    "64636", 
-    "76514", 
-    "92025", 
-    "92081", 
-    "92082", 
-    "92083", 
-    "92132", 
-    "92133", 
-    "92134", 
-    "92145", 
-    "92201", 
-    "92202", 
-    "92227", 
-    "92228", 
-    "92229", 
-    "92235", 
-    "92240", 
-    "92242", 
-    "95870", 
-    "C7501", 
-    "C7502", 
-    "C7504", 
-    "C7505", 
-    "C9771", 
-    "E0675", 
-    "G0279", 
-    "G0412", 
-    "G0413", 
-    "G0414", 
-    "G0415", 
-    "S2342")
-  )
+    "0214T", "0215T", "0217T", "0218T", 
+    "0219T", "0220T", "0221T", "0222T", 
+    "0263T", "0265T", "0266T", "0269T", 
+    "0274T", "0275T", "0329T", "0330T", 
+    "0422T", "0444T", "0445T", "0506T", 
+    "0507T", "15777", "20939", "22510", 
+    "22511", "22512", "22513", "22514", 
+    "22515", "22526", "22527", "27197", 
+    "27198", "30801", "30802", "31231", 
+    "32673", "34713", "34714", "34715", 
+    "34716", "34717", "36221", "34812", 
+    "34820", "34833", "34834", "35572", 
+    "50300", "50540", "54420", "54430", 
+    "55200", "55250", "55300", "58575", 
+    "58600", "58605", "58700", "58720", 
+    "58800", "58805", "58900", "58920", 
+    "58925", "58940", "58943", "61000", 
+    "61001", "61253", "63035", "63043", 
+    "63044", "63045", "63046", "63047", 
+    "63048", "64421", "64480", "64484", 
+    "64491", "64492", "64494", "64495", 
+    "64634", "64636", "76514", "92025", 
+    "92081", "92082", "92083", "92132", 
+    "92133", "92134", "92145", "92201", 
+    "92202", "92227", "92228", "92229", 
+    "92235", "92240", "92242", "95870", 
+    "C7501", "C7502", "C7504", "C7505", 
+    "C9771", "E0675", "G0279", "G0412",
+    "G0413", "G0414", "G0415", "S2342"
+))
+
+# "HCPCS -> Regex -> Predicate"
 
 hcpcs_tests <- stringfish::sf_concat(
   c("J*", "G", "0", 4:6),        # "^[0-9A-Z]{5}$"
@@ -200,56 +115,8 @@ all_hcpcs_codes <- stringfish::convert_to_sf(
   )
 ```
 
-"HCPCS -> Regex -> Predicate"
-
-::: {#nte-references .callout-tip collapse="true"}
-
-## Links
-
-### Reference
-
-   - [Regex Cheatsheet](https://github.com/raredd/regex)
-   - [Learn Regex](https://github.com/ziishaned/learn-regex)
-   - [Evaluating strings as code](https://josiahparry.com/posts/2024-06-13-eval-strings)
-   - [Building rules from code operands](https://github.com/Permian-Global-Research/rsi)
-   - [Filter logic](https://github.com/atorus-research/ardis/blob/main/R/denom.R)
-   - [Regular-Expression.info](https://www.regular-expressions.info/tutorial.html)
-   - [RexEgg](https://www.rexegg.com/)
-   - [Regular Expressions as used in R](https://stat.ethz.ch/R-manual/R-devel/library/base/html/regex.html)
-   - [Debuggex](https://www.debuggex.com/)
-
-### Packages
-
-   - [**textshape**](https://github.com/trinker/textshape)
-   - [**stringr.plus**](https://github.com/johncassil/stringr.plus)
-   - [**regexmagic**](https://github.com/jonocarroll/regexmagic)
-   - [**makeunique**](https://github.com/selkamand/makeunique)
-   - [**similiars**](https://github.com/davidsjoberg/similiars)
-   - [**strex**](https://github.com/rorynolan/strex/)
-   - [**stringfish**](https://github.com/traversc/stringfish)
-   - [**collapse**](https://sebkrantz.github.io/collapse/)
-   - [**kit**](https://github.com/2005m/kit)
-   - [**cheapr**](https://github.com/NicChr/cheapr)
-   - [**fastplyr**](https://github.com/NicChr/fastplyr)
-   - [**stringi**](https://stringi.gagolewski.com/)
-   - [**qdapRegex**](https://github.com/trinker/qdapRegex)
-   - [**charcuterie**](https://github.com/jonocarroll/charcuterie)
-
-### Functions
-
-   - [mark::globbing](https://github.com/jmbarbone/mark/blob/main/R/glob.R)
-   - [RUtil::make_unique_comb](https://github.com/raivokolde/RUtil/blob/master/Source/R/make_unique_comb.r)
-   - [mirmisc::longest_common_substring](https://github.com/mirvie/mirmisc/blob/main/R/utils.R)
-   - [hutils::longest prefix/suffix](https://github.com/HughParsonage/hutils/blob/master/R/longest_affix.R)
-   - [tidyext::combn_2_col](https://github.com/m-clark/tidyext/blob/master/R/combn_2_col.R)
-
-::: 
-
-::: {#note-hcpcs .callout-note appearance="simple"}
-
 ## Notes on HCPCS
 
-### HCPCS
    - 5 characters
    - Start: 1 of `c("ABCEGHJKLMPQRSTUV0123456789")`
    - Then:  3 of `c("0123456789")`
@@ -257,31 +124,34 @@ all_hcpcs_codes <- stringfish::convert_to_sf(
    - Regex: `(^[A-CEGHJ-MP-V0-9][0-9]{3}[AFMTU0-9]$)`
 
 ### HCPCS Level I (CPT)
+
    - Start: 4 of `c("0123456789")`
    - End:   1 of `c("AFMTU0123456789")`
    - Regex: `(^[A-CEGHJ-MP-V0-9][0-9]{3}[AFMTU0-9]$)`
    
 #### CPT Category I
+
    - Start: 4 of `c("0123456789")`
    - End:   1 of `c("AFMTU0123456789")`
    - Regex: `(^[A-CEGHJ-MP-V0-9][0-9]{3}[AMU0-9]$)`
 
 #### CPT Category II
+
    - Start: 4 of `c("0123456789")`
    - End:   1 of `c("F")`
    - Regex: `(^[0-9]{4}F$)`
 
 #### CPT Category III
+
    - Start: 4 of `c("0123456789")`
    - End:   1 of `c("T")`
    - Regex: `(^[0-9]{4}T$)`
 
 ### HCPCS Level II
+
    - Start: 1 of `c("ABCEGHJKLMPQRSTUV")`
    - End:   4 of `c("0123456789")`
    - Regex: `(^[A-CEGHJ-MP-V][0-9]{3}[0-9]$)`
-
-::: 
 
 # Building the Function
 
@@ -295,14 +165,15 @@ all_hcpcs_codes <- stringfish::convert_to_sf(
 
 ::: {.panel-tabset}
 
-## `clean_vec()`
+## 1. `group_lengths()`
 
-   - Check that input is a character vector. 
-   - Remove wildcards (`*`), whitespace and `NA` values.
-   - Remove any `NA` values and keep only unique values.
+   - Check is character vector. 
+   - Remove wildcards, white space, `NA`s and duplicates.
+   - Split into groups by lengths.
+   - Prefix names with an "x".
 
 ```{r}
-#| label: clean_vec
+#| label: group_lengths
 clean_vec <- function(x) {
   
   stopifnot(is.character(x))
@@ -317,18 +188,6 @@ clean_vec <- function(x) {
 
 }
 
-clean_vec(all_tests)
-```
-
-
-## `group_lengths()`
-
-   - Clean input vector.
-   - Split into groups by lengths.
-   - Prefix names with an "x".
-
-```{r}
-#| label: group_lengths
 group_lengths <- function(x) {
   
   x <- clean_vec(x)
@@ -340,21 +199,24 @@ group_lengths <- function(x) {
       paste0("x", names(x)))
 }
 
-group_lengths(all_tests)
+# group_lengths(all_tests) |> cat()
+purrr::map(group_lengths(all_tests), cat)
+
+cat(group_lengths(all_tests)$x2)
 ```
 
-## `remove_redos()`
+## 2. `remove_redundant()`
 
-   - Remove any redundant searches. 
-   - For example if a vector has `"A"` and `"A0"`, we only need to keep `"A"`.
+If a vector contains both `"A"` and `"A0"`, remove `"A0"`. Why? A user may input complete and incomplete HCPCS codes alongside each other. Codes that contain a common sub-string can be simplified, in turn simplifying the eventual regex output.
+
 
 ```{r}
-#| label: remove_redundancies
+#| label: remove_redundant
 rmrd <- \(x, y, n = 1) {
   x <- x[!stringfish::sf_substr(x, 1, n, nthreads = 4L) %in% y]
 }
 
-remove_redos <- \(x) {
+remove_redundant <- \(x) {
   
   c(x1, x2, x3, x4, x5) %<-% x
   
@@ -382,7 +244,7 @@ Groups each set of vectors into groupable regex patterns.
 
 ::: {.panel-tabset}
 
-## G1
+## g1
 
 **TODO:** Eliminate this step.
 
@@ -403,7 +265,7 @@ all_tests |>
   group_hcpcs_1()
 ```
 
-## G2
+## g2
 
 ```{r}
 #| label: group_hcpcs_2
@@ -446,7 +308,7 @@ all_tests |>
   group_hcpcs_2()
 ```
 
-## G3
+## g3
 
 ```{r}
 #| label: group_hcpcs_3
@@ -499,7 +361,7 @@ group_lengths(long_test2) |>
   group_hcpcs_3()
 ```
 
-## G4
+## g4
 
 ```{r}
 #| label: group_hcpcs_4
@@ -554,7 +416,7 @@ group_lengths(long_test2) |>
   group_hcpcs_4()
 ```
 
-## G5
+## g5
 
 ```{r}
 #| label: group_hcpcs_5
@@ -613,7 +475,9 @@ group_lengths(long_test2) |>
   group_hcpcs_5()
 ```
 
-## Process Groups
+::: 
+
+### Process Groups
 
 ```{r}
 #| label: process_groups
@@ -632,10 +496,8 @@ process_groups <- function(x) {
 
 groups <- process_groups(long_test2)
 
-groups
+groups$g1
 ```
-
-::: 
 
 # Orphans
 
@@ -1072,8 +934,51 @@ length(hcpcs_codes) # 18903
 length(test_whole)  # 11900
 ```
 
-
 {{< pagebreak >}}
+
+::: {#nte-references .callout-tip collapse="true"}
+
+## Links
+
+### Reference
+
+   - [Regex Cheatsheet](https://github.com/raredd/regex)
+   - [Learn Regex](https://github.com/ziishaned/learn-regex)
+   - [Evaluating strings as code](https://josiahparry.com/posts/2024-06-13-eval-strings)
+   - [Building rules from code operands](https://github.com/Permian-Global-Research/rsi)
+   - [Filter logic](https://github.com/atorus-research/ardis/blob/main/R/denom.R)
+   - [Regular-Expression.info](https://www.regular-expressions.info/tutorial.html)
+   - [RexEgg](https://www.rexegg.com/)
+   - [Regular Expressions as used in R](https://stat.ethz.ch/R-manual/R-devel/library/base/html/regex.html)
+   - [Debuggex](https://www.debuggex.com/)
+
+### Packages
+
+   - [**textshape**](https://github.com/trinker/textshape)
+   - [**stringr.plus**](https://github.com/johncassil/stringr.plus)
+   - [**regexmagic**](https://github.com/jonocarroll/regexmagic)
+   - [**makeunique**](https://github.com/selkamand/makeunique)
+   - [**similiars**](https://github.com/davidsjoberg/similiars)
+   - [**strex**](https://github.com/rorynolan/strex/)
+   - [**stringfish**](https://github.com/traversc/stringfish)
+   - [**collapse**](https://sebkrantz.github.io/collapse/)
+   - [**kit**](https://github.com/2005m/kit)
+   - [**cheapr**](https://github.com/NicChr/cheapr)
+   - [**fastplyr**](https://github.com/NicChr/fastplyr)
+   - [**stringi**](https://stringi.gagolewski.com/)
+   - [**qdapRegex**](https://github.com/trinker/qdapRegex)
+   - [**charcuterie**](https://github.com/jonocarroll/charcuterie)
+
+### Functions
+
+   - [mark::globbing](https://github.com/jmbarbone/mark/blob/main/R/glob.R)
+   - [RUtil::make_unique_comb](https://github.com/raivokolde/RUtil/blob/master/Source/R/make_unique_comb.r)
+   - [mirmisc::longest_common_substring](https://github.com/mirvie/mirmisc/blob/main/R/utils.R)
+   - [hutils::longest prefix/suffix](https://github.com/HughParsonage/hutils/blob/master/R/longest_affix.R)
+   - [tidyext::combn_2_col](https://github.com/m-clark/tidyext/blob/master/R/combn_2_col.R)
+
+::: 
+
 
 # Session Information
 
