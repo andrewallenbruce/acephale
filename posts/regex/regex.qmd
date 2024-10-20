@@ -48,6 +48,8 @@ library(collapse)
 library(cheapr)
 library(fastplyr)
 library(compiler)
+library(re2)
+library(re2r)
 
 long_test <- stringfish::convert_to_sf(
   c(
@@ -109,59 +111,142 @@ all_tests <- stringfish::sf_concat(
   hcpcs_tests
 )
 
-all_hcpcs_codes <- stringfish::convert_to_sf(
+hcpcs_codes <- stringfish::convert_to_sf(
   collapse::funique(
     northstar::search_descriptions()$hcpcs_code)
   )
 ```
 
-## Notes on HCPCS
+# General HCPCS Regexes
 
-   - 5 characters
-   - Start: 1 of `c("ABCEGHJKLMPQRSTUV0123456789")`
-   - Then:  3 of `c("0123456789")`
-   - End:   1 of `c("AFMTU0123456789")`
-   - Regex: `(^[A-CEGHJ-MP-V0-9][0-9]{3}[AFMTU0-9]$)`
+18,903 total HCPCS codes
 
-### HCPCS Level I (CPT)
+```{r}
+#| label: hcpcs_all
+hcpcs_all_regex <- "(^[A-CEGHJ-MP-V0-9][0-9]{3}[AFMTU0-9]$)"
 
-   - Start: 4 of `c("0123456789")`
-   - End:   1 of `c("AFMTU0123456789")`
-   - Regex: `(^[A-CEGHJ-MP-V0-9][0-9]{3}[AFMTU0-9]$)`
-   
-#### CPT Category I
+cheapr::vector_length(
+  vctrs::vec_slice(
+    hcpcs_codes, 
+    stringfish::sf_grepl(
+      hcpcs_codes, 
+      hcpcs_all_regex
+      )
+    )
+  )
+```
 
-   - Start: 4 of `c("0123456789")`
-   - End:   1 of `c("AFMTU0123456789")`
-   - Regex: `(^[A-CEGHJ-MP-V0-9][0-9]{3}[AMU0-9]$)`
+## Level I (CPT)
 
-#### CPT Category II
+```{r}
+#| label: hcpcs_lvlI
+hcpcs_lvlI_regex <- "(^[0-9]{4}[AFMTU0-9]$)"
 
-   - Start: 4 of `c("0123456789")`
-   - End:   1 of `c("F")`
-   - Regex: `(^[0-9]{4}F$)`
+cheapr::vector_length(
+  vctrs::vec_slice(
+    hcpcs_codes, 
+    stringfish::sf_grepl(
+      hcpcs_codes, 
+      hcpcs_lvlI_regex
+      )
+    )
+  )
+```
 
-#### CPT Category III
+### Category I
 
-   - Start: 4 of `c("0123456789")`
-   - End:   1 of `c("T")`
-   - Regex: `(^[0-9]{4}T$)`
+```{r}
+#| label: cpt_catI
+cpt_catI_regex <- "(^[0-9]{4}[AMU0-9]$)"
 
-### HCPCS Level II
+cheapr::vector_length(
+  vctrs::vec_slice(
+    hcpcs_codes, 
+    stringfish::sf_grepl(
+      hcpcs_codes, 
+      cpt_catI_regex
+      )
+    )
+  )
+```
 
-   - Start: 1 of `c("ABCEGHJKLMPQRSTUV")`
-   - End:   4 of `c("0123456789")`
-   - Regex: `(^[A-CEGHJ-MP-V][0-9]{3}[0-9]$)`
+### Category II
 
-# Building the Function
+```{r}
+#| label: cpt_catII
+cpt_catII_regex <- "(^[0-9]{4}F$)"
 
-   - Preprocessing
-   - Initial Split
-   - Remove Redundancies
+cheapr::vector_length(
+  vctrs::vec_slice(
+    hcpcs_codes, 
+    stringfish::sf_grepl(
+      hcpcs_codes, 
+      cpt_catII_regex
+      )
+    )
+  )
+```
 
-**TODO:** If a *wildcard* (`nchar(hcpcs) < 5`) begins with a *letter* (`"C7501*"`), the *postfix* should be **`[0-9]{n}`**, not `[0-9A-Z]{n}`.
+### Category III
 
-## Preprocessing
+```{r}
+#| label: cpt_catIII
+cpt_catIII_regex <- "(^[0-9]{4}T$)"
+
+cheapr::vector_length(
+  vctrs::vec_slice(
+    hcpcs_codes, 
+    stringfish::sf_grepl(
+      hcpcs_codes, 
+      cpt_catIII_regex
+      )
+    )
+  )
+```
+
+## Level II
+
+```{r}
+#| label: hcpcs_lvlII
+hcpcs_lvlII_regex <- "(^[A-CEGHJ-MP-V][0-9]{4}$)"
+
+cheapr::vector_length(
+  vctrs::vec_slice(
+    hcpcs_codes, 
+    stringfish::sf_grepl(
+      hcpcs_codes, 
+      hcpcs_lvlII_regex
+      )
+    )
+  )
+```
+
+
+# TODOs
+
+   * If a **wildcard** begins with a **letter**, the *postfix* should be `[0-9]{n}`.
+   * Eliminate `g1()` step in grouping.
+   * `remove_redundant()`: Don't use `zeallot` infix, try pmap for `rr()` step.
+
+## Preprocess
+
+```{r}
+#| label: internal_functions
+fish <- \(x, i) stringfish::sf_substr(x, start = i, stop = i, nthreads = 4L)
+
+`%notin%` <- data.table::`%notin%`
+
+rr <- \(x, y, n = 1) {
+  
+  if (vctrs::vec_is_empty(x)) return(character(0))
+  
+  x <- x[stringfish::sf_substr(x, 1, n, nthreads = 4L) %notin% y]
+  
+  if (vctrs::vec_is_empty(x)) return(character(0))
+  
+  x
+} 
+```
 
 ::: {.panel-tabset}
 
@@ -179,7 +264,9 @@ split_lengths <- function(x) {
   stopifnot(is.character(x))
   
   x <- stringfish::sf_convert(
-    stringfish::sf_gsub(x, "\\*|\\s", "", nthreads = 4L) |> 
+    stringfish::sf_gsub(
+      x, "\\*|\\s", "", 
+      nthreads = 4L) |> 
       fuimus::uniq_rmna() |> 
     stringr::str_sort())
   
@@ -202,24 +289,7 @@ If a vector contains both `"A"` and `"A0"`, remove `"A0"`. Why? A user may input
 
 ```{r}
 #| label: remove_redundant
-fish <- \(x, i) stringfish::sf_substr(x, start = i, stop = i, nthreads = 4L)
-
-`%notin%` <- data.table::`%notin%`
-
-rc <- \(x) if (vctrs::vec_is_empty(x)) return(character(0))
-
-rr <- \(x, y, n = 1) {
-  
-  rc(x)
-  
-  x <- x[stringfish::sf_substr(x, 1, n, nthreads = 4L) %notin% y]
-  
-  rc(x)
-  
-  x
-}
-
-remove_redundant <- \(x) {
+remove_redundant <- function(x) {
 
   c(x1, x2, x3, x4, x5) %<-% x
   
@@ -233,7 +303,7 @@ remove_redundant <- \(x) {
   
 }
 
-hcpcs_tests[7:30] |>
+hcpcs_tests |>
   split_lengths() |> 
   remove_redundant() |> 
   lobstr::tree()
@@ -246,20 +316,16 @@ all_tests |>
 
 :::
 
-# Grouping Vectors
+# Grouping
 
 Groups each set of vectors into groupable regex patterns.
 
 ::: {.panel-tabset}
 
-## g1
-
-**TODO:** Eliminate this step.
-
-The only thing to be done here is check that the vector is not empty.
+## Groups 1 & 2
 
 ```{r}
-#| label: g1
+#| label: g1_g2
 g1 <- function(x) {
   
   if (vctrs::vec_is_empty(x[["x1"]])) return(character(0))
@@ -268,7 +334,16 @@ g1 <- function(x) {
 
 }
 
-hcpcs_tests[7:30] |>
+g2 <- function(x) {
+  
+  if (vctrs::vec_is_empty(x[["x2"]])) return(character(0))
+  
+  collapse::rsplit(x[["x2"]], fish(x[["x2"]], 1), use.names = FALSE)
+  
+}
+
+
+long_test2 |>
   split_lengths() |> 
   remove_redundant() |> 
   g1()
@@ -277,19 +352,6 @@ all_tests |>
   split_lengths() |> 
   remove_redundant() |> 
   g1()
-```
-
-## g2
-
-```{r}
-#| label: g2
-g2 <- function(x) {
-  
-  if (vctrs::vec_is_empty(x[["x2"]])) return(character(0))
-  
-  collapse::rsplit(x[["x2"]], fish(x[["x2"]], 1), use.names = FALSE)
-  
-}
 
 long_test2 |> 
   split_lengths() |> 
@@ -302,7 +364,7 @@ all_tests |>
   g2()
 ```
 
-## g3
+## Groups 3-5
 
 ```{r}
 #| label: g3
@@ -346,9 +408,12 @@ long_test2 |>
   split_lengths() |> 
   remove_redundant() |> 
   g3()
-```
 
-## g4
+all_tests |> 
+  split_lengths() |> 
+  remove_redundant() |> 
+  g3()
+```
 
 ```{r}
 #| label: g4
@@ -378,7 +443,8 @@ g4 <- function(x) {
     dplyr::right_join(last, by = dplyr::join_by(group_id, a3)) |> 
     dplyr::filter(!is.na(N))
 
-  rest <- indices[(!indices$code %in% c(orphans, last$code)), ] |> fuimus::combine(group_id, columns = c("a1", "a2", "a3"), sep = "")
+  rest <- indices[(!indices$code %in% c(orphans, last$code)), ] |> 
+    fuimus::combine(group_id, columns = c("a1", "a2", "a3"), sep = "")
 
   out <- vctrs::vec_c(
     if (vctrs::vec_is_empty(orphans)) NULL else as.list(orphans),
@@ -396,9 +462,18 @@ hcpcs_tests[20:25] |>
   split_lengths() |> 
   remove_redundant() |> 
   g4()
-```
 
-## g5
+long_test2 |> 
+  split_lengths() |> 
+  remove_redundant() |> 
+  g4()
+
+all_tests |> 
+  split_lengths() |> 
+  # remove_redundant() |> 
+  g4() |> 
+  lobstr::tree()
+```
 
 ```{r}
 #| label: g5
@@ -432,7 +507,8 @@ g5 <- function(x) {
     dplyr::right_join(last, by = dplyr::join_by(group_id, a5)) |> 
     dplyr::filter(!is.na(N))
 
-  rest <- indices[(!indices$code %in% c(orphans, last$code)), ] |> fuimus::combine(group_id, columns = c("a1", "a2", "a3", "a4"), sep = "")
+  rest <- indices[(!indices$code %in% c(orphans, last$code)), ] |> 
+    fuimus::combine(group_id, columns = c("a1", "a2", "a3", "a4"), sep = "")
 
   out <- vctrs::vec_c(
     if (vctrs::vec_is_empty(orphans)) NULL else as.list(orphans),
@@ -450,6 +526,17 @@ hcpcs_tests[26:30] |>
   split_lengths() |> 
   remove_redundant() |> 
   g5()
+
+long_test2 |> 
+  split_lengths() |> 
+  remove_redundant() |> 
+  g4()
+
+all_tests |> 
+  split_lengths() |> 
+  # remove_redundant() |> 
+  g5() |> 
+  lobstr::tree()
 ```
 
 ::: 
@@ -473,182 +560,51 @@ process_groups <- function(x) {
   )
 }
 
-groups <- process_groups(long_test2)
+hcpcs_tests |> 
+  process_groups() |> 
+  lobstr::tree()
 
-groups
+long_test2 |> 
+  process_groups() |> 
+  lobstr::tree()
+
+all_tests |> 
+  process_groups() |> 
+  lobstr::tree()
 ```
 
-# Orphans
 
-::: {.panel-tabset}
-
-## `get_orphans()`
-
-**TODO:** This needs to be done by group as opposed to lumping all orphan character lengths together, so as to create a more human-readable regex output.
+### Internal 2
 
 ```{r}
-#| label: pull_orphans
-pull_orphs <- function(x) {
-  
-  if (vctrs::vec_is_empty(x)) return(character(0))
-  
-  x[collapse::whichv(collapse::vlengths(x), 1)] |> purrr::list_c()
-
-}
-
-pull_fams <- function(x) {
-  
-  if (vctrs::vec_is_empty(x)) return(character(0))
-  
-  x[collapse::whichv(collapse::vlengths(x), 1, TRUE)]
-
-}
-
-get_orphans <- function(x) {
-  list(
-    o2 = pull_orphs(x$g2),
-    o3 = pull_orphs(x$g3),
-    o4 = pull_orphs(x$g4),
-    o5 = pull_orphs(x$g5))
-}
-
-get_families <- function(x) {
-  list(
-    f1 = x$g1,
-    f2 = pull_fams(x$g2),
-    f3 = pull_fams(x$g3),
-    f4 = pull_fams(x$g4),
-    f5 = pull_fams(x$g5))
-}
-
-orphans  <- get_orphans(groups)
-
-families <- get_families(groups)
-
-orphans
-
-families
-```
-
-## Process Orphans
-
-```{r}
-#| label: process_orphans
-vectoregex <- function(x, n) {
-  
-  if (vctrs::vec_is_empty(x)) return(NULL)
-  
-  if (is.null(n)) {
-    as.character(glue::glue_collapse(glue::glue('(^{x}$)', x = x), sep = "|"))
-    } else {
-      as.character(glue::glue_collapse(glue::glue('(^<<x>>[0-9A-Z]{<<n>>}$)', x = x, n = n, .open = "<<", .close = ">>"), sep = "|"))
-    }
-}
-
-process_orphans <- function(x) {
-  
-  list(
-    o2 = vectoregex(x$o2, 3),
-    o3 = vectoregex(x$o3, 2),
-    o4 = vectoregex(x$o4, 1),
-    o5 = vectoregex(x$o5, NULL)) # |> 
-    #purrr::compact()
-  
-  # as.character(glue::glue_collapse(orph, sep = "|"))
-
-}
-
-orphan_regex <- process_orphans(orphans)
-
-orphan_regex
-```
-
-### Test Orphans Regex
-
-```{r}
-#| label: test_orphans
-hcpcs_codes <- collapse::funique(
-  northstar::search_descriptions()$hcpcs_code)
-
-test_orphans <- vctrs::vec_slice(
-  hcpcs_codes, 
-  stringfish::sf_grepl(
-    hcpcs_codes, 
-    orphan_regex
-    )
-  )
-
-length(hcpcs_codes)  # 18903
-length(test_orphans) # 1521
-```
-
-::: 
-
-## Process Families
-
-### Separate Characters & Numbers
-
-```{r}
-#| label: get_char_numb
+#| label: internal_2
 #| echo: true
 #| eval: true
 get_char <- \(x) x[stringfish::sf_grepl(x, "[A-Z]", nthreads = 4L)]
 get_numb <- \(x) x[stringfish::sf_grepl(x, "[0-9]", nthreads = 4L)]
 
-get_char(c(LETTERS, 0:9))
-get_numb(c(LETTERS, 0:9))
-```
-
-
-```{r}
-#| label: pull_char_numb
-#| echo: true
-#| eval: true
-pull_char <- \(x) stringr::str_extract_all(x, stringr::regex("[A-Z]"))
-pull_numb <- \(x) stringr::str_extract_all(x, stringr::regex("[0-9]"))
-
-# pull_char(c(LETTERS, 0:9))
-# pull_numb(c(LETTERS, 0:9))
-```
-
-### Sort & Order
-
-```{r}
-#| label: sort_order
-#| echo: true
-#| eval: true
 sort_order <- function(x) {
-  
-  sorted   <- stringr::str_sort(x, numeric = TRUE)
-  alphabet <- purrr::list_c(pull_char(sorted))
-  numbers  <- purrr::list_c(pull_numb(sorted))
-  
-  paste0(fuimus::collapser(alphabet), fuimus::collapser(numbers))
-}
-```
-
-
-```{r}
-#| label: sort_order2
-#| echo: true
-#| eval: true
-sort_order2 <- function(x) {
   
   sorted   <- stringr::str_sort(x, numeric = TRUE)
   alphabet <- get_char(sorted)
   numbers  <- get_numb(sorted)
   
-  paste0(fuimus::collapser(alphabet), fuimus::collapser(numbers))
+  paste0(
+    fuimus::collapser(alphabet), 
+    fuimus::collapser(numbers)
+    )
 }
 ```
 
-### Reduce Runs
+#### Reduce Runs
 
 ```{r}
 #| label: reduce_runs
 #| echo: true
 #| eval: true
 reduce_runs <- function(x) {
+  
+  if (x == "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789") return("[A-Z0-9]")
   
   vec  <- rlang::set_names(rep(0, 36), c(LETTERS, 0:9))
   vec2 <- vec[fuimus::splitter(x)]
@@ -660,18 +616,18 @@ reduce_runs <- function(x) {
     key = vec,
     idx = seq_along(vec),
     group = dplyr::consecutive_id(key)) |>
-    dplyr::mutate(group_size = dplyr::n(),
-                  .by = group) |>
+    dplyr::mutate(group_size = dplyr::n(), .by = group) |>
     dplyr::filter(key == 1, group_size >= 3) |>
     dplyr::select(value, group)
 
   if (vctrs::vec_is_empty(vec_group)) return(x)
-
-  xgroups <- unname(split(vec_group, vec_group$group)) |>
-    purrr::map(purrr::pluck("value")) |>
+  
+  xgroups <- vctrs::vec_chop(
+    vec_group$value, 
+    sizes = vctrs::vec_run_sizes(vec_group$group)) |>
     purrr::map(fuimus::collapser) |>
     purrr::list_c()
-
+  
   replacements <- dplyr::left_join(
     dplyr::slice_min(vec_group, by = group, order_by = value) |> dplyr::rename(start = value),
     dplyr::slice_max(vec_group, by = group, order_by = value) |> dplyr::rename(end = value),
@@ -685,147 +641,54 @@ reduce_runs <- function(x) {
 }
 ```
 
-```{r}
-#| label: reduce_runs2
-#| echo: true
-#| eval: true
-reduce_runs2 <- function(x) {
-  
-  test <- list(
-    char = purrr::map(x, pull_char) |> purrr::list_c() |> purrr::compact() |> purrr::list_c(),
-    numb = purrr::map(x, pull_numb) |> purrr::list_c() |> purrr::compact() |> purrr::list_c())
-  
-  vec <- list(
-    char = rlang::set_names(rep(0, 26), LETTERS),
-    numb = rlang::set_names(rep(0, 10), as.character(0:9)))
-  
-  vna <- list(
-    char = vec$char[test$char],
-    numb = vec$numb[test$numb])
-  
-  vna <- list(
-    char = vna$char[!is.na(vna$char)],
-    numb = vna$numb[!is.na(vna$numb)])
-  
-  vec$char[names(vna$char)] <- 1
-  vec$numb[names(vna$numb)] <- 1
-  
-  group_char <- dplyr::tibble(
-    value = names(vec$char),
-    key = vec$char,
-    idx = seq_along(vec$char),
-    group = dplyr::consecutive_id(key)) |>
-    dplyr::mutate(group_size = dplyr::n(), .by = group) |>
-    dplyr::filter(key == 1, group_size >= 3) |>
-    dplyr::select(value, group)
-  
-  group_numb <- dplyr::tibble(
-    value = names(vec$numb),
-    key = vec$numb,
-    idx = seq_along(vec$numb),
-    group = dplyr::consecutive_id(key)) |>
-    dplyr::mutate(group_size = dplyr::n(), .by = group) |>
-    dplyr::filter(key == 1, group_size >= 3) |>
-    dplyr::select(value, group)
-  
-  xgroups_char <- unname(split(group_char, group_char$group)) |>
-    purrr::map(purrr::pluck("value")) |>
-    purrr::map(paste0, collapse = "") |>
-    purrr::list_c()
-  
-  xgroups_numb <- unname(split(group_numb, group_numb$group)) |>
-    purrr::map(purrr::pluck("value")) |>
-    purrr::map(paste0, collapse = "") |>
-    purrr::list_c()
-  
-  replace_char <- dplyr::left_join(
-    dplyr::slice_min(group_char, by = group, order_by = value) |> dplyr::rename(start = value),
-    dplyr::slice_max(group_char, by = group, order_by = value) |> dplyr::rename(end = value),
-    by = dplyr::join_by(group)) |>
-    glue::glue_data("{start}-{end}") |>
-    as.vector()
-  
-  replace_numb <- dplyr::left_join(
-    dplyr::slice_min(group_numb, by = group, order_by = value) |> dplyr::rename(start = value),
-    dplyr::slice_max(group_numb, by = group, order_by = value) |> dplyr::rename(end = value),
-    by = dplyr::join_by(group)) |>
-    glue::glue_data("{start}-{end}") |>
-    as.vector()
-  
-  orig <- list(
-    char = fuimus::collapser(test$char),
-    numb = fuimus::collapser(test$numb))
-  
-  res <- list(
-    char = if(!vctrs::vec_is_empty(group_char)) {
-      stringi::stri_replace_all_regex(
-        orig$char, 
-        xgroups_char, 
-        replace_char, 
-        vectorize_all = FALSE)
-      } else {
-        orig$char
-        },
-    numb = if(!vctrs::vec_is_empty(group_numb)) {
-      stringi::stri_replace_all_regex(
-        orig$numb, 
-        xgroups_numb, 
-        replace_numb, 
-        vectorize_all = FALSE)
-    } else {
-        orig$numb
-      }
-    )
-  paste0("[", res$char, res$numb, "]")
-}
-```
-
-
-### Groups == 1
+## Groups of 1
 
 ```{r}
-#| label: process_hcpcs_1
-process_hcpcs_1 <- function(x) {
+#| label: p1
+p1 <- function(x) {
   
-  if (!rlang::has_name(x, "f1")) return(NULL)
+  if (vctrs::vec_is_empty(x[["g1"]])) return(NULL)
   
-  re <- sort_order(x[["f1"]]) |> 
-    reduce_runs2()
+  re <- sort_order2(x[["g1"]]) |> reduce_runs()
   
   if (re == "[A-Z0-9]") {
-    
     return(stringr::str_glue("(^{re}{{5}}$)"))
-    
   } else {
-    
     return(stringr::str_glue("(^{re}[A-Z0-9]{{4}}$)"))
-    
-    }
+  }
 }
 
-process_hcpcs_1(families)
+all_tests |> 
+  process_groups() |> 
+  p1()
+
+hcpcs_tests |> 
+  process_groups() |> 
+  p1()
+
+long_test2 |> 
+  process_groups() |> 
+  p1()
+
+list(g1 = c(0:9, LETTERS)) |> 
+  p1()
 ```
 
 ### Groups > 1
 
 ```{r}
-#| label: process_hcpcs_2
-process_hcpcs_2 <- function(x) {
+#| label: p2
+p2 <- function(x) {
   
-  if (is.null(x)) return(NULL)
+  if (vctrs::vec_is_empty(x)) return(NULL)
   
   vecs <- stringr::str_split_fixed(
-    x, 
-    "", 
-    n = collapse::fmax(
-      collapse::vlengths(x)
-      )
-    ) |>
+    x, "", collapse::fmax(collapse::vlengths(x))) |>
     as.data.frame()
   
   to_brackets <- vecs |>
     purrr::map(fuimus::uniq_rmna) |>
-    purrr::map(sort_order)
+    purrr::map(sort_order2)
   
   to_vec <- to_brackets |>
     purrr::map(reduce_runs)
@@ -840,82 +703,63 @@ process_hcpcs_2 <- function(x) {
 
   fuimus::collapser(to_vec)
 }
-
-purrr::map_chr(families$f5, process_hcpcs_2)
 ```
 
-### Process Families
+### Reduce Groups
 
 ```{r}
-#| label: process_families
-process_families <- function(x) {
+#| label: reduce_groups
+vrg <- function(x, n) {
   
-  x <- list(
-    f1 = process_hcpcs_1(families),
-    f2 = purrr::map_chr(families$f2, process_hcpcs_2),
-    f3 = purrr::map_chr(families$f3, process_hcpcs_2),
-    f4 = purrr::map_chr(families$f4, process_hcpcs_2),
-    f5 = purrr::map_chr(families$f5, process_hcpcs_2)
-  )
+  if (is.null(x)) return(NULL)
   
-  fam <- list(
-    f1 = x$f1,
-    f2 = vectoregex(x$x2, 3),
-    f3 = vectoregex(x$f3, 2),
-    f4 = vectoregex(x$f4, 1),
-    f5 = vectoregex(x$f5, NULL)
+  if (n == 0) {
+    return(
+      glue::glue_collapse(
+        glue::glue(
+          "(^{x}$)", 
+          x = x), 
+        sep = "|")
+      )
+    }
+  
+  glue::glue_collapse(
+    glue::glue(
+      "(^<<x>>[0-9A-Z]{<<n>>}$)", 
+      x = x, 
+      n = n, 
+      .open = "<<", 
+      .close = ">>"), 
+    sep = "|")
+}
+
+reduce_groups <- function(x) {
+  
+  list(
+    g1 = p1(x),
+    g2 = purrr::map_vec(x$g2, p2) |> vrg(3),
+    g3 = purrr::map_vec(x$g3, p2) |> vrg(2),
+    g4 = purrr::map_vec(x$g4, p2) |> vrg(1),
+    g5 = purrr::map_vec(x$g5, p2) |> vrg(0)
   ) |> 
-    purrr::compact()
-  
-  glue::glue_collapse(fam, sep = "|")
+    purrr::compact() |> 
+    glue::glue_collapse(sep = "|")
 }
 
-families_regex <- process_families(families)
 
-families_regex
+all_tests |> 
+  process_groups() |> 
+  reduce_groups()
+
+hcpcs_tests |> 
+  process_groups() |>
+  reduce_groups()
+
+long_test2 |> 
+  process_groups() |>
+  reduce_groups()
 ```
 
-### Test Families Regex
-
-```{r}
-#| label: test_families
-test_families <- vctrs::vec_slice(
-  hcpcs_codes, 
-  stringfish::sf_grepl(
-    hcpcs_codes, 
-    families_regex
-    )
-  )
-
-length(hcpcs_codes)   # 18903
-length(test_families) # 11900
-```
-
-## Concatenate Regex
-
-```{r}
-concatenate_regex <- function(x, y) {
-  as.character(glue::glue_collapse(c(x, y), sep = "|"))
-}
-
-whole_regex <- concatenate_regex(families_regex, orphan_regex)
-```
-
-### Test Whole Regex
-
-```{r}
-#| label: test_whole
-test_whole <- vctrs::vec_slice(
-  hcpcs_codes, 
-  stringfish::sf_grepl(
-    hcpcs_codes, 
-    whole_regex
-    )
-  )
-
-length(hcpcs_codes) # 18903
-length(test_whole)  # 11900
-```
 
 {{< pagebreak >}}
 

@@ -385,3 +385,171 @@ hcpcs_tests$two[hcpcs_tests$two == hcpcs_tests$three]
 Reduce(intersect, list(hcpcs_tests$two, hcpcs_tests$three))
 
 rbind(hcpcs_tests$two, hcpcs_tests$three)
+
+
+pull_orphs <- function(x) {
+
+  if (vctrs::vec_is_empty(x)) return(character(0))
+
+  x[collapse::whichv(collapse::vlengths(x), 1)] |> purrr::list_c()
+
+}
+
+pull_fams <- function(x) {
+
+  if (vctrs::vec_is_empty(x)) return(character(0))
+
+  x[collapse::whichv(collapse::vlengths(x), 1, TRUE)]
+
+}
+
+get_orphans <- function(x) {
+  list(
+    o2 = pull_orphs(x$g2),
+    o3 = pull_orphs(x$g3),
+    o4 = pull_orphs(x$g4),
+    o5 = pull_orphs(x$g5))
+}
+
+get_families <- function(x) {
+  list(
+    f1 = x$g1,
+    f2 = pull_fams(x$g2),
+    f3 = pull_fams(x$g3),
+    f4 = pull_fams(x$g4),
+    f5 = pull_fams(x$g5))
+}
+
+orphans  <- get_orphans(groups)
+
+families <- get_families(groups)
+
+orphans
+
+families
+
+process_orphans <- function(x) {
+
+  list(
+    o2 = vectoregex(x$o2, 3),
+    o3 = vectoregex(x$o3, 2),
+    o4 = vectoregex(x$o4, 1),
+    o5 = vectoregex(x$o5, NULL)) # |>
+  #purrr::compact()
+
+  # as.character(glue::glue_collapse(orph, sep = "|"))
+
+}
+
+orphan_regex <- process_orphans(orphans)
+
+orphan_regex
+
+
+reduce_runs2 <- function(x) {
+
+  test <- list(
+    char = purrr::map(x, pull_char) |> purrr::list_c() |> purrr::compact() |> purrr::list_c(),
+    numb = purrr::map(x, pull_numb) |> purrr::list_c() |> purrr::compact() |> purrr::list_c())
+
+  vec <- list(
+    char = rlang::set_names(rep(0, 26), LETTERS),
+    numb = rlang::set_names(rep(0, 10), as.character(0:9)))
+
+  vna <- list(
+    char = vec$char[test$char],
+    numb = vec$numb[test$numb])
+
+  vna <- list(
+    char = vna$char[!is.na(vna$char)],
+    numb = vna$numb[!is.na(vna$numb)])
+
+  vec$char[names(vna$char)] <- 1
+  vec$numb[names(vna$numb)] <- 1
+
+  group_char <- dplyr::tibble(
+    value = names(vec$char),
+    key = vec$char,
+    idx = seq_along(vec$char),
+    group = dplyr::consecutive_id(key)) |>
+    dplyr::mutate(group_size = dplyr::n(), .by = group) |>
+    dplyr::filter(key == 1, group_size >= 3) |>
+    dplyr::select(value, group)
+
+  group_numb <- dplyr::tibble(
+    value = names(vec$numb),
+    key = vec$numb,
+    idx = seq_along(vec$numb),
+    group = dplyr::consecutive_id(key)) |>
+    dplyr::mutate(group_size = dplyr::n(), .by = group) |>
+    dplyr::filter(key == 1, group_size >= 3) |>
+    dplyr::select(value, group)
+
+  xgroups_char <- unname(split(group_char, group_char$group)) |>
+    purrr::map(purrr::pluck("value")) |>
+    purrr::map(paste0, collapse = "") |>
+    purrr::list_c()
+
+  xgroups_numb <- unname(split(group_numb, group_numb$group)) |>
+    purrr::map(purrr::pluck("value")) |>
+    purrr::map(paste0, collapse = "") |>
+    purrr::list_c()
+
+  replace_char <- dplyr::left_join(
+    dplyr::slice_min(group_char, by = group, order_by = value) |> dplyr::rename(start = value),
+    dplyr::slice_max(group_char, by = group, order_by = value) |> dplyr::rename(end = value),
+    by = dplyr::join_by(group)) |>
+    glue::glue_data("{start}-{end}") |>
+    as.vector()
+
+  replace_numb <- dplyr::left_join(
+    dplyr::slice_min(group_numb, by = group, order_by = value) |> dplyr::rename(start = value),
+    dplyr::slice_max(group_numb, by = group, order_by = value) |> dplyr::rename(end = value),
+    by = dplyr::join_by(group)) |>
+    glue::glue_data("{start}-{end}") |>
+    as.vector()
+
+  orig <- list(
+    char = fuimus::collapser(test$char),
+    numb = fuimus::collapser(test$numb))
+
+  res <- list(
+    char = if(!vctrs::vec_is_empty(group_char)) {
+      stringi::stri_replace_all_regex(
+        orig$char,
+        xgroups_char,
+        replace_char,
+        vectorize_all = FALSE)
+    } else {
+      orig$char
+    },
+    numb = if(!vctrs::vec_is_empty(group_numb)) {
+      stringi::stri_replace_all_regex(
+        orig$numb,
+        xgroups_numb,
+        replace_numb,
+        vectorize_all = FALSE)
+    } else {
+      orig$numb
+    }
+  )
+  paste0("[", res$char, res$numb, "]")
+}
+
+# get_char(c(LETTERS, 0:9))
+# get_numb(c(LETTERS, 0:9))
+
+pull_char <- \(x) stringr::str_extract_all(x, stringr::regex("[A-Z]"))
+pull_numb <- \(x) stringr::str_extract_all(x, stringr::regex("[0-9]"))
+
+# pull_char(c(LETTERS, 0:9))
+# pull_numb(c(LETTERS, 0:9))
+
+sort_order <- function(x) {
+
+  sorted   <- stringr::str_sort(x, numeric = TRUE)
+  alphabet <- purrr::list_c(pull_char(sorted))
+  numbers  <- purrr::list_c(pull_numb(sorted))
+
+  paste0(fuimus::collapser(alphabet), fuimus::collapser(numbers))
+}
