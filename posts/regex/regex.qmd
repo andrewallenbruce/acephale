@@ -87,34 +87,29 @@ long_test <- stringfish::convert_to_sf(
     "G0413", "G0414", "G0415", "S2342"
 ))
 
-# "HCPCS -> Regex -> Predicate"
+hcpcs_tests <- sf_concat(
+  c("J*", "G", "0", 4:6),
+  c(as.character(30:32)),
+  c(as.character(721:729)),
+  c(as.character(5202:5208)),
+  c(as.character(92015:92019)))
 
-hcpcs_tests <- stringfish::sf_concat(
-  c("J*", "G", "0", 4:6),        # "^[0-9A-Z]{5}$"
-  c(as.character(30:32)),        # "^[9][0-8][0-9]{3}$"
-  c(as.character(721:729)),      # "^[9][2][1-9][0-9]{2}$"
-  c(as.character(5202:5208)),    # "^[9][2][0][2-8][0-9]{1}$"
-  c(as.character(92015:92019))   # "^[9][2][0][1][5-9]$"
-)
+long_test2 <- sf_concat(
+  sf_substr(long_test, 1, 1),
+  sf_substr(long_test, 1, 2),
+  sf_substr(long_test, 1, 3),
+  sf_substr(long_test, 1, 4),
+  sf_substr(long_test, 1, 5))
 
-long_test2 <- stringfish::sf_concat(
-  stringfish::sf_substr(long_test, 1, 1),
-  stringfish::sf_substr(long_test, 1, 2),
-  stringfish::sf_substr(long_test, 1, 3),
-  stringfish::sf_substr(long_test, 1, 4),
-  stringfish::sf_substr(long_test, 1, 5)
-)
+all_tests <- sf_concat(
+  # sf_substr(long_test, 1, 1),
+  sf_substr(long_test, 1, 2),
+  sf_substr(long_test, 1, 3),
+  sf_substr(long_test, 1, 4),
+  sf_substr(long_test, 1, 5),
+  hcpcs_tests)
 
-all_tests <- stringfish::sf_concat(
-  # stringfish::sf_substr(long_test, 1, 1),
-  stringfish::sf_substr(long_test, 1, 2),
-  stringfish::sf_substr(long_test, 1, 3),
-  stringfish::sf_substr(long_test, 1, 4),
-  stringfish::sf_substr(long_test, 1, 5),
-  hcpcs_tests
-)
-
-hcpcs_codes <- stringfish::convert_to_sf(collapse::funique(northstar::search_descriptions()$hcpcs_code))
+hcpcs_codes <- convert_to_sf(funique(northstar::search_descriptions()$hcpcs_code))
 ```
 
 # HCPCS
@@ -158,7 +153,7 @@ dplyr::tibble(HCPCS = "Total", Count = hcpcs_all_ln, Regex = hcpcs_all_rx) |>
 ```{r}
 #| label: internal_functions
 `%notin%` <- data.table::`%notin%`
-fish      <- \(x, i) stringfish::sf_substr(x, start = i, stop = i, nthreads = 4L)
+take      <- \(x, i = 1) stringfish::sf_substr(x, start = i, stop = i, nthreads = 4L)
 empty     <- \(x) vctrs::vec_is_empty(x)
 ```
 
@@ -237,7 +232,7 @@ g2 <- function(x) {
   
   if (empty(x[["x2"]])) return(character(0))
   
-  collapse::rsplit(x[["x2"]], fish(x[["x2"]], 1), use.names = FALSE)
+  collapse::rsplit(x[["x2"]], take(x[["x2"]]), use.names = FALSE)
   
 }
 
@@ -282,9 +277,9 @@ g3 <- function(x) {
   
   idx <- data.table(
     c1 = x[["x3"]],
-    a1 = fish(x[["x3"]], 1),
-    a2 = fish(x[["x3"]], 2),
-    a3 = fish(x[["x3"]], 3)) |> 
+    a1 = take(x[["x3"]]),
+    a2 = take(x[["x3"]], 2),
+    a3 = take(x[["x3"]], 3)) |> 
     dplyr::mutate(i1 = dplyr::consecutive_id(a1)) |> 
     dplyr::mutate(i2 = dplyr::consecutive_id(a2), .by = a1) |> 
     dplyr::mutate(i3 = dplyr::consecutive_id(a3), .by = c(a1, a2)) |> 
@@ -329,8 +324,7 @@ long_test2 |>
 all_tests |> 
   split_lengths() |> 
   remove_redundant() |>
-  g3() |> 
-  lobstr::tree()
+  g3()
 ```
 
 ```{r}
@@ -341,10 +335,10 @@ g4 <- function(x) {
   
   indices <- dplyr::tibble(
     code = x[["x4"]],
-    a1 = fish(code, 1),
-    a2 = fish(code, 2),
-    a3 = fish(code, 3),
-    a4 = fish(code, 4)) |> 
+    a1 = take(code),
+    a2 = take(code, 2),
+    a3 = take(code, 3),
+    a4 = take(code, 4)) |> 
     dplyr::mutate(i1 = dplyr::consecutive_id(a1)) |> 
     dplyr::mutate(i2 = dplyr::consecutive_id(a2), .by = a1) |> 
     dplyr::mutate(i3 = dplyr::consecutive_id(a3), .by = c(a1, a2)) |> 
@@ -387,9 +381,8 @@ long_test2 |>
 
 all_tests |> 
   split_lengths() |> 
-  # remove_redundant() |>
-  g4() |> 
-  lobstr::tree()
+  remove_redundant() |>
+  g4()
 ```
 
 ```{r}
@@ -400,11 +393,11 @@ g5 <- function(x) {
   
   indices <- dplyr::tibble(
     code = x[["x5"]],
-    a1 = fish(code, 1),
-    a2 = fish(code, 2),
-    a3 = fish(code, 3),
-    a4 = fish(code, 4),
-    a5 = fish(code, 5)) |> 
+    a1 = take(code),
+    a2 = take(code, 2),
+    a3 = take(code, 3),
+    a4 = take(code, 4),
+    a5 = take(code, 5)) |> 
     dplyr::mutate(i1 = dplyr::consecutive_id(a1)) |> 
     dplyr::mutate(i2 = dplyr::consecutive_id(a2), .by = a1) |> 
     dplyr::mutate(i3 = dplyr::consecutive_id(a3), .by = c(a1, a2)) |> 
@@ -450,9 +443,8 @@ long_test2 |>
 
 all_tests |> 
   split_lengths() |> 
-  # remove_redundant() |>
-  g5() |> 
-  lobstr::tree()
+  remove_redundant() |>
+  g5()
 ```
 
 ::: 
@@ -536,7 +528,7 @@ reduce_runs <- function(x) {
     dplyr::filter(key == 1, group_size >= 3) |>
     dplyr::select(value, group)
 
-  if (vctrs::vec_is_empty(vec_group)) return(x)
+  if (empty(vec_group)) return(x)
   
   xgroups <- vctrs::vec_chop(
     vec_group$value, 
@@ -567,11 +559,9 @@ p1 <- function(x) {
   
   re <- sort_order(x[["g1"]]) |> reduce_runs()
   
-  if (re == "[A-Z0-9]") {
-    return(stringr::str_glue("(^{re}{{5}}$)"))
-  } else {
-    return(stringr::str_glue("(^{re}[A-Z0-9]{{4}}$)"))
-  }
+  if (re == "[A-Z0-9]") return(paste0("(^", re, "{5}$)"))
+  
+  return(paste0("(^", re, "[A-Z0-9]{4}$)"))
 }
 
 all_tests |> 
@@ -616,8 +606,7 @@ p2 <- function(x) {
   to_vec[multi_chars] <- ifelse(
     any(nobrack), 
     purrr::map_chr(to_vec[multi_chars], \(x) paste0("[", x, "]")), 
-    to_vec[multi_chars]
-    )
+    to_vec[multi_chars])
 
   purrr::list_c(to_vec) |> 
     fuimus::collapser()
@@ -634,15 +623,14 @@ vrg <- function(x, n) {
   
   postfix <- ifelse(
     stringfish::sf_starts(x, "[A-Z]", nthreads = 4L), 
-    "[0-9]", "[0-9A-Z]"
-    )
+    "[0-9]", "[A-Z0-9]")
   
   x <- ifelse(
     n == 0, 
-    glue::glue("(^{x}$)"),
-    glue::glue("(^<<x>><<postfix>>{<<n>>}$)", .open = "<<", .close = ">>")
-    )
-  glue::glue_collapse(x , "|")
+    paste0("(^", x, "$)"),                
+    paste0("(^", x, postfix, "{", n, "}$)")) 
+    
+  paste0(x , collapse = "|")
 }
 
 reduce_groups <- function(x) {
@@ -655,9 +643,8 @@ reduce_groups <- function(x) {
     g5 = purrr::map_vec(x$g5, p2) |> vrg(0)
   ) |> 
     purrr::compact() |> 
-    glue::glue_collapse(sep = "|")
+    paste0(collapse = "|")
 }
-
 
 all_tests |> 
   process_groups() |> 
@@ -674,6 +661,39 @@ long_test2 |>
 long_test2[nchar(long_test2) > 4] |> 
   process_groups() |> 
   reduce_groups()
+```
+
+
+```{r}
+#| label: final_output
+medrex <- function(x) {
+  x |> 
+    process_groups() |> 
+    reduce_groups()
+}
+
+medrex(all_tests)
+
+# 7123
+# vector_length(
+#   vec_slice(
+#     hcpcs_codes, 
+#     sf_grepl(
+#       hcpcs_codes, 
+#       medrex(all_tests)
+#       )
+#     )
+#   )
+
+vec_slice(
+  hcpcs_codes, 
+  sf_grepl(
+    hcpcs_codes, 
+    medrex(
+      long_test2[nchar(long_test2) > 3]
+      )
+    )
+  )
 ```
 
 
