@@ -234,18 +234,20 @@ cheapr::vector_length(
 #| label: internal_functions
 fish <- \(x, i) stringfish::sf_substr(x, start = i, stop = i, nthreads = 4L)
 
+empty <- \(x) vctrs::vec_is_empty(x)
+
 `%notin%` <- data.table::`%notin%`
 
 rr <- \(x, y, n = 1) {
   
-  if (vctrs::vec_is_empty(x)) return(character(0))
+  if (empty(x)) return(character(0))
   
   x <- x[stringfish::sf_substr(x, 1, n, nthreads = 4L) %notin% y]
   
-  if (vctrs::vec_is_empty(x)) return(character(0))
+  if (empty(x)) return(character(0))
   
   x
-} 
+}
 ```
 
 ::: {.panel-tabset}
@@ -263,21 +265,20 @@ split_lengths <- function(x) {
   
   stopifnot(is.character(x))
   
-  x <- stringfish::sf_convert(
-    stringfish::sf_gsub(
+  x <- stringfish::sf_gsub(
       x, "\\*|\\s", "", 
       nthreads = 4L) |> 
       fuimus::uniq_rmna() |> 
-    stringr::str_sort())
+    stringr::str_sort()
   
-  len <- collapse::vlengths(x)
+  l <- collapse::vlengths(x)
   
   list(
-    x1 = x[len == 1],
-    x2 = x[len == 2],
-    x3 = x[len == 3],
-    x4 = x[len == 4],
-    x5 = x[len == 5]
+    x1 = x[l == 1],
+    x2 = x[l == 2],
+    x3 = x[l == 3],
+    x4 = x[l == 4],
+    x5 = x[l == 5]
   )
 }
 ```
@@ -312,6 +313,10 @@ all_tests |>
   split_lengths() |> 
   remove_redundant() |> 
   lobstr::tree()
+
+long_test2 |>
+  split_lengths() |> 
+  remove_redundant()
 ```
 
 :::
@@ -328,7 +333,7 @@ Groups each set of vectors into groupable regex patterns.
 #| label: g1_g2
 g1 <- function(x) {
   
-  if (vctrs::vec_is_empty(x[["x1"]])) return(character(0))
+  if (empty(x[["x1"]])) return(character(0))
   
   x[["x1"]]
 
@@ -336,12 +341,16 @@ g1 <- function(x) {
 
 g2 <- function(x) {
   
-  if (vctrs::vec_is_empty(x[["x2"]])) return(character(0))
+  if (empty(x[["x2"]])) return(character(0))
   
   collapse::rsplit(x[["x2"]], fish(x[["x2"]], 1), use.names = FALSE)
   
 }
 
+hcpcs_tests |>
+  split_lengths() |> 
+  remove_redundant() |> 
+  g1()
 
 long_test2 |>
   split_lengths() |> 
@@ -352,6 +361,11 @@ all_tests |>
   split_lengths() |> 
   remove_redundant() |> 
   g1()
+
+hcpcs_tests |>
+  split_lengths() |> 
+  remove_redundant() |> 
+  g2()
 
 long_test2 |> 
   split_lengths() |> 
@@ -370,7 +384,7 @@ all_tests |>
 #| label: g3
 g3 <- function(x) {
   
-  if (vctrs::vec_is_empty(x[["x3"]])) return(character(0))
+  if (empty(x[["x3"]])) return(character(0))
   
   indices <- dplyr::tibble(
     code = x[["x3"]],
@@ -393,16 +407,20 @@ g3 <- function(x) {
   rest <- indices[(!indices$code %in% c(orphans, last$code)), ]
 
   out <- vctrs::vec_c(
-    if (vctrs::vec_is_empty(orphans)) NULL else as.list(orphans),
-    if (vctrs::vec_is_empty(last)) NULL else vctrs::vec_chop(last$code, sizes = vctrs::vec_run_sizes(last$a1)),
-    if (vctrs::vec_is_empty(rest)) NULL else vctrs::vec_chop(rest$code, sizes = vctrs::vec_run_sizes(rest$a1))
+    if (empty(orphans)) NULL else as.list(orphans),
+    if (empty(last)) NULL else vctrs::vec_chop(last$code, sizes = vctrs::vec_run_sizes(last$a1)),
+    if (empty(rest)) NULL else vctrs::vec_chop(rest$code, sizes = vctrs::vec_run_sizes(rest$a1))
   )
   
-  if (vctrs::vec_is_empty(out)) {
-    return(character(0))
-  }
+  if (empty(out)) return(character(0))
+
   return(out)
 }
+
+hcpcs_tests |>
+  split_lengths() |> 
+  remove_redundant() |> 
+  g3()
 
 long_test2 |> 
   split_lengths() |> 
@@ -411,15 +429,16 @@ long_test2 |>
 
 all_tests |> 
   split_lengths() |> 
-  remove_redundant() |> 
-  g3()
+  # remove_redundant() |> 
+  g3() |> 
+  lobstr::tree()
 ```
 
 ```{r}
 #| label: g4
 g4 <- function(x) {
   
-  if (vctrs::vec_is_empty(x[["x4"]])) return(character(0))
+  if (empty(x[["x4"]])) return(character(0))
   
   indices <- dplyr::tibble(
     code = x[["x4"]],
@@ -447,14 +466,13 @@ g4 <- function(x) {
     fuimus::combine(group_id, columns = c("a1", "a2", "a3"), sep = "")
 
   out <- vctrs::vec_c(
-    if (vctrs::vec_is_empty(orphans)) NULL else as.list(orphans),
-    if (vctrs::vec_is_empty(last)) NULL else vctrs::vec_chop(last$code, sizes = vctrs::vec_run_sizes(last$group_id)),
-    if (vctrs::vec_is_empty(rest)) NULL else vctrs::vec_chop(rest$code, sizes = vctrs::vec_run_sizes(rest$group_id))
+    if (empty(orphans)) NULL else as.list(orphans),
+    if (empty(last)) NULL else vctrs::vec_chop(last$code, sizes = vctrs::vec_run_sizes(last$group_id)),
+    if (empty(rest)) NULL else vctrs::vec_chop(rest$code, sizes = vctrs::vec_run_sizes(rest$group_id))
   )
   
-  if (vctrs::vec_is_empty(out)) {
-    return(character(0))
-  }
+  if (empty(out)) return(character(0))
+  
   return(out)
 }
 
@@ -470,7 +488,7 @@ long_test2 |>
 
 all_tests |> 
   split_lengths() |> 
-  # remove_redundant() |> 
+  # remove_redundant() |>
   g4() |> 
   lobstr::tree()
 ```
@@ -479,7 +497,7 @@ all_tests |>
 #| label: g5
 g5 <- function(x) {
   
-  if (vctrs::vec_is_empty(x[["x5"]])) return(character(0))
+  if (empty(x[["x5"]])) return(character(0))
   
   indices <- dplyr::tibble(
     code = x[["x5"]],
@@ -511,14 +529,13 @@ g5 <- function(x) {
     fuimus::combine(group_id, columns = c("a1", "a2", "a3", "a4"), sep = "")
 
   out <- vctrs::vec_c(
-    if (vctrs::vec_is_empty(orphans)) NULL else as.list(orphans),
-    if (vctrs::vec_is_empty(last)) NULL else vctrs::vec_chop(last$code, sizes = vctrs::vec_run_sizes(last$group_id)),
-    if (vctrs::vec_is_empty(rest)) NULL else vctrs::vec_chop(rest$code, sizes = vctrs::vec_run_sizes(rest$group_id))
+    if (empty(orphans)) NULL else as.list(orphans),
+    if (empty(last)) NULL else vctrs::vec_chop(last$code, sizes = vctrs::vec_run_sizes(last$group_id)),
+    if (empty(rest)) NULL else vctrs::vec_chop(rest$code, sizes = vctrs::vec_run_sizes(rest$group_id))
   )
   
-  if (vctrs::vec_is_empty(out)) {
-    return(character(0))
-  }
+  if (empty(out)) return(character(0))
+  
   return(out)
 }
 
@@ -534,7 +551,7 @@ long_test2 |>
 
 all_tests |> 
   split_lengths() |> 
-  # remove_redundant() |> 
+  # remove_redundant() |>
   g5() |> 
   lobstr::tree()
 ```
@@ -647,9 +664,9 @@ reduce_runs <- function(x) {
 #| label: p1
 p1 <- function(x) {
   
-  if (vctrs::vec_is_empty(x[["g1"]])) return(NULL)
+  if (empty(x[["g1"]])) return(NULL)
   
-  re <- sort_order2(x[["g1"]]) |> reduce_runs()
+  re <- sort_order(x[["g1"]]) |> reduce_runs()
   
   if (re == "[A-Z0-9]") {
     return(stringr::str_glue("(^{re}{{5}}$)"))
@@ -680,7 +697,7 @@ list(g1 = c(0:9, LETTERS)) |>
 #| label: p2
 p2 <- function(x) {
   
-  if (vctrs::vec_is_empty(x)) return(NULL)
+  if (empty(x)) return(NULL)
   
   vecs <- stringr::str_split_fixed(
     x, "", collapse::fmax(collapse::vlengths(x))) |>
@@ -688,7 +705,7 @@ p2 <- function(x) {
   
   to_brackets <- vecs |>
     purrr::map(fuimus::uniq_rmna) |>
-    purrr::map(sort_order2)
+    purrr::map(sort_order)
   
   to_vec <- to_brackets |>
     purrr::map(reduce_runs)
@@ -696,12 +713,15 @@ p2 <- function(x) {
   multi_chars <- unname(nchar(to_vec) > 1)
   
   nobrack <- stringr::str_detect(to_vec[multi_chars], "\\[|\\]", TRUE)
+  
+  to_vec[multi_chars] <- ifelse(
+    any(nobrack), 
+    purrr::map_chr(to_vec[multi_chars], \(x) paste0("[", x, "]")), 
+    to_vec[multi_chars]
+    )
 
-  to_vec[multi_chars] <- if (any(nobrack)) purrr::map_chr(to_vec[multi_chars], \(x) paste0("[", x, "]")) else to_vec[multi_chars]
-
-  to_vec <- purrr::list_c(to_vec)
-
-  fuimus::collapser(to_vec)
+  purrr::list_c(to_vec) |> 
+    fuimus::collapser()
 }
 ```
 
@@ -713,24 +733,17 @@ vrg <- function(x, n) {
   
   if (is.null(x)) return(NULL)
   
-  if (n == 0) {
-    return(
-      glue::glue_collapse(
-        glue::glue(
-          "(^{x}$)", 
-          x = x), 
-        sep = "|")
-      )
-    }
+  postfix <- ifelse(
+    stringfish::sf_starts(x, "[A-Z]", nthreads = 4L), 
+    "[0-9]", "[0-9A-Z]"
+    )
   
-  glue::glue_collapse(
-    glue::glue(
-      "(^<<x>>[0-9A-Z]{<<n>>}$)", 
-      x = x, 
-      n = n, 
-      .open = "<<", 
-      .close = ">>"), 
-    sep = "|")
+  x <- ifelse(
+    n == 0, 
+    glue::glue("(^{x}$)"),
+    glue::glue("(^<<x>><<postfix>>{<<n>>}$)", .open = "<<", .close = ">>")
+    )
+  glue::glue_collapse(x , "|")
 }
 
 reduce_groups <- function(x) {
@@ -757,6 +770,10 @@ hcpcs_tests |>
 
 long_test2 |> 
   process_groups() |>
+  reduce_groups()
+
+long_test2[nchar(long_test2) > 4] |> 
+  process_groups() |> 
   reduce_groups()
 ```
 
