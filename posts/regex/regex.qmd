@@ -42,8 +42,10 @@ knitr::opts_chunk$set(
 options(scipen = 999)
 library(tidyverse)
 library(rlang)
+library(vctrs)
 library(cli)
 library(zeallot)
+library(data.table)
 library(collapse)
 library(cheapr)
 library(fastplyr)
@@ -111,116 +113,38 @@ all_tests <- stringfish::sf_concat(
   hcpcs_tests
 )
 
-hcpcs_codes <- stringfish::convert_to_sf(
-  collapse::funique(
-    northstar::search_descriptions()$hcpcs_code)
-  )
+hcpcs_codes <- stringfish::convert_to_sf(collapse::funique(northstar::search_descriptions()$hcpcs_code))
 ```
 
-# General HCPCS Regexes
-
-18,903 total HCPCS codes
+# HCPCS
 
 ```{r}
 #| label: hcpcs_all
-hcpcs_all_regex <- "(^[A-CEGHJ-MP-V0-9][0-9]{3}[AFMTU0-9]$)"
+#| echo: false
+hcpcs_all_rx  <- "(^[A-CEGHJ-MP-V0-9][0-9]{3}[AFMTU0-9]$)"
+hcpcs_lvI_rx  <- "(^[0-9]{4}[AFMTU0-9]$)"
+cpt_cgI_rx    <- "(^[0-9]{4}[AMU0-9]$)"
+cpt_cgII_rx   <- "(^[0-9]{4}F$)"
+cpt_cgIII_rx  <- "(^[0-9]{4}T$)"
+hcpcs_lvII_rx <- "(^[A-CEGHJ-MP-V][0-9]{4}$)"
 
-cheapr::vector_length(
-  vctrs::vec_slice(
-    hcpcs_codes, 
-    stringfish::sf_grepl(
-      hcpcs_codes, 
-      hcpcs_all_regex
-      )
-    )
-  )
+hcpcs_all_ln  <- vector_length(vec_slice(hcpcs_codes, sf_grepl(hcpcs_codes, hcpcs_all_rx)))
+hcpcs_lvI_ln  <- vector_length(vec_slice(hcpcs_codes, sf_grepl(hcpcs_codes, hcpcs_lvI_rx)))
+cpt_cgI_ln    <- vector_length(vec_slice(hcpcs_codes, sf_grepl(hcpcs_codes, cpt_cgI_rx)))
+cpt_cgII_ln   <- vector_length(vec_slice(hcpcs_codes, sf_grepl(hcpcs_codes, cpt_cgII_rx)))
+cpt_cgIII_ln  <- vector_length(vec_slice(hcpcs_codes, sf_grepl(hcpcs_codes, cpt_cgIII_rx)))
+hcpcs_lvII_ln <- vector_length(vec_slice(hcpcs_codes, sf_grepl(hcpcs_codes, hcpcs_lvII_rx)))
+
+
+dplyr::tibble(HCPCS = "Total", Count = hcpcs_all_ln, Regex = hcpcs_all_rx) |> 
+  dplyr::add_row(HCPCS = "Level I (CPT)", Count = hcpcs_lvI_ln, Regex = hcpcs_lvI_rx) |> 
+  dplyr::add_row(HCPCS = "CPT Category I", Count = cpt_cgI_ln, Regex = cpt_cgI_rx) |> 
+  dplyr::add_row(HCPCS = "CPT Category II", Count = cpt_cgII_ln, Regex = cpt_cgII_rx) |> 
+  dplyr::add_row(HCPCS = "CPT Category III", Count = cpt_cgIII_ln, Regex = cpt_cgIII_rx) |> 
+  dplyr::add_row(HCPCS = "Level I (CPT)", Count = hcpcs_lvII_ln, Regex = hcpcs_lvII_rx) |> 
+  gt::gt() |> 
+  gt::fmt_number(columns = 2, decimals = 0)
 ```
-
-## Level I (CPT)
-
-```{r}
-#| label: hcpcs_lvlI
-hcpcs_lvlI_regex <- "(^[0-9]{4}[AFMTU0-9]$)"
-
-cheapr::vector_length(
-  vctrs::vec_slice(
-    hcpcs_codes, 
-    stringfish::sf_grepl(
-      hcpcs_codes, 
-      hcpcs_lvlI_regex
-      )
-    )
-  )
-```
-
-### Category I
-
-```{r}
-#| label: cpt_catI
-cpt_catI_regex <- "(^[0-9]{4}[AMU0-9]$)"
-
-cheapr::vector_length(
-  vctrs::vec_slice(
-    hcpcs_codes, 
-    stringfish::sf_grepl(
-      hcpcs_codes, 
-      cpt_catI_regex
-      )
-    )
-  )
-```
-
-### Category II
-
-```{r}
-#| label: cpt_catII
-cpt_catII_regex <- "(^[0-9]{4}F$)"
-
-cheapr::vector_length(
-  vctrs::vec_slice(
-    hcpcs_codes, 
-    stringfish::sf_grepl(
-      hcpcs_codes, 
-      cpt_catII_regex
-      )
-    )
-  )
-```
-
-### Category III
-
-```{r}
-#| label: cpt_catIII
-cpt_catIII_regex <- "(^[0-9]{4}T$)"
-
-cheapr::vector_length(
-  vctrs::vec_slice(
-    hcpcs_codes, 
-    stringfish::sf_grepl(
-      hcpcs_codes, 
-      cpt_catIII_regex
-      )
-    )
-  )
-```
-
-## Level II
-
-```{r}
-#| label: hcpcs_lvlII
-hcpcs_lvlII_regex <- "(^[A-CEGHJ-MP-V][0-9]{4}$)"
-
-cheapr::vector_length(
-  vctrs::vec_slice(
-    hcpcs_codes, 
-    stringfish::sf_grepl(
-      hcpcs_codes, 
-      hcpcs_lvlII_regex
-      )
-    )
-  )
-```
-
 
 # TODOs
 
@@ -232,32 +156,12 @@ cheapr::vector_length(
 
 ```{r}
 #| label: internal_functions
-fish <- \(x, i) stringfish::sf_substr(x, start = i, stop = i, nthreads = 4L)
-
-empty <- \(x) vctrs::vec_is_empty(x)
-
 `%notin%` <- data.table::`%notin%`
-
-rr <- \(x, y, n = 1) {
-  
-  if (empty(x)) return(character(0))
-  
-  x <- x[stringfish::sf_substr(x, 1, n, nthreads = 4L) %notin% y]
-  
-  if (empty(x)) return(character(0))
-  
-  x
-}
+fish      <- \(x, i) stringfish::sf_substr(x, start = i, stop = i, nthreads = 4L)
+empty     <- \(x) vctrs::vec_is_empty(x)
 ```
 
-::: {.panel-tabset}
-
-## 1. `split_lengths()`
-
-   - Check is character vector. 
-   - Remove wildcards, white space, `NA`s and duplicates.
-   - Split into groups by lengths.
-   - Prefix names with an "x".
+### 1. `split_lengths()`
 
 ```{r}
 #| label: split_lengths
@@ -265,9 +169,7 @@ split_lengths <- function(x) {
   
   stopifnot(is.character(x))
   
-  x <- stringfish::sf_gsub(
-      x, "\\*|\\s", "", 
-      nthreads = 4L) |> 
+  x <- stringfish::sf_gsub(x, "\\*|\\s", "", nthreads = 4L) |> 
       fuimus::uniq_rmna() |> 
     stringr::str_sort()
   
@@ -283,13 +185,20 @@ split_lengths <- function(x) {
 }
 ```
 
-## 2. `remove_redundant()`
+### 2. `remove_redundant()`
 
 If a vector contains both `"A"` and `"A0"`, remove `"A0"`. Why? A user may input complete and incomplete HCPCS codes alongside each other. Codes that contain a common sub-string can be simplified, in turn simplifying the eventual regex output.
 
 
 ```{r}
 #| label: remove_redundant
+rr <- \(x, y, n = 1) {
+  if (empty(x)) return(character(0))
+  x <- x[stringfish::sf_substr(x, 1, n, nthreads = 4L) %notin% y]
+  if (empty(x)) return(character(0))
+  x
+}
+
 remove_redundant <- function(x) {
 
   c(x1, x2, x3, x4, x5) %<-% x
@@ -303,23 +212,7 @@ remove_redundant <- function(x) {
   )
   
 }
-
-hcpcs_tests |>
-  split_lengths() |> 
-  remove_redundant() |> 
-  lobstr::tree()
-
-all_tests |>
-  split_lengths() |> 
-  remove_redundant() |> 
-  lobstr::tree()
-
-long_test2 |>
-  split_lengths() |> 
-  remove_redundant()
 ```
-
-:::
 
 # Grouping
 
@@ -386,30 +279,35 @@ g3 <- function(x) {
   
   if (empty(x[["x3"]])) return(character(0))
   
-  indices <- dplyr::tibble(
-    code = x[["x3"]],
-    a1 = fish(code, 1),
-    a2 = fish(code, 2),
-    a3 = fish(code, 3)) |> 
+  idx <- data.table(
+    c1 = x[["x3"]],
+    a1 = fish(x[["x3"]], 1),
+    a2 = fish(x[["x3"]], 2),
+    a3 = fish(x[["x3"]], 3)) |> 
     dplyr::mutate(i1 = dplyr::consecutive_id(a1)) |> 
     dplyr::mutate(i2 = dplyr::consecutive_id(a2), .by = a1) |> 
     dplyr::mutate(i3 = dplyr::consecutive_id(a3), .by = c(a1, a2)) |> 
     collapse::fcount(i1, add = TRUE, name = "G")
 
-  orphans <- indices[(indices$i2 + indices$i3 + indices$G == 3), ]$code
+  orphans <- idx[i2 + i3 + G == 3, c1]
+  idx     <- idx[c1 %notin% orphans]
     
-  last <- collapse::fcount(indices[(!indices$code %in% orphans), ], a1, a2) |> 
-    dplyr::left_join(collapse::funique(indices[(!indices$code %in% orphans), ][c("a1", "G")]), by = dplyr::join_by(a1)) |> 
+  last <- collapse::fcount(idx, a1, a2) |> 
+    dplyr::left_join(collapse::funique(
+      idx[, .(a1, G)]), 
+      by = dplyr::join_by(a1)) |> 
     dplyr::filter(N == G) |> 
-    dplyr::right_join(indices[(!indices$code %in% orphans), ][c("code", "a1", "a2")], by = dplyr::join_by(a1, a2)) |> 
+    dplyr::right_join(
+      idx[, .(c1, a1, a2)], 
+      by = dplyr::join_by(a1, a2)) |> 
     dplyr::filter(!is.na(N))
-
-  rest <- indices[(!indices$code %in% c(orphans, last$code)), ]
+  
+  idx <- idx[c1 %notin% last$c1]
 
   out <- vctrs::vec_c(
     if (empty(orphans)) NULL else as.list(orphans),
-    if (empty(last)) NULL else vctrs::vec_chop(last$code, sizes = vctrs::vec_run_sizes(last$a1)),
-    if (empty(rest)) NULL else vctrs::vec_chop(rest$code, sizes = vctrs::vec_run_sizes(rest$a1))
+    if (empty(last)) NULL else vctrs::vec_chop(last$c1, sizes = vctrs::vec_run_sizes(last$a1)),
+    if (empty(idx)) NULL else vctrs::vec_chop(idx$c1, sizes = vctrs::vec_run_sizes(idx$a1))
   )
   
   if (empty(out)) return(character(0))
@@ -419,17 +317,17 @@ g3 <- function(x) {
 
 hcpcs_tests |>
   split_lengths() |> 
-  remove_redundant() |> 
+  remove_redundant() |>
   g3()
 
 long_test2 |> 
   split_lengths() |> 
-  remove_redundant() |> 
+  remove_redundant() |>
   g3()
 
 all_tests |> 
   split_lengths() |> 
-  # remove_redundant() |> 
+  remove_redundant() |>
   g3() |> 
   lobstr::tree()
 ```
