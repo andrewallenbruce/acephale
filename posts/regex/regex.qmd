@@ -166,24 +166,25 @@ data.table(
       weight = "bold",
       font = google_font(name = "Roboto")),
     locations = cells_column_labels()) |>
-  opt_stylize(color = "red") |>
+  opt_stylize(color = "green") |>
   opt_vertical_padding(scale = 0.5) |> 
   tab_options(quarto.disable_processing = TRUE,
-              table.width = pct(80))
+              table.width = pct(100))
 ```
 
 # TODOs
 
    * If a **wildcard** begins with a **letter**, the *postfix* should be `[0-9]{n}`.
    * Eliminate `g1()` step in grouping.
-   * In `remove_redundant()`, Don't use `{zeallot}` infix, try pmap for `rr()` step.
+   * In `remove_redundant()`, try pmap for `rr()` step.
 
 ## Preprocess
 
 ```{r}
 #| label: internal_functions
 take  <- \(x, i = 1) stringfish::sf_substr(x, start = i, stop = i, nthreads = 4L)
-empty <- \(x) vctrs::vec_is_empty(x)
+empty <- \(x)        vctrs::vec_is_empty(x)
+chop  <- \(v, g)     vctrs::vec_chop(v, sizes = vctrs::vec_run_sizes(g))
 ```
 
 ### 1. `split_lengths()`
@@ -218,11 +219,14 @@ If a vector contains both `"A"` and `"A0"`, remove `"A0"`. Why? A user may input
 
 ```{r}
 #| label: remove_redundant
-rr <- \(x, y, n = 1) {
+rr <- \(x, y) {
   
   if (empty(x)) return(character(0))
+  if (empty(y)) return(x)
   
-  x <- x[stringfish::sf_substr(x, 1, n, nthreads = 4L) %!in% y]
+  x <- x[sf_substr(x, 1,
+    funique(vlengths(y, use.names = FALSE)), 
+    nthreads = 4L) %!in% y]
   
   if (empty(x)) return(character(0))
   
@@ -231,17 +235,21 @@ rr <- \(x, y, n = 1) {
 
 remove_redundant <- function(x) {
 
-  c(x1, x2, x3, x4, x5) %<-% x
+  .c(x1, x2, x3, x4, x5) %=% x
   
   list(
     x1 = x1,
     x2 = rr(x2, x1),
-    x3 = rr(x3, x1) |> rr(x2, 2),
-    x4 = rr(x4, x1) |> rr(x2, 2) |> rr(x3, 3),
-    x5 = rr(x5, x1) |> rr(x2, 2) |> rr(x3, 3) |> rr(x4, 4)
+    x3 = rr(x3, x1) |> rr(x2),
+    x4 = rr(x4, x1) |> rr(x2) |> rr(x3),
+    x5 = rr(x5, x1) |> rr(x2) |> rr(x3) |> rr(x4)
   )
   
 }
+
+long_test |> 
+  split_lengths() |> 
+  remove_redundant()
 ```
 
 # Grouping
@@ -256,19 +264,27 @@ Groups each set of vectors into groupable regex patterns.
 #| label: g1_g2
 g1 <- function(x) {
   
-  if (empty(x[["x1"]])) return(character(0))
+  x1 <- get_elem(x, "x1")
   
-  x[["x1"]]
+  if (empty(x1)) return(character(0))
+  
+  x1
 
 }
 
 g2 <- function(x) {
   
-  if (empty(x[["x2"]])) return(character(0))
+  x2 <- get_elem(x, "x2")
   
-  collapse::rsplit(x[["x2"]], take(x[["x2"]]), use.names = FALSE)
+  if (empty(x2)) return(character(0))
   
+  collapse::rsplit(x2, take(x2), use.names = FALSE)
 }
+
+long_test2 |> 
+  split_lengths() |> 
+  # remove_redundant() |> 
+  g2()
 ```
 
 ## Groups 3-5
@@ -286,10 +302,12 @@ let2num <- \(x) {
 
 g3 <- function(x) {
   
-  if (empty(x[["x3"]])) return(character(0))
+  x3 <- get_elem(x, "x3")
   
-  num <- x[["x3"]][!stringfish::sf_grepl(x[["x3"]], "[A-Z]")]
-  chr <- x[["x3"]][stringfish::sf_grepl(x[["x3"]], "[A-Z]")]
+  if (empty(x3)) return(character(0))
+  
+  num <- x3[!sf_grepl(x3, "[A-Z]")]
+  chr <- x3[sf_grepl(x3, "[A-Z]")]
   
   num <- data.table(
     code = num, 
@@ -308,14 +326,12 @@ g3 <- function(x) {
       group_sep = NULL))
   
   out <- vctrs::vec_c(
-    if (empty(num)) NULL else vctrs::vec_chop(num$code, sizes = vctrs::vec_run_sizes(num$lump)),
-    if (empty(chr)) NULL else vctrs::vec_chop(chr$code, sizes = vctrs::vec_run_sizes(chr$lump))
-  )
+    if (empty(num)) NULL else chop(num$code, num$lump),
+    if (empty(chr)) NULL else chop(chr$code, chr$lump))
   
   if (empty(out)) return(character(0))
 
   return(out)
-  
 }
 
 all_tests[nchar(all_tests) == 3] |> 
@@ -329,10 +345,12 @@ all_tests[nchar(all_tests) == 3] |>
 #| label: g4
 g4 <- function(x) {
   
-  if (empty(x[["x4"]])) return(character(0))
+  x4 <- get_elem(x, "x4")
+  
+  if (empty(x4)) return(character(0))
   
   indices <- dplyr::tibble(
-    code = x[["x4"]],
+    code = x4,
     a1 = take(code),
     a2 = take(code, 2),
     a3 = take(code, 3),
@@ -358,9 +376,8 @@ g4 <- function(x) {
 
   out <- vctrs::vec_c(
     if (empty(orphans)) NULL else as.list(orphans),
-    if (empty(last)) NULL else vctrs::vec_chop(last$code, sizes = vctrs::vec_run_sizes(last$group_id)),
-    if (empty(rest)) NULL else vctrs::vec_chop(rest$code, sizes = vctrs::vec_run_sizes(rest$group_id))
-  )
+    if (empty(last)) NULL else chop(last$code, last$group_id),
+    if (empty(rest)) NULL else chop(rest$code, rest$group_id))
   
   if (empty(out)) return(character(0))
   
@@ -387,10 +404,12 @@ all_tests |>
 #| label: g5
 g5 <- function(x) {
   
-  if (empty(x[["x5"]])) return(character(0))
+  x5 <- get_elem(x, "x5")
+  
+  if (empty(x5)) return(character(0))
   
   indices <- dplyr::tibble(
-    code = x[["x5"]],
+    code = x5,
     a1 = take(code),
     a2 = take(code, 2),
     a3 = take(code, 3),
@@ -420,8 +439,8 @@ g5 <- function(x) {
 
   out <- vctrs::vec_c(
     if (empty(orphans)) NULL else as.list(orphans),
-    if (empty(last)) NULL else vctrs::vec_chop(last$code, sizes = vctrs::vec_run_sizes(last$group_id)),
-    if (empty(rest)) NULL else vctrs::vec_chop(rest$code, sizes = vctrs::vec_run_sizes(rest$group_id))
+    if (empty(last)) NULL else chop(last$code, last$group_id),
+    if (empty(rest)) NULL else chop(rest$code, rest$group_id)
   )
   
   if (empty(out)) return(character(0))
@@ -468,15 +487,15 @@ process_groups <- function(x) {
 
 hcpcs_tests |> 
   process_groups() |> 
-  lobstr::tree()
+  str(give.attr = FALSE, give.head = FALSE, no.list = TRUE)
 
 long_test2 |> 
   process_groups() |> 
-  lobstr::tree()
+  str(give.attr = FALSE, give.head = FALSE, no.list = TRUE)
 
 all_tests |> 
   process_groups() |> 
-  lobstr::tree()
+  str(give.attr = FALSE, give.head = FALSE, no.list = TRUE)
 ```
 
 
@@ -486,12 +505,12 @@ all_tests |>
 #| label: internal_2
 #| echo: true
 #| eval: true
-get_char <- \(x) x[stringfish::sf_grepl(x, "[A-Z]", nthreads = 4L)]
-get_numb <- \(x) x[stringfish::sf_grepl(x, "[0-9]", nthreads = 4L)]
+get_char <- \(x) x[sf_grepl(x, "[A-Z]", nthreads = 4L)]
+get_numb <- \(x) x[sf_grepl(x, "[0-9]", nthreads = 4L)]
 
 sort_order <- function(x) {
   
-  sorted   <- stringr::str_sort(x, numeric = TRUE)
+  sorted   <- str_sort(x, numeric = TRUE)
   alphabet <- get_char(sorted)
   numbers  <- get_numb(sorted)
   
@@ -510,11 +529,16 @@ sort_order <- function(x) {
 #| eval: true
 reduce_runs <- function(x) {
   
-  if (x == "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789") return("[A-Z0-9]")
+  ad <- c(LETTERS, 0:9)
   
-  vec  <- rlang::set_names(rep(0, 36), c(LETTERS, 0:9))
+  if (x == paste0(ad, collapse = "")) return("[A-Z0-9]")
+  
+  vec  <- rlang::set_names(rep(0, 36), ad)
+  
   vec2 <- vec[fuimus::splitter(x)]
+  
   vec2 <- vec2[!is.na(vec2)]
+  
   vec[names(vec2)] <- 1
 
   vec_group <- dplyr::tibble(
@@ -528,9 +552,7 @@ reduce_runs <- function(x) {
 
   if (empty(vec_group)) return(x)
   
-  xgroups <- vctrs::vec_chop(
-    vec_group$value, 
-    sizes = vctrs::vec_run_sizes(vec_group$group)) |>
+  xgroups <- chop(vec_group$value, vec_group$group) |>
     purrr::map(fuimus::collapser) |>
     purrr::list_c()
   
@@ -553,9 +575,11 @@ reduce_runs <- function(x) {
 #| label: p1
 p1 <- function(x) {
   
-  if (empty(x[["g1"]])) return(NULL)
+  g1 <- get_elem(x, "g1")
   
-  re <- sort_order(x[["g1"]]) |> reduce_runs()
+  if (empty(g1)) return(NULL)
+  
+  re <- sort_order(g1) |> reduce_runs()
   
   if (re == "[A-Z0-9]") return(paste0("(^", re, "{5}$)"))
   
@@ -620,8 +644,7 @@ vrg <- function(x, n) {
   if (is.null(x)) return(NULL)
   
   postfix <- ifelse(
-    stringfish::sf_starts(x, "[A-Z]", nthreads = 4L), 
-    "[0-9]", "[A-Z0-9]")
+    sf_starts(x, "[A-Z]", nthreads = 4L), "[0-9]", "[A-Z0-9]")
   
   x <- ifelse(
     n == 0, 
@@ -635,20 +658,18 @@ reduce_groups <- function(x) {
   
   list(
     g1 = p1(x),
-    g2 = purrr::map_vec(x$g2, p2) |> vrg(3),
-    g3 = purrr::map_vec(x$g3, p2) |> vrg(2),
-    g4 = purrr::map_vec(x$g4, p2) |> vrg(1),
-    g5 = purrr::map_vec(x$g5, p2) |> vrg(0)
+    g2 = map_vec(x$g2, p2) |> vrg(3),
+    g3 = map_vec(x$g3, p2) |> vrg(2),
+    g4 = map_vec(x$g4, p2) |> vrg(1),
+    g5 = map_vec(x$g5, p2) |> vrg(0)
   ) |> 
-    purrr::compact() |> 
+    compact() |> 
     paste0(collapse = "|")
 }
 
 all_tests[nchar(all_tests) > 2] |> 
   process_groups() |> 
   reduce_groups()
-
-c("721", "722", "723", "724", "725", "726", "727", "728", "729", "765")
 
 hcpcs_tests |> 
   process_groups() |>
@@ -674,26 +695,14 @@ medrex <- function(x) {
 
 medrex(all_tests)
 
-# 7123
-# vector_length(
-#   vec_slice(
-#     hcpcs_codes, 
-#     sf_grepl(
-#       hcpcs_codes, 
-#       medrex(all_tests)
-#       )
-#     )
-#   )
-
 vec_slice(
   hcpcs_codes, 
   sf_grepl(
     hcpcs_codes, 
     medrex(
       long_test2[nchar(long_test2) > 3]
-      )
-    )
-  )
+      ))) |> 
+  str()
 ```
 
 
