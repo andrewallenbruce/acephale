@@ -47,7 +47,7 @@ library(vctrs)
 library(cli)
 library(gt)
 
-library(zeallot)
+library(fuimus)
 library(stringfish)
 library(re2)
 library(re2r)
@@ -178,7 +178,7 @@ data.table(
    * Eliminate `g1()` step in grouping.
    * In `remove_redundant()`, try pmap for `rr()` step.
 
-## Preprocess
+## Preprocessing
 
 ```{r}
 #| label: internal_functions
@@ -195,12 +195,9 @@ split_lengths <- function(x) {
   
   stopifnot(is.character(x))
   
-  x <- stringfish::sf_gsub(
-    x, "\\*|\\s", "", nthreads = 4L) |> 
-      fuimus::uniq_rmna() |> 
-    stringr::str_sort()
+  x <- sf_gsub(x, "\\*|\\s", "", nthreads = 4L) |> uniq_rmna() |> str_sort()
   
-  l <- collapse::vlengths(x)
+  l <- vlengths(x)
   
   list(
     x1 = x[l == 1],
@@ -263,23 +260,26 @@ Groups each set of vectors into groupable regex patterns.
 ```{r}
 #| label: g1_g2
 g1 <- function(x) {
+  x <- get_elem(x, "x1")
   
-  x1 <- get_elem(x, "x1")
+  if (empty(x)) return(character(0))
   
-  if (empty(x1)) return(character(0))
-  
-  x1
-
+  x
 }
 
 g2 <- function(x) {
+  x <- get_elem(x, "x2")
   
-  x2 <- get_elem(x, "x2")
+  if (empty(x)) return(character(0))
   
-  if (empty(x2)) return(character(0))
-  
-  collapse::rsplit(x2, take(x2), use.names = FALSE)
+  rsplit(x, take(x), use.names = FALSE)
 }
+
+long_test2 |> 
+  split_lengths() |> 
+  # remove_redundant() |> 
+  g1()
+
 
 long_test2 |> 
   split_lengths() |> 
@@ -291,41 +291,51 @@ long_test2 |>
 
 ```{r}
 #| label: lump
+lump <- function(x, thresh = 3, prefix = NULL, sep = NULL){
+
+  xo <- order(x)
+
+  xs <- x[xo]
+
+  diff_prev <- abs(c(0, tail(xs, n = -1) - head(xs, n = -1)))
+
+  binary <- ifelse(diff_prev >= thresh, 1, 0)
+
+  id <- cumsum(binary) + 1
+
+  id <- if (!is.null(c(prefix, sep))) paste0(prefix, sep, id) else as.character(id)
+
+  id[order(xo)]
+}
+
 let2num <- \(x) {
   
-  lets <- stringr::str_extract(x, "[A-Z]")
+  lets <- str_extract(x, "[A-Z]")
   
-  look <- rlang::set_names(as.character(1:26), LETTERS)
+  look <- set_names(as.character(1:26), LETTERS)
   
   unname(look[lets])
 }
 
 g3 <- function(x) {
   
-  x3 <- get_elem(x, "x3")
+  x <- get_elem(x, "x3")
   
-  if (empty(x3)) return(character(0))
+  if (empty(x)) return(character(0))
   
-  num <- x3[!sf_grepl(x3, "[A-Z]")]
-  chr <- x3[sf_grepl(x3, "[A-Z]")]
+  num <- x[!sf_grepl(x, "[A-Z]")]
+  chr <- x[sf_grepl(x, "[A-Z]")]
   
-  num <- data.table(
-    code = num, 
-    lump = dumblump::dumblump(
-      as.integer(num), 
-      threshold = 3, 
-      group_prefix = NULL, 
-      group_sep = NULL))
+  num <- data.table(code = num, lump = lump(as.integer(num)))
   
   chr <- data.table(
     code = chr, 
-    lump = dumblump::dumblump(
-      as.integer(stringr::str_replace_all(chr, "[A-Z]", let2num)), 
-      threshold = 3, 
-      group_prefix = NULL, 
-      group_sep = NULL))
+    lump = lump(
+      as.integer(
+        str_replace_all(chr, "[A-Z]", let2num)
+        )))
   
-  out <- vctrs::vec_c(
+  out <- vec_c(
     if (empty(num)) NULL else chop(num$code, num$lump),
     if (empty(chr)) NULL else chop(chr$code, chr$lump))
   
@@ -345,39 +355,25 @@ all_tests[nchar(all_tests) == 3] |>
 #| label: g4
 g4 <- function(x) {
   
-  x4 <- get_elem(x, "x4")
+  x <- get_elem(x, "x4")
   
-  if (empty(x4)) return(character(0))
+  if (empty(x)) return(character(0))
   
-  indices <- dplyr::tibble(
-    code = x4,
-    a1 = take(code),
-    a2 = take(code, 2),
-    a3 = take(code, 3),
-    a4 = take(code, 4)) |> 
-    dplyr::mutate(i1 = dplyr::consecutive_id(a1)) |> 
-    dplyr::mutate(i2 = dplyr::consecutive_id(a2), .by = a1) |> 
-    dplyr::mutate(i3 = dplyr::consecutive_id(a3), .by = c(a1, a2)) |> 
-    dplyr::mutate(i4 = dplyr::consecutive_id(a4), .by = c(a1, a2, a3)) |> 
-    collapse::fcount(i1, add = TRUE, name = "G")
+  num <- x[!sf_grepl(x, "[A-Z]")]
+  chr <- x[sf_grepl(x, "[A-Z]")]
   
-  orphans <- indices[(indices$i2 + indices$i3 + indices$i4 + indices$G == 4), ]$code
-    
-  last <- fuimus::combine(indices[(!indices$code %in% orphans), c(1:5)], group_id, columns = c("a1", "a2"), sep = "")
-    
-  last <- collapse::fcount(last, group_id, a3) |> 
-    dplyr::left_join(collapse::fcount(last, group_id, name = "G"), by = dplyr::join_by(group_id)) |> 
-    dplyr::filter(N == G) |> 
-    dplyr::right_join(last, by = dplyr::join_by(group_id, a3)) |> 
-    dplyr::filter(!is.na(N))
-
-  rest <- indices[(!indices$code %in% c(orphans, last$code)), ] |> 
-    fuimus::combine(group_id, columns = c("a1", "a2", "a3"), sep = "")
-
-  out <- vctrs::vec_c(
-    if (empty(orphans)) NULL else as.list(orphans),
-    if (empty(last)) NULL else chop(last$code, last$group_id),
-    if (empty(rest)) NULL else chop(rest$code, rest$group_id))
+  num <- data.table(code = num, lump = lump(as.integer(num)))
+  
+  chr <- data.table(
+    code = chr, 
+    lump = lump(
+      as.integer(
+        str_replace_all(chr, "[A-Z]", let2num)
+        )))
+  
+  out <- vec_c(
+    if (empty(num)) NULL else chop(num$code, num$lump),
+    if (empty(chr)) NULL else chop(chr$code, chr$lump))
   
   if (empty(out)) return(character(0))
   
@@ -391,7 +387,7 @@ hcpcs_tests[20:25] |>
 
 long_test2 |> 
   split_lengths() |> 
-  remove_redundant() |> 
+  # remove_redundant() |> 
   g4()
 
 all_tests |> 
@@ -404,44 +400,29 @@ all_tests |>
 #| label: g5
 g5 <- function(x) {
   
-  x5 <- get_elem(x, "x5")
+  x <- get_elem(x, "x5")
   
-  if (empty(x5)) return(character(0))
+  if (empty(x)) return(character(0))
   
-  indices <- dplyr::tibble(
-    code = x5,
-    a1 = take(code),
-    a2 = take(code, 2),
-    a3 = take(code, 3),
-    a4 = take(code, 4),
-    a5 = take(code, 5)) |> 
-    dplyr::mutate(i1 = dplyr::consecutive_id(a1)) |> 
-    dplyr::mutate(i2 = dplyr::consecutive_id(a2), .by = a1) |> 
-    dplyr::mutate(i3 = dplyr::consecutive_id(a3), .by = c(a1, a2)) |> 
-    dplyr::mutate(i4 = dplyr::consecutive_id(a4), .by = c(a1, a2, a3)) |> 
-    dplyr::mutate(i5 = dplyr::consecutive_id(a5), .by = c(a1, a2, a3, a4)) |>
-    collapse::fcount(i1, add = TRUE, name = "G")
+  num <- x[!sf_grepl(x, "[A-Z]")]
+  chr <- x[sf_grepl(x, "[A-Z]")]
   
-  orphans <- indices[(indices$i2 + indices$i3 + indices$i4 + indices$i5 + indices$G == 5), ]$code
+  num <- data.table(code = num, lump = lump(as.integer(num)))
+  # 32:  55200     19
+  # 33:  55250     20
+  dchr <- as.integer(str_remove_all(chr, "^[A-Z]|[A-Z]$"))
   
-  last <- fuimus::combine(
-    indices[(!indices$code %in% orphans), c(1:4, 6)], 
-    group_id, columns = c("a1", "a2", "a3"), sep = "")
+  dchr <- ifelse(dchr %% 10 == 0, dchr + max(dchr), dchr)
   
-  last <- collapse::fcount(last, group_id, a5) |> 
-    dplyr::left_join(collapse::fcount(last, group_id, name = "G"), by = dplyr::join_by(group_id)) |> 
-    dplyr::filter(N == G) |> 
-    dplyr::right_join(last, by = dplyr::join_by(group_id, a5)) |> 
-    dplyr::filter(!is.na(N))
-
-  rest <- indices[(!indices$code %in% c(orphans, last$code)), ] |> 
-    fuimus::combine(group_id, columns = c("a1", "a2", "a3", "a4"), sep = "")
-
-  out <- vctrs::vec_c(
-    if (empty(orphans)) NULL else as.list(orphans),
-    if (empty(last)) NULL else chop(last$code, last$group_id),
-    if (empty(rest)) NULL else chop(rest$code, rest$group_id)
-  )
+  chr <- data.table(
+    code = chr, 
+    lump = lump(dchr, thresh = 3))
+  
+  # str_replace_all(str_remove_all(chr, "[A-Z]$"), "[A-Z]", let2num)
+  
+  out <- vec_c(
+    if (empty(num)) NULL else chop(num$code, num$lump),
+    if (empty(chr)) NULL else chop(chr$code, chr$lump))
   
   if (empty(out)) return(character(0))
   
@@ -450,13 +431,13 @@ g5 <- function(x) {
 
 hcpcs_tests[26:30] |> 
   split_lengths() |> 
-  remove_redundant() |> 
+  # remove_redundant() |> 
   g5()
 
 long_test2 |> 
   split_lengths() |> 
-  remove_redundant() |> 
-  g4()
+  # remove_redundant() |> 
+  g5()
 
 all_tests |> 
   split_lengths() |> 
@@ -486,16 +467,13 @@ process_groups <- function(x) {
 }
 
 hcpcs_tests |> 
-  process_groups() |> 
-  str(give.attr = FALSE, give.head = FALSE, no.list = TRUE)
+  process_groups()
 
 long_test2 |> 
-  process_groups() |> 
-  str(give.attr = FALSE, give.head = FALSE, no.list = TRUE)
+  process_groups()
 
 all_tests |> 
-  process_groups() |> 
-  str(give.attr = FALSE, give.head = FALSE, no.list = TRUE)
+  process_groups()
 ```
 
 
@@ -515,8 +493,8 @@ sort_order <- function(x) {
   numbers  <- get_numb(sorted)
   
   paste0(
-    fuimus::collapser(alphabet), 
-    fuimus::collapser(numbers)
+    collapser(alphabet), 
+    collapser(numbers)
     )
 }
 ```
@@ -585,10 +563,6 @@ p1 <- function(x) {
   
   return(paste0("(^", re, "[A-Z0-9]{4}$)"))
 }
-
-all_tests |> 
-  process_groups() |> 
-  p1()
 
 hcpcs_tests |> 
   process_groups() |> 
@@ -693,16 +667,10 @@ medrex <- function(x) {
     reduce_groups()
 }
 
-medrex(all_tests)
+length(vec_slice(hcpcs_codes, sf_grepl(hcpcs_codes, medrex(all_tests))))
 
-vec_slice(
-  hcpcs_codes, 
-  sf_grepl(
-    hcpcs_codes, 
-    medrex(
-      long_test2[nchar(long_test2) > 3]
-      ))) |> 
-  str()
+medrex(long_test2[nchar(long_test2) > 3])
+# INCORRECT OUTPUT
 ```
 
 
