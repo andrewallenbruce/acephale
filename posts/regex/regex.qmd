@@ -141,35 +141,53 @@ ln <- list(
   cIII = len(rx$cIII)
 )
 
+# data.table(
+#   HCPCS = c("All", "Level I", "Category I", 
+#             "Category II", "Category III", "Level II"),
+#   Count = c(ln$all, ln$iI, ln$cI, ln$cII, ln$cIII, ln$iII), 
+#   Regex = c(rx$all, rx$iI, rx$cI, rx$cII, rx$cIII, rx$iII)) |> 
+#   gt() |> 
+#   fmt_number(
+#     columns = 2, 
+#     decimals = 0) |> 
+#   opt_table_font(
+#     font = google_font(name = "Roboto"), 
+#     weight = "normal") |>
+#   data_color(
+#     method = "numeric",
+#     palette = "ggsci::red_material") |> 
+#   tab_style(
+#     style = cell_text(
+#       align = "left",
+#       font = google_font(name = "JetBrains Mono")),
+#     locations = cells_body(columns = c(Regex))) |> 
+#   tab_style(
+#     style = cell_text(
+#       weight = "bold",
+#       font = google_font(name = "Roboto")),
+#     locations = cells_column_labels()) |>
+#   opt_stylize(color = "green") |>
+#   opt_vertical_padding(scale = 0.5) |> 
+#   tab_options(quarto.disable_processing = TRUE,
+#               table.width = pct(100))
+
 data.table(
   HCPCS = c("All", "Level I", "Category I", 
             "Category II", "Category III", "Level II"),
   Count = c(ln$all, ln$iI, ln$cI, ln$cII, ln$cIII, ln$iII), 
   Regex = c(rx$all, rx$iI, rx$cI, rx$cII, rx$cIII, rx$iII)) |> 
-  gt() |> 
-  fmt_number(
-    columns = 2, 
-    decimals = 0) |> 
-  opt_table_font(
-    font = google_font(name = "Roboto"), 
-    weight = "normal") |>
-  data_color(
-    method = "numeric",
-    palette = "ggsci::red_material") |> 
-  tab_style(
-    style = cell_text(
-      align = "left",
-      font = google_font(name = "JetBrains Mono")),
-    locations = cells_body(columns = c(Regex))) |> 
-  tab_style(
-    style = cell_text(
-      weight = "bold",
-      font = google_font(name = "Roboto")),
-    locations = cells_column_labels()) |>
-  opt_stylize(color = "green") |>
-  opt_vertical_padding(scale = 0.5) |> 
-  tab_options(quarto.disable_processing = TRUE,
-              table.width = pct(100))
+  emphatic::hl(
+    ggplot2::scale_colour_viridis_c(),
+    cols = Count,
+    rows = !HCPCS %in% c("All"),
+    scale_apply = HCPCS:Count,
+    show_legend = TRUE) |> 
+  emphatic::hl(
+    'black', 
+    cols = HCPCS:Count,
+    rows = HCPCS %in% c("All"),
+    scale_apply = HCPCS:Count
+    )
 ```
 
 # TODOs
