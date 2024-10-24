@@ -45,6 +45,7 @@ library(rlang)
 library(vctrs)
 
 library(cli)
+library(colortable)
 # library(crayon)
 # options(crayon.enabled = TRUE)
 library(emphatic)
@@ -203,6 +204,35 @@ data.frame(
   knit_print.emphatic()
 ```
 
+```{r}
+color_vctr(c(1, 2, 3, 4),
+           text_color = c("blue", "green", "yellow", NA),
+           style = c("underline", "italic", NA, "bold"),
+           background = c(NA, NA, "blue", NA))
+```
+
+
+```{r}
+data.frame(
+  text_color = sample(c(NA, valid_colors("html")[, 2, drop = TRUE]), 10, replace = TRUE),
+  background = sample(c(NA, valid_colors("html")[, 2, drop = TRUE]), 10, replace = TRUE),
+  style      = sample(c(NA, valid_style()), 10, replace = TRUE),
+  stringsAsFactors = FALSE
+  ) |> 
+  dplyr::mutate(
+    background = ifelse(
+      text_color == background, 
+      sample(c(NA, valid_colors("html")[, 2, drop = TRUE]), 10, replace = TRUE), background)
+  ) |>  
+  dplyr::mutate(
+  example = color_vctr(runif(10),
+                       text_color = text_color,
+                       background = background,
+                       style = style)
+  )
+```
+
+
 # TODOs
 
    * If a **wildcard** begins with a **letter**, the *postfix* should be `[0-9]{n}`.
@@ -213,18 +243,13 @@ data.frame(
 
 ```{r}
 #| label: internal_1
-take  <- \(x, i) stringfish::sf_substr(x, start = i, stop = i, nthreads = 4L)
-empty <- \(x)    vctrs::vec_is_empty(x)
-chop  <- \(v, g) vctrs::vec_chop(v, sizes = vctrs::vec_run_sizes(g))
-grab  <- \(x)    { x[stringfish::sf_grepl(x, "[A-Z]{1}", nthreads = 4L)] }
-p     <- \(...)  paste0(..., collapse = "")
-contrast <- \(x, y) {x[!sf_substr(x, 1, funique(vlengths(y, use.names = FALSE)), nthreads = 4L) %in% y]}
-
-sort_order <- function(x) {
-  srt <- str_sort(x)
-  chr <- grab(srt)
-  p(p(chr), p(srt[!srt %in% chr]))
-}
+take     <- \(x, i) stringfish::sf_substr(x, start = i, stop = i, nthreads = 4L)
+empty    <- \(x)    vctrs::vec_is_empty(x)
+chop     <- \(v, g) vctrs::vec_chop(v, sizes = vctrs::vec_run_sizes(g))
+p        <- \(...)  paste0(..., collapse = "")
+grab     <- \(x)    x[stringfish::sf_grepl(x, "[A-Z]{1}", nthreads = 4L)]
+contrast <- \(x, y) x[!stringfish::sf_substr(x, 1, collapse::funique(collapse::vlengths(y, use.names = FALSE)), nthreads = 4L) %in% y]
+sorder   <- \(x)    p(p(grab(stringr::str_sort(x))), p(stringr::str_sort(x)[!stringr::str_sort(x) %in% grab(stringr::str_sort(x))]))
 ```
 
 ## `split_lengths()`
@@ -542,6 +567,7 @@ y |>
 
 ```{r}
 #| label: process_groups
+#| message: false
 process_groups <- function(x) {
   
   g <- x |> 
@@ -619,19 +645,21 @@ reduce_runs <- function(x) {
 
 ```{r}
 #| label: p1
+#| message: false
 p1 <- function(x) {
   
   g1 <- get_elem(x, "g1")
   
   if (empty(g1)) return(NULL)
   
-  re <- sort_order(g1) |> reduce_runs()
-  
-  # POSTFIX PROBLEM BEGINS RIGHT HERE
+  re <- sorder(g1) |> reduce_runs()
   
   if (re == "[A-Z0-9]") return(paste0("(^", re, "{5}$)"))
   
-  return(paste0("(^", re, "[A-Z0-9]{4}$)"))
+  postfix <- ifelse(
+    sf_grepl(re, "^\\[?[A-Z]\\-?", nthreads = 4L), "[0-9]", "[A-Z0-9]")
+  
+  return(paste0("(^", re, postfix, "{4}$)"))
 }
 
 hcpcs_tests |> 
@@ -642,14 +670,15 @@ long_test2 |>
   process_groups() |> 
   p1()
 
-list(g1 = c(0:9, LETTERS)) |> 
-  p1()
+list(g1 = c(0:9, LETTERS)) |> p1()
+list(g1 = c(LETTERS[1:5], 0:9)) |> p1()
 ```
 
 ## G > 1
 
 ```{r}
 #| label: p2
+#| message: false
 p2 <- function(x) {
   
   if (empty(x)) return(NULL)
@@ -658,7 +687,7 @@ p2 <- function(x) {
   
   to_brackets <- vecs |>
     purrr::map(fuimus::uniq_rmna) |>
-    purrr::map(sort_order)
+    purrr::map(sorder)
   
   to_vec <- to_brackets |>
     purrr::map(reduce_runs)
@@ -681,6 +710,7 @@ p2 <- function(x) {
 
 ```{r}
 #| label: reduce_groups
+#| message: false
 vrg <- function(x, n) {
   
   if (is.null(x)) return(NULL)
@@ -730,6 +760,7 @@ long_test2[nchar(long_test2) == 4] |>
 
 ```{r}
 #| label: final_output
+#| message: false
 medrex <- function(x) {
   x |> 
     process_groups() |> 
