@@ -26,6 +26,7 @@ options(scipen = 999)
 library(here)
 library(gt)
 library(S7)
+library(emphatic)
 source(here("posts/rules/scripts", "load.R"))
 ```
 
@@ -47,9 +48,10 @@ To build a composable, portable, and extensible healthcare claims rules engine. 
 #| eval: true
 #| message: false
 #| warning: false
+#| results: asis
 
-dplyr::tibble(
-  name = c(
+data.frame(
+  Field = c(
     "@index", 
     "@identifier", 
     "@category", 
@@ -58,57 +60,59 @@ dplyr::tibble(
     "@source",
     "@steps"
   ),
-  optional = c(
-    TRUE, 
-    TRUE, 
-    FALSE, 
-    TRUE, 
-    FALSE, 
-    FALSE, 
-    TRUE),
-  description = c(
+  Description = c(
     "Unique Rule Number", 
     "Unique Alphanumeric Identifier", 
     "High-Level Classification", 
-    "Human Readable Description of Rule Steps", 
+    "Human Readable Description", 
     "Reason for Implementation", 
     "URLs, References, or Documentation", 
-    "`<list>` of Steps to Evaluate"
+    "A <list> of Steps to Evaluate"
   )) |> 
-  gt(rowname_col = "name") |>
-  tab_header("Class: <Rule>") |> 
-  cols_align(align = "left") |>
-  opt_table_font(font = google_font(name = "Roboto")) |>
-  opt_all_caps() |>
-  fmt_tf(columns = "optional",
-         tf_style = "circles",
-         colors = c("black", "grey90")) |>
-  tab_style(
-    style = cell_text(
-      align = "right",
-      weight = "bold",
-      size = px(16),
-      whitespace = "break-spaces",
-      transform = "lowercase",
-      font = google_font(name = "JetBrains Mono")),
-    locations = cells_stub()) |>
-  tab_style(
-    style = cell_text(
-      align = "left",
-      weight = "normal",
-      font = google_font(name = "Roboto Mono")),
-    locations = cells_body(columns = c(description))) |>
-  tab_style(
-    style = cell_text(
-      align = "left",
-      weight = "bold",
-      font = google_font(name = "JetBrains Mono")),
-    locations = cells_title()) |>
-  opt_stylize(add_row_striping = FALSE) |>
-  opt_vertical_padding(scale = 0.35) |> 
-  tab_options(column_labels.hidden = TRUE,
-              table.width = pct(60),
-              quarto.disable_processing = TRUE)
+  emphatic::hl(
+    'gray30', cols = Field) |>
+  knit_print.emphatic()
+```
+
+
+```{r}
+#| echo: false
+#| eval: false
+
+# gt(rowname_col = "name") |>
+  # tab_header("Class: <Rule>") |> 
+  # cols_align(align = "left") |>
+  # opt_table_font(font = google_font(name = "Roboto")) |>
+  # opt_all_caps() |>
+  # fmt_tf(columns = "optional",
+  #        tf_style = "circles",
+  #        colors = c("black", "grey90")) |>
+  # tab_style(
+  #   style = cell_text(
+  #     align = "right",
+  #     weight = "bold",
+  #     size = px(16),
+  #     whitespace = "break-spaces",
+  #     transform = "lowercase",
+  #     font = google_font(name = "JetBrains Mono")),
+  #   locations = cells_stub()) |>
+  # tab_style(
+  #   style = cell_text(
+  #     align = "left",
+  #     weight = "normal",
+  #     font = google_font(name = "Roboto Mono")),
+  #   locations = cells_body(columns = c(description))) |>
+  # tab_style(
+  #   style = cell_text(
+  #     align = "left",
+  #     weight = "bold",
+  #     font = google_font(name = "JetBrains Mono")),
+  #   locations = cells_title()) |>
+  # opt_stylize(add_row_striping = FALSE) |>
+  # opt_vertical_padding(scale = 0.35) |> 
+  # tab_options(column_labels.hidden = TRUE,
+  #             table.width = pct(60),
+  #             quarto.disable_processing = TRUE)
 ```
 
 # Anatomy of a **Step**
@@ -120,8 +124,8 @@ dplyr::tibble(
 #| message: false
 #| warning: false
 
-dplyr::tibble(
-  name = c(
+data.frame(
+  Field = c(
     "@type", 
     "@order", 
     "@variable",
@@ -130,7 +134,7 @@ dplyr::tibble(
     "@condition",
     "@message"
   ),
-  description = c(
+  Description = c(
     "<b>Qualifier</b>: All but the last step in the rule. Identify claims that meet the criteria for inspection. Claim is skipped if not met.<br><br>
     <b>Terminator</b>: Final step, the result of which indicates a pass or fail. Claim is skipped if it passes. If it fails, the full claim information should be returned, along with the rationale for the failure.<br><br>", 
     
@@ -154,39 +158,47 @@ dplyr::tibble(
     
     "Message to report if final <b>@terminator</b> step is not met"
   )) |> 
-  gt(rowname_col = "name") |>
-  tab_header("Class: <Step>") |> 
-  cols_align(align = "left") |>
-  opt_table_font(font = google_font(name = "Roboto")) |>
-  tab_style(
-    style = cell_text(
-      align = "right",
-      v_align = "top",
-      weight = "bold",
-      size = px(16),
-      whitespace = "break-spaces",
-      transform = "lowercase",
-      font = google_font(name = "JetBrains Mono")),
-    locations = cells_stub()) |>
-  tab_style(
-    style = cell_text(
-      align = "left",
-      v_align = "top",
-      weight = "normal",
-      font = google_font(name = "Roboto Mono")),
-    locations = cells_body(columns = c(description))) |>
-  tab_style(
-    style = cell_text(
-      align = "left",
-      weight = "bold",
-      font = google_font(name = "Roboto Mono")),
-    locations = cells_title()) |>
-  opt_stylize(add_row_striping = TRUE) |>
-  opt_vertical_padding(scale = 0.35) |> 
-  fmt_markdown() |> 
-  tab_options(column_labels.hidden = TRUE,
-              table.width = pct(70),
-              quarto.disable_processing = TRUE)
+  emphatic::hl('gray30', cols = Field) |>
+  knit_print.emphatic()
+```
+
+
+```{r}
+#| echo: false
+#| eval: false
+# gt(rowname_col = "name") |>
+#   tab_header("Class: <Step>") |> 
+#   cols_align(align = "left") |>
+#   opt_table_font(font = google_font(name = "Roboto")) |>
+#   tab_style(
+#     style = cell_text(
+#       align = "right",
+#       v_align = "top",
+#       weight = "bold",
+#       size = px(16),
+#       whitespace = "break-spaces",
+#       transform = "lowercase",
+#       font = google_font(name = "JetBrains Mono")),
+#     locations = cells_stub()) |>
+#   tab_style(
+#     style = cell_text(
+#       align = "left",
+#       v_align = "top",
+#       weight = "normal",
+#       font = google_font(name = "Roboto Mono")),
+#     locations = cells_body(columns = c(description))) |>
+#   tab_style(
+#     style = cell_text(
+#       align = "left",
+#       weight = "bold",
+#       font = google_font(name = "Roboto Mono")),
+#     locations = cells_title()) |>
+#   opt_stylize(add_row_striping = TRUE) |>
+#   opt_vertical_padding(scale = 0.35) |> 
+#   fmt_markdown() |> 
+#   tab_options(column_labels.hidden = TRUE,
+#               table.width = pct(70),
+#               quarto.disable_processing = TRUE)
 ```
 
 # Anatomy of a **Variable**
@@ -226,7 +238,7 @@ dplyr::tibble(
      - `sex`
    - `icd`: ICD-10-CM Code
 
-## S7 Classes
+# S7
 
 ::: {.panel-tabset}
 
@@ -356,7 +368,7 @@ pt_one
 ### Payer
 
 ```{r}
-#| label: s7_class_payer
+#| label: s7_payer
 #| echo: true
 #| eval: true
 #| message: false
@@ -402,11 +414,10 @@ bcbcs_tx@name <- "Medicaid"
 bcbcs_tx
 ```
 
-
 ### Encounter
 
 ```{r}
-#| label: s7_class_encounter
+#| label: s7_encounter
 #| echo: true
 #| eval: true
 #| message: false
@@ -444,29 +455,20 @@ enc
 
 ::: 
 
+# Validation
+
+::: {.panel-tabset}
+
+## DOS
 
 ```{r}
-#| label: qualify
+#| label: qualify_dos
 #| echo: true
 #| eval: true
 #| message: true
 #| warning: true
 #| error: true
-rule_001_example <- dplyr::tibble(
-  dos = as.Date(c("2024-01-01", "2018-01-01")),
-  hcpcs = as.character(c(43760, 99213))
-)
-
-rule_001_example
-
-rule_001_example2 <- dplyr::tibble(
-  dos = as.Date(c("2017-01-01", "2018-01-01", "2019-01-01")),
-  hcpcs = as.character(c(99213, 99213, 99213))
-)
-
-rule_001_example2
-
-qualify_dos <- function(df, dos, date) {
+qualify_dos <- \(df, dos, date) {
   
   arg  <- rlang::caller_arg(dos)
   call <- rlang::caller_env()
@@ -484,13 +486,37 @@ qualify_dos <- function(df, dos, date) {
   x
 }
 
+rule_001_example <- dplyr::tibble(
+  dos = as.Date(c("2024-01-01", "2018-01-01")),
+  hcpcs = as.character(c(43760, 99213))
+)
+
+rule_001_example
+
+rule_001_example2 <- dplyr::tibble(
+  dos = as.Date(c("2017-01-01", "2018-01-01", "2019-01-01")),
+  hcpcs = as.character(c(99213, 99213, 99213))
+)
+
+rule_001_example2
+
 rule_001_example |> 
   qualify_dos("dos", "2019-01-01")
 
 rule_001_example2 |> 
   qualify_dos("dos", "2019-01-01")
+```
 
-term_hcpcs <- function(df, hcpcs, code) {
+## HCPCS
+
+```{r}
+#| label: term_hcpcs
+#| echo: true
+#| eval: true
+#| message: true
+#| warning: true
+#| error: true
+term_hcpcs <- \(df, hcpcs, code) {
   
   arg  <- rlang::caller_arg(hcpcs)
   call <- rlang::caller_env()
@@ -513,8 +539,17 @@ rule_001_example |>
 
 rule_001_example2 |> 
   term_hcpcs("hcpcs", "43760")
+```
 
+## Both
 
+```{r}
+  #| label: both
+#| echo: true
+#| eval: true
+#| message: true
+#| warning: true
+#| error: true
 rule_001_example |> 
   qualify_dos("dos", "2019-01-01") |> 
   term_hcpcs("hcpcs", "43760")
@@ -524,19 +559,67 @@ rule_001_example2 |>
   term_hcpcs("hcpcs", "43760")
 ```
 
+## Stored
 
-## Cleaning Definitions
+```{r}
+#| label: stored
+#| echo: true
+#| eval: true
+#| message: false
+#| warning: false
+dos <- Sys.Date()
+
+condition <- cleaned_steps |> 
+  select(condition) |> 
+  slice(2) |> 
+  pull(condition)
+
+condition
+
+condition |> 
+  rlang::parse_expr() |> 
+  rlang::eval_bare()
+```
+
+::: 
+
+# Raw Definitions
+
+::: {.panel-tabset}
+
+## 1
 
 ```{r}
 print_desc(1)
+```
+
+## 50
+
+```{r}
 print_desc(50)
+```
+
+## 100
+
+```{r}
 print_desc(100)
+```
+
+## 500
+
+```{r}
 print_desc(500)
+```
+
+## 1000
+
+```{r}
 print_desc(1000)
 ```
 
+::: 
 
-## Metadata
+# Metadata
 
    * Rulesets
       * Identifiers: 712
@@ -640,7 +723,7 @@ cleaned_definitions |>
               quarto.disable_processing = TRUE)
 ```
 
-## Components of A Step
+## Step Components
 
 Two types of a step: `qualifier` and `terminator`
 
@@ -680,32 +763,11 @@ A **terminator** is the final step, analogous to a `stopifnot()` statement that 
 -   [X] `secondary_class`: 6
 -   [X] `secondary_name`: 4
 
-#### Cleaned
+# Cleaned
 
-```{r}
-#| label: cleaned_steps
-#| echo: true
-#| eval: true
-#| message: false
-#| warning: false
-dos <- Sys.Date()
+::: {.panel-tabset}
 
-condition <- cleaned_steps |> 
-  select(condition) |> 
-  slice(2) |> 
-  pull(condition)
-
-condition
-
-condition |> 
-  rlang::parse_expr() |> 
-  rlang::eval_bare()
-
-cleaned_steps |> 
-  select(number, variable, action, condition) |> 
-  print(n = 100)
-```
-
+## Definitions
 
 ```{r}
 #| label: cleaned_definitions
@@ -717,8 +779,10 @@ cleaned_definitions |>
   print(n = 100)
 ```
 
+## Descriptors
+
 ```{r}
-#| label: descriptors
+#| label: cleaned_descriptors
 #| echo: true
 #| eval: true
 #| message: false
@@ -730,6 +794,20 @@ descriptors |>
   print(n = 100)
 ```
 
+## Steps
+
+```{r}
+#| label: cleaned_steps
+#| echo: true
+#| eval: true
+#| message: false
+#| warning: false
+cleaned_steps |> 
+  select(number, variable, action, condition) |> 
+  print(n = 100)
+```
+
+::: 
 
 {{< pagebreak >}}
 
@@ -739,8 +817,6 @@ descriptors |>
 # Session Information
 
 ```{r}
-#| label: sessioninfo
 #| echo: false
-#| eval: true
-sessioninfo::session_info(pkgs = "loaded", info = "packages")
+pander::pander(sessionInfo())
 ```
