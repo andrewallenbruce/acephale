@@ -210,15 +210,13 @@ data.frame(
 take  <- \(x, i) stringfish::sf_substr(x, start = i, stop = i, nthreads = 4L)
 empty <- \(x)    vctrs::vec_is_empty(x)
 chop  <- \(v, g) vctrs::vec_chop(v, sizes = vctrs::vec_run_sizes(g))
-grab  <- \(x) { x[stringfish::sf_grepl(x, "[A-Z]{1}", nthreads = 4L)] }
+grab  <- \(x)    { x[stringfish::sf_grepl(x, "[A-Z]{1}", nthreads = 4L)] }
+p     <- \(...)  paste0(..., collapse = "")
 
 sort_order <- function(x) {
-  srt <- str_sort(x, numeric = TRUE)
+  srt <- str_sort(x)
   chr <- grab(srt)
-  paste0(
-    collapser(chr), 
-    collapser(srt[!srt %in% chr])
-    )
+  p(p(chr), p(srt[!srt %in% chr]))
 }
 ```
 
@@ -255,16 +253,24 @@ If a vector contains both `"A"` and `"A0"`, remove `"A0"`. Why? A user may input
 #| label: remove_redundant
 rr <- \(x, y) {
   
-  if (empty(x)) return(character(0))
-  if (empty(y)) return(x)
+  if (empty(x)) {
+    
+    cat(c("EMPTY: x | RETURN: character(0)"), sep = "\n")
+    
+    return(character(0))
+    
+  }
   
-  x <- x[sf_substr(x, 1,
-    funique(vlengths(y, use.names = FALSE)), 
-    nthreads = 4L) %!in% y]
+  if (empty(y)) {    
+    
+    cat(c("EMPTY: y | RETURN: x"), sep = "\n")
+    
+    return(x)
+    
+  }
   
-  if (empty(x)) return(character(0))
-  
-  x
+  x[!sf_substr(x, 1, funique(vlengths(y, use.names = FALSE)), nthreads = 4L) %in% y]
+
 }
 
 remove_redundant <- function(x) {
@@ -281,7 +287,7 @@ remove_redundant <- function(x) {
   
 }
 
-long_test |> 
+long_test2 |> 
   split_lengths() |> 
   remove_redundant()
 ```
@@ -292,27 +298,29 @@ Groups each set of vectors into groupable regex patterns.
 
 ```{r}
 #| label: internal_2
-lump <- function(x, thresh = 3, prefix = NULL, sep = NULL){
+lump <- function(x, thresh = 3){
 
   xo <- order(x)
 
   xs <- x[xo]
-
-  diff_prev <- abs(c(0, tail(xs, n = -1) - head(xs, n = -1)))
+  
+  diff_prev <- abs(c(0, xs[-1] - xs[seq_along(xs) - 1]))
 
   binary <- ifelse(diff_prev >= thresh, 1, 0)
 
   id <- cumsum(binary) + 1
+  
+  id[xo]
+  
+  }
 
-  id <- if (!is.null(c(prefix, sep))) paste0(prefix, sep, id) else as.character(id)
-
-  id[order(xo)]
-}
-
-let2num <- \(x) {
+letters_2_numbers <- \(x) {
+  
   look <- set_names(as.character(1:26), LETTERS)
+  
   unname(look[grab(x)])
-}
+  
+  }
 ```
 
 ::: {.panel-tabset}
@@ -341,13 +349,13 @@ g2 <- function(x) {
 
 long_test2 |> 
   split_lengths() |> 
-  # remove_redundant() |> 
+  remove_redundant() |>
   g1()
 
 
 long_test2 |> 
   split_lengths() |> 
-  # remove_redundant() |> 
+  remove_redundant() |>
   g2()
 ```
 
@@ -370,7 +378,7 @@ g3 <- function(x) {
   
   chr <- data.table(
     code = chr, 
-    lump = lump(as.integer(str_replace_all(chr, "[A-Z]", let2num))))
+    lump = lump(as.integer(str_replace_all(chr, "[A-Z]", letters_2_numbers))))
   
   out <- vec_c(
     if (empty(num)) NULL else chop(num$code, num$lump),
@@ -381,10 +389,21 @@ g3 <- function(x) {
   out
 }
 
-all_tests[nchar(all_tests) == 3] |> 
+three <- all_tests[nchar(all_tests) == 3] |> 
   split_lengths() |> 
   # remove_redundant() |> 
   g3()
+
+three   <- three[collapse::radixorder(collapse::vlengths(three), sort = FALSE)]
+orphans <- three[collapse::vlengths(three) == 1] |> purrr::list_c()
+groups  <- three[collapse::vlengths(three) > 1]
+
+modifyList(
+  setNames(
+    groups, 
+    paste0("group_", collapse::vlengths(groups))
+    ), 
+  list(orphans = orphans))
 ```
 
 
@@ -433,6 +452,43 @@ all_tests |>
   g4()
 ```
 
+
+```{r}
+x <- long_test2 |> 
+  split_lengths() |> 
+  get_elem("x5")
+
+y <- data.table(
+    x,
+    a1 = take(x, 1),
+    a2 = take(x, 2),
+    a3 = take(x, 3),
+    a4 = take(x, 4),
+    a5 = take(x, 5)
+    )
+
+y |> dplyr::tibble() |> 
+  dplyr::mutate(
+    i3 = dplyr::consecutive_id(a1, a2, a3),
+    i4 = dplyr::consecutive_id(a1, a2, a4),
+    i5 = dplyr::consecutive_id(a1, a2, a5),
+    l3 = i3 - dplyr::lag(i3, n = 1, default = 0),
+    l4 = i4 - dplyr::lag(i4, n = 1, default = 0),
+    l5 = i5 - dplyr::lag(i5, n = 1, default = 0),
+    ) |> 
+  print(n = 100)
+
+  # dplyr::add_count(a1, a2, a3, sort = TRUE, name = "n3") |> 
+  # dplyr::add_count(a1, a2, a3, a4, sort = TRUE, name = "n4") |> 
+  # dplyr::filter(n4 > 1) |> 
+  # dplyr::select(x, id)
+
+y |> 
+  dplyr::add_count(a1, a2, a3, a5, sort = TRUE, name = "n5") |> 
+  dplyr::filter(n5 > 1)
+```
+
+
 ```{r}
 #| label: g5
 g5 <- function(x) {
@@ -453,7 +509,7 @@ g5 <- function(x) {
   
   chr <- data.table(
     code = chr, 
-    lump = lump(dchr, thresh = 3))
+    lump = lump(dchr))
   
   # str_replace_all(str_remove_all(chr, "[A-Z]$"), "[A-Z]", let2num)
   
@@ -463,7 +519,7 @@ g5 <- function(x) {
   
   if (empty(out)) return(character(0))
   
-  return(out)
+  out
 }
 
 hcpcs_tests[26:30] |> 
@@ -573,6 +629,8 @@ p1 <- function(x) {
   
   re <- sort_order(g1) |> reduce_runs()
   
+  # POSTFIX PROBLEM BEGINS RIGHT HERE
+  
   if (re == "[A-Z0-9]") return(paste0("(^", re, "{5}$)"))
   
   return(paste0("(^", re, "[A-Z0-9]{4}$)"))
@@ -630,7 +688,7 @@ vrg <- function(x, n) {
   if (is.null(x)) return(NULL)
   
   postfix <- ifelse(
-    sf_starts(x, "[A-Z]", nthreads = 4L), "[0-9]", "[A-Z0-9]")
+    sf_grepl(x, "^\\[?[A-Z]\\-?", nthreads = 4L), "[0-9]", "[A-Z0-9]")
   
   x <- ifelse(
     n == 0, 
@@ -665,7 +723,7 @@ long_test2 |>
   process_groups() |>
   reduce_groups()
 
-long_test2[nchar(long_test2) > 4] |> 
+long_test2[nchar(long_test2) == 4] |> 
   process_groups() |> 
   reduce_groups()
 ```
@@ -678,11 +736,18 @@ medrex <- function(x) {
     process_groups() |> 
     reduce_groups()
 }
-
-length(vec_slice(hcpcs_codes, sf_grepl(hcpcs_codes, medrex(all_tests))))
-
+# REMOVE {1} FROM EXPRS WITH 5 CHARS
 medrex(long_test2[nchar(long_test2) > 3])
-# INCORRECT OUTPUT
+
+# length(
+  vec_slice(
+    hcpcs, 
+    sf_grepl(
+      hcpcs, 
+      medrex(long_test2[nchar(long_test2) > 3])
+      ))
+  # )
+
 ```
 
 
