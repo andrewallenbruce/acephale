@@ -123,6 +123,7 @@ data.frame(
 #| eval: true
 #| message: false
 #| warning: false
+#| results: asis
 
 data.frame(
   Field = c(
@@ -135,33 +136,32 @@ data.frame(
     "@message"
   ),
   Description = c(
-    "<b>Qualifier</b>: All but the last step in the rule. Identify claims that meet the criteria for inspection. Claim is skipped if not met.<br><br>
-    <b>Terminator</b>: Final step, the result of which indicates a pass or fail. Claim is skipped if it passes. If it fails, the full claim information should be returned, along with the rationale for the failure.<br><br>", 
+    "Qualifier: All but the last step in the rule. Identify claims that meet the criteria for inspection. Claim is skipped if not met.
+    Terminator: Final step, the result of which indicates a pass or fail. Claim is skipped if it passes. If it fails, the full claim information should be returned, along with the rationale for the failure.", 
     
-    "Certain steps must be ahead of others, for instance:<br><br>
-     Dates should always be first<br><br>
-     <b>@dos</b> should always be first if present, unless patient <b>@age</b> is required<br><br>
-     If <b>@age</b> is required, it should be first and calculated as the number of days from <b>@dob</b> to <b>@dos</b><br><br>", 
+    "Certain steps must be ahead of others, for instance:
+     Dates should always be first
+     @dos should always be first if present, unless patient @age is required
+     If @age is required, it should be first and calculated as the number of days from @dob to @dos", 
     
     "Element to evaluate", 
     
-    "Valid value, <b>@variable</b>'s expected state", 
+    "Valid value, @variable's expected state", 
     
-    "Validation Method:<br><br>
-    <b>Regex</b>: grepl('^I10', icd) | grepl('^J[0-9]{5}', hcpcs)<br><br>
-    <b>Calculation</b>: as.integer(dos - dob)<br><br>
-    <b>Comparison</b>: x > y, x < y, x >= y, x <= y<br><br>
-    <b>Equality</b>: x == y, identical(x, y)<br><br>
-    <b>Presence</b>: !is.na(x)<br><br>", 
+    "Validation Method:
+    Regex: grepl('^I10', icd) | grepl('^J[0-9]{5}', hcpcs)
+    Calculation: as.integer(dos - dob)
+    Comparison: x > y, x < y, x >= y, x <= y
+    Equality: x == y, identical(x, y)
+    Presence: !is.na(x)", 
     
-    "Functional R code to call based on <b>@operation</b> selected", 
+    "Functional R code to call based on @operation selected", 
     
-    "Message to report if final <b>@terminator</b> step is not met"
+    "Message to report if final @terminator step is not met"
   )) |> 
   emphatic::hl('gray30', cols = Field) |>
   knit_print.emphatic()
 ```
-
 
 ```{r}
 #| echo: false
