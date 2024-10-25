@@ -113,7 +113,35 @@ all_tests <- sf_concat(
   sf_substr(long_test, 1, 5),
   hcpcs_tests)
 
-hcpcs <- convert_to_sf(funique(northstar::search_descriptions()$hcpcs_code))
+hcpcs <- stringfish::convert_to_sf(collapse::funique(northstar::search_descriptions()$hcpcs_code))
+
+random_hcpcs <- \(n = 10, l = 5) {
+  
+  stringfish::sf_substr(
+    sample(
+      stringfish::convert_to_sf(
+        collapse::funique(
+          northstar::search_descriptions()$hcpcs_code)
+        ), size = n), 
+    start = 1, 
+    stop = l, 
+    nthreads = 4L)
+  
+}
+
+random_hcpcs_vec <- \(n = 10) {
+  c(
+    sample(
+      c(LETTERS[sf_grepl(
+        LETTERS, "[^DINOW-Z]", 
+        nthreads = 4L)], 0:9), 
+      size = 10),
+    random_hcpcs(n = n, l = 2),
+    random_hcpcs(n = n, l = 3),
+    random_hcpcs(n = n, l = 4),
+    random_hcpcs(n = n, l = 5)
+  )
+}
 
 split_string <- \(...) {
   stringfish::convert_to_sf(paste0(...)) |>
@@ -203,11 +231,15 @@ data.frame(
 #| label: colortable_experiments
 #| echo: false
 #| results: asis
-color_vctr(
+color_vc <- color_vctr(
   c(1, 2, 3, 4),
   text_color = c("blue", "green", "yellow", NA),
   style = c("underline", "italic", NA, "bold"),
   background = c(NA, NA, "blue", NA))
+
+color_vc
+
+vctrs::field(color_vc, 2)
 ```
 
 ```{r}
@@ -233,11 +265,24 @@ data.frame(
   )
 ```
 
-# TODOs
+# TODO
 
    * ~~If a **wildcard** begins with a **letter**, the *postfix* should be `[0-9]{n}`.~~
    * Eliminate `g1()` step in grouping.
    * In `remove_redundant()`, try pmap for `rr()` step.
+
+
+## Checklist
+
+-   [X] `split_lengths()`
+-   [X] `remove_redundant()`
+-   [ ] `process_groups()`
+   -   [X] `g1()`
+   -   [X] `g2()`
+   -   [ ] `g3()`
+   -   [ ] `g4()`
+   -   [ ] `g5()`
+-   [ ] `reduce_groups()`
 
 # Preprocessing
 
@@ -286,12 +331,12 @@ If a vector contains both `"A"` and `"A0"`, remove `"A0"`. Why? A user may input
 rr <- \(x, y) {
   
   if (empty(x)) {
-    cat(c("EMPTY: x | RETURN: character(0)"), sep = "\n")
+    # cat(c("EMPTY: x | RETURN: character(0)"), sep = "\n")
     return(character(0))
   }
   
   if (empty(y)) {    
-    cat(c("EMPTY: y | RETURN: x"), sep = "\n")
+    # cat(c("EMPTY: y | RETURN: x"), sep = "\n")
     return(x)
   }
   contrast(x, y)
@@ -311,7 +356,7 @@ remove_redundant <- function(x) {
   
 }
 
-new_test |> 
+random_hcpcs_vec(10) |> 
   split_lengths() |> 
   remove_redundant()
 ```
@@ -342,7 +387,9 @@ lump <- function(x, threshold = 3) {
 
 letters_2_numbers <- \(x) {
   
-  look <- set_names(as.character(1:26), LETTERS)
+  hcpcs <- LETTERS[sf_grepl(LETTERS, "[^DINOW-Z]", nthreads = 4L)]
+  
+  look <- set_names(seq_along(hcpcs), hcpcs)
   
   unname(look[grab(x)])
 }
@@ -411,7 +458,7 @@ dplyr::tibble(
 
 ::: {.panel-tabset}
 
-## [1|2]
+## [g1|g2]
 
 ```{r}
 #| label: g1_g2
@@ -433,18 +480,18 @@ g2 <- function(x) {
   rsplit(x, take(x, 1), use.names = FALSE)
 }
 
-long_test2 |> 
+random_hcpcs_vec() |> 
   split_lengths() |> 
   remove_redundant() |>
   g1()
 
-long_test2 |>
+random_hcpcs_vec() |>
   split_lengths() |> 
   remove_redundant() |>
   g2()
 ```
 
-## [3]
+## [g3]
 
 ```{r}
 #| label: g3
