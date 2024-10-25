@@ -291,10 +291,11 @@ data.frame(
 take     <- \(x, i) stringfish::sf_substr(x, start = i, stop = i, nthreads = 4L)
 empty    <- \(x)    vctrs::vec_is_empty(x)
 chop     <- \(v, g) vctrs::vec_chop(v, sizes = vctrs::vec_run_sizes(g))
-p        <- \(...)  paste0(..., collapse = "")
+p        <- \(..., sep = "")  paste0(..., collapse = sep)
 grab     <- \(x)    x[stringfish::sf_grepl(x, "[A-Z]{1}", nthreads = 4L)]
 contrast <- \(x, y) x[!stringfish::sf_substr(x, 1, collapse::funique(collapse::vlengths(y, use.names = FALSE)), nthreads = 4L) %in% y]
 sorder   <- \(x)    p(p(grab(stringr::str_sort(x))), p(stringr::str_sort(x)[!stringr::str_sort(x) %in% grab(stringr::str_sort(x))]))
+view     <- \(x) glue::glue("{format(seq_along(x))}: ", "{format(unname(vctrs::list_sizes(x)))}|", "-<< [{format(unname(purrr::map_vec(x, p, sep = ', ')), justify = 'none')}]")
 ```
 
 ## `split_lengths()`
@@ -358,7 +359,8 @@ remove_redundant <- function(x) {
 
 random_hcpcs_vec(10) |> 
   split_lengths() |> 
-  remove_redundant()
+  remove_redundant() |> 
+  view()
 ```
 
 # Grouping
@@ -485,10 +487,11 @@ random_hcpcs_vec() |>
   remove_redundant() |>
   g1()
 
-random_hcpcs_vec() |>
+random_hcpcs_vec(20) |>
   split_lengths() |> 
   remove_redundant() |>
-  g2()
+  g2() |> 
+  view()
 ```
 
 ## [g3]
@@ -521,24 +524,21 @@ g3 <- function(x) {
   out
 }
 
-x <- all_tests[nchar(all_tests) == 3] |> 
-  split_lengths()
-
-three <- all_tests[nchar(all_tests) == 3] |> 
+all_tests[nchar(all_tests) < 3] |> 
   split_lengths() |> 
-  # remove_redundant() |> 
-  g3()
+  view()
 
-three   <- three[collapse::radixorder(collapse::vlengths(three), sort = FALSE)]
-orphans <- three[collapse::vlengths(three) == 1] |> purrr::list_c()
-groups  <- three[collapse::vlengths(three) > 1]
+all_tests[nchar(all_tests) == 3] |> 
+  split_lengths() |> 
+  remove_redundant() |>
+  g3() |> 
+  view()
 
-modifyList(
-  setNames(
-    groups, 
-    paste0("group_", collapse::vlengths(groups))
-    ), 
-  list(orphans = orphans))
+random_hcpcs_vec(30) |> 
+  split_lengths() |> 
+  remove_redundant() |>
+  g3() |> 
+  view()
 ```
 
 ## [4]
@@ -575,17 +575,20 @@ g4 <- function(x) {
 hcpcs_tests[20:25] |> 
   split_lengths() |> 
   remove_redundant() |> 
-  g4()
+  g4() |> 
+  view()
 
 long_test2 |> 
   split_lengths() |> 
   # remove_redundant() |> 
-  g4()
+  g4() |> 
+  view()
 
-all_tests |> 
+random_hcpcs_vec() |> 
   split_lengths() |> 
   remove_redundant() |>
-  g4()
+  g4() |> 
+  view()
 ```
 
 ## [5]
@@ -630,17 +633,20 @@ g5 <- function(x) {
 hcpcs_tests[26:30] |> 
   split_lengths() |> 
   # remove_redundant() |> 
-  g5()
+  g5() |> 
+  view()
 
 long_test2 |> 
   split_lengths() |> 
   # remove_redundant() |> 
-  g5()
+  g5() |> 
+  view()
 
 new_test |>
   split_lengths() |> 
   remove_redundant() |>
-  g5()
+  g5() |> 
+  view()
 ```
 
 ```{r}
@@ -700,17 +706,20 @@ process_groups <- function(x) {
 hcpcs_tests |>
   split_lengths() |> 
   remove_redundant() |> 
-  process_groups()
+  process_groups() |> 
+  view()
 
 long_test2 |> 
   split_lengths() |> 
   remove_redundant() |> 
-  process_groups()
+  process_groups() |> 
+  view()
 
 all_tests |> 
   split_lengths() |> 
   remove_redundant() |> 
-  process_groups()
+  process_groups() |> 
+  view()
 ```
 
 ## Reduce Runs
@@ -909,13 +918,7 @@ medrex <- function(x) {
 # REMOVE {1} FROM EXPRS WITH 5 CHARS
 medrex(long_test2[nchar(long_test2) > 3])
 
-vec_slice(
-  hcpcs, 
-  sf_grepl(hcpcs, 
-           medrex(long_test2[nchar(long_test2) > 3])
-           )
-  )
-
+vec_slice(hcpcs, sf_grepl(hcpcs, medrex(long_test2[nchar(long_test2) > 3])))
 ```
 
 
