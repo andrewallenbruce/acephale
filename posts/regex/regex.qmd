@@ -38,24 +38,18 @@ knitr::opts_chunk$set(
   fig.align = "center",
   fig.width = 8
 )
-options(scipen = 999)
+options(scipen = 999, digits = 2)
 
 library(tidyverse)
 library(rlang)
 library(vctrs)
-
 library(cli)
 library(colortable)
-# library(crayon)
-# options(crayon.enabled = TRUE)
 library(emphatic)
-# library(gt)
-
 library(fuimus)
 library(stringfish)
 library(re2)
 library(re2r)
-
 library(compiler)
 library(data.table)
 library(tidyfast)
@@ -128,7 +122,7 @@ split_string <- \(...) {
 }
 
 new_test <- list(
-  split_string(
+  split_string(single_line_string(
     "A4467, A9283, A9285, L1900, 
     L1902, L1904, L1906, L1907, 
     L1910, L1920, L1930, L1932, 
@@ -162,9 +156,10 @@ new_test <- list(
     L4210, L4350, L4360, L4361, 
     L4370, L4386, L4387, L4392, 
     L4394, L4396, L4397, L4398, 
-    L4631"), 
-  split_string(
-    "90460, 90461, 90471, 90472, 
+    L4631"
+    )), 
+  split_string(single_line_string(
+  "90460, 90461, 90471, 90472, 
     90473, 90474, 90619, 90620, 
     90621, 90633, 90647, 90648, 
     90651, 90670, 90672, 90674, 
@@ -175,7 +170,7 @@ new_test <- list(
     90715, 90716, 90723, 90732, 
     90734, 90740, 90743, 90744, 
     90746, 90747, 90749, 90756"
-    )) |> 
+  ))) |> 
   unlist(use.names = FALSE)
 ```
 
@@ -205,14 +200,20 @@ data.frame(
 ```
 
 ```{r}
-color_vctr(c(1, 2, 3, 4),
-           text_color = c("blue", "green", "yellow", NA),
-           style = c("underline", "italic", NA, "bold"),
-           background = c(NA, NA, "blue", NA))
+#| label: colortable_experiments
+#| echo: false
+#| results: asis
+color_vctr(
+  c(1, 2, 3, 4),
+  text_color = c("blue", "green", "yellow", NA),
+  style = c("underline", "italic", NA, "bold"),
+  background = c(NA, NA, "blue", NA))
 ```
 
-
 ```{r}
+#| echo: false
+#| eval: false
+#| results: asis
 data.frame(
   text_color = sample(c(NA, valid_colors("html")[, 2, drop = TRUE]), 10, replace = TRUE),
   background = sample(c(NA, valid_colors("html")[, 2, drop = TRUE]), 10, replace = TRUE),
@@ -232,10 +233,9 @@ data.frame(
   )
 ```
 
-
 # TODOs
 
-   * If a **wildcard** begins with a **letter**, the *postfix* should be `[0-9]{n}`.
+   * ~~If a **wildcard** begins with a **letter**, the *postfix* should be `[0-9]{n}`.~~
    * Eliminate `g1()` step in grouping.
    * In `remove_redundant()`, try pmap for `rr()` step.
 
@@ -322,30 +322,92 @@ Group each set of vectors into regex patterns.
 
 ```{r}
 #| label: internal_2
-lump <- function(x, thresh = 3){
+lump <- function(x, threshold = 3) {
+  
+  stopifnot(is.numeric(x))
 
   xo <- order(x)
 
   xs <- x[xo]
   
-  diff_prev <- abs(c(0, xs[-1] - xs[seq_along(xs) - 1]))
+  dlag <- abs(c(0, xs[-1] - xs[seq_along(xs) - 1]))
 
-  binary <- ifelse(diff_prev >= thresh, 1, 0)
+  bi <- ifelse(dlag >= threshold, 1, 0)
 
-  id <- cumsum(binary) + 1
+  id <- cumsum(bi) + 1
   
   id[xo]
   
-  }
+}
 
 letters_2_numbers <- \(x) {
   
   look <- set_names(as.character(1:26), LETTERS)
   
   unname(look[grab(x)])
-  
-  }
+}
 ```
+
+```{r}
+#| label: lump_experiments
+#| echo: false
+#| eval: false
+dplyr::tibble(
+  code = x,
+  c1 = substr(x, 1, 3),
+  lump_1 = lump(stringfish::sf_gsub(x, "^[A-Z]|[A-Z]$", "", nthreads = 4L) |> as.integer()),
+) |> 
+  print(n = 200)
+
+lumpdf <- function(x, thresh = 3){
+  
+  chr <- grab(x)
+  num <- as.numeric(x[!x %in% grab(x)])
+  
+  num <- as.numeric(num)
+
+  xo <- order(num)
+
+  xs <- num[xo]
+  
+  subtract <- tail(xs, n = -1) - head(xs, n = -1)
+  
+  diff <- abs(c(0, subtract))
+
+  binary <- ifelse(diff >= thresh, 1, 0)
+
+  id <- cumsum(binary) + 1
+  
+  data.table(
+    xo = xo,
+    xs = xs,
+    # sub = subtract,
+    diff = diff,
+    binary = binary,
+    id = id,
+    idx = id[xo]
+  )
+}
+
+
+x <- new_test |> 
+  lumpdf()
+
+dplyr::tibble(
+  xo = order(new_test),
+  xs = new_test[xo],
+  diff = abs(
+    c(0, 
+      tail(xs, n = -1) - head(xs, n = -1)
+      )
+    )
+  ,
+  binary = ifelse(diff >= 3, 1, 0),
+  id = cumsum(binary) + 1,
+  idx = id[xo]
+)
+```
+
 
 ::: {.panel-tabset}
 
@@ -376,8 +438,7 @@ long_test2 |>
   remove_redundant() |>
   g1()
 
-
-long_test2 |> 
+long_test2 |>
   split_lengths() |> 
   remove_redundant() |>
   g2()
@@ -412,6 +473,9 @@ g3 <- function(x) {
 
   out
 }
+
+x <- all_tests[nchar(all_tests) == 3] |> 
+  split_lengths()
 
 three <- all_tests[nchar(all_tests) == 3] |> 
   split_lengths() |> 
@@ -491,13 +555,21 @@ g5 <- function(x) {
   num <- x[!x %in% chr]
   
   num  <- data.table(code = num, lump = lump(as.integer(num)))
-  dchr <- as.integer(str_remove_all(chr, "^[A-Z]|[A-Z]$"))
-  
-  dchr <- ifelse(dchr %% 10 == 0, dchr + max(dchr), dchr)
   
   chr <- data.table(
     code = chr, 
-    lump = lump(dchr))
+    lump = lump(
+      as.integer(
+        str_remove_all(chr, "[A-Z]")
+        )))
+  
+  # dchr <- as.integer(str_remove_all(chr, "^[A-Z]|[A-Z]$"))
+  # 
+  # dchr <- ifelse(dchr %% 10 == 0, dchr + max(dchr), dchr)
+  # 
+  # chr <- data.table(
+  #   code = chr, 
+  #   lump = lump(dchr))
   
   out <- vec_c(
     if (empty(num)) NULL else chop(num$code, num$lump),
@@ -518,7 +590,7 @@ long_test2 |>
   # remove_redundant() |> 
   g5()
 
-all_tests |> 
+new_test |>
   split_lengths() |> 
   remove_redundant() |>
   g5()
@@ -569,27 +641,28 @@ y |>
 #| label: process_groups
 #| message: false
 process_groups <- function(x) {
-  
-  g <- x |> 
-    split_lengths() |> 
-    remove_redundant()
-  
   list(
-    g1 = g1(g),
-    g2 = g2(g),
-    g3 = g3(g),
-    g4 = g4(g),
-    g5 = g5(g)
+    g1 = g1(x),
+    g2 = g2(x),
+    g3 = g3(x),
+    g4 = g4(x),
+    g5 = g5(x)
   )
 }
 
-hcpcs_tests |> 
+hcpcs_tests |>
+  split_lengths() |> 
+  remove_redundant() |> 
   process_groups()
 
 long_test2 |> 
+  split_lengths() |> 
+  remove_redundant() |> 
   process_groups()
 
 all_tests |> 
+  split_lengths() |> 
+  remove_redundant() |> 
   process_groups()
 ```
 
@@ -663,10 +736,14 @@ p1 <- function(x) {
 }
 
 hcpcs_tests |> 
+  split_lengths() |> 
+  remove_redundant() |> 
   process_groups() |> 
   p1()
 
 long_test2 |> 
+  split_lengths() |> 
+  remove_redundant() |> 
   process_groups() |> 
   p1()
 
@@ -740,18 +817,32 @@ reduce_groups <- function(x) {
 }
 
 all_tests[nchar(all_tests) > 2] |> 
+  split_lengths() |> 
+  remove_redundant() |> 
   process_groups() |> 
   reduce_groups()
 
 hcpcs_tests |> 
-  process_groups() |>
+  split_lengths() |> 
+  remove_redundant() |> 
+  process_groups() |> 
   reduce_groups()
 
 long_test2 |> 
-  process_groups() |>
+  split_lengths() |> 
+  remove_redundant() |> 
+  process_groups() |> 
   reduce_groups()
 
 long_test2[nchar(long_test2) == 4] |> 
+  split_lengths() |> 
+  remove_redundant() |> 
+  process_groups() |> 
+  reduce_groups()
+
+new_test |> 
+  split_lengths() |> 
+  remove_redundant() |> 
   process_groups() |> 
   reduce_groups()
 ```
@@ -763,20 +854,20 @@ long_test2[nchar(long_test2) == 4] |>
 #| message: false
 medrex <- function(x) {
   x |> 
+    split_lengths() |> 
+    remove_redundant() |> 
     process_groups() |> 
     reduce_groups()
 }
 # REMOVE {1} FROM EXPRS WITH 5 CHARS
 medrex(long_test2[nchar(long_test2) > 3])
 
-# length(
-  vec_slice(
-    hcpcs, 
-    sf_grepl(
-      hcpcs, 
-      medrex(long_test2[nchar(long_test2) > 3])
-      ))
-  # )
+vec_slice(
+  hcpcs, 
+  sf_grepl(hcpcs, 
+           medrex(long_test2[nchar(long_test2) > 3])
+           )
+  )
 
 ```
 
