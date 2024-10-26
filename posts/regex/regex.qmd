@@ -115,27 +115,25 @@ all_tests <- sf_concat(
 
 hcpcs <- stringfish::convert_to_sf(collapse::funique(northstar::search_descriptions()$hcpcs_code))
 
-random_hcpcs <- \(n = 10, l = 5) {
+random_hcpcs <- \(n, l) {
+  
+  h <- stringfish::convert_to_sf(
+    collapse::funique(
+      northstar::search_descriptions()$hcpcs_code))
   
   stringfish::sf_substr(
-    sample(
-      stringfish::convert_to_sf(
-        collapse::funique(
-          northstar::search_descriptions()$hcpcs_code)
-        ), size = n), 
+    sample(h, size = n), 
     start = 1, 
     stop = l, 
     nthreads = 4L)
-  
 }
 
 random_hcpcs_vec <- \(n = 10) {
+  
+  nn <- if (n >= 10) 10 else n
+  
   c(
-    sample(
-      c(LETTERS[sf_grepl(
-        LETTERS, "[^DINOW-Z]", 
-        nthreads = 4L)], 0:9), 
-      size = 10),
+    sample(c(LETTERS[sf_grepl(LETTERS, "[^DINOW-Z]", nthreads = 4L)], 0:9), size = nn),
     random_hcpcs(n = n, l = 2),
     random_hcpcs(n = n, l = 3),
     random_hcpcs(n = n, l = 4),
@@ -209,11 +207,11 @@ new_test <- list(
 #| echo: false
 #| results: asis
 rx <- list(
-  all = "(^[A-CEGHJ-MP-V0-9][0-9]{3}[AFMTU0-9]$)",
-  iI = "(^[0-9]{4}[AFMTU0-9]$)",
-  iII = "(^[A-CEGHJ-MP-V][0-9]{4}$)",
-  cI = "(^[0-9]{4}[AMU0-9]$)",
-  cII = "(^[0-9]{4}F$)",
+  all  = "(^[A-CEGHJ-MP-V0-9][0-9]{3}[AFMTU0-9]$)",
+  iI   = "(^[0-9]{4}[AFMTU0-9]$)",
+  iII  = "(^[A-CEGHJ-MP-V][0-9]{4}$)",
+  cI   = "(^[0-9]{4}[AMU0-9]$)",
+  cII  = "(^[0-9]{4}F$)",
   cIII = "(^[0-9]{4}T$)"
 )
 
@@ -230,16 +228,11 @@ data.frame(
 ```{r}
 #| label: colortable_experiments
 #| echo: false
-#| results: asis
-color_vc <- color_vctr(
-  c(1, 2, 3, 4),
-  text_color = c("blue", "green", "yellow", NA),
-  style = c("underline", "italic", NA, "bold"),
-  background = c(NA, NA, "blue", NA))
-
-color_vc
-
-vctrs::field(color_vc, 2)
+color_vctr(
+  as.character(c(9, 0, 4, 6, 0)),
+  text_color = c(NA, "blue",      "green",  "black", NA),
+  style      = c(NA, "underline", "italic", "bold",  NA),
+  background = c(NA, NA,          NA,       "white",  NA))
 ```
 
 ```{r}
@@ -288,20 +281,43 @@ data.frame(
 
 ```{r}
 #| label: internal_1
+#| message: true
+#| echo: true
 take     <- \(x, i) stringfish::sf_substr(x, start = i, stop = i, nthreads = 4L)
 empty    <- \(x)    vctrs::vec_is_empty(x)
 chop     <- \(v, g) vctrs::vec_chop(v, sizes = vctrs::vec_run_sizes(g))
 p        <- \(..., sep = "")  paste0(..., collapse = sep)
 grab     <- \(x)    x[stringfish::sf_grepl(x, "[A-Z]{1}", nthreads = 4L)]
-contrast <- \(x, y) x[!stringfish::sf_substr(x, 1, collapse::funique(collapse::vlengths(y, use.names = FALSE)), nthreads = 4L) %in% y]
 sorder   <- \(x)    p(p(grab(stringr::str_sort(x))), p(stringr::str_sort(x)[!stringr::str_sort(x) %in% grab(stringr::str_sort(x))]))
-view     <- \(x) glue::glue("{format(seq_along(x))}: ", "{format(unname(vctrs::list_sizes(x)))}|", "-<< [{format(unname(purrr::map_vec(x, p, sep = ', ')), justify = 'none')}]")
+
+
+contrast <- \(x, y) x[!stringfish::sf_substr(x, 1, collapse::funique(collapse::vlengths(y, use.names = FALSE)), nthreads = 4L) %in% y]
+removed <- \(x, y)  x[stringfish::sf_substr(x, 1, collapse::funique(collapse::vlengths(y, use.names = FALSE)), nthreads = 4L) %in% y]
+
+cutoff   <- \(x) stringr::str_trunc(string = x, width = 50, side = "right")
+
+view <- \(x) {
+  
+  idx  <- seq_along(x)
+  len  <- collapse::vlengths(x, use.names = FALSE)
+  tree <- unname(purrr::map_vec(x, p, sep = ' '))
+  
+  cat(
+    glue::glue(
+      "{format(idx)}: ", 
+      "{format(len)}|", 
+      "--[{format(purrr::map_vec(tree, cutoff), justify = 'none')}]"
+      ),
+    sep = "\n")
+}
 ```
 
 ## `split_lengths()`
 
 ```{r}
 #| label: split_lengths
+#| message: true
+#| echo: true
 split_lengths <- function(x) {
   
   stopifnot(is.character(x))
@@ -312,14 +328,20 @@ split_lengths <- function(x) {
   
   l <- vlengths(x)
   
-  list(
+  out <- list(
     x1 = x[l == 1],
     x2 = x[l == 2],
     x3 = x[l == 3],
     x4 = x[l == 4],
-    x5 = x[l == 5]
-  )
+    x5 = x[l == 5])
+  
+  cat(view(out), sep = "\n")
+  
+  return(invisible(out))
 }
+
+random_hcpcs_vec(n = 25) |> 
+  split_lengths()
 ```
 
 ## `remove_redundant()`
@@ -329,25 +351,40 @@ If a vector contains both `"A"` and `"A0"`, remove `"A0"`. Why? A user may input
 
 ```{r}
 #| label: remove_redundant
+view_remove <- \(x) {
+  
+  len  <- length(x)
+  tree <- unname(paste0(x, collapse = " "))
+  
+  cat(
+    glue::glue(
+      "Removed ", 
+      "{format(len, justify = 'left')}|", 
+      "--[{format(purrr::map_vec(tree, cutoff), justify = 'right')}]"
+      ),
+    sep = "\n")
+}
+
 rr <- \(x, y) {
   
-  if (empty(x)) {
-    # cat(c("EMPTY: x | RETURN: character(0)"), sep = "\n")
-    return(character(0))
-  }
+  if (empty(x)) return(character(0))
   
-  if (empty(y)) {    
-    # cat(c("EMPTY: y | RETURN: x"), sep = "\n")
-    return(x)
-  }
+  if (empty(y)) return(x)
+  
+  # rem <- removed(x, y)
+  
+  # cat(view_remove(rem))
+  
+  # return(invisible(contrast(x, y)))
+  
   contrast(x, y)
-  }
+}
 
 remove_redundant <- function(x) {
 
   .c(x1, x2, x3, x4, x5) %=% x
   
-  list(
+  out <- list(
     x1 = x1,
     x2 = rr(x2, x1),
     x3 = rr(x3, x1) |> rr(x2),
@@ -355,12 +392,13 @@ remove_redundant <- function(x) {
     x5 = rr(x5, x1) |> rr(x2) |> rr(x3) |> rr(x4)
   )
   
+  cat(view(out), sep = "\n")
+  
+  return(invisible(out))
 }
-
-random_hcpcs_vec(10) |> 
+random_hcpcs_vec(25) |> 
   split_lengths() |> 
-  remove_redundant() |> 
-  view()
+  remove_redundant()
 ```
 
 # Grouping
