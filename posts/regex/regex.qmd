@@ -294,19 +294,19 @@ sorder   <- \(x)    p(p(grab(stringr::str_sort(x))), p(stringr::str_sort(x)[!str
 contrast <- \(x, y) x[!stringfish::sf_substr(x, 1, collapse::funique(collapse::vlengths(y, use.names = FALSE)), nthreads = 4L) %in% y]
 removed <- \(x, y)  x[stringfish::sf_substr(x, 1, collapse::funique(collapse::vlengths(y, use.names = FALSE)), nthreads = 4L) %in% y]
 
-cutoff   <- \(x) stringr::str_trunc(string = x, width = 50, side = "right")
+cutoff <- \(x) stringr::str_trunc(string = x, width = 50, side = "right")
 
 view <- \(x) {
   
   idx  <- seq_along(x)
   len  <- collapse::vlengths(x, use.names = FALSE)
-  tree <- unname(purrr::map_vec(x, p, sep = ' '))
+  tree <- unname(purrr::map_vec(x, p, sep = ' ')) |> purrr::map_vec(cutoff)
   
   cat(
     glue::glue(
       "{format(idx)}: ", 
       "{format(len)}|", 
-      "--[{format(purrr::map_vec(tree, cutoff), justify = 'none')}]"
+      "--[{if (empty(tree)) NULL else format(tree, justify = 'none')}]"
       ),
     sep = "\n")
 }
@@ -340,7 +340,7 @@ split_lengths <- function(x) {
   return(invisible(out))
 }
 
-random_hcpcs_vec(n = 25) |> 
+random_hcpcs_vec(n = 5) |> 
   split_lengths()
 ```
 
@@ -354,13 +354,14 @@ If a vector contains both `"A"` and `"A0"`, remove `"A0"`. Why? A user may input
 view_remove <- \(x) {
   
   len  <- length(x)
-  tree <- unname(paste0(x, collapse = " "))
+  tree <- unname(paste0(x, collapse = " ")) |> 
+    purrr::map_vec(cutoff)
   
   cat(
     glue::glue(
       "Removed ", 
       "{format(len, justify = 'left')}|", 
-      "--[{format(purrr::map_vec(tree, cutoff), justify = 'right')}]"
+      "--[{if (empty(tree)) NULL else format(tree, justify = 'none')}]"
       ),
     sep = "\n")
 }
@@ -370,13 +371,7 @@ rr <- \(x, y) {
   if (empty(x)) return(character(0))
   
   if (empty(y)) return(x)
-  
-  # rem <- removed(x, y)
-  
-  # cat(view_remove(rem))
-  
-  # return(invisible(contrast(x, y)))
-  
+
   contrast(x, y)
 }
 
@@ -396,6 +391,7 @@ remove_redundant <- function(x) {
   
   return(invisible(out))
 }
+
 random_hcpcs_vec(25) |> 
   split_lengths() |> 
   remove_redundant()
@@ -439,6 +435,7 @@ letters_2_numbers <- \(x) {
 #| label: lump_experiments
 #| echo: false
 #| eval: false
+
 dplyr::tibble(
   code = x,
   c1 = substr(x, 1, 3),
@@ -508,7 +505,7 @@ g1 <- function(x) {
   
   if (empty(x)) return(character(0))
   
-  x
+  list(x)
 }
 
 g2 <- function(x) {
@@ -523,9 +520,10 @@ g2 <- function(x) {
 random_hcpcs_vec() |> 
   split_lengths() |> 
   remove_redundant() |>
-  g1()
+  g1() |> 
+  view()
 
-random_hcpcs_vec(20) |>
+random_hcpcs_vec(25) |>
   split_lengths() |> 
   remove_redundant() |>
   g2() |> 
@@ -564,6 +562,8 @@ g3 <- function(x) {
 
 all_tests[nchar(all_tests) < 3] |> 
   split_lengths() |> 
+  remove_redundant() |>
+  g3() |> 
   view()
 
 all_tests[nchar(all_tests) == 3] |> 
@@ -618,7 +618,7 @@ hcpcs_tests[20:25] |>
 
 long_test2 |> 
   split_lengths() |> 
-  # remove_redundant() |> 
+  remove_redundant() |>
   g4() |> 
   view()
 
@@ -670,13 +670,13 @@ g5 <- function(x) {
 
 hcpcs_tests[26:30] |> 
   split_lengths() |> 
-  # remove_redundant() |> 
+  remove_redundant() |>
   g5() |> 
   view()
 
 long_test2 |> 
   split_lengths() |> 
-  # remove_redundant() |> 
+  remove_redundant() |>
   g5() |> 
   view()
 
@@ -815,9 +815,9 @@ reduce_runs <- function(x) {
 #| message: false
 p1 <- function(x) {
   
-  g1 <- get_elem(x, "g1")
+  if (empty(x[["g1"]])) return(NULL)
   
-  if (empty(g1)) return(NULL)
+  g1 <- get_elem(x, "g1")[[1]]
   
   re <- sorder(g1) |> reduce_runs()
   
