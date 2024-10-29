@@ -1,0 +1,15 @@
+{
+  "hash": "9935fb56dcf6357814349cddfa9d55ec",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"R Packaging Workflow\"\nformat:\n  html:\n    reference-location: margin\n    other-links:\n      - text: Regex Cheatsheet\n        icon: bookmark-plus\n        href: https://github.com/raredd/regex\n      - text: RexEgg\n        icon: bookmark-plus\n        href: https://www.rexegg.com/\n      - text: Regex in R\n        icon: bookmark-plus\n        href: https://stat.ethz.ch/R-manual/R-devel/library/base/html/regex.html\neditor_options: \n  chunk_output_type: console\n---\n\n::: {.cell}\n\n:::\n\n\n\n\n\n# Steps\n\n## Create Package Locally\n\n\n\n\n::: {.cell layout-align=\"center\"}\n\n```{.r .cell-code}\nusethis::create_package(path = \"C:/Users/Andrew/Desktop/Repositories/codex\")\n```\n:::\n\n\n\n\n## Connect to Git\n\n\n\n\n::: {.cell layout-align=\"center\"}\n\n```{.r .cell-code}\nusethis::use_git()\n```\n:::\n\n\n\n\n_Will ask you to commit files to Git. Say yes._\n\n## Create Repository on GitHub\n\n\n\n\n::: {.cell layout-align=\"center\"}\n\n```{.r .cell-code}\nusethis::use_github()\n```\n:::\n\n\n\n\n_Will ask you to commit files to GitHub. Say yes._\n\n## Add License & COC\n\n\n\n\n::: {.cell layout-align=\"center\"}\n\n```{.r .cell-code}\nusethis::use_mit_license(copyright_holder = \"Andrew Allen Bruce\")\nusethis::use_code_of_conduct(contact = \"andrewallenbruce@gmail.com\")\n```\n:::\n\n\n\n\n## Add README\n\n\n\n\n::: {.cell layout-align=\"center\"}\n\n```{.r .cell-code}\nusethis::use_readme_rmd()\nusethis::use_package_doc()\nusethis::use_news_md()\n```\n:::\n\n\n\n\n## Add `roxyglobals`\n\n\n\n\n::: {.cell layout-align=\"center\"}\n\n```{.r .cell-code}\nroxyglobals::use_roxyglobals()\n```\n:::\n\n\n\n\n## Add `testthat`\n\n\n\n\n::: {.cell layout-align=\"center\"}\n\n```{.r .cell-code}\nusethis::use_testthat()\nusethis::use_test(\"add-one-test\")\n```\n:::\n\n\n\n\n## Create `pkgdown` site\n\n\n\n\n::: {.cell layout-align=\"center\"}\n\n```{.r .cell-code}\nusethis::use_pkgdown_github_pages()\n```\n:::\n\n\n\n\n## Run Before Committing\n\n\n\n\n::: {.cell layout-align=\"center\"}\n\n```{.r .cell-code}\ndevtools::document()\ndevtools::check()\ndevtools::build_rmd(\"README.Rmd\")\nusethis::use_tidy_description()\n```\n:::\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

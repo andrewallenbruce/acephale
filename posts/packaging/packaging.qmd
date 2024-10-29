@@ -1,0 +1,128 @@
+---
+title: "R Packaging Workflow"
+format:
+  html:
+    reference-location: margin
+    other-links:
+      - text: Regex Cheatsheet
+        icon: bookmark-plus
+        href: https://github.com/raredd/regex
+      - text: RexEgg
+        icon: bookmark-plus
+        href: https://www.rexegg.com/
+      - text: Regex in R
+        icon: bookmark-plus
+        href: https://stat.ethz.ch/R-manual/R-devel/library/base/html/regex.html
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+#| echo: false
+#| cache: false
+knitr::opts_chunk$set(
+  collapse  = FALSE,
+  echo      = TRUE, 
+  message   = FALSE, 
+  warning   = FALSE,
+  error     = TRUE,
+  comment   = "",
+  dpi       = 300, 
+  dev       = "ragg_png",
+  out.width = "100%",
+  fig.align = "center",
+  fig.width = 8
+)
+options(scipen = 999, digits = 2)
+library(usethis)
+```
+
+
+# Steps
+
+## Create Package Locally
+
+```{r}
+#| label: create-package
+#| eval: false
+usethis::create_package(path = "C:/Users/Andrew/Desktop/Repositories/codex")
+```
+
+## Connect to Git
+
+```{r}
+#| label: connect-git
+#| eval: false
+usethis::use_git()
+```
+
+_Will ask you to commit files to Git. Say yes._
+
+## Create Repository on GitHub
+
+```{r}
+#| label: connect-github
+#| eval: false
+usethis::use_github()
+```
+
+_Will ask you to commit files to GitHub. Say yes._
+
+## Add License & COC
+
+```{r}
+#| label: add-license
+#| eval: false
+usethis::use_mit_license(copyright_holder = "Andrew Allen Bruce")
+usethis::use_code_of_conduct(contact = "andrewallenbruce@gmail.com")
+```
+
+## Add README
+
+```{r}
+#| label: use-rmd
+#| eval: false
+usethis::use_readme_rmd()
+usethis::use_package_doc()
+usethis::use_news_md()
+```
+
+## Add `roxyglobals`
+
+```{r}
+#| label: use-roxy
+#| eval: false
+roxyglobals::use_roxyglobals()
+```
+
+## Add `testthat`
+
+```{r}
+#| label: use-testthat
+#| eval: false
+usethis::use_testthat()
+usethis::use_test("add-one-test")
+```
+
+## Create `pkgdown` site
+
+```{r}
+#| label: use-pkgdown
+#| eval: false
+usethis::use_pkgdown_github_pages()
+```
+
+## Run Before Committing
+
+```{r}
+#| label: last-steps
+#| eval: false
+devtools::document()
+devtools::check()
+devtools::build_rmd("README.Rmd")
+usethis::use_tidy_description()
+```
+
