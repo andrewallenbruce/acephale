@@ -57,147 +57,8 @@ library(collapse)
 library(cheapr)
 library(fastplyr)
 
-# source(here::here("posts/regex/scripts", "lump.R"))
-
-long_test <- stringfish::convert_to_sf(
-  c(
-    "0214T", "0215T", "0217T", "0218T", 
-    "0219T", "0220T", "0221T", "0222T", 
-    "0263T", "0265T", "0266T", "0269T", 
-    "0274T", "0275T", "0329T", "0330T", 
-    "0422T", "0444T", "0445T", "0506T", 
-    "0507T", "15777", "20939", "22510", 
-    "22511", "22512", "22513", "22514", 
-    "22515", "22526", "22527", "27197", 
-    "27198", "30801", "30802", "31231", 
-    "32673", "34713", "34714", "34715", 
-    "34716", "34717", "36221", "34812", 
-    "34820", "34833", "34834", "35572", 
-    "50300", "50540", "54420", "54430", 
-    "55200", "55250", "55300", "58575", 
-    "58600", "58605", "58700", "58720", 
-    "58800", "58805", "58900", "58920", 
-    "58925", "58940", "58943", "61000", 
-    "61001", "61253", "63035", "63043", 
-    "63044", "63045", "63046", "63047", 
-    "63048", "64421", "64480", "64484", 
-    "64491", "64492", "64494", "64495", 
-    "64634", "64636", "76514", "92025", 
-    "92081", "92082", "92083", "92132", 
-    "92133", "92134", "92145", "92201", 
-    "92202", "92227", "92228", "92229", 
-    "92235", "92240", "92242", "95870", 
-    "C7501", "C7502", "C7504", "C7505", 
-    "C9771", "E0675", "G0279", "G0412",
-    "G0413", "G0414", "G0415", "S2342"
-))
-
-hcpcs_tests <- sf_concat(
-  c("J*", "G", "0", 4:6),
-  c(as.character(30:32)),
-  c(as.character(721:729)),
-  c(as.character(5202:5208)),
-  c(as.character(92015:92019)))
-
-long_test2 <- sf_concat(
-  sf_substr(long_test, 1, 1),
-  sf_substr(long_test, 1, 2),
-  sf_substr(long_test, 1, 3),
-  sf_substr(long_test, 1, 4),
-  sf_substr(long_test, 1, 5))
-
-all_tests <- sf_concat(
-  sf_substr(long_test, 1, 2),
-  sf_substr(long_test, 1, 3),
-  sf_substr(long_test, 1, 4),
-  sf_substr(long_test, 1, 5),
-  hcpcs_tests)
-
-hcpcs <- stringfish::convert_to_sf(collapse::funique(northstar::search_descriptions()$hcpcs_code))
-
-random_hcpcs <- \(n, l) {
-  
-  h <- stringfish::convert_to_sf(
-    collapse::funique(
-      northstar::search_descriptions()$hcpcs_code))
-  
-  stringfish::sf_substr(
-    sample(h, size = n), 
-    start = 1, 
-    stop = l, 
-    nthreads = 4L)
-}
-
-random_hcpcs_vec <- \(n = 10) {
-  
-  nn <- if (n >= 10) 10 else n
-  
-  c(
-    sample(c(LETTERS[sf_grepl(LETTERS, "[^DINOW-Z]", nthreads = 4L)], 0:9), size = nn),
-    random_hcpcs(n = n, l = 2),
-    random_hcpcs(n = n, l = 3),
-    random_hcpcs(n = n, l = 4),
-    random_hcpcs(n = n, l = 5)
-  )
-}
-
-split_string <- \(...) {
-  stringfish::convert_to_sf(paste0(...)) |>
-    stringfish::sf_split(", ", nthreads = 4L) |> 
-    purrr::pluck(1)
-}
-
-new_test <- list(
-  split_string(single_line_string(
-    "A4467, A9283, A9285, L1900, 
-    L1902, L1904, L1906, L1907, 
-    L1910, L1920, L1930, L1932, 
-    L1940, L1945, L1950, L1951, 
-    L1960, L1970, L1971, L1980, 
-    L1990, L2000, L2005, L2006, 
-    L2010, L2020, L2030, L2034, 
-    L2035, L2036, L2037, L2038, 
-    L2106, L2108, L2112, L2114, 
-    L2116, L2126, L2128, L2132, 
-    L2134, L2136, L2180, L2182, 
-    L2184, L2186, L2188, L2190, 
-    L2192, L2200, L2210, L2220, 
-    L2230, L2232, L2240, L2250, 
-    L2260, L2265, L2270, L2275, 
-    L2280, L2300, L2310, L2320, 
-    L2330, L2335, L2340, L2350, 
-    L2360, L2370, L2375, L2380, 
-    L2385, L2387, L2390, L2395, 
-    L2397, L2405, L2415, L2425, 
-    L2430, L2492, L2500, L2510, 
-    L2520, L2525, L2526, L2530, 
-    L2540, L2550, L2750, L2755, 
-    L2760, L2768, L2780, L2785, 
-    L2795, L2800, L2810, L2820, 
-    L2830, L2840, L2850, L2999, 
-    L4002, L4010, L4020, L4030, 
-    L4040, L4045, L4050, L4055, 
-    L4060, L4070, L4080, L4090, 
-    L4100, L4110, L4130, L4205, 
-    L4210, L4350, L4360, L4361, 
-    L4370, L4386, L4387, L4392, 
-    L4394, L4396, L4397, L4398, 
-    L4631"
-    )), 
-  split_string(single_line_string(
-  "90460, 90461, 90471, 90472, 
-    90473, 90474, 90619, 90620, 
-    90621, 90633, 90647, 90648, 
-    90651, 90670, 90672, 90674, 
-    90680, 90681, 90682, 90685, 
-    90686, 90687, 90688, 90696, 
-    90697, 90698, 90700, 90702, 
-    90707, 90710, 90713, 90714, 
-    90715, 90716, 90723, 90732, 
-    90734, 90740, 90743, 90744, 
-    90746, 90747, 90749, 90756"
-  ))) |> 
-  unlist(use.names = FALSE)
+source(here::here("posts/regex/scripts", "data.R"))
+source(here::here("posts/regex/scripts", "functions.R"))
 ```
 
 # HCPCS
@@ -225,39 +86,6 @@ data.frame(
   knit_print.emphatic()
 ```
 
-```{r}
-#| label: colortable_experiments
-#| echo: false
-color_vctr(
-  as.character(c(9, 0, 4, 6, 0)),
-  text_color = c(NA, "blue",      "green",  "black", NA),
-  style      = c(NA, "underline", "italic", "bold",  NA),
-  background = c(NA, NA,          NA,       "white",  NA))
-```
-
-```{r}
-#| echo: false
-#| eval: false
-#| results: asis
-data.frame(
-  text_color = sample(c(NA, valid_colors("html")[, 2, drop = TRUE]), 10, replace = TRUE),
-  background = sample(c(NA, valid_colors("html")[, 2, drop = TRUE]), 10, replace = TRUE),
-  style      = sample(c(NA, valid_style()), 10, replace = TRUE),
-  stringsAsFactors = FALSE
-  ) |> 
-  dplyr::mutate(
-    background = ifelse(
-      text_color == background, 
-      sample(c(NA, valid_colors("html")[, 2, drop = TRUE]), 10, replace = TRUE), background)
-  ) |>  
-  dplyr::mutate(
-  example = color_vctr(runif(10),
-                       text_color = text_color,
-                       background = background,
-                       style = style)
-  )
-```
-
 # TODO
 
    * ~~If a **wildcard** begins with a **letter**, the *postfix* should be `[0-9]{n}`.~~
@@ -277,30 +105,51 @@ data.frame(
    -   [ ] `g5()`
 -   [ ] `reduce_groups()`
 
-# Preprocessing
+# Helpers
 
 ```{r}
-#| label: internal_1
+#| label: p0
+p0 <- \(..., sep = "") paste0(..., collapse = sep)
+
+p0("A", "B", "C", "D", "E")
+```
+
+```{r}
+#| label: sorder
+sorder <- \(x) {
+  
+  st <- stringr::str_sort(x)
+  
+  az <- grabaz(st)
+  
+  p0(p0(az), p0(st[!st %in% az]))
+
+}
+
+sorder(c("A", "B", "C", "D", "E", "1", "2", "3", "4", "5", "F", "T"))
+```
+
+## Printing
+
+```{r}
+#| label: cutoff
+cutoff <- \(x) stringr::str_trunc(string = x, width = 40, side = "right")
+wrap <- \(x) stringr::str_wrap(string = x, width = 40, indent = 5)
+
+cutoff(p0(LETTERS, LETTERS))
+wrap(p0(LETTERS, LETTERS))
+```
+
+
+```{r}
+#| label: view
 #| message: true
 #| echo: true
-take     <- \(x, i) stringfish::sf_substr(x, start = i, stop = i, nthreads = 4L)
-empty    <- \(x)    vctrs::vec_is_empty(x)
-chop     <- \(v, g) vctrs::vec_chop(v, sizes = vctrs::vec_run_sizes(g))
-p        <- \(..., sep = "")  paste0(..., collapse = sep)
-grab     <- \(x)    x[stringfish::sf_grepl(x, "[A-Z]{1}", nthreads = 4L)]
-sorder   <- \(x)    p(p(grab(stringr::str_sort(x))), p(stringr::str_sort(x)[!stringr::str_sort(x) %in% grab(stringr::str_sort(x))]))
-
-
-contrast <- \(x, y) x[!stringfish::sf_substr(x, 1, collapse::funique(collapse::vlengths(y, use.names = FALSE)), nthreads = 4L) %in% y]
-removed <- \(x, y)  x[stringfish::sf_substr(x, 1, collapse::funique(collapse::vlengths(y, use.names = FALSE)), nthreads = 4L) %in% y]
-
-cutoff <- \(x) stringr::str_trunc(string = x, width = 50, side = "right")
-
 view <- \(x) {
   
   idx  <- seq_along(x)
   len  <- collapse::vlengths(x, use.names = FALSE)
-  tree <- unname(purrr::map_vec(x, p, sep = ' ')) |> purrr::map_vec(cutoff)
+  tree <- unname(purrr::map_vec(x, p0, sep = ' ')) |> purrr::map_vec(cutoff)
   
   cat(
     glue::glue(
@@ -312,6 +161,8 @@ view <- \(x) {
 }
 ```
 
+# Preprocessing
+
 ## `split_lengths()`
 
 ```{r}
@@ -322,11 +173,11 @@ split_lengths <- function(x) {
   
   stopifnot(is.character(x))
   
-  x <- sf_gsub(x, "\\*|\\s", "", nthreads = 4L) |> 
-    uniq_rmna() |> 
-    str_sort()
+  x <- stringfish::sf_gsub(x, "\\*|\\s", "", nthreads = 4L) |> 
+    fuimus::uniq_rmna() |> 
+    stringr::str_sort()
   
-  l <- vlengths(x)
+  l <- collapse::vlengths(x)
   
   out <- list(
     x1 = x[l == 1],
@@ -335,6 +186,8 @@ split_lengths <- function(x) {
     x4 = x[l == 4],
     x5 = x[l == 5])
   
+  cat("Split by Length:", sep = "\n")
+  # cat("\n")
   cat(view(out), sep = "\n")
   
   return(invisible(out))
@@ -427,69 +280,8 @@ letters_2_numbers <- \(x) {
   
   look <- set_names(seq_along(hcpcs), hcpcs)
   
-  unname(look[grab(x)])
+  unname(look[grabaz(x)])
 }
-```
-
-```{r}
-#| label: lump_experiments
-#| echo: false
-#| eval: false
-
-dplyr::tibble(
-  code = x,
-  c1 = substr(x, 1, 3),
-  lump_1 = lump(stringfish::sf_gsub(x, "^[A-Z]|[A-Z]$", "", nthreads = 4L) |> as.integer()),
-) |> 
-  print(n = 200)
-
-lumpdf <- function(x, thresh = 3){
-  
-  chr <- grab(x)
-  num <- as.numeric(x[!x %in% grab(x)])
-  
-  num <- as.numeric(num)
-
-  xo <- order(num)
-
-  xs <- num[xo]
-  
-  subtract <- tail(xs, n = -1) - head(xs, n = -1)
-  
-  diff <- abs(c(0, subtract))
-
-  binary <- ifelse(diff >= thresh, 1, 0)
-
-  id <- cumsum(binary) + 1
-  
-  data.table(
-    xo = xo,
-    xs = xs,
-    # sub = subtract,
-    diff = diff,
-    binary = binary,
-    id = id,
-    idx = id[xo]
-  )
-}
-
-
-x <- new_test |> 
-  lumpdf()
-
-dplyr::tibble(
-  xo = order(new_test),
-  xs = new_test[xo],
-  diff = abs(
-    c(0, 
-      tail(xs, n = -1) - head(xs, n = -1)
-      )
-    )
-  ,
-  binary = ifelse(diff >= 3, 1, 0),
-  id = cumsum(binary) + 1,
-  idx = id[xo]
-)
 ```
 
 
@@ -514,7 +306,7 @@ g2 <- function(x) {
   
   if (empty(x)) return(character(0))
   
-  rsplit(x, take(x, 1), use.names = FALSE)
+  rsplit(x, takei(x, 1), use.names = FALSE)
 }
 
 random_hcpcs_vec() |> 
@@ -540,7 +332,7 @@ g3 <- function(x) {
   
   if (empty(x)) return(character(0))
   
-  chr <- grab(x)
+  chr <- grabaz(x)
   num <- x[!x %in% chr]
   
   num <- data.table(
@@ -589,7 +381,7 @@ g4 <- function(x) {
   
   if (empty(x)) return(character(0))
   
-  chr <- grab(x)
+  chr <- grabaz(x)
   num <- x[!x %in% chr]
   
   num <- data.table(code = num, lump = lump(as.integer(num)))
@@ -639,7 +431,7 @@ g5 <- function(x) {
   
   if (empty(x)) return(character(0))
   
-  chr <- grab(x)
+  chr <- grabaz(x)
   num <- x[!x %in% chr]
   
   num  <- data.table(code = num, lump = lump(as.integer(num)))
@@ -685,43 +477,6 @@ new_test |>
   remove_redundant() |>
   g5() |> 
   view()
-```
-
-```{r}
-#| echo: false
-#| eval: false
-x <- long_test2 |> 
-  split_lengths() |> 
-  get_elem("x5")
-
-y <- data.table(
-    x,
-    a1 = take(x, 1),
-    a2 = take(x, 2),
-    a3 = take(x, 3),
-    a4 = take(x, 4),
-    a5 = take(x, 5)
-    )
-
-y |> dplyr::tibble() |> 
-  dplyr::mutate(
-    i3 = dplyr::consecutive_id(a1, a2, a3),
-    i4 = dplyr::consecutive_id(a1, a2, a4),
-    i5 = dplyr::consecutive_id(a1, a2, a5),
-    l3 = i3 - dplyr::lag(i3, n = 1, default = 0),
-    l4 = i4 - dplyr::lag(i4, n = 1, default = 0),
-    l5 = i5 - dplyr::lag(i5, n = 1, default = 0),
-    ) |> 
-  print(n = 100)
-
-  # dplyr::add_count(a1, a2, a3, sort = TRUE, name = "n3") |> 
-  # dplyr::add_count(a1, a2, a3, a4, sort = TRUE, name = "n4") |> 
-  # dplyr::filter(n4 > 1) |> 
-  # dplyr::select(x, id)
-
-y |> 
-  dplyr::add_count(a1, a2, a3, a5, sort = TRUE, name = "n5") |> 
-  dplyr::filter(n5 > 1)
 ```
 
 ::: 
@@ -821,12 +576,12 @@ p1 <- function(x) {
   
   re <- sorder(g1) |> reduce_runs()
   
-  if (re == "[A-Z0-9]") return(paste0("(^", re, "{5}$)"))
+  if (re == "[A-Z0-9]") return(p0("(^", re, "{5}$)"))
   
   postfix <- ifelse(
     sf_grepl(re, "^\\[?[A-Z]\\-?", nthreads = 4L), "[0-9]", "[A-Z0-9]")
   
-  return(paste0("(^", re, postfix, "{4}$)"))
+  return(p0("(^", re, postfix, "{4}$)"))
 }
 
 hcpcs_tests |> 
@@ -872,16 +627,16 @@ p2 <- function(x) {
     purrr::map_chr(to_vec[multi_chars], \(x) paste0("[", x, "]")), 
     to_vec[multi_chars])
 
-  purrr::list_c(to_vec) |> 
-    fuimus::collapser()
+  paste0(purrr::list_c(to_vec))
 }
 ```
 
-## Reduce Groups
+# Reduce Groups
 
 ```{r}
 #| label: reduce_groups
 #| message: false
+#| error: true
 vrg <- function(x, n) {
   
   if (is.null(x)) return(NULL)
@@ -891,8 +646,8 @@ vrg <- function(x, n) {
   
   x <- ifelse(
     n == 0, 
-    paste0("(^", x, "$)"),                
-    paste0("(^", x, postfix, "{", n, "}$)")) 
+    p0("(^", x, "$)"),                
+    p0("(^", x, postfix, "{", n, "}$)")) 
     
   paste0(x , collapse = "|")
 }
@@ -910,7 +665,7 @@ reduce_groups <- function(x) {
     paste0(collapse = "|")
 }
 
-all_tests[nchar(all_tests) > 2] |> 
+x <- all_tests[nchar(all_tests) > 2] |> 
   split_lengths() |> 
   remove_redundant() |> 
   process_groups() |> 
@@ -946,6 +701,7 @@ new_test |>
 ```{r}
 #| label: final_output
 #| message: false
+#| error: true
 medrex <- function(x) {
   x |> 
     split_lengths() |> 
