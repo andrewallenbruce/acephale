@@ -44,7 +44,7 @@ library(tidyverse)
 library(rlang)
 library(vctrs)
 library(cli)
-library(colortable)
+# library(colortable)
 library(emphatic)
 library(fuimus)
 library(stringfish)
@@ -75,7 +75,7 @@ rx <- list(
   iII  = "(^[A-CEGHJ-MP-V][0-9]{4}$)"
 )
 
-len <- \(rx) cheapr::vector_length(vctrs::vec_slice(hcpcs, stringfish::sf_grepl(hcpcs, rx)))
+len <- \(rx) cheapr::vector_length(vctrs::vec_slice(hcpcs, stringfish::sf_grepl(hcpcs, rx, nthreads = 4L)))
 
 data.frame(
   row.names = c("All", " Level I", "  Category I", "  Category II", "  Category III", " Level II"),
@@ -110,7 +110,7 @@ data.frame(
 #| label: random_hcpcs_vec2
 random_hcpcs_vec2 <- \(n = 10) {
   
-  ltrs <- LETTERS[stringfish::sf_grepl(LETTERS, "[^DINOW-Z]")]
+  ltrs <- LETTERS[stringfish::sf_grepl(LETTERS, "[^DINOW-Z]", nthreads = 4L)]
 
   c(
     sample(c(ltrs, 0:9), size = sample.int(5, 1)),
@@ -120,7 +120,6 @@ random_hcpcs_vec2 <- \(n = 10) {
     codex::random_hcpcs(n = n, l = 5)
   )
 }
-
 ```
 
 
@@ -144,19 +143,18 @@ sort_order <- \(x) {
 
 ```{r}
 #| label: helpers
+# collapse
 unique_vlength <- \(x) collapse::funique(collapse::vlengths(x, use.names = FALSE))
+unique_narm    <- \(x) collapse::funique(collapse::na_rm(x))
+max_vlength    <- \(x) collapse::fmax(collapse::vlengths(x, use.names = FALSE))
 
-unique_narm <- \(x) collapse::funique(collapse::na_rm(x))
-
-max_vlength <- \(x) collapse::fmax(collapse::vlengths(x, use.names = FALSE))
-
+# vctrs
 empty <- \(x) vctrs::vec_is_empty(x)
+chop  <- \(v, g) vctrs::vec_chop(v, sizes = vctrs::vec_run_sizes(g))
 
-take_at <- \(x, i = 1) stringfish::sf_substr(x, start = i, stop = i, nthreads = 4L)
-
-chop <- \(v, g) vctrs::vec_chop(v, sizes = vctrs::vec_run_sizes(g))
-
-detect_az <- \(x) x[sf$grepl(x, "[A-Z]{1}")]
+# stringfish
+take_at   <- \(x, i = 1) stringfish::sf_substr(x, start = i, stop = i, nthreads = 4L)
+detect_az <- \(x) x[stringfish::sf_grepl(x, "[A-Z]{1}", nthreads = 4L)]
 ```
 
 ## View
@@ -166,15 +164,12 @@ detect_az <- \(x) x[sf$grepl(x, "[A-Z]{1}")]
 #| message: true
 #| echo: true
 cutoff <- \(x) stringr::str_trunc(string = x, width = 40, side = "right")
-
-wrap <- \(x) stringr::str_wrap(string = x, width = 60, exdent = 5, whitespace_only = FALSE)
+wrap   <- \(x) stringr::str_wrap(string = x, width = 60, exdent = 5, whitespace_only = FALSE)
 
 view <- \(x) {
-  
   idx  <- seq_along(x)
   len  <- collapse::vlengths(x, use.names = FALSE)
-  tree <- unname(purrr::map_vec(x, paste0, collapse = " ")) |> 
-    purrr::map_vec(cutoff)
+  tree <- unname(purrr::map_vec(x, paste0, collapse = " ")) |> purrr::map_vec(cutoff)
   
   cat(
     glue::glue(
@@ -188,8 +183,7 @@ view <- \(x) {
 view_remove <- \(x) {
   
   len  <- length(x)
-  tree <- unname(paste0(x, collapse = " ")) |> 
-    purrr::map_vec(cutoff)
+  tree <- unname(paste0(x, collapse = " ")) |> purrr::map_vec(cutoff)
   
   cat(
     glue::glue(
@@ -236,9 +230,7 @@ split_lengths <- function(x, verbose = TRUE) {
     return(out)
   }
 }
-
-random_hcpcs_vec2(n = 5) |> 
-  split_lengths()
+random_hcpcs_vec2(n = 5) |> split_lengths()
 ```
 
 ## `remove_redundant()`
@@ -258,7 +250,6 @@ contrast <- \(long, short) {
   
   long[!ldx %in% short]
 }
-
 rr <- contrast
 ```
 
@@ -286,7 +277,6 @@ remove_redundant <- function(x, verbose = TRUE) {
     return(out)
   }
 }
-
 random_hcpcs_vec2(25) |> 
   split_lengths() |> 
   remove_redundant()
@@ -397,7 +387,7 @@ g3 <- function(x, verbose = TRUE) {
   chr <- detect_az(x)
   num <- x[!x %in% chr]
   
-  num <- data.table(
+  num <- data.table::data.table(
     code = num, 
     lump = lump(as.integer(num)))
   
@@ -405,7 +395,7 @@ g3 <- function(x, verbose = TRUE) {
     code = chr, 
     lump = lump(as.integer(stringr::str_replace_all(chr, "[A-Z]", letters_2_numbers))))
   
-  out <- vec_c(
+  out <- vctrs::vec_c(
     if (empty(num)) NULL else chop(num$code, num$lump),
     if (empty(chr)) NULL else chop(chr$code, chr$lump))
   
