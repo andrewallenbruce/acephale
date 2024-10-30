@@ -110,7 +110,7 @@ data.frame(
 #| label: random_hcpcs_vec2
 random_hcpcs_vec2 <- \(n = 10) {
   
-  ltrs <- LETTERS[sf$grepl(LETTERS, "[^DINOW-Z]")]
+  ltrs <- LETTERS[stringfish::sf_grepl(LETTERS, "[^DINOW-Z]")]
 
   c(
     sample(c(ltrs, 0:9), size = sample.int(5, 1)),

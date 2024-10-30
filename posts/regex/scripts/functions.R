@@ -17,6 +17,15 @@ sf$p(c("a", "b", "c"))
 sf$gsub("a", "a", "b")
 sf$grepl("a", "a")
 
+sorder <- \(x) {
+
+  st <- stringr::str_sort(x, numeric = TRUE)
+
+  az <- grabaz(st)
+
+  sf$p0(sf$p0(az), sf$p0(st[!st %in% az]))
+
+}
 
 random_hcpcs <- \(n, l) {
 
