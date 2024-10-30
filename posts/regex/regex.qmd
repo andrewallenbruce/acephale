@@ -58,7 +58,6 @@ library(cheapr)
 library(fastplyr)
 
 source(here::here("posts/regex/scripts", "data.R"))
-# source(here::here("posts/regex/scripts", "functions.R"))
 ```
 
 # HCPCS
@@ -76,7 +75,7 @@ rx <- list(
   iII  = "(^[A-CEGHJ-MP-V][0-9]{4}$)"
 )
 
-len <- \(rx) vector_length(vec_slice(hcpcs, sf_grepl(hcpcs, rx)))
+len <- \(rx) cheapr::vector_length(vctrs::vec_slice(hcpcs, stringfish::sf_grepl(hcpcs, rx)))
 
 data.frame(
   row.names = c("All", " Level I", "  Category I", "  Category II", "  Category III", " Level II"),
@@ -108,30 +107,6 @@ data.frame(
 # Helpers
 
 ```{r}
-#| label: stringfish_list
-sf <- list(
-  c = \(...) stringfish::sf_concat(...),
-  p = \(..., sep = ", ") stringfish::sf_paste(..., sep = sep, nthreads = 4L),
-  p0 = \(x, sep = "") stringfish::sf_collapse(x = x, collapse = sep),
-  gsub = \(x, p, r, ...) stringfish::sf_gsub(subject = x, pattern = p, replacement = r, nthreads = 4L, ...),
-  grepl = \(x, p, ...) stringfish::sf_grepl(subject = x, pattern = p, nthreads = 4L, ...),
-  substr = \(x, i, e, ...) stringfish::sf_substr(x = x, start = i, stop = e, nthreads = 4L),
-  compare = \(long, short) stringfish::sf_compare(x = long, y = short, nthreads = 4L),
-  match = \(x, t) stringfish::sf_match(x = x, table = t, nthreads = 4L),
-  nchar = \(x) stringfish::sf_nchar(x = x, type = "chars", nthreads = 4L),
-  split = \(x, d, ...) stringfish::sf_split(subject = x, split = d, nthreads = 4L),
-  assign = \(x, i, e) stringfish::sf_assign(x = x, i = i, e = e)
-)
-
-sf$c("a", "b", "c", "b", "c")
-sf$p("a", "b", "c", "b", "c")
-sf$p0(c("a", "b", "c", "b", "c"))
-sf$gsub("A12345", "[A-Z]{1}", "B")
-sf$grepl("A", "[A-Z]{1}")
-```
-
-
-```{r}
 #| label: random_hcpcs_vec2
 random_hcpcs_vec2 <- \(n = 10) {
   
@@ -146,77 +121,54 @@ random_hcpcs_vec2 <- \(n = 10) {
   )
 }
 
-random_hcpcs_vec2()
 ```
 
 
 ```{r}
-pull_char <- \(x) stringr::str_extract_all(x, stringr::regex("[A-Z]"))
-
-pull_numb <- \(x) stringr::str_extract_all(x, stringr::regex("[0-9]"))
-
+#| label: sort_order
 sort_order <- \(x) {
 
-  sorted   <- stringr::str_sort(x, numeric = TRUE)
-  alphabet <- purrr::list_c(pull_char(sorted))
-  numbers  <- purrr::list_c(pull_numb(sorted))
+  sort <- stringr::str_sort(x, numeric = TRUE)
+  alph <- stringr::str_extract_all(sort, stringr::regex("[A-Z]"))
+  numb <- stringr::str_extract_all(sort, stringr::regex("[0-9]"))
+  alph <- purrr::list_c(alph)
+  numb <- purrr::list_c(numb)
 
   paste0(
-    fuimus::collapser(alphabet),
-    fuimus::collapser(numbers)
-    )
+    paste0(alph, collapse = ""),
+    paste0(numb, collapse = "")
+  )
 }
 ```
 
 
 ```{r}
-uniq_vlen <- \(x) collapse::funique(collapse::vlengths(x, use.names = FALSE))
+#| label: helpers
+unique_vlength <- \(x) collapse::funique(collapse::vlengths(x, use.names = FALSE))
+
+unique_narm <- \(x) collapse::funique(collapse::na_rm(x))
+
+max_vlength <- \(x) collapse::fmax(collapse::vlengths(x, use.names = FALSE))
 
 empty <- \(x) vctrs::vec_is_empty(x)
 
-takei <- \(x, i = 1) sf$substr(x, i, e = i)
+take_at <- \(x, i = 1) stringfish::sf_substr(x, start = i, stop = i, nthreads = 4L)
 
 chop <- \(v, g) vctrs::vec_chop(v, sizes = vctrs::vec_run_sizes(g))
 
-grabaz <- \(x) x[sf$grepl(x, "[A-Z]{1}")]
-
-grabaz(sf$p0(random_hcpcs_vec2(5), sep = ", "))
-
-sorder <- \(x) {
-  
-  st <- stringr::str_sort(x, numeric = TRUE)
-  
-  az <- grabaz(st)
-  
-  sf$p0(sf$p0(az), sf$p0(st[!st %in% az]))
-
-}
-
-sorder(random_hcpcs_vec2(2))
+detect_az <- \(x) x[sf$grepl(x, "[A-Z]{1}")]
 ```
 
 ## View
 
 ```{r}
-#| label: cutoff
-cutoff <- \(x) stringr::str_trunc(string = x, width = 40, side = "right")
-
-paste0(LETTERS, " ", LETTERS)
-
-cat(cutoff(sf$p(LETTERS, " ", LETTERS, sep = "")))
-```
-
-```{r}
-#| label: wrap
-wrap <- \(x) stringr::str_wrap(string = x, width = 60, exdent = 5, whitespace_only = FALSE)
-
-cat(wrap(paste0(LETTERS, "] ", LETTERS, LETTERS, sep = "")))
-```
-
-```{r}
 #| label: view
 #| message: true
 #| echo: true
+cutoff <- \(x) stringr::str_trunc(string = x, width = 40, side = "right")
+
+wrap <- \(x) stringr::str_wrap(string = x, width = 60, exdent = 5, whitespace_only = FALSE)
+
 view <- \(x) {
   
   idx  <- seq_along(x)
@@ -232,12 +184,7 @@ view <- \(x) {
       ),
     sep = "\n")
 }
-```
 
-```{r}
-#| label: view_remove
-#| message: true
-#| echo: true
 view_remove <- \(x) {
   
   len  <- length(x)
@@ -267,7 +214,7 @@ split_lengths <- function(x, verbose = TRUE) {
   stopifnot(is.character(x))
   
   x <- stringfish::sf_gsub(x, "\\*|\\s", "", nthreads = 4L) |> 
-    fuimus::uniq_rmna() |> 
+    unique_narm() |> 
     stringr::str_sort()
   
   l <- collapse::vlengths(x)
@@ -305,7 +252,7 @@ contrast <- \(long, short) {
   if (empty(long))  return(character(0))
   if (empty(short)) return(long)
 
-  end <- uniq_vlen(short)
+  end <- unique_vlength(short)
   
   ldx <- stringfish::sf_substr(long, 1, end, nthreads = 4L)
   
@@ -366,7 +313,6 @@ lump <- function(x, threshold = 3) {
   id <- cumsum(bi) + 1
   
   id[xo]
-  
 }
 ```
 
@@ -374,8 +320,11 @@ lump <- function(x, threshold = 3) {
 #| label: letters_2_numbers
 letters_2_numbers <- \(x) {
   
-  look <- rlang::set_names(seq_along(LETTERS), LETTERS)
-  unname(look[grabaz(x)])
+  look <- rlang::set_names(
+    seq_along(LETTERS), 
+    LETTERS)
+  
+  unname(look[detect_az(x)])
 }
 ```
 
@@ -411,7 +360,7 @@ g2 <- function(x, verbose = TRUE) {
   
   if (empty(x)) return(character(0))
   
-  out <- collapse::rsplit(x, takei(x, 1), use.names = FALSE)
+  out <- collapse::rsplit(x, take_at(x, 1), use.names = FALSE)
   
   if (verbose) {
     
@@ -441,20 +390,20 @@ random_hcpcs_vec2(25) |>
 #| label: g3
 g3 <- function(x, verbose = TRUE) {
   
-  x <- get_elem(x, "x3")
+  x <- collapse::get_elem(x, "x3")
   
   if (empty(x)) return(character(0))
   
-  chr <- grabaz(x)
+  chr <- detect_az(x)
   num <- x[!x %in% chr]
   
   num <- data.table(
     code = num, 
     lump = lump(as.integer(num)))
   
-  chr <- data.table(
+  chr <- data.table::data.table(
     code = chr, 
-    lump = lump(as.integer(str_replace_all(chr, "[A-Z]", letters_2_numbers))))
+    lump = lump(as.integer(stringr::str_replace_all(chr, "[A-Z]", letters_2_numbers))))
   
   out <- vec_c(
     if (empty(num)) NULL else chop(num$code, num$lump),
@@ -499,19 +448,19 @@ g4 <- function(x, verbose = TRUE) {
   
   if (empty(x)) return(character(0))
   
-  chr <- grabaz(x)
+  chr <- detect_az(x)
   num <- x[!x %in% chr]
   
-  num <- data.table(code = num, lump = lump(as.integer(num)))
+  num <- data.table::data.table(code = num, lump = lump(as.integer(num)))
   
-  chr <- data.table(
+  chr <- data.table::data.table(
     code = chr, 
     lump = lump(
       as.integer(
-        str_replace_all(chr, "[A-Z]", letters_2_numbers)
+        stringr::str_replace_all(chr, "[A-Z]", letters_2_numbers)
         )))
   
-  out <- vec_c(
+  out <- vctrs::vec_c(
     if (empty(num)) NULL else chop(num$code, num$lump),
     if (empty(chr)) NULL else chop(chr$code, chr$lump))
   
@@ -554,27 +503,19 @@ g5 <- function(x, verbose = TRUE) {
   
   if (empty(x)) return(character(0))
   
-  chr <- grabaz(x)
+  chr <- detect_az(x)
   num <- x[!x %in% chr]
   
-  num  <- data.table(code = num, lump = lump(as.integer(num)))
+  num  <- data.table::data.table(code = num, lump = lump(as.integer(num)))
   
-  chr <- data.table(
+  chr <- data.table::data.table(
     code = chr, 
     lump = lump(
       as.integer(
-        str_remove_all(chr, "[A-Z]")
+        stringr::str_remove_all(chr, "[A-Z]")
         )))
   
-  # dchr <- as.integer(str_remove_all(chr, "^[A-Z]|[A-Z]$"))
-  # 
-  # dchr <- ifelse(dchr %% 10 == 0, dchr + max(dchr), dchr)
-  # 
-  # chr <- data.table(
-  #   code = chr, 
-  #   lump = lump(dchr))
-  
-  out <- vec_c(
+  out <- vctrs::vec_c(
     if (empty(num)) NULL else chop(num$code, num$lump),
     if (empty(chr)) NULL else chop(chr$code, chr$lump))
   
@@ -716,8 +657,6 @@ p1 <- function(x) {
   
   re <- sort_order(g1) |> reduce_runs()
   
-  # re <- sorder(g1) |> reduce_runs()
-  
   if (re == "[A-Z0-9]") return(paste0("^", re, "{5}$"))
   
   postfix <- ifelse(
@@ -751,25 +690,19 @@ p2 <- function(x) {
   
   if (empty(x)) return(character(0))
   
-  vecs <- stringr::str_split_fixed(
-    x, "", collapse::fmax(collapse::vlengths(x))) |> 
-    as.data.frame()
-  
-  to_vec <- vecs |>
-    purrr::map(fuimus::uniq_rmna) |>
+  vec <- stringr::str_split_fixed(x, "", max_vlength(x)) |> 
+    as.data.frame() |> 
+    purrr::map(unique_narm) |> 
     purrr::map(sort_order) |>
     purrr::map(reduce_runs)
   
-  multi_chars <- unname(nchar(to_vec) > 1)
+  multi <- unname(nchar(vec) > 1)
   
-  nobrack <- stringr::str_detect(to_vec[multi_chars], "\\[|\\]", TRUE)
+  nobrack <- stringr::str_detect(vec[multi], "\\[|\\]", TRUE)
   
-  to_vec[multi_chars] <- ifelse(
-    any(nobrack), 
-    purrr::map_chr(to_vec[multi_chars], \(x) paste0("[", x, "]")), 
-    to_vec[multi_chars])
+  vec[multi] <- ifelse(any(nobrack), purrr::map_chr(vec[multi], \(x) paste0("[", x, "]")), vec[multi])
 
-  paste0(purrr::list_c(to_vec), collapse = "")
+  paste0(purrr::list_c(vec), collapse = "")
 }
 ```
 
@@ -807,8 +740,6 @@ reduce_groups <- function(x) {
     g4 = purrr::map_chr(x$g4, p2) |> purrr::map_chr(vrg, n = 1),
     g5 = purrr::map_chr(x$g5, p2) |> purrr::map_chr(vrg, n = 0)
   )
-    # unlist(use.names = FALSE) |> 
-    # glue::glue_collapse(sep = "|")
 }
 
 all_tests[nchar(all_tests) > 2] |> 
@@ -829,11 +760,7 @@ long_test2 |>
   process_groups() |> 
   reduce_groups()
 
-# long_test2[nchar(long_test2) == 4] |> 
-#   split_lengths() |> 
-#   remove_redundant() |> 
-#   process_groups() |> 
-#   reduce_groups()
+# long_test2[nchar(long_test2) == 4]
 
 new_test |> 
   split_lengths() |> 
@@ -867,6 +794,7 @@ medrex <- function(x, verbose = TRUE) {
 long_test2[nchar(long_test2) > 4]
 
 # REMOVE {1} FROM EXPRS WITH 5 CHARS
+
 medrex(long_test2[nchar(long_test2) > 4])
 
 vctrs::vec_slice(
