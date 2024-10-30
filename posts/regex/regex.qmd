@@ -70,16 +70,16 @@ source(here::here("posts/regex/scripts", "data.R"))
 rx <- list(
   all  = "(^[A-CEGHJ-MP-V0-9][0-9]{3}[AFMTU0-9]$)",
   iI   = "(^[0-9]{4}[AFMTU0-9]$)",
-  iII  = "(^[A-CEGHJ-MP-V][0-9]{4}$)",
   cI   = "(^[0-9]{4}[AMU0-9]$)",
   cII  = "(^[0-9]{4}F$)",
-  cIII = "(^[0-9]{4}T$)"
+  cIII = "(^[0-9]{4}T$)",
+  iII  = "(^[A-CEGHJ-MP-V][0-9]{4}$)"
 )
 
 len <- \(rx) vector_length(vec_slice(hcpcs, sf_grepl(hcpcs, rx)))
 
 data.frame(
-  row.names = c("All", "Level I", "Category I", "Category II", "Category III", "Level II"),
+  row.names = c("All", " Level I", "  Category I", "  Category II", "  Category III", " Level II"),
   Count = map_int(unlist(rx, use.names = FALSE), len), 
   Regex = unlist(rx, use.names = FALSE)) |> 
   hl(c("black", "grey20", "grey90", "grey90", "grey90", "grey20"), cols = 1) |>
@@ -108,58 +108,91 @@ data.frame(
 # Helpers
 
 ```{r}
-empty <- \(x) vctrs::vec_is_empty(x)
+#| label: stringfish_list
+sf <- list(
+  c = \(...) stringfish::sf_concat(...),
+  p = \(..., sep = ", ") stringfish::sf_paste(..., sep = sep, nthreads = 4L),
+  p0 = \(x, sep = "") stringfish::sf_collapse(x = x, collapse = sep),
+  gsub = \(x, p, r, ...) stringfish::sf_gsub(subject = x, pattern = p, replacement = r, nthreads = 4L, ...),
+  grepl = \(x, p, ...) stringfish::sf_grepl(subject = x, pattern = p, nthreads = 4L, ...),
+  substr = \(x, i, e, ...) stringfish::sf_substr(x = x, start = i, stop = e, nthreads = 4L),
+  compare = \(long, short) stringfish::sf_compare(x = long, y = short, nthreads = 4L),
+  match = \(x, t) stringfish::sf_match(x = x, table = t, nthreads = 4L),
+  nchar = \(x) stringfish::sf_nchar(x = x, type = "chars", nthreads = 4L),
+  split = \(x, d, ...) stringfish::sf_split(subject = x, split = d, nthreads = 4L),
+  assign = \(x, i, e) stringfish::sf_assign(x = x, i = i, e = e)
+)
 
-# Returns character at position `i`
-takei <- \(x, i = 1) stringfish::sf_substr(x, start = i, stop = i, nthreads = 4L)
-
-chop <- \(v, g) vctrs::vec_chop(v, sizes = vctrs::vec_run_sizes(g))
+sf$c("a", "b", "c", "b", "c")
+sf$p("a", "b", "c", "b", "c")
+sf$p0(c("a", "b", "c", "b", "c"))
+sf$gsub("A12345", "[A-Z]{1}", "B")
+sf$grepl("A", "[A-Z]{1}")
 ```
 
 
-## `p0()`
-
-`paste0()` that collapses wrapper
-
 ```{r}
-#| label: p0
-p0 <- \(..., sep = "") paste0(..., collapse = sep)
-
-p0(c(LETTERS, 0:9, letters))
-```
-
-## `grabaz()`
-
-Extracts vector if it contains ONE uppercase letter
-
-```{r}
-#| label: grabaz
-grabaz <- \(x) { 
+#| label: random_hcpcs_vec2
+random_hcpcs_vec2 <- \(n = 10) {
   
-  x[stringfish::sf_grepl(x, "[A-Z]{1}", nthreads = 4L)] 
+  ltrs <- LETTERS[sf$grepl(LETTERS, "[^DINOW-Z]")]
 
+  c(
+    sample(c(ltrs, 0:9), size = sample.int(5, 1)),
+    codex::random_hcpcs(n = n, l = 2),
+    codex::random_hcpcs(n = n, l = 3),
+    codex::random_hcpcs(n = n, l = 4),
+    codex::random_hcpcs(n = n, l = 5)
+  )
 }
 
-grabaz(c(LETTERS, 0:9, letters))
+random_hcpcs_vec2()
 ```
 
-## `sorder()`
-
-Sorts vector, then relocates letters to the front
 
 ```{r}
-#| label: sorder
+pull_char <- \(x) stringr::str_extract_all(x, stringr::regex("[A-Z]"))
+
+pull_numb <- \(x) stringr::str_extract_all(x, stringr::regex("[0-9]"))
+
+sort_order <- \(x) {
+
+  sorted   <- stringr::str_sort(x, numeric = TRUE)
+  alphabet <- purrr::list_c(pull_char(sorted))
+  numbers  <- purrr::list_c(pull_numb(sorted))
+
+  paste0(
+    fuimus::collapser(alphabet),
+    fuimus::collapser(numbers)
+    )
+}
+```
+
+
+```{r}
+uniq_vlen <- \(x) collapse::funique(collapse::vlengths(x, use.names = FALSE))
+
+empty <- \(x) vctrs::vec_is_empty(x)
+
+takei <- \(x, i = 1) sf$substr(x, i, e = i)
+
+chop <- \(v, g) vctrs::vec_chop(v, sizes = vctrs::vec_run_sizes(g))
+
+grabaz <- \(x) x[sf$grepl(x, "[A-Z]{1}")]
+
+grabaz(sf$p0(random_hcpcs_vec2(5), sep = ", "))
+
 sorder <- \(x) {
   
-  st <- stringr::str_sort(x)
+  st <- stringr::str_sort(x, numeric = TRUE)
   
   az <- grabaz(st)
   
-  p0(p0(az), p0(st[!st %in% az]))
+  sf$p0(sf$p0(az), sf$p0(st[!st %in% az]))
 
 }
 
-sorder(c(0:9, LETTERS))
+sorder(random_hcpcs_vec2(2))
 ```
 
 ## View
@@ -168,14 +201,16 @@ sorder(c(0:9, LETTERS))
 #| label: cutoff
 cutoff <- \(x) stringr::str_trunc(string = x, width = 40, side = "right")
 
-cutoff(p0(LETTERS, LETTERS))
+paste0(LETTERS, " ", LETTERS)
+
+cat(cutoff(sf$p(LETTERS, " ", LETTERS, sep = "")))
 ```
 
 ```{r}
 #| label: wrap
-wrap <- \(x) stringr::str_wrap(string = x, width = 40, indent = 5)
+wrap <- \(x) stringr::str_wrap(string = x, width = 60, exdent = 5, whitespace_only = FALSE)
 
-wrap(p0(LETTERS, LETTERS))
+cat(wrap(paste0(LETTERS, "] ", LETTERS, LETTERS, sep = "")))
 ```
 
 ```{r}
@@ -186,7 +221,8 @@ view <- \(x) {
   
   idx  <- seq_along(x)
   len  <- collapse::vlengths(x, use.names = FALSE)
-  tree <- unname(purrr::map_vec(x, p0, sep = " ")) |> purrr::map_vec(cutoff)
+  tree <- unname(purrr::map_vec(x, paste0, collapse = " ")) |> 
+    purrr::map_vec(cutoff)
   
   cat(
     glue::glue(
@@ -245,8 +281,7 @@ split_lengths <- function(x, verbose = TRUE) {
   
   if (verbose) {
     
-    cat("   Split by Length:", sep = "\n")
-    # cat("\n")
+    cat("*  Split By Lengths:", sep = "\n")
     cat(view(out), sep = "\n")  
     return(invisible(out))
     
@@ -255,7 +290,7 @@ split_lengths <- function(x, verbose = TRUE) {
   }
 }
 
-codex::random_hcpcs_vec(n = 5) |> 
+random_hcpcs_vec2(n = 5) |> 
   split_lengths()
 ```
 
@@ -265,46 +300,19 @@ If a vector contains both `"A"` and `"A0"`, remove `"A0"`. Codes that contain a 
 
 ```{r}
 #| label: contrast
-
-# Shortens `long` to length of `short` then
-# Returns characters in `long` that are not in `short`
-
 contrast <- \(long, short) {
+  
+  if (empty(long))  return(character(0))
+  if (empty(short)) return(long)
 
-  end <- collapse::funique(
-    collapse::vlengths(
-      short, 
-      use.names = FALSE))
+  end <- uniq_vlen(short)
   
-  l2s <- stringfish::sf_substr(
-    long, 
-    start = 1, 
-    stop = end, 
-    nthreads = 4L)
+  ldx <- stringfish::sf_substr(long, 1, end, nthreads = 4L)
   
-  long[!l2s %in% short]
+  long[!ldx %in% short]
 }
 
-x <- codex::random_hcpcs_vec(25) |> 
-  split_lengths()
-
-x$x1
-
-x$x2
-
-contrast(x$x2, x$x1)
-```
-
-```{r}
-#| label: rr
-rr <- \(x, y) {
-  
-  if (empty(x)) return(character(0))
-  
-  if (empty(y)) return(x)
-
-  contrast(long = x, short = y)
-}
+rr <- contrast
 ```
 
 ```{r}
@@ -323,7 +331,7 @@ remove_redundant <- function(x, verbose = TRUE) {
   
   if (verbose) {
     
-    cat("   Remove Redundancies:", sep = "\n")
+    cat("*  Remove Redundancies:", sep = "\n")
     cat(view(out), sep = "\n")
     return(invisible(out))
     
@@ -332,7 +340,7 @@ remove_redundant <- function(x, verbose = TRUE) {
   }
 }
 
-codex::random_hcpcs_vec(25) |> 
+random_hcpcs_vec2(25) |> 
   split_lengths() |> 
   remove_redundant()
 ```
@@ -360,13 +368,7 @@ lump <- function(x, threshold = 3) {
   id[xo]
   
 }
-
-data.table::data.table(
-  code = c(1, 1, 2, 5, 5 ,6 , 1, 12, 12),
-  group = lump(c(1, 1, 2, 5, 5 ,6 , 1, 12, 12))
-)
 ```
-
 
 ```{r}
 #| label: letters_2_numbers
@@ -375,8 +377,6 @@ letters_2_numbers <- \(x) {
   look <- rlang::set_names(seq_along(LETTERS), LETTERS)
   unname(look[grabaz(x)])
 }
-
-letters_2_numbers(c(LETTERS, 0:9))
 ```
 
 
@@ -386,42 +386,60 @@ letters_2_numbers(c(LETTERS, 0:9))
 
 ```{r}
 #| label: g1_g2
-g1 <- function(x) {
+g1 <- function(x, verbose = TRUE) {
   
   x <- collapse::get_elem(x, "x1")
   
   if (empty(x)) return(character(0))
   
-  list(x)
+  out <- list(x)
+  
+  if (verbose) {
+    
+    cat("** Group 1:", sep = "\n")
+    cat(view(out), sep = "\n")  
+    return(invisible(out))
+    
+  } else {
+    return(out)
+  }
 }
 
-g2 <- function(x) {
+g2 <- function(x, verbose = TRUE) {
   
   x <- collapse::get_elem(x, "x2")
   
   if (empty(x)) return(character(0))
   
-  collapse::rsplit(x, takei(x, 1), use.names = FALSE)
+  out <- collapse::rsplit(x, takei(x, 1), use.names = FALSE)
+  
+  if (verbose) {
+    
+    cat("** Group 2:", sep = "\n")
+    cat(view(out), sep = "\n")  
+    return(invisible(out))
+    
+  } else {
+    return(out)
+  }
 }
 
-codex::random_hcpcs_vec() |> 
+random_hcpcs_vec2() |> 
   split_lengths() |> 
   remove_redundant() |>
-  g1() |> 
-  view()
+  g1()
 
-codex::random_hcpcs_vec(25) |>
+random_hcpcs_vec2(25) |>
   split_lengths() |> 
-  remove_redundant() |>
-  g2() |> 
-  view()
+  remove_redundant() |> 
+  g2()
 ```
 
 ## [g3]
 
 ```{r}
 #| label: g3
-g3 <- function(x) {
+g3 <- function(x, verbose = TRUE) {
   
   x <- get_elem(x, "x3")
   
@@ -444,33 +462,38 @@ g3 <- function(x) {
   
   if (empty(out)) return(character(0))
 
-  out
+  if (verbose) {
+    
+    cat("** Group 3:", sep = "\n")
+    cat(view(out), sep = "\n")  
+    return(invisible(out))
+    
+  } else {
+    return(out)
+  }
 }
 
 all_tests[nchar(all_tests) < 3] |> 
   split_lengths() |> 
   remove_redundant() |>
-  g3() |> 
-  view()
+  g3()
 
 all_tests[nchar(all_tests) == 3] |> 
   split_lengths() |> 
   remove_redundant() |>
-  g3() |> 
-  view()
+  g3()
 
-codex::random_hcpcs_vec(30) |> 
+random_hcpcs_vec2(30) |> 
   split_lengths() |> 
   remove_redundant() |>
-  g3() |> 
-  view()
+  g3()
 ```
 
 ## [4]
 
 ```{r}
 #| label: g4
-g4 <- function(x) {
+g4 <- function(x, verbose = TRUE) {
   
   x <- collapse::get_elem(x, "x4")
   
@@ -494,33 +517,38 @@ g4 <- function(x) {
   
   if (empty(out)) return(character(0))
   
-  return(out)
+  if (verbose) {
+    
+    cat("** Group 4:", sep = "\n")
+    cat(view(out), sep = "\n")  
+    return(invisible(out))
+    
+  } else {
+    return(out)
+  }
 }
 
 hcpcs_tests[20:25] |> 
   split_lengths() |> 
   remove_redundant() |> 
-  g4() |> 
-  view()
+  g4()
 
 long_test2 |> 
   split_lengths() |> 
   remove_redundant() |>
-  g4() |> 
-  view()
+  g4()
 
-codex::random_hcpcs_vec() |> 
+random_hcpcs_vec2() |> 
   split_lengths() |> 
   remove_redundant() |>
-  g4() |> 
-  view()
+  g4()
 ```
 
 ## [5]
 
 ```{r}
 #| label: g5
-g5 <- function(x) {
+g5 <- function(x, verbose = TRUE) {
   
   x <- collapse::get_elem(x, "x5")
   
@@ -552,32 +580,36 @@ g5 <- function(x) {
   
   if (empty(out)) return(character(0))
   
-  out
+  if (verbose) {
+    
+    cat("** Group 5:", sep = "\n")
+    cat(view(out), sep = "\n")  
+    return(invisible(out))
+    
+  } else {
+    return(out)
+  }
 }
 
 hcpcs_tests[26:30] |> 
   split_lengths() |> 
   remove_redundant() |>
-  g5() |> 
-  view()
+  g5()
 
 long_test2 |> 
   split_lengths() |> 
   remove_redundant() |>
-  g5() |> 
-  view()
+  g5()
 
 new_test |>
   split_lengths() |> 
   remove_redundant() |>
-  g5() |> 
-  view()
+  g5()
 
-codex::random_hcpcs_vec() |> 
+random_hcpcs_vec2() |> 
   split_lengths() |> 
   remove_redundant() |>
-  g5() |> 
-  view()
+  g5()
 ```
 
 ::: 
@@ -586,39 +618,42 @@ codex::random_hcpcs_vec() |>
 
 ```{r}
 #| label: process_groups
-process_groups <- function(x) {
-  list(
-    g1 = g1(x),
-    g2 = g2(x),
-    g3 = g3(x),
-    g4 = g4(x),
-    g5 = g5(x)
-  )
+process_groups <- function(x, verbose = TRUE) {
+  
+    out <- list(
+      g1 = g1(x, verbose = verbose),
+      g2 = g2(x, verbose = verbose),
+      g3 = g3(x, verbose = verbose),
+      g4 = g4(x, verbose = verbose),
+      g5 = g5(x, verbose = verbose)
+      )
+  
+  if (verbose) {
+    return(invisible(out))
+  } else {
+    return(out)
+  }
 }
 
 hcpcs_tests |>
   split_lengths() |> 
   remove_redundant() |> 
-  process_groups() |> 
-  view()
+  process_groups()
 
 long_test2 |> 
   split_lengths() |> 
   remove_redundant() |> 
-  process_groups() |> 
-  view()
+  process_groups()
 
 all_tests |> 
   split_lengths() |> 
   remove_redundant() |> 
-  process_groups() |> 
-  view()
+  process_groups()
 
-codex::random_hcpcs_vec() |> 
+random_hcpcs_vec2() |> 
   split_lengths() |> 
   remove_redundant() |>
-  process_groups() |> 
-  view()
+  process_groups()
 ```
 
 ## Reduce Runs
@@ -631,7 +666,7 @@ reduce_runs <- function(x) {
   
   ad <- c(LETTERS, 0:9)
   
-  if (x == paste0(ad, collapse = "")) return("[A-Z0-9]")
+  # if (x == paste0(ad, collapse = "")) return("[A-Z0-9]")
   
   vec  <- rlang::set_names(rep(0, 36), ad)
   
@@ -673,21 +708,22 @@ reduce_runs <- function(x) {
 
 ```{r}
 #| label: p1
-#| message: false
 p1 <- function(x) {
   
-  if (empty(x[["g1"]])) return(NULL)
+  if (empty(x[["g1"]])) return(character(0))
   
   g1 <- collapse::get_elem(x, "g1")[[1]]
   
-  re <- sorder(g1) |> reduce_runs()
+  re <- sort_order(g1) |> reduce_runs()
   
-  if (re == "[A-Z0-9]") return(p0("(^", re, "{5}$)"))
+  # re <- sorder(g1) |> reduce_runs()
+  
+  if (re == "[A-Z0-9]") return(paste0("^", re, "{5}$"))
   
   postfix <- ifelse(
     stringfish::sf_grepl(re, "^\\[?[A-Z]\\-?", nthreads = 4L), "[0-9]", "[A-Z0-9]")
   
-  return(p0("(^", re, postfix, "{4}$)"))
+  glue::glue("^{re}{postfix}{{4}}$")
 }
 
 hcpcs_tests |> 
@@ -703,6 +739,7 @@ long_test2 |>
   p1()
 
 list(g1 = c(0:9, LETTERS)) |> p1()
+
 list(g1 = c(LETTERS[1:5], 0:9)) |> p1()
 ```
 
@@ -710,20 +747,17 @@ list(g1 = c(LETTERS[1:5], 0:9)) |> p1()
 
 ```{r}
 #| label: p2
-#| message: false
 p2 <- function(x) {
   
-  if (empty(x)) return(NULL)
+  if (empty(x)) return(character(0))
   
   vecs <- stringr::str_split_fixed(
     x, "", collapse::fmax(collapse::vlengths(x))) |> 
     as.data.frame()
   
-  to_brackets <- vecs |>
+  to_vec <- vecs |>
     purrr::map(fuimus::uniq_rmna) |>
-    purrr::map(sorder)
-  
-  to_vec <- to_brackets |>
+    purrr::map(sort_order) |>
     purrr::map(reduce_runs)
   
   multi_chars <- unname(nchar(to_vec) > 1)
@@ -732,10 +766,10 @@ p2 <- function(x) {
   
   to_vec[multi_chars] <- ifelse(
     any(nobrack), 
-    purrr::map_chr(to_vec[multi_chars], \(x) p0("[", x, "]")), 
+    purrr::map_chr(to_vec[multi_chars], \(x) paste0("[", x, "]")), 
     to_vec[multi_chars])
 
-  p0(purrr::list_c(to_vec))
+  paste0(purrr::list_c(to_vec), collapse = "")
 }
 ```
 
@@ -745,34 +779,36 @@ p2 <- function(x) {
 #| label: reduce_groups
 #| message: false
 #| error: true
-vrg <- function(x, n) {
+vec_to_regex <- function(x, n) {
   
-  if (is.null(x)) return(NULL)
+  if (empty(x)) return(character(0))
   
   postfix <- ifelse(
     stringfish::sf_grepl(
       x, "^\\[?[A-Z]\\-?", nthreads = 4L), 
     "[0-9]", "[A-Z0-9]")
   
-  x <- ifelse(
-    n == 0, 
-    p0("(^", x, "$)"),                
-    p0("(^", x, postfix, "{", n, "}$)")) 
+  x <- data.table::fcase(
+    n == 0, paste0("^", x, "$"),                
+    n == 1, paste0("^", x, postfix, "$"),
+    default = paste0("^", x, postfix, "{", n, "}$"))
     
-  p0(x , sep = "|")
+  paste0(x , collapse = "")
 }
+
+vrg <- vec_to_regex
 
 reduce_groups <- function(x) {
   
   list(
     g1 = p1(x),
-    g2 = map_vec(x$g2, p2) |> vrg(3),
-    g3 = map_vec(x$g3, p2) |> vrg(2),
-    g4 = map_vec(x$g4, p2) |> vrg(1),
-    g5 = map_vec(x$g5, p2) |> vrg(0)
-  ) |> 
-    compact() |> 
-    p0(sep = "|")
+    g2 = purrr::map_chr(x$g2, p2) |> purrr::map_chr(vrg, n = 3),
+    g3 = purrr::map_chr(x$g3, p2) |> purrr::map_chr(vrg, n = 2),
+    g4 = purrr::map_chr(x$g4, p2) |> purrr::map_chr(vrg, n = 1),
+    g5 = purrr::map_chr(x$g5, p2) |> purrr::map_chr(vrg, n = 0)
+  )
+    # unlist(use.names = FALSE) |> 
+    # glue::glue_collapse(sep = "|")
 }
 
 all_tests[nchar(all_tests) > 2] |> 
@@ -793,11 +829,11 @@ long_test2 |>
   process_groups() |> 
   reduce_groups()
 
-long_test2[nchar(long_test2) == 4] |> 
-  split_lengths() |> 
-  remove_redundant() |> 
-  process_groups() |> 
-  reduce_groups()
+# long_test2[nchar(long_test2) == 4] |> 
+#   split_lengths() |> 
+#   remove_redundant() |> 
+#   process_groups() |> 
+#   reduce_groups()
 
 new_test |> 
   split_lengths() |> 
@@ -805,7 +841,7 @@ new_test |>
   process_groups() |> 
   reduce_groups()
 
-codex::random_hcpcs_vec() |> 
+random_hcpcs_vec2() |> 
   split_lengths() |> 
   remove_redundant() |> 
   process_groups() |> 
@@ -818,12 +854,14 @@ codex::random_hcpcs_vec() |>
 #| label: final_output
 #| message: false
 #| error: true
-medrex <- function(x) {
+medrex <- function(x, verbose = TRUE) {
   x |> 
-    split_lengths() |> 
-    remove_redundant() |> 
-    process_groups() |> 
-    reduce_groups()
+    split_lengths(verbose = verbose) |> 
+    remove_redundant(verbose = verbose) |> 
+    process_groups(verbose = verbose) |> 
+    reduce_groups() |> 
+    unlist(use.names = FALSE) |> 
+    glue::glue_collapse(sep = "|")
 }
 
 long_test2[nchar(long_test2) > 4]
@@ -831,7 +869,16 @@ long_test2[nchar(long_test2) > 4]
 # REMOVE {1} FROM EXPRS WITH 5 CHARS
 medrex(long_test2[nchar(long_test2) > 4])
 
-vec_slice(hcpcs, sf_grepl(hcpcs, medrex(long_test2[nchar(long_test2) > 4])))
+vctrs::vec_slice(
+  hcpcs, 
+  stringfish::sf_grepl(
+    hcpcs, 
+    medrex(
+      long_test2[nchar(long_test2) > 4],
+      verbose = FALSE
+      )
+    )
+  )
 ```
 
 
