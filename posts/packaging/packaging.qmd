@@ -41,56 +41,54 @@ library(usethis)
 ```
 
 
-# Steps
-
-## Create Package Locally
+# Create A Package
 
 ```{r}
 #| label: create-package
 #| eval: false
-usethis::create_package(path = "C:/Users/Andrew/Desktop/Repositories/codex")
+create_package("C:/Path/To/Folder/<package-name>")
 ```
 
-## Connect to Git
+Connect to Git
 
 ```{r}
 #| label: connect-git
 #| eval: false
-usethis::use_git()
+use_git()
 ```
 
 _Will ask you to commit files to Git. Say yes._
 
-## Create Repository on GitHub
+Create Repository on GitHub
 
 ```{r}
 #| label: connect-github
 #| eval: false
-usethis::use_github()
+use_github()
 ```
 
 _Will ask you to commit files to GitHub. Say yes._
 
-## Add License & COC
+Add License & COC
 
 ```{r}
 #| label: add-license
 #| eval: false
-usethis::use_mit_license(copyright_holder = "Andrew Allen Bruce")
-usethis::use_code_of_conduct(contact = "andrewallenbruce@gmail.com")
+use_mit_license("Your Full Name")
+use_code_of_conduct("your@email.com")
 ```
 
-## Add README
+Add README, Package Document, and News
 
 ```{r}
 #| label: use-rmd
 #| eval: false
-usethis::use_readme_rmd()
-usethis::use_package_doc()
-usethis::use_news_md()
+use_readme_rmd()
+use_package_doc()
+use_news_md()
 ```
 
-## Add `roxyglobals`
+Use `{roxyglobals}`
 
 ```{r}
 #| label: use-roxy
@@ -98,31 +96,180 @@ usethis::use_news_md()
 roxyglobals::use_roxyglobals()
 ```
 
-## Add `testthat`
+Use `{testthat}`
 
 ```{r}
 #| label: use-testthat
 #| eval: false
-usethis::use_testthat()
-usethis::use_test("add-one-test")
+use_testthat(parallel = TRUE)
+use_test("add-test")
 ```
 
-## Create `pkgdown` site
+Create `{pkgdown}` site
 
 ```{r}
 #| label: use-pkgdown
 #| eval: false
-usethis::use_pkgdown_github_pages()
+use_pkgdown_github_pages()
 ```
 
-## Run Before Committing
+Run Before Committing
 
 ```{r}
 #| label: last-steps
 #| eval: false
-devtools::document()
-devtools::check()
-devtools::build_rmd("README.Rmd")
-usethis::use_tidy_description()
+check()
+build_rmd("README.Rmd")
+use_tidy_description()
 ```
 
+
+# Add a `{pin}`
+
+Call `usethis::use_data_raw("<dataset>")`
+
+Add `pins_internal.R` file to `data-raw` directory
+
+```{r filename="pins_internal.R"}
+#| label: pins_internal
+#| eval: false
+pin_update <- function(x, name, title, description) {
+
+  board <- pins::board_folder(
+    here::here("inst/extdata/pins")
+    )
+
+  board |>
+    pins::pin_write(
+      x,
+      name        = name,
+      title       = title,
+      description = description,
+      type        = "qs"
+    )
+
+  board |> pins::write_board_manifest()
+
+}
+
+delete_pins <- function(pin_names) {
+
+  board <- pins::board_folder(
+    here::here("inst/extdata/pins")
+  )
+
+  pins::pin_delete(board, names = pin_names)
+
+}
+```
+
+Create a new pin
+
+```{r filename="dataset.R"}
+#| label: data_raw
+#| eval: false
+source(here::here("data-raw", "pins_internal.R"))
+
+pin_update(
+  dataset,
+  name = "object_name",
+  title = "Short Description",
+  description = "Long Description"
+)
+```
+
+Add `pins.R` file to package
+
+```{r filename="pins.R"}
+#| label: pins_functions
+#| eval: false
+
+#' Return GitHub raw url
+#'
+#' @param x `<chr>` string
+#'
+#' @returns `<chr>` GitHub raw url
+#'
+#' @examples
+#' gh_raw("andrewbruce/example/main/inst/pins/")
+#'
+#' @autoglobal
+#'
+#' @keywords internal
+#'
+#' @export
+gh_raw <- function(x) {
+  paste0("https://raw.githubusercontent.com/", x)
+}
+
+#' Mount [pins][pins::pins-package] board
+#'
+#' @param source `<chr>` `"local"` or `"remote"`
+#'
+#' @param package `<chr>` package name
+#'
+#' @returns `<pins_board_folder>` or `<pins_board_url>`
+#'
+#' @autoglobal
+#'
+#' @keywords internal
+#'
+#' @export
+mount_board <- function(source = c("local", "remote"), package = "<package_name>") {
+
+  source <- match.arg(source)
+
+  switch(
+    source,
+    local = pins::board_folder(
+      fs::path_package("extdata/pins", package = package)),
+    remote = pins::board_url(
+      gh_raw(
+        glue::glue("andrewallenbruce/{package}/master/inst/extdata/pins/")
+      )
+    )
+  )
+}
+
+#' Get a pinned dataset from a [pins][pins::pins-package] board
+#'
+#' @param pin `<chr>` string name of pinned dataset
+#'
+#' @param ... additional arguments passed to `mount_board()`
+#'
+#' @returns `<tibble>` or `<data.frame>`
+#'
+#' @autoglobal
+#'
+#' @keywords internal
+#'
+#' @export
+get_pin <- function(pin, ...) {
+
+  board <- mount_board(...)
+
+  pin <- rlang::arg_match0(pin, list_pins())
+
+  pins::pin_read(board, pin)
+
+}
+
+#' List pins from a [pins][pins::pins-package] board
+#'
+#' @param ... arguments to pass to [mount_board()]
+#'
+#' @returns `<list>` of [pins][pins::pins-package]
+#'
+#' @autoglobal
+#'
+#' @keywords internal
+#'
+#' @export
+list_pins <- function(...) {
+
+  board <- mount_board(...)
+
+  pins::pin_list(board)
+
+}
+```

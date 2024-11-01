@@ -44,7 +44,6 @@ library(tidyverse)
 library(rlang)
 library(vctrs)
 library(cli)
-# library(colortable)
 library(emphatic)
 library(fuimus)
 library(stringfish)
@@ -105,23 +104,6 @@ data.frame(
 -   [ ] `reduce_groups()`
 
 # Helpers
-
-```{r}
-#| label: random_hcpcs_vec2
-random_hcpcs_vec2 <- \(n = 10) {
-  
-  ltrs <- LETTERS[stringfish::sf_grepl(LETTERS, "[^DINOW-Z]", nthreads = 4L)]
-
-  c(
-    sample(c(ltrs, 0:9), size = sample.int(5, 1)),
-    codex::random_hcpcs(n = n, l = 2),
-    codex::random_hcpcs(n = n, l = 3),
-    codex::random_hcpcs(n = n, l = 4),
-    codex::random_hcpcs(n = n, l = 5)
-  )
-}
-```
-
 
 ```{r}
 #| label: sort_order
@@ -230,7 +212,8 @@ split_lengths <- function(x, verbose = TRUE) {
     return(out)
   }
 }
-random_hcpcs_vec2(n = 5) |> split_lengths()
+codex::random_hcpcs(n = 5) |> 
+  split_lengths()
 ```
 
 ## `remove_redundant()`
@@ -269,7 +252,7 @@ remove_redundant <- function(x, verbose = TRUE) {
   
   if (verbose) {
     
-    cat("*  Remove Redundancies:", sep = "\n")
+    cat("<===||Remove Redundancies||:::||", sep = "\n")
     cat(view(out), sep = "\n")
     return(invisible(out))
     
@@ -277,7 +260,7 @@ remove_redundant <- function(x, verbose = TRUE) {
     return(out)
   }
 }
-random_hcpcs_vec2(25) |> 
+codex::random_hcpcs(15) |> 
   split_lengths() |> 
   remove_redundant()
 ```
@@ -363,18 +346,74 @@ g2 <- function(x, verbose = TRUE) {
   }
 }
 
-random_hcpcs_vec2() |> 
+codex::random_hcpcs() |> 
   split_lengths() |> 
   remove_redundant() |>
   g1()
 
-random_hcpcs_vec2(25) |>
+codex::random_hcpcs(25) |>
   split_lengths() |> 
   remove_redundant() |> 
   g2()
 ```
 
 ## [g3]
+
+```{r}
+#| label: old_g3
+#| eval: false
+x <- all_tests[nchar(all_tests) == 3] |> 
+  split_lengths() |> 
+  remove_redundant()
+
+group_hcpcs_3 <- function(x) {
+
+  x <- collapse::get_elem(x, "x3")
+  
+  if (empty(x)) return(character(0))
+
+  base <- data.table::data.table(
+    code = x,
+    a1 = take_at(x, 1),
+    a2 = take_at(x, 2),
+    a3 = take_at(x, 3))
+
+  indices <- base |>
+    dplyr::mutate(i1 = dplyr::consecutive_id(a1), .after = code) |>
+    dplyr::mutate(i2 = dplyr::consecutive_id(a2), .after = i1, .by = a1) |>
+    dplyr::mutate(i3 = dplyr::consecutive_id(a3), .after = i2, .by = c(a1, a2))
+
+  orphans <- indices |>
+    dplyr::add_count(i1, name = "n1", sort = TRUE) |>
+    dplyr::filter((i2 + i3 + n1) == 3) |>
+    dplyr::pull(code)
+
+  last <- indices |>
+    dplyr::filter(!code %in% orphans) |>
+    dplyr::select(code, a1:a3) |>
+    fuimus::combine(group_id, columns = c("a1"), sep = "")
+
+  last <- dplyr::left_join(
+    last|> dplyr::count(group_id, a2),
+    last|> dplyr::count(group_id, name = "g"),
+    by = dplyr::join_by(group_id)) |>
+    dplyr::filter(n == g) |>
+    dplyr::right_join(last, by = dplyr::join_by(group_id, a2)) |>
+    dplyr::filter(!is.na(n))
+
+  rest <- indices |>
+    dplyr::filter(!code %in% c(orphans, dplyr::pull(last, code))) |>
+    fuimus::combine(group_id, columns = c("a1", "a2"), sep = "")
+
+  grouped <- vctrs::vec_c(
+    as.list(orphans),
+    vctrs::vec_chop(last$code, sizes = vctrs::vec_run_sizes(last$group_id)),
+    vctrs::vec_chop(rest$code, sizes = vctrs::vec_run_sizes(rest$group_id))
+  )
+  grouped[collapse::radixorderv(collapse::vlengths(grouped), sort = TRUE)]
+}
+```
+
 
 ```{r}
 #| label: g3
@@ -422,7 +461,7 @@ all_tests[nchar(all_tests) == 3] |>
   remove_redundant() |>
   g3()
 
-random_hcpcs_vec2(30) |> 
+codex::random_hcpcs(30) |> 
   split_lengths() |> 
   remove_redundant() |>
   g3()
@@ -477,7 +516,7 @@ long_test2 |>
   remove_redundant() |>
   g4()
 
-random_hcpcs_vec2() |> 
+codex::random_hcpcs() |> 
   split_lengths() |> 
   remove_redundant() |>
   g4()
@@ -537,7 +576,7 @@ new_test |>
   remove_redundant() |>
   g5()
 
-random_hcpcs_vec2() |> 
+codex::random_hcpcs() |> 
   split_lengths() |> 
   remove_redundant() |>
   g5()
@@ -581,7 +620,7 @@ all_tests |>
   remove_redundant() |> 
   process_groups()
 
-random_hcpcs_vec2() |> 
+codex::random_hcpcs() |> 
   split_lengths() |> 
   remove_redundant() |>
   process_groups()
@@ -596,8 +635,6 @@ random_hcpcs_vec2() |>
 reduce_runs <- function(x) {
   
   ad <- c(LETTERS, 0:9)
-  
-  # if (x == paste0(ad, collapse = "")) return("[A-Z0-9]")
   
   vec  <- rlang::set_names(rep(0, 36), ad)
   
@@ -622,6 +659,8 @@ reduce_runs <- function(x) {
     purrr::map(fuimus::collapser) |>
     purrr::list_c()
   
+  if (all(xgroups == paste0(ad, collapse = ""))) return("[A-Z0-9]")
+  
   replacements <- dplyr::left_join(
     dplyr::slice_min(vec_group, by = group, order_by = value) |> dplyr::rename(start = value),
     dplyr::slice_max(vec_group, by = group, order_by = value) |> dplyr::rename(end = value),
@@ -643,14 +682,13 @@ p1 <- function(x) {
   
   if (empty(x[["g1"]])) return(character(0))
   
-  g1 <- collapse::get_elem(x, "g1")[[1]]
+  x <- collapse::get_elem(x, "g1")[[1]]
   
-  re <- sort_order(g1) |> reduce_runs()
+  re <- sort_order(x) |> reduce_runs()
   
-  if (re == "[A-Z0-9]") return(paste0("^", re, "{5}$"))
+  if (re == "[A-Z0-9]") return(glue::glue("^{re}{{5}}$"))
   
-  postfix <- ifelse(
-    stringfish::sf_grepl(re, "^\\[?[A-Z]\\-?", nthreads = 4L), "[0-9]", "[A-Z0-9]")
+  postfix <- ifelse(stringfish::sf_grepl(re, "\\[?[0-9]{1}", nthreads = 4L), "[A-Z0-9]", "[0-9]")
   
   glue::glue("^{re}{postfix}{{4}}$")
 }
@@ -667,9 +705,9 @@ long_test2 |>
   process_groups() |> 
   p1()
 
-list(g1 = c(0:9, LETTERS)) |> p1()
+list(g1 = list(c(0:9, LETTERS))) |> p1()
 
-list(g1 = c(LETTERS[1:5], 0:9)) |> p1()
+list(g1 = list(c(LETTERS[1:5], 0:9))) |> p1()
 ```
 
 ## G > 1
