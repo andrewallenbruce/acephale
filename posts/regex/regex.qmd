@@ -251,7 +251,7 @@ remove_redundant <- function(x, verbose = TRUE) {
   )
   
   if (verbose) {
-    
+    # cli::cat_boxx(label = paste0("Group 3", cli::symbol$record), align = "left", padding = c(0, 1, 0, 1))
     cat("<===||Remove Redundancies||:::||", sep = "\n")
     cat(view(out), sep = "\n")
     return(invisible(out))
@@ -359,13 +359,26 @@ codex::random_hcpcs(25) |>
 
 ## [g3]
 
+Deal with groups containing letters separately
+
+```{r}
+# $r
+# [1] "L80"
+# $f
+# [1] "L56" "L59"
+# 
+# ^L(5[69]|80)$
+
+stringfish::sf_grepl(
+  c("L6789", "L8000", "L5600", "L5900"), 
+  "^L(5[69]|80)[0-9]{2}$"
+  )
+```
+
+
 ```{r}
 #| label: old_g3
-#| eval: false
-x <- all_tests[nchar(all_tests) == 3] |> 
-  split_lengths() |> 
-  remove_redundant()
-
+#| eval: true
 group_hcpcs_3 <- function(x) {
 
   x <- collapse::get_elem(x, "x3")
@@ -379,9 +392,9 @@ group_hcpcs_3 <- function(x) {
     a3 = take_at(x, 3))
 
   indices <- base |>
-    dplyr::mutate(i1 = dplyr::consecutive_id(a1), .after = code) |>
-    dplyr::mutate(i2 = dplyr::consecutive_id(a2), .after = i1, .by = a1) |>
-    dplyr::mutate(i3 = dplyr::consecutive_id(a3), .after = i2, .by = c(a1, a2))
+    dplyr::mutate(i1 = dplyr::consecutive_id(a1)) |>
+    dplyr::mutate(i2 = dplyr::consecutive_id(a2), .by = a1) |>
+    dplyr::mutate(i3 = dplyr::consecutive_id(a3), .by = c(a1, a2))
 
   orphans <- indices |>
     dplyr::add_count(i1, name = "n1", sort = TRUE) |>
@@ -394,8 +407,8 @@ group_hcpcs_3 <- function(x) {
     fuimus::combine(group_id, columns = c("a1"), sep = "")
 
   last <- dplyr::left_join(
-    last|> dplyr::count(group_id, a2),
-    last|> dplyr::count(group_id, name = "g"),
+    last |> dplyr::count(group_id, a2),
+    last |> dplyr::count(group_id, name = "g"),
     by = dplyr::join_by(group_id)) |>
     dplyr::filter(n == g) |>
     dplyr::right_join(last, by = dplyr::join_by(group_id, a2)) |>
@@ -406,12 +419,29 @@ group_hcpcs_3 <- function(x) {
     fuimus::combine(group_id, columns = c("a1", "a2"), sep = "")
 
   grouped <- vctrs::vec_c(
-    as.list(orphans),
     vctrs::vec_chop(last$code, sizes = vctrs::vec_run_sizes(last$group_id)),
     vctrs::vec_chop(rest$code, sizes = vctrs::vec_run_sizes(rest$group_id))
   )
-  grouped[collapse::radixorderv(collapse::vlengths(grouped), sort = TRUE)]
+  
+  o <- unlist(grouped[which(collapse::vlengths(grouped) == 1)])
+  
+  out <- vctrs::vec_c(
+    set_names(as.list(orphans), rep("o", length(orphans))),
+    set_names(chop(o, dplyr::consecutive_id(take_at(o, 1))), rep("r", length(chop(o, dplyr::consecutive_id(take_at(o, 1)))))),
+    set_names(grouped[which(collapse::vlengths(grouped) != 1)], rep("f", length(grouped[which(collapse::vlengths(grouped) != 1)])))
+  )
+  
+  out[collapse::radixorderv(collapse::vlengths(out), sort = TRUE)]
+  
 }
+# collapse::get_elem(x, "r", regex = TRUE)
+# collapse::get_elem(x, "o", regex = TRUE)
+# collapse::get_elem(x, "f", regex = TRUE)
+
+codex::random_hcpcs(30) |> 
+  split_lengths() |> 
+  remove_redundant() |>
+  group_hcpcs_3()
 ```
 
 
@@ -441,8 +471,8 @@ g3 <- function(x, verbose = TRUE) {
   if (empty(out)) return(character(0))
 
   if (verbose) {
-    
-    cat("** Group 3:", sep = "\n")
+    cli::cat_line(label = paste0(cli::symbol$record, " Group 3"), col = "red")
+    # cat("** Group 3:", sep = "\n")
     cat(view(out), sep = "\n")  
     return(invisible(out))
     
