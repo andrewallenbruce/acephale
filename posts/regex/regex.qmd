@@ -153,13 +153,19 @@ view <- \(x) {
   len  <- collapse::vlengths(x, use.names = FALSE)
   tree <- unname(purrr::map_vec(x, paste0, collapse = " ")) |> purrr::map_vec(cutoff)
   
-  cat(
+  # cat(
+  #   glue::glue(
+  #     "{format(idx)}: ", 
+  #     "{format(len)}|", 
+  #     "--[{if (empty(tree)) NULL else format(tree, justify = 'none')}]"
+  #     ),
+  #   sep = "\n")
+  
     glue::glue(
       "{format(idx)}: ", 
       "{format(len)}|", 
       "--[{if (empty(tree)) NULL else format(tree, justify = 'none')}]"
-      ),
-    sep = "\n")
+      )
 }
 
 view_remove <- \(x) {
@@ -204,8 +210,14 @@ split_lengths <- function(x, verbose = TRUE) {
   
   if (verbose) {
     
-    cat("*  Split By Lengths:", sep = "\n")
-    cat(view(out), sep = "\n")  
+    cli::cat_boxx(
+      label = view(out), 
+      header = paste0(paste0(rep(cli::symbol$stop, 2), collapse = ""), " Split By Lengths"),
+      align = "left", 
+      padding = c(0, 1, 0, 1))
+    
+    # cat("*  Split By Lengths:", sep = "\n")
+    # cat(view(out), sep = "\n")  
     return(invisible(out))
     
   } else {
@@ -251,9 +263,18 @@ remove_redundant <- function(x, verbose = TRUE) {
   )
   
   if (verbose) {
-    # cli::cat_boxx(label = paste0("Group 3", cli::symbol$record), align = "left", padding = c(0, 1, 0, 1))
-    cat("<===||Remove Redundancies||:::||", sep = "\n")
-    cat(view(out), sep = "\n")
+    
+    cli::cat_boxx(
+      label = view(out), 
+      header = paste0(paste0(rep(cli::symbol$stop, 2), collapse = ""), " Remove Redundancies"),
+      align = "left", 
+      padding = c(0, 1, 0, 1))
+    
+    # cli::cat_line(label = paste0(paste0(rep(cli::symbol$stop, 2), collapse = ""), " Remove Redundancies||:::||"), col = "orange")
+    
+    # cat("<===||Remove Redundancies||:::||", sep = "\n")
+    
+    # cat(view(out), sep = "\n")
     return(invisible(out))
     
   } else {
@@ -318,7 +339,7 @@ g1 <- function(x, verbose = TRUE) {
   
   if (verbose) {
     
-    cat("** Group 1:", sep = "\n")
+    cli::cat_line(label = paste0(cli::symbol$stop, " Group 1"), col = "orange")
     cat(view(out), sep = "\n")  
     return(invisible(out))
     
@@ -337,7 +358,7 @@ g2 <- function(x, verbose = TRUE) {
   
   if (verbose) {
     
-    cat("** Group 2:", sep = "\n")
+    cli::cat_line(label = paste0(cli::symbol$stop, " Group 2"), col = "orange")
     cat(view(out), sep = "\n")  
     return(invisible(out))
     
@@ -419,8 +440,8 @@ group_hcpcs_3 <- function(x) {
     fuimus::combine(group_id, columns = c("a1", "a2"), sep = "")
 
   grouped <- vctrs::vec_c(
-    vctrs::vec_chop(last$code, sizes = vctrs::vec_run_sizes(last$group_id)),
-    vctrs::vec_chop(rest$code, sizes = vctrs::vec_run_sizes(rest$group_id))
+    chop(last$code, last$group_id),
+    chop(rest$code, rest$group_id)
   )
   
   o <- unlist(grouped[which(collapse::vlengths(grouped) == 1)])
@@ -471,8 +492,7 @@ g3 <- function(x, verbose = TRUE) {
   if (empty(out)) return(character(0))
 
   if (verbose) {
-    cli::cat_line(label = paste0(cli::symbol$record, " Group 3"), col = "red")
-    # cat("** Group 3:", sep = "\n")
+    cli::cat_line(label = paste0(cli::symbol$stop, " Group 3"), col = "orange")
     cat(view(out), sep = "\n")  
     return(invisible(out))
     
@@ -527,7 +547,7 @@ g4 <- function(x, verbose = TRUE) {
   
   if (verbose) {
     
-    cat("** Group 4:", sep = "\n")
+    cli::cat_line(label = paste0(cli::symbol$stop, " Group 4"), col = "orange")
     cat(view(out), sep = "\n")  
     return(invisible(out))
     
@@ -582,7 +602,7 @@ g5 <- function(x, verbose = TRUE) {
   
   if (verbose) {
     
-    cat("** Group 5:", sep = "\n")
+    cli::cat_line(label = paste0(cli::symbol$stop, " Group 5"), col = "orange")
     cat(view(out), sep = "\n")  
     return(invisible(out))
     
@@ -826,7 +846,7 @@ new_test |>
   process_groups() |> 
   reduce_groups()
 
-random_hcpcs_vec2() |> 
+codex::random_hcpcs() |> 
   split_lengths() |> 
   remove_redundant() |> 
   process_groups() |> 
