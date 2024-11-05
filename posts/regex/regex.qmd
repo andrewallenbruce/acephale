@@ -50,6 +50,7 @@ library(data.table)
 library(collapse)
 library(fuimus)
 library(emphatic)
+library(terse)
 # library(re2)
 # library(re2r)
 # library(compiler)
@@ -179,7 +180,7 @@ split_lengths <- function(x, verbose = TRUE) {
   }
 }
 
-random_hcpcs() |> 
+random_hcpcs() |>
   split_lengths()
 ```
 
@@ -219,6 +220,51 @@ remove_redundant <- function(x, verbose = TRUE) {
 random_hcpcs(15) |> 
   split_lengths() |> 
   remove_redundant()
+```
+
+## `split_first()`
+
+```{r}
+#| label: split_first
+#| message: true
+#| echo: true
+spf <- \(x) collapse::rsplit(x, take_at(x, 1), use.names = FALSE)
+
+split_first <- function(x, verbose = FALSE) {
+  
+  .c(x1, x2, x3, x4, x5) %=% x
+  
+  out <- list(
+    x1 = x1,
+    x2 = spf(x2),
+    x3 = spf(x3),
+    x4 = spf(x4),
+    x5 = spf(x5))
+  
+  if (verbose) {
+    
+    cli::cat_boxx(
+      label = view(out), 
+      header = glue::glue("{cli::symbol$stop} Split By Lengths"),
+      align = "left", 
+      padding = c(0, 1, 0, 1))
+    
+    return(invisible(out))
+    
+  } else {
+    return(out)
+  }
+}
+
+one <- random_hcpcs(15) |> 
+  split_lengths() |> 
+  remove_redundant() |> 
+  split_first()
+
+list(
+  unlist(one$x2[vlen(one$x2) == 1], use.names = FALSE),
+  one$x2[vlen(one$x2) > 1]
+  )
 ```
 
 # Grouping
