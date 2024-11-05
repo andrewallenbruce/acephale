@@ -49,8 +49,7 @@ library(codex)
 library(data.table)
 library(collapse)
 library(fuimus)
-
-# library(emphatic)
+library(emphatic)
 # library(re2)
 # library(re2r)
 # library(compiler)
@@ -109,8 +108,6 @@ data.frame(
 
 ```{r}
 #| label: helpers
-extr_az <- \(x) sf_extract(x, "[A-Z]{1}")
-
 cutoff <- \(x) stringr::str_trunc(string = x, width = 40, side = "right")
 wrap   <- \(x) stringr::str_wrap(string = x, width = 60, exdent = 5, whitespace_only = FALSE)
 
@@ -129,7 +126,8 @@ view <- \(x) {
 view_remove <- \(x) {
   
   len  <- length(x)
-  tree <- unname(paste0(x, collapse = " ")) |> purrr::map_vec(cutoff)
+  tree <- unname(paste0(x, collapse = " ")) |> 
+    purrr::map_vec(cutoff)
   
   cat(
     glue::glue(
@@ -170,7 +168,7 @@ split_lengths <- function(x, verbose = TRUE) {
     
     cli::cat_boxx(
       label = view(out), 
-      header = paste0(paste0(rep(cli::symbol$stop, 2), collapse = ""), " Split By Lengths"),
+      header = glue::glue("{cli::symbol$stop} Split By Lengths"),
       align = "left", 
       padding = c(0, 1, 0, 1))
     
@@ -190,22 +188,6 @@ random_hcpcs() |>
 If a vector contains both `"A"` and `"A0"`, remove `"A0"`. Codes that contain a common sub-string can be simplified, in turn simplifying the eventual regex output.
 
 ```{r}
-#| label: contrast
-contrast <- rr <- \(long, short) {
-
-  if (empty(long))  return(character(0))
-
-  if (empty(short)) return(long)
-
-  long[
-    sf_sub(
-      x = long,
-      i = 1,
-      z = unique_vlength(short)) %!in% short]
-}
-```
-
-```{r}
 #| label: remove_redundant
 remove_redundant <- function(x, verbose = TRUE) {
 
@@ -223,7 +205,7 @@ remove_redundant <- function(x, verbose = TRUE) {
     
     cli::cat_boxx(
       label = view(out), 
-      header = paste0(paste0(rep(cli::symbol$stop, 2), collapse = ""), " Remove Redundancies"),
+      header = glue::glue("{strrep(cli::symbol$stop, 2)} Remove Redundancies"),
       align = "left", 
       padding = c(0, 1, 0, 1))
 
@@ -245,10 +227,10 @@ Group each set of vectors into regex patterns.
 
 ::: {.panel-tabset}
 
-## [g1|g2]
+## [g1]
 
 ```{r}
-#| label: g1_g2
+#| label: g1
 g1 <- function(x, verbose = TRUE) {
   
   x <- collapse::get_elem(x, "x1")
@@ -259,7 +241,7 @@ g1 <- function(x, verbose = TRUE) {
   
   if (verbose) {
     
-    cli::cat_line(label = paste0(cli::symbol$stop, " Group 1"), col = "orange")
+    cli::cat_line(label = paste0(cli::symbol$stop, " Group 1"))
     cat(view(out), sep = "\n")
     
     return(invisible(out))
@@ -269,6 +251,16 @@ g1 <- function(x, verbose = TRUE) {
   }
 }
 
+random_hcpcs() |> 
+  split_lengths() |> 
+  remove_redundant() |>
+  g1()
+```
+
+## [g2]
+
+```{r}
+#| label: g2
 g2 <- function(x, verbose = TRUE) {
   
   x <- collapse::get_elem(x, "x2")
@@ -289,11 +281,6 @@ g2 <- function(x, verbose = TRUE) {
   }
 }
 
-random_hcpcs() |> 
-  split_lengths() |> 
-  remove_redundant() |>
-  g1()
-
 random_hcpcs(25) |>
   split_lengths() |> 
   remove_redundant() |> 
@@ -312,10 +299,9 @@ Deal with groups containing letters separately
 # 
 # ^L(5[69]|80)$
 
-stringfish::sf_grepl(
-  c("L6789", "L8000", "L5600", "L5900"), 
-  "^L(5[69]|80)[0-9]{2}$"
-  )
+l_test <- c("L6789", "L8000", "L5600", "L5900")
+
+sf_detect(l_test, "^L(5[69]|80)[0-9]{2}$")
 ```
 
 
@@ -393,7 +379,7 @@ g3 <- function(x, verbose = TRUE) {
   
   if (empty(x)) return(character(0))
   
-  chr <- extr_az(x)
+  chr <- sf_extract(x, "[A-Z]{1}")
   num <- x[x %!in% chr]
   
   num <- data.table::data.table(
@@ -446,7 +432,7 @@ g4 <- function(x, verbose = TRUE) {
   
   if (empty(x)) return(character(0))
   
-  chr <- extr_az(x)
+  chr <- sf_extract(x, "[A-Z]{1}")
   num <- x[x %!in% chr]
   
   num <- data.table::data.table(code = num, lump = lump(as.integer(num)))
@@ -501,7 +487,7 @@ g5 <- function(x, verbose = TRUE) {
   
   if (empty(x)) return(character(0))
   
-  chr <- extr_az(x)
+  chr <- sf_extract(x, "[A-Z]{1}")
   num <- x[x %!in% chr]
   
   num  <- data.table::data.table(code = num, lump = lump(as.integer(num)))
@@ -695,14 +681,22 @@ p2 <- function(x) {
   
   multi <- unname(nchar(vec) > 1)
   
-  # nobrack <- !sf_detect(vec[multi], "\\[|\\]")
-  
   nobrack <- stringr::str_detect(vec[multi], "\\[|\\]", TRUE)
   
   vec[multi] <- ifelse(any(nobrack), purrr::map_chr(vec[multi], \(x) paste0("[", x, "]")), vec[multi])
 
   paste0(purrr::list_c(vec), collapse = "")
 }
+
+# hcpcs_tests |> 
+#   split_lengths() |> 
+#   remove_redundant() |> 
+#   process_groups() |>
+#   map(p2)
+# 
+# list(g2 = list(c(0:9, LETTERS))) |> p2()
+# 
+# list(g2 = list(c(LETTERS[1:5], 0:9))) |> p2()
 ```
 
 # Reduce Groups
@@ -715,27 +709,26 @@ vec_to_regex <- vrg <- function(x, n) {
   
   if (empty(x)) return(character(0))
   
-  postfix <- ifelse(
-    stringfish::sf_grepl(
-      x, "^\\[?[A-Z]\\-?", nthreads = 4L), 
-    "[0-9]", "[A-Z0-9]")
+  post <- ifelse(sf_detect(x, "^\\[?[A-Z]\\-?"), "[0-9]", "[A-Z0-9]")
   
   x <- data.table::fcase(
-    n == 0, paste0("^", x, "$"),                
-    n == 1, paste0("^", x, postfix, "$"),
-    default = paste0("^", x, postfix, "{", n, "}$"))
+    n == 0, glue::glue("^{x}$"),                
+    n == 1, glue::glue("^{x}{post}$"),
+    n == 2, glue::glue("^{x}{post}{{2}}$"),
+    n == 3, glue::glue("^{x}{post}{{3}}$")
+    )
     
-  paste0(x , collapse = "")
+  glue::glue_collapse(x)
 }
 
 reduce_groups <- function(x) {
   
   list(
     g1 = p1(x),
-    g2 = purrr::map_chr(x$g2, p2) |> purrr::map_chr(vrg, n = 3),
-    g3 = purrr::map_chr(x$g3, p2) |> purrr::map_chr(vrg, n = 2),
-    g4 = purrr::map_chr(x$g4, p2) |> purrr::map_chr(vrg, n = 1),
-    g5 = purrr::map_chr(x$g5, p2) |> purrr::map_chr(vrg, n = 0)
+    g2 = purrr::map_chr(x$g2, p2) |> purrr::map_chr(vrg, n = 3) |> glue::as_glue(),
+    g3 = purrr::map_chr(x$g3, p2) |> purrr::map_chr(vrg, n = 2) |> glue::as_glue(),
+    g4 = purrr::map_chr(x$g4, p2) |> purrr::map_chr(vrg, n = 1) |> glue::as_glue(),
+    g5 = purrr::map_chr(x$g5, p2) |> purrr::map_chr(vrg, n = 0) |> glue::as_glue()
   )
 }
 

@@ -5,7 +5,7 @@
 <meta name="generator" content="quarto-1.6.10">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Andrew Allen Bruce">
-<meta name="dcterms.date" content="2024-10-17">
+<meta name="dcterms.date" content="2024-11-04">
 <meta name="description" content="Experimenting with the CMS standard for NPI validation.">
 <title>NPIs &amp; Luhn’s Algorithm – acéphale</title>
 <style>
@@ -208,7 +208,7 @@ window.Quarto = {
       <div>
       <div class="quarto-title-meta-heading">Last updated</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">October 17, 2024</p>
+        <p class="date">November 4, 2024</p>
       </div>
     </div>
     
@@ -240,9 +240,9 @@ window.Quarto = {
   <li><a href="#cli-messages" id="toc-cli-messages" class="nav-link" data-scroll-target="#cli-messages"><span class="header-section-number">2.2</span> CLI Messages</a></li>
   <li><a href="#constructor-function" id="toc-constructor-function" class="nav-link" data-scroll-target="#constructor-function"><span class="header-section-number">2.3</span> Constructor Function</a></li>
   <li><a href="#minimal-validator" id="toc-minimal-validator" class="nav-link" data-scroll-target="#minimal-validator"><span class="header-section-number">2.4</span> Minimal Validator</a></li>
+  <li><a href="#session-information" id="toc-session-information" class="nav-link" data-scroll-target="#session-information"><span class="header-section-number">2.5</span> Session Information</a></li>
   </ul>
 </li>
-  <li><a href="#session-information" id="toc-session-information" class="nav-link" data-scroll-target="#session-information"><span class="header-section-number">3</span> Session Information</a></li>
   </ul><div class="quarto-other-links"><h2>Other Links</h2><ul><li><a href="https://en.wikipedia.org/wiki/Luhn_algorithm"><i class="bi bi-bookmark-plus"></i>Luhn Algorithm</a></li><li><a href="https://en.wikipedia.org/wiki/ISO/IEC_7812"><i class="bi bi-bookmark-plus"></i>ISO/IEC 7812</a></li><li><a href="https://www.cms.gov/Regulations-and-Guidance/Administrative-Simplification/NationalProvIdentStand/Downloads/NPIcheckdigit.pdf"><i class="bi bi-bookmark-plus"></i>CMS NPI Standard</a></li><li><a href="https://www.cms.gov/medicare/cms-forms/cms-forms/downloads/cms10114.pdf"><i class="bi bi-bookmark-plus"></i>CMS-10114 NPI Application</a></li></ul></div></nav>
 </nav><div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
@@ -899,7 +899,7 @@ Next Multiple of Ten
 <span></span>
 <span><span class="fu">random_npi_generator</span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "2674502506" "1382875738" "2923110077"</code></pre>
+<pre><code>[1] "1280144315" "1907147621" "2751374425"</code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
@@ -909,7 +909,7 @@ Next Multiple of Ten
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">/</span> <span class="va">n</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>, <span class="st">"%"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "10.162%"</code></pre>
+<pre><code>[1] "10.086%"</code></pre>
 </div>
 <div class="sourceCode" id="cb64"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="http://bench.r-lib.org/reference/mark.html">mark</a></span><span class="op">(</span></span>
 <span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map_lgl</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">is_valid_npi</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -918,105 +918,47 @@ Next Multiple of Ten
 <pre><code>Rows: 1
 Columns: 13
 $ expression &lt;bch:expr&gt; &lt;purrr::map_lgl(x, is_valid_npi)&gt;
-$ min        &lt;bch:tm&gt; 19.5s
-$ median     &lt;bch:tm&gt; 19.5s
-$ `itr/sec`  &lt;dbl&gt; 0.05138275
+$ min        &lt;bch:tm&gt; 21.7s
+$ median     &lt;bch:tm&gt; 21.7s
+$ `itr/sec`  &lt;dbl&gt; 0.04605444
 $ mem_alloc  &lt;bch:byt&gt; 391KB
-$ `gc/sec`   &lt;dbl&gt; 7.244967
+$ `gc/sec`   &lt;dbl&gt; 6.493675
 $ n_itr      &lt;int&gt; 1
 $ n_gc       &lt;dbl&gt; 141
-$ total_time &lt;bch:tm&gt; 19.5s
-$ result     &lt;list&gt; &lt;TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE,…
-$ memory     &lt;list&gt; [&lt;Rprofmem[16749 x 3]&gt;]
-$ time       &lt;list&gt; 19.5s
+$ total_time &lt;bch:tm&gt; 21.7s
+$ result     &lt;list&gt; &lt;TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE…
+$ memory     &lt;list&gt; [&lt;Rprofmem[16740 x 3]&gt;]
+$ time       &lt;list&gt; 21.7s
 $ gc         &lt;list&gt; [&lt;tbl_df[1 x 3]&gt;]</code></pre>
 </div>
 </div>
 <div style="page-break-after: always;"></div>
-</section></section></section><section id="session-information" class="level1" data-number="3"><h1 data-number="3">
-<span class="header-section-number">3</span> Session Information</h1>
+</section></section><section id="session-information" class="level2" data-number="2.5"><h2 data-number="2.5" class="anchored" data-anchor-id="session-information">
+<span class="header-section-number">2.5</span> Session Information</h2>
 <div class="cell" data-layout-align="center">
-<div class="cell-output cell-output-stdout">
-<pre><code>═ Session info ═══════════════════════════════════════════════════════════════
-─ Packages ───────────────────────────────────────────────────────────────────
- ! package      * version date (UTC) lib source
-   bench          1.1.3   2023-05-04 [1] RSPM (R 4.4.0)
-   cli          * 3.6.3   2024-06-21 [1] RSPM (R 4.4.0)
-   collapse       2.0.16  2024-08-21 [1] RSPM (R 4.4.0)
-   colorspace     2.1-1   2024-07-26 [1] RSPM (R 4.4.0)
-   digest         0.6.37  2024-08-19 [1] RSPM (R 4.4.0)
-   dplyr        * 1.1.4   2023-11-17 [1] RSPM (R 4.4.0)
-   evaluate       1.0.1   2024-10-10 [1] RSPM (R 4.4.0)
-   fansi          1.0.6   2023-12-08 [1] RSPM (R 4.4.0)
-   fastmap        1.2.0   2024-05-15 [1] RSPM (R 4.4.0)
-   forcats      * 1.0.0   2023-01-29 [1] RSPM (R 4.4.0)
-   fuimus       * 0.0.2   2024-10-15 [1] local
-   generics       0.1.3   2022-07-05 [1] RSPM (R 4.4.0)
-   ggplot2      * 3.5.1   2024-04-23 [1] RSPM (R 4.4.0)
-   glue           1.8.0   2024-09-30 [1] RSPM (R 4.4.0)
-   gtable         0.3.5   2024-04-22 [1] RSPM (R 4.4.0)
-   hms            1.1.3   2023-03-21 [1] RSPM (R 4.4.0)
-   htmltools      0.5.8.1 2024-04-04 [1] RSPM (R 4.4.0)
-   htmlwidgets    1.6.4   2023-12-06 [1] RSPM (R 4.4.0)
-   jsonlite       1.8.9   2024-09-20 [1] RSPM (R 4.4.0)
-   knitr          1.48    2024-07-07 [1] CRAN (R 4.4.1)
-   lifecycle      1.0.4   2023-11-07 [1] RSPM (R 4.4.0)
-   lubridate    * 1.9.3   2023-09-27 [1] RSPM (R 4.4.0)
-   magrittr       2.0.3   2022-03-30 [1] RSPM (R 4.4.0)
-   munsell        0.5.1   2024-04-01 [1] RSPM (R 4.4.0)
-   pillar         1.9.0   2023-03-22 [1] RSPM (R 4.4.0)
-   pkgconfig      2.0.3   2019-09-22 [1] RSPM (R 4.4.0)
-   profmem        0.6.0   2020-12-13 [1] RSPM (R 4.4.0)
-   purrr        * 1.0.2   2023-08-10 [1] RSPM (R 4.4.0)
-   R6             2.5.1   2021-08-19 [1] RSPM (R 4.4.0)
-   ragg           1.3.3   2024-09-11 [1] RSPM (R 4.4.0)
-   Rcpp           1.0.13  2024-07-17 [1] RSPM (R 4.4.0)
- D RcppParallel   5.1.9   2024-08-19 [1] RSPM (R 4.4.0)
-   readr        * 2.1.5   2024-01-10 [1] RSPM (R 4.4.0)
-   rlang        * 1.1.4   2024-06-04 [1] RSPM (R 4.4.0)
-   rmarkdown      2.28    2024-08-17 [1] CRAN (R 4.4.1)
-   rstudioapi     0.17.0  2024-10-16 [1] RSPM (R 4.4.0)
-   scales         1.3.0   2023-11-28 [1] RSPM (R 4.4.0)
-   sessioninfo    1.2.2   2021-12-06 [1] RSPM (R 4.4.0)
-   stringfish     0.16.0  2023-11-28 [1] RSPM (R 4.4.0)
-   stringi        1.8.4   2024-05-06 [1] RSPM (R 4.4.0)
-   stringr      * 1.5.1   2023-11-14 [1] RSPM (R 4.4.0)
-   systemfonts    1.1.0   2024-05-15 [1] RSPM (R 4.4.0)
-   textshaping    0.4.0   2024-05-24 [1] RSPM (R 4.4.0)
-   tibble       * 3.2.1   2023-03-20 [1] RSPM (R 4.4.0)
-   tidyr        * 1.3.1   2024-01-24 [1] RSPM (R 4.4.0)
-   tidyselect     1.2.1   2024-03-11 [1] RSPM (R 4.4.0)
-   tidyverse    * 2.0.0   2023-02-22 [1] RSPM (R 4.4.0)
-   timechange     0.3.0   2024-01-18 [1] RSPM (R 4.4.0)
-   tzdb           0.4.0   2023-05-12 [1] RSPM (R 4.4.0)
-   utf8           1.2.4   2023-10-22 [1] RSPM (R 4.4.0)
-   vctrs          0.6.5   2023-12-01 [1] RSPM (R 4.4.0)
-   withr          3.0.1   2024-07-31 [1] RSPM (R 4.4.0)
-   xfun           0.48    2024-10-03 [1] RSPM (R 4.4.0)
-   yaml           2.3.10  2024-07-26 [1] RSPM (R 4.4.0)
-
- [1] C:/Users/Andrew/AppData/Local/R/win-library/4.4
- [2] C:/Program Files/R/R-4.4.1/library
-
- D ── DLL MD5 mismatch, broken installation.
-
-──────────────────────────────────────────────────────────────────────────────</code></pre>
+<div class="cell-output-display">
+<p><strong>R version 4.4.1 (2024-06-14 ucrt)</strong></p>
+<p><strong>Platform:</strong> x86_64-w64-mingw32/x64</p>
+<p><strong>locale:</strong> <em>LC_COLLATE=English_United States.utf8</em>, <em>LC_CTYPE=English_United States.utf8</em>, <em>LC_MONETARY=English_United States.utf8</em>, <em>LC_NUMERIC=C</em> and <em>LC_TIME=English_United States.utf8</em></p>
+<p><strong>attached base packages:</strong> <em>stats</em>, <em>graphics</em>, <em>grDevices</em>, <em>utils</em>, <em>datasets</em>, <em>methods</em> and <em>base</em></p>
+<p><strong>other attached packages:</strong> <em>cli(v.3.6.3)</em>, <em>rlang(v.1.1.4)</em>, <em>fuimus(v.0.0.2)</em>, <em>lubridate(v.1.9.3)</em>, <em>forcats(v.1.0.0)</em>, <em>stringr(v.1.5.1)</em>, <em>dplyr(v.1.1.4)</em>, <em>purrr(v.1.0.2)</em>, <em>readr(v.2.1.5)</em>, <em>tidyr(v.1.3.1)</em>, <em>tibble(v.3.2.1)</em>, <em>ggplot2(v.3.5.1)</em> and <em>tidyverse(v.2.0.0)</em></p>
+<p><strong>loaded via a namespace (and not attached):</strong> <em>utf8(v.1.2.4)</em>, <em>generics(v.0.1.3)</em>, <em>stringi(v.1.8.4)</em>, <em>hms(v.1.1.3)</em>, <em>digest(v.0.6.37)</em>, <em>magrittr(v.2.0.3)</em>, <em>evaluate(v.1.0.1)</em>, <em>grid(v.4.4.1)</em>, <em>timechange(v.0.3.0)</em>, <em>fastmap(v.1.2.0)</em>, <em>jsonlite(v.1.8.9)</em>, <em>bench(v.1.1.3)</em>, <em>pander(v.0.6.5)</em>, <em>fansi(v.1.0.6)</em>, <em>scales(v.1.3.0)</em>, <em>textshaping(v.0.4.0)</em>, <em>munsell(v.0.5.1)</em>, <em>withr(v.3.0.2)</em>, <em>yaml(v.2.3.10)</em>, <em>tools(v.4.4.1)</em>, <em>parallel(v.4.4.1)</em>, <em>tzdb(v.0.4.0)</em>, <em>colorspace(v.2.1-1)</em>, <em>profmem(v.0.6.0)</em>, <em>vctrs(v.0.6.5)</em>, <em>R6(v.2.5.1)</em>, <em>lifecycle(v.1.0.4)</em>, <em>stringfish(v.0.16.0)</em>, <em>htmlwidgets(v.1.6.4)</em>, <em>ragg(v.1.3.3)</em>, <em>pkgconfig(v.2.0.3)</em>, <em>RcppParallel(v.5.1.9)</em>, <em>pillar(v.1.9.0)</em>, <em>gtable(v.0.3.6)</em>, <em>glue(v.1.8.0)</em>, <em>Rcpp(v.1.0.13)</em>, <em>systemfonts(v.1.1.0)</em>, <em>collapse(v.2.0.17)</em>, <em>xfun(v.0.48)</em>, <em>tidyselect(v.1.2.1)</em>, <em>rstudioapi(v.0.17.1)</em>, <em>knitr(v.1.48)</em>, <em>htmltools(v.0.5.8.1)</em>, <em>rmarkdown(v.2.29)</em> and <em>compiler(v.4.4.1)</em></p>
 </div>
 </div>
 
 
 <!-- -->
 
-</section><a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a><div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-reuse"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div class="quarto-appendix-contents"><div><a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></div></div></section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{allen_bruce2024,
+</section></section><a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a><div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-reuse"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div class="quarto-appendix-contents"><div><a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></div></div></section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{allen_bruce2024,
   author = {Allen Bruce, Andrew},
   title = {NPIs \&amp; {Luhn’s} {Algorithm}},
-  date = {2024-10-17},
+  date = {2024-11-04},
   url = {https://andrewallenbruce.github.io/acephale/posts/npi/npi_constructor.html},
   langid = {en}
 }
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-allen_bruce2024" class="csl-entry quarto-appendix-citeas" role="listitem">
 Allen Bruce, Andrew. 2024. <span>“NPIs &amp; Luhn’s Algorithm.”</span>
-October 17, 2024. <a href="https://andrewallenbruce.github.io/acephale/posts/npi/npi_constructor.html">https://andrewallenbruce.github.io/acephale/posts/npi/npi_constructor.html</a>.
+November 4, 2024. <a href="https://andrewallenbruce.github.io/acephale/posts/npi/npi_constructor.html">https://andrewallenbruce.github.io/acephale/posts/npi/npi_constructor.html</a>.
 </div></div></section></div></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -1488,646 +1430,644 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb67" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "NPIs &amp; Luhn's Algorithm"</span></span>
-<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Step-by-step National Provider Identifier Validation with Luhn's Algorithm"</span></span>
-<span id="cb67-4"><a href="#cb67-4" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> "Experimenting with the CMS standard for NPI validation."</span></span>
-<span id="cb67-5"><a href="#cb67-5" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
-<span id="cb67-6"><a href="#cb67-6" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
-<span id="cb67-7"><a href="#cb67-7" aria-hidden="true" tabindex="-1"></a><span class="co">    reference-location: margin</span></span>
-<span id="cb67-8"><a href="#cb67-8" aria-hidden="true" tabindex="-1"></a><span class="co">    other-links:</span></span>
-<span id="cb67-9"><a href="#cb67-9" aria-hidden="true" tabindex="-1"></a><span class="co">      - text: Luhn Algorithm</span></span>
-<span id="cb67-10"><a href="#cb67-10" aria-hidden="true" tabindex="-1"></a><span class="co">        icon: bookmark-plus</span></span>
-<span id="cb67-11"><a href="#cb67-11" aria-hidden="true" tabindex="-1"></a><span class="co">        href: https://en.wikipedia.org/wiki/Luhn_algorithm</span></span>
-<span id="cb67-12"><a href="#cb67-12" aria-hidden="true" tabindex="-1"></a><span class="co">      - text: ISO/IEC 7812</span></span>
-<span id="cb67-13"><a href="#cb67-13" aria-hidden="true" tabindex="-1"></a><span class="co">        icon: bookmark-plus</span></span>
-<span id="cb67-14"><a href="#cb67-14" aria-hidden="true" tabindex="-1"></a><span class="co">        href: https://en.wikipedia.org/wiki/ISO/IEC_7812</span></span>
-<span id="cb67-15"><a href="#cb67-15" aria-hidden="true" tabindex="-1"></a><span class="co">      - text: CMS NPI Standard</span></span>
-<span id="cb67-16"><a href="#cb67-16" aria-hidden="true" tabindex="-1"></a><span class="co">        icon: bookmark-plus</span></span>
-<span id="cb67-17"><a href="#cb67-17" aria-hidden="true" tabindex="-1"></a><span class="co">        href: https://www.cms.gov/Regulations-and-Guidance/Administrative-Simplification/NationalProvIdentStand/Downloads/NPIcheckdigit.pdf</span></span>
-<span id="cb67-18"><a href="#cb67-18" aria-hidden="true" tabindex="-1"></a><span class="co">      - text: CMS-10114 NPI Application</span></span>
-<span id="cb67-19"><a href="#cb67-19" aria-hidden="true" tabindex="-1"></a><span class="co">        icon: bookmark-plus</span></span>
-<span id="cb67-20"><a href="#cb67-20" aria-hidden="true" tabindex="-1"></a><span class="co">        href: https://www.cms.gov/medicare/cms-forms/cms-forms/downloads/cms10114.pdf</span></span>
-<span id="cb67-21"><a href="#cb67-21" aria-hidden="true" tabindex="-1"></a><span class="an">editor_options:</span><span class="co"> </span></span>
-<span id="cb67-22"><a href="#cb67-22" aria-hidden="true" tabindex="-1"></a><span class="co">  chunk_output_type: console</span></span>
-<span id="cb67-23"><a href="#cb67-23" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb67-24"><a href="#cb67-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-25"><a href="#cb67-25" aria-hidden="true" tabindex="-1"></a><span class="in">```{r setup}</span></span>
-<span id="cb67-26"><a href="#cb67-26" aria-hidden="true" tabindex="-1"></a><span class="in">#| message: false</span></span>
-<span id="cb67-27"><a href="#cb67-27" aria-hidden="true" tabindex="-1"></a><span class="in">#| warning: false</span></span>
-<span id="cb67-28"><a href="#cb67-28" aria-hidden="true" tabindex="-1"></a><span class="in">#| echo: false</span></span>
-<span id="cb67-29"><a href="#cb67-29" aria-hidden="true" tabindex="-1"></a><span class="in">#| cache: false</span></span>
-<span id="cb67-30"><a href="#cb67-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-31"><a href="#cb67-31" aria-hidden="true" tabindex="-1"></a><span class="in">knitr::opts_chunk$set(</span></span>
-<span id="cb67-32"><a href="#cb67-32" aria-hidden="true" tabindex="-1"></a><span class="in">  collapse  = FALSE,</span></span>
-<span id="cb67-33"><a href="#cb67-33" aria-hidden="true" tabindex="-1"></a><span class="in">  echo      = TRUE, </span></span>
-<span id="cb67-34"><a href="#cb67-34" aria-hidden="true" tabindex="-1"></a><span class="in">  message   = FALSE, </span></span>
-<span id="cb67-35"><a href="#cb67-35" aria-hidden="true" tabindex="-1"></a><span class="in">  warning   = FALSE,</span></span>
-<span id="cb67-36"><a href="#cb67-36" aria-hidden="true" tabindex="-1"></a><span class="in">  error     = TRUE,</span></span>
-<span id="cb67-37"><a href="#cb67-37" aria-hidden="true" tabindex="-1"></a><span class="in">  comment   = "",</span></span>
-<span id="cb67-38"><a href="#cb67-38" aria-hidden="true" tabindex="-1"></a><span class="in">  dpi       = 600, </span></span>
-<span id="cb67-39"><a href="#cb67-39" aria-hidden="true" tabindex="-1"></a><span class="in">  dev       = "ragg_png",</span></span>
-<span id="cb67-40"><a href="#cb67-40" aria-hidden="true" tabindex="-1"></a><span class="in">  out.width = "100%",</span></span>
-<span id="cb67-41"><a href="#cb67-41" aria-hidden="true" tabindex="-1"></a><span class="in">  fig.align = "center",</span></span>
-<span id="cb67-42"><a href="#cb67-42" aria-hidden="true" tabindex="-1"></a><span class="in">  fig.width = 8</span></span>
-<span id="cb67-43"><a href="#cb67-43" aria-hidden="true" tabindex="-1"></a><span class="in">)</span></span>
-<span id="cb67-44"><a href="#cb67-44" aria-hidden="true" tabindex="-1"></a><span class="in">options(scipen = 999)</span></span>
-<span id="cb67-45"><a href="#cb67-45" aria-hidden="true" tabindex="-1"></a><span class="in">library(tidyverse)</span></span>
-<span id="cb67-46"><a href="#cb67-46" aria-hidden="true" tabindex="-1"></a><span class="in">library(fuimus)</span></span>
-<span id="cb67-47"><a href="#cb67-47" aria-hidden="true" tabindex="-1"></a><span class="in">library(rlang)</span></span>
-<span id="cb67-48"><a href="#cb67-48" aria-hidden="true" tabindex="-1"></a><span class="in">library(cli)</span></span>
-<span id="cb67-49"><a href="#cb67-49" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb67-50"><a href="#cb67-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-51"><a href="#cb67-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-52"><a href="#cb67-52" aria-hidden="true" tabindex="-1"></a>A **National Provider Identifier (NPI)** is a unique 10-digit identification number assigned to health care providers in the United States through NPPES^<span class="co">[</span><span class="ot">NPPES is the National Plan and Provider Enumeration System (NPPES) NPI Registry, a free directory of all active NPI records.</span><span class="co">]</span> The Centers for Medicare &amp; Medicaid Services (CMS) developed the NPI as a way to standardize the identification of health care providers across the health care industry.</span>
-<span id="cb67-53"><a href="#cb67-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-54"><a href="#cb67-54" aria-hidden="true" tabindex="-1"></a><span class="fu"># CMS NPI Standard {#sec-cmsstandard}</span></span>
-<span id="cb67-55"><a href="#cb67-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-56"><a href="#cb67-56" aria-hidden="true" tabindex="-1"></a>The following is an excerpt from the CMS document on the NPI check digit calculation, <span class="co">[</span><span class="ot">Requirements for National Provider Identifier (NPI) and NPI Check Digit (2004-01-23)</span><span class="co">](https://www.cms.gov/Regulations-and-Guidance/Administrative-Simplification/NationalProvIdentStand/Downloads/NPIcheckdigit.pdf)</span>.</span>
-<span id="cb67-57"><a href="#cb67-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-58"><a href="#cb67-58" aria-hidden="true" tabindex="-1"></a><span class="fu">## NPI Requirements {#sec-requirements}</span></span>
-<span id="cb67-59"><a href="#cb67-59" aria-hidden="true" tabindex="-1"></a>|                              |                                                                                     |</span>
-<span id="cb67-60"><a href="#cb67-60" aria-hidden="true" tabindex="-1"></a>|------------------------------|-------------------------------------------------------------------------------------|</span>
-<span id="cb67-61"><a href="#cb67-61" aria-hidden="true" tabindex="-1"></a>| {{&lt; mi wrong_location &gt;}}    | Must consist of **10** numeric digits, with the 10&lt;sup&gt;th&lt;/sup&gt; as the check digit. |</span>
-<span id="cb67-62"><a href="#cb67-62" aria-hidden="true" tabindex="-1"></a>| {{&lt; mi explore_off &gt;}}       | Have no embedded intelligence.                                                      |</span>
-<span id="cb67-63"><a href="#cb67-63" aria-hidden="true" tabindex="-1"></a>| {{&lt; mi lightbulb_circle &gt;}}  | Begin with a <span class="in">`1`</span> or <span class="in">`2`</span>.^<span class="co">[</span><span class="ot">Use of other first digits for the NPI must be coordinated with the use of first digits by the standard health plan identifier, when it is adopted.</span><span class="co">]</span> |</span>
-<span id="cb67-64"><a href="#cb67-64" aria-hidden="true" tabindex="-1"></a>| {{&lt; mi pattern &gt;}}           | Be generated by a scattering algorithm using all possible numeric combinations.     |</span>
-<span id="cb67-65"><a href="#cb67-65" aria-hidden="true" tabindex="-1"></a>| {{&lt; mi fingerprint &gt;}}       | Be unique, without requiring database access for verification.                      |</span>
-<span id="cb67-66"><a href="#cb67-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-67"><a href="#cb67-67" aria-hidden="true" tabindex="-1"></a><span class="fu">## NPI Check Digit {#sec-checkdigit}</span></span>
-<span id="cb67-68"><a href="#cb67-68" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-69"><a href="#cb67-69" aria-hidden="true" tabindex="-1"></a>The check digit is calculated using the <span class="co">[</span><span class="ot">Luhn formula</span><span class="co">](https://en.wikipedia.org/wiki/Luhn_algorithm)</span> for computing the modulus 10 *double-add-double* check digit.^<span class="co">[</span><span class="ot">This algorithm is recognized as an ISO standard (ISO/IEC 7812) and is the specified check digit algorithm to be used for the card issuer identifier on a standard health identification card.</span><span class="co">]</span></span>
-<span id="cb67-70"><a href="#cb67-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-71"><a href="#cb67-71" aria-hidden="true" tabindex="-1"></a>When an NPI is used as a card issuer identifier on a standard health identification card, it is prefixed with **80840**, in which **80** indicates *health applications* and **840** indicates the *United States*.</span>
-<span id="cb67-72"><a href="#cb67-72" aria-hidden="true" tabindex="-1"></a>To enable this feature for any NPI, the check digit will always be calculated as if the prefix is present. For a non-prefixed NPI, this is accomplished by adding the constant **24** in step 2 of the calculation.</span>
-<span id="cb67-73"><a href="#cb67-73" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-74"><a href="#cb67-74" aria-hidden="true" tabindex="-1"></a><span class="fu">### Check Digit Calculation</span></span>
-<span id="cb67-75"><a href="#cb67-75" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-76"><a href="#cb67-76" aria-hidden="true" tabindex="-1"></a>The calculation is as follows:</span>
-<span id="cb67-77"><a href="#cb67-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-78"><a href="#cb67-78" aria-hidden="true" tabindex="-1"></a><span class="ss">   1. </span>Beginning with the rightmost digit, double the value of the alternate digits.</span>
-<span id="cb67-79"><a href="#cb67-79" aria-hidden="true" tabindex="-1"></a>   </span>
-<span id="cb67-80"><a href="#cb67-80" aria-hidden="true" tabindex="-1"></a><span class="ss">   1. </span>Add the individual digits of the products from Step 1 to the unaffected digits from the original number.</span>
-<span id="cb67-81"><a href="#cb67-81" aria-hidden="true" tabindex="-1"></a>   </span>
-<span id="cb67-82"><a href="#cb67-82" aria-hidden="true" tabindex="-1"></a><span class="ss">   1. </span>Subtract the result of step 2 from the next highest number ending in zero. This is the check digit.</span>
-<span id="cb67-83"><a href="#cb67-83" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-84"><a href="#cb67-84" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-85"><a href="#cb67-85" aria-hidden="true" tabindex="-1"></a>::: {#note-mod .callout-note}</span>
-<span id="cb67-86"><a href="#cb67-86" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-87"><a href="#cb67-87" aria-hidden="true" tabindex="-1"></a><span class="fu">### Next Multiple of Ten</span></span>
-<span id="cb67-88"><a href="#cb67-88" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-89"><a href="#cb67-89" aria-hidden="true" tabindex="-1"></a>The *next highest number ending in zero* is the next multiple of ten. </span>
-<span id="cb67-90"><a href="#cb67-90" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-91"><a href="#cb67-91" aria-hidden="true" tabindex="-1"></a>Specifically, for some number $n$, the next multiple of ten would be $n + (10 - (n \mod 10))$:</span>
-<span id="cb67-92"><a href="#cb67-92" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-95"><a href="#cb67-95" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb67-96"><a href="#cb67-96" aria-hidden="true" tabindex="-1"></a>next_10 <span class="ot">&lt;-</span> \(n) n <span class="sc">+</span> (<span class="dv">10</span> <span class="sc">-</span> (n <span class="sc">%%</span> <span class="dv">10</span>))</span>
-<span id="cb67-97"><a href="#cb67-97" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb67-98"><a href="#cb67-98" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-99"><a href="#cb67-99" aria-hidden="true" tabindex="-1"></a>For example, if $n$ is <span class="in">`23`</span>, the next multiple of ten is <span class="in">`30`</span>:</span>
-<span id="cb67-100"><a href="#cb67-100" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-103"><a href="#cb67-103" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb67-104"><a href="#cb67-104" aria-hidden="true" tabindex="-1"></a><span class="fu">next_10</span>(<span class="dv">23</span>)</span>
-<span id="cb67-105"><a href="#cb67-105" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb67-106"><a href="#cb67-106" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-107"><a href="#cb67-107" aria-hidden="true" tabindex="-1"></a>If $n$ is a multiple of ten, such as <span class="in">`50`</span>, the next multiple of 10 is <span class="in">`60`</span>:</span>
-<span id="cb67-108"><a href="#cb67-108" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-111"><a href="#cb67-111" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb67-112"><a href="#cb67-112" aria-hidden="true" tabindex="-1"></a><span class="fu">next_10</span>(<span class="dv">50</span>)</span>
-<span id="cb67-113"><a href="#cb67-113" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb67-114"><a href="#cb67-114" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-115"><a href="#cb67-115" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-116"><a href="#cb67-116" aria-hidden="true" tabindex="-1"></a>::: </span>
-<span id="cb67-117"><a href="#cb67-117" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-118"><a href="#cb67-118" aria-hidden="true" tabindex="-1"></a>{{&lt; pagebreak &gt;}}</span>
-<span id="cb67-119"><a href="#cb67-119" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-120"><a href="#cb67-120" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples</span></span>
-<span id="cb67-121"><a href="#cb67-121" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-122"><a href="#cb67-122" aria-hidden="true" tabindex="-1"></a>The following check digit calculation examples are reproduced from the CMS Standard document, which includes demonstrations for both prefixed and non-prefixed NPIs.</span>
-<span id="cb67-123"><a href="#cb67-123" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-124"><a href="#cb67-124" aria-hidden="true" tabindex="-1"></a>::: {.panel-tabset}</span>
-<span id="cb67-125"><a href="#cb67-125" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-126"><a href="#cb67-126" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prefix</span></span>
-<span id="cb67-127"><a href="#cb67-127" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-128"><a href="#cb67-128" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Assume the prefixed 9-position identifier is:</span></span>
-<span id="cb67-129"><a href="#cb67-129" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-132"><a href="#cb67-132" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb67-133"><a href="#cb67-133" aria-hidden="true" tabindex="-1"></a>(y <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">splitter</span>(<span class="st">"80840123456789"</span>)))</span>
-<span id="cb67-134"><a href="#cb67-134" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb67-135"><a href="#cb67-135" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-136"><a href="#cb67-136" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-139"><a href="#cb67-139" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb67-140"><a href="#cb67-140" aria-hidden="true" tabindex="-1"></a>prefix_id <span class="ot">&lt;-</span> \(x) {</span>
-<span id="cb67-141"><a href="#cb67-141" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.integer</span>(</span>
-<span id="cb67-142"><a href="#cb67-142" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unlist</span>(</span>
-<span id="cb67-143"><a href="#cb67-143" aria-hidden="true" tabindex="-1"></a>      <span class="fu">strsplit</span>(</span>
-<span id="cb67-144"><a href="#cb67-144" aria-hidden="true" tabindex="-1"></a>        <span class="fu">paste0</span>(<span class="dv">80840</span>, x), <span class="st">""</span>)</span>
-<span id="cb67-145"><a href="#cb67-145" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb67-146"><a href="#cb67-146" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb67-147"><a href="#cb67-147" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb67-148"><a href="#cb67-148" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-149"><a href="#cb67-149" aria-hidden="true" tabindex="-1"></a>(x <span class="ot">&lt;-</span> <span class="fu">prefix_id</span>(<span class="dv">123456789</span>))</span>
-<span id="cb67-150"><a href="#cb67-150" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-151"><a href="#cb67-151" aria-hidden="true" tabindex="-1"></a><span class="fu">all.equal</span>(x, y)</span>
-<span id="cb67-152"><a href="#cb67-152" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb67-153"><a href="#cb67-153" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-154"><a href="#cb67-154" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Beginning on the right, </span></span>
-<span id="cb67-155"><a href="#cb67-155" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; double the alternate digits: </span></span>
-<span id="cb67-156"><a href="#cb67-156" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; </span><span class="in">`8 0 8 8 0 2 2 6 4 10 6 14 8 18`</span></span>
-<span id="cb67-157"><a href="#cb67-157" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-160"><a href="#cb67-160" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb67-161"><a href="#cb67-161" aria-hidden="true" tabindex="-1"></a>reverse_double <span class="ot">&lt;-</span> \(x) {</span>
-<span id="cb67-162"><a href="#cb67-162" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb67-163"><a href="#cb67-163" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">rev</span>(x)</span>
-<span id="cb67-164"><a href="#cb67-164" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb67-165"><a href="#cb67-165" aria-hidden="true" tabindex="-1"></a>  idx <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>, <span class="dv">9</span>, <span class="dv">11</span>, <span class="dv">13</span>)</span>
-<span id="cb67-166"><a href="#cb67-166" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb67-167"><a href="#cb67-167" aria-hidden="true" tabindex="-1"></a>  x[idx] <span class="ot">&lt;-</span> x[idx] <span class="sc">*</span> <span class="dv">2</span></span>
-<span id="cb67-168"><a href="#cb67-168" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb67-169"><a href="#cb67-169" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rev</span>(x)</span>
-<span id="cb67-170"><a href="#cb67-170" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb67-171"><a href="#cb67-171" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-172"><a href="#cb67-172" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">reverse_double</span>(x)</span>
-<span id="cb67-173"><a href="#cb67-173" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-174"><a href="#cb67-174" aria-hidden="true" tabindex="-1"></a>x</span>
-<span id="cb67-175"><a href="#cb67-175" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb67-176"><a href="#cb67-176" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-177"><a href="#cb67-177" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Sum the *individual* digits: </span></span>
-<span id="cb67-178"><a href="#cb67-178" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; </span><span class="in">`8 + 0 + 8 + 8 +`</span><span class="at"> </span></span>
-<span id="cb67-179"><a href="#cb67-179" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; </span><span class="in">`0 + 2 + 2 + 6 +`</span><span class="at"> </span></span>
-<span id="cb67-180"><a href="#cb67-180" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; </span><span class="in">`4 + 1 + 0 + 6 +`</span></span>
-<span id="cb67-181"><a href="#cb67-181" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; </span><span class="in">`1 + 4 + 8 + 1 +`</span><span class="at"> </span></span>
-<span id="cb67-182"><a href="#cb67-182" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; </span><span class="in">`8 = 67`</span></span>
-<span id="cb67-183"><a href="#cb67-183" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-184"><a href="#cb67-184" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-187"><a href="#cb67-187" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb67-188"><a href="#cb67-188" aria-hidden="true" tabindex="-1"></a>add_digits <span class="ot">&lt;-</span> \(x) {</span>
-<span id="cb67-189"><a href="#cb67-189" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>(</span>
-<span id="cb67-190"><a href="#cb67-190" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.integer</span>(</span>
-<span id="cb67-191"><a href="#cb67-191" aria-hidden="true" tabindex="-1"></a>      <span class="fu">unlist</span>(</span>
-<span id="cb67-192"><a href="#cb67-192" aria-hidden="true" tabindex="-1"></a>        <span class="fu">strsplit</span>(</span>
-<span id="cb67-193"><a href="#cb67-193" aria-hidden="true" tabindex="-1"></a>          <span class="fu">as.character</span>(x), <span class="st">""</span>)</span>
-<span id="cb67-194"><a href="#cb67-194" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb67-195"><a href="#cb67-195" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb67-196"><a href="#cb67-196" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb67-197"><a href="#cb67-197" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb67-198"><a href="#cb67-198" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-199"><a href="#cb67-199" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">add_digits</span>(x)</span>
-<span id="cb67-200"><a href="#cb67-200" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-201"><a href="#cb67-201" aria-hidden="true" tabindex="-1"></a>x</span>
-<span id="cb67-202"><a href="#cb67-202" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb67-203"><a href="#cb67-203" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-204"><a href="#cb67-204" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Subtract the sum from the next multiple of 10. </span></span>
-<span id="cb67-205"><a href="#cb67-205" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; This is the check digit: </span><span class="in">`70 – 67 = 3`</span></span>
-<span id="cb67-206"><a href="#cb67-206" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-207"><a href="#cb67-207" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-210"><a href="#cb67-210" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb67-211"><a href="#cb67-211" aria-hidden="true" tabindex="-1"></a>check_digit <span class="ot">&lt;-</span> \(x) {</span>
-<span id="cb67-212"><a href="#cb67-212" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ceiling</span>(x <span class="sc">/</span> <span class="dv">10</span>) <span class="sc">*</span> <span class="dv">10</span> <span class="sc">-</span> x</span>
-<span id="cb67-213"><a href="#cb67-213" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb67-214"><a href="#cb67-214" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-215"><a href="#cb67-215" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">check_digit</span>(x)</span>
-<span id="cb67-216"><a href="#cb67-216" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-217"><a href="#cb67-217" aria-hidden="true" tabindex="-1"></a>x</span>
-<span id="cb67-218"><a href="#cb67-218" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb67-219"><a href="#cb67-219" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-220"><a href="#cb67-220" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Append the check digit to the </span></span>
-<span id="cb67-221"><a href="#cb67-221" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; identifier: </span><span class="in">`808401234567893`</span></span>
-<span id="cb67-222"><a href="#cb67-222" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-225"><a href="#cb67-225" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb67-226"><a href="#cb67-226" aria-hidden="true" tabindex="-1"></a>append_check <span class="ot">&lt;-</span> \(id, check) {</span>
-<span id="cb67-227"><a href="#cb67-227" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(</span>
-<span id="cb67-228"><a href="#cb67-228" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste0</span>(</span>
-<span id="cb67-229"><a href="#cb67-229" aria-hidden="true" tabindex="-1"></a>      <span class="fu">paste0</span>(</span>
-<span id="cb67-230"><a href="#cb67-230" aria-hidden="true" tabindex="-1"></a>        <span class="fu">prefix_id</span>(id), </span>
-<span id="cb67-231"><a href="#cb67-231" aria-hidden="true" tabindex="-1"></a>        <span class="at">collapse =</span> <span class="st">""</span>), </span>
-<span id="cb67-232"><a href="#cb67-232" aria-hidden="true" tabindex="-1"></a>      check)</span>
-<span id="cb67-233"><a href="#cb67-233" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb67-234"><a href="#cb67-234" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb67-235"><a href="#cb67-235" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-236"><a href="#cb67-236" aria-hidden="true" tabindex="-1"></a><span class="fu">append_check</span>(<span class="dv">123456789</span>, x)</span>
-<span id="cb67-237"><a href="#cb67-237" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb67-238"><a href="#cb67-238" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-239"><a href="#cb67-239" aria-hidden="true" tabindex="-1"></a><span class="fu">## Non-Prefix</span></span>
-<span id="cb67-240"><a href="#cb67-240" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-241"><a href="#cb67-241" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Assume the non-prefixed </span></span>
-<span id="cb67-242"><a href="#cb67-242" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; 9-position identifier </span></span>
-<span id="cb67-243"><a href="#cb67-243" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; is </span><span class="in">`123456789`</span></span>
-<span id="cb67-244"><a href="#cb67-244" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-247"><a href="#cb67-247" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb67-248"><a href="#cb67-248" aria-hidden="true" tabindex="-1"></a>split_id <span class="ot">&lt;-</span> \(x) {</span>
-<span id="cb67-249"><a href="#cb67-249" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.integer</span>(</span>
-<span id="cb67-250"><a href="#cb67-250" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unlist</span>(</span>
-<span id="cb67-251"><a href="#cb67-251" aria-hidden="true" tabindex="-1"></a>      <span class="fu">strsplit</span>(</span>
-<span id="cb67-252"><a href="#cb67-252" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as.character</span>(x), <span class="st">""</span></span>
-<span id="cb67-253"><a href="#cb67-253" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb67-254"><a href="#cb67-254" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb67-255"><a href="#cb67-255" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb67-256"><a href="#cb67-256" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb67-257"><a href="#cb67-257" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-258"><a href="#cb67-258" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">split_id</span>(<span class="dv">123456789</span>)</span>
-<span id="cb67-259"><a href="#cb67-259" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-260"><a href="#cb67-260" aria-hidden="true" tabindex="-1"></a>x</span>
-<span id="cb67-261"><a href="#cb67-261" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb67-262"><a href="#cb67-262" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-263"><a href="#cb67-263" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Beginning on the right, </span></span>
-<span id="cb67-264"><a href="#cb67-264" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; double the alternate digits:</span></span>
-<span id="cb67-265"><a href="#cb67-265" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; </span><span class="in">`2  2  6  4 10  6 14  8 18`</span></span>
-<span id="cb67-266"><a href="#cb67-266" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-269"><a href="#cb67-269" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb67-270"><a href="#cb67-270" aria-hidden="true" tabindex="-1"></a>reverse_double <span class="ot">&lt;-</span> \(x) {</span>
-<span id="cb67-271"><a href="#cb67-271" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb67-272"><a href="#cb67-272" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">rev</span>(x)</span>
-<span id="cb67-273"><a href="#cb67-273" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb67-274"><a href="#cb67-274" aria-hidden="true" tabindex="-1"></a>  idx <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>, <span class="dv">9</span>)</span>
-<span id="cb67-275"><a href="#cb67-275" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb67-276"><a href="#cb67-276" aria-hidden="true" tabindex="-1"></a>  x[idx] <span class="ot">&lt;-</span> x[idx] <span class="sc">*</span> <span class="dv">2</span></span>
-<span id="cb67-277"><a href="#cb67-277" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb67-278"><a href="#cb67-278" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rev</span>(x)</span>
-<span id="cb67-279"><a href="#cb67-279" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb67-280"><a href="#cb67-280" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-281"><a href="#cb67-281" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">reverse_double</span>(x)</span>
-<span id="cb67-282"><a href="#cb67-282" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-283"><a href="#cb67-283" aria-hidden="true" tabindex="-1"></a>x</span>
-<span id="cb67-284"><a href="#cb67-284" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb67-285"><a href="#cb67-285" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-286"><a href="#cb67-286" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Add constant 24 to the sum of the individual digits: </span></span>
-<span id="cb67-287"><a href="#cb67-287" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; </span><span class="in">`2 + 2 + 6 + 4 + 1 + 0 + 6 + 1 + 4 + 8 + 1 + 8 + 24 = 67`</span></span>
-<span id="cb67-288"><a href="#cb67-288" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-289"><a href="#cb67-289" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-292"><a href="#cb67-292" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb67-293"><a href="#cb67-293" aria-hidden="true" tabindex="-1"></a>sum_plus_24 <span class="ot">&lt;-</span> \(x) {</span>
-<span id="cb67-294"><a href="#cb67-294" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>(</span>
-<span id="cb67-295"><a href="#cb67-295" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.integer</span>(</span>
-<span id="cb67-296"><a href="#cb67-296" aria-hidden="true" tabindex="-1"></a>      <span class="fu">unlist</span>(</span>
-<span id="cb67-297"><a href="#cb67-297" aria-hidden="true" tabindex="-1"></a>        <span class="fu">strsplit</span>(</span>
-<span id="cb67-298"><a href="#cb67-298" aria-hidden="true" tabindex="-1"></a>          <span class="fu">as.character</span>(x), <span class="st">""</span>)</span>
-<span id="cb67-299"><a href="#cb67-299" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb67-300"><a href="#cb67-300" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb67-301"><a href="#cb67-301" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span> <span class="dv">24</span></span>
-<span id="cb67-302"><a href="#cb67-302" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb67-303"><a href="#cb67-303" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-304"><a href="#cb67-304" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">sum_plus_24</span>(x)</span>
-<span id="cb67-305"><a href="#cb67-305" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-306"><a href="#cb67-306" aria-hidden="true" tabindex="-1"></a>x</span>
-<span id="cb67-307"><a href="#cb67-307" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb67-308"><a href="#cb67-308" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-309"><a href="#cb67-309" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Subtract the sum from the next multiple of 10. </span></span>
-<span id="cb67-310"><a href="#cb67-310" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; This is the check digit: </span><span class="in">`70 – 67 = 3`</span></span>
-<span id="cb67-311"><a href="#cb67-311" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-314"><a href="#cb67-314" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb67-315"><a href="#cb67-315" aria-hidden="true" tabindex="-1"></a>check_digit <span class="ot">&lt;-</span> \(x) {</span>
-<span id="cb67-316"><a href="#cb67-316" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ceiling</span>(x <span class="sc">/</span> <span class="dv">10</span>) <span class="sc">*</span> <span class="dv">10</span> <span class="sc">-</span> x</span>
-<span id="cb67-317"><a href="#cb67-317" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb67-318"><a href="#cb67-318" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-319"><a href="#cb67-319" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">check_digit</span>(x)</span>
-<span id="cb67-320"><a href="#cb67-320" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-321"><a href="#cb67-321" aria-hidden="true" tabindex="-1"></a>x</span>
-<span id="cb67-322"><a href="#cb67-322" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb67-323"><a href="#cb67-323" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-324"><a href="#cb67-324" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Append the check digit to </span></span>
-<span id="cb67-325"><a href="#cb67-325" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; the identifier: </span><span class="in">`1234567893`</span></span>
-<span id="cb67-326"><a href="#cb67-326" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-329"><a href="#cb67-329" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb67-330"><a href="#cb67-330" aria-hidden="true" tabindex="-1"></a>append_check <span class="ot">&lt;-</span> \(id, check) {</span>
-<span id="cb67-331"><a href="#cb67-331" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(</span>
-<span id="cb67-332"><a href="#cb67-332" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste0</span>(</span>
-<span id="cb67-333"><a href="#cb67-333" aria-hidden="true" tabindex="-1"></a>      id, </span>
-<span id="cb67-334"><a href="#cb67-334" aria-hidden="true" tabindex="-1"></a>      check</span>
-<span id="cb67-335"><a href="#cb67-335" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb67-336"><a href="#cb67-336" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb67-337"><a href="#cb67-337" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb67-338"><a href="#cb67-338" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-339"><a href="#cb67-339" aria-hidden="true" tabindex="-1"></a><span class="fu">append_check</span>(<span class="dv">123456789</span>, x)</span>
-<span id="cb67-340"><a href="#cb67-340" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb67-341"><a href="#cb67-341" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-342"><a href="#cb67-342" aria-hidden="true" tabindex="-1"></a>::: </span>
-<span id="cb67-343"><a href="#cb67-343" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-344"><a href="#cb67-344" aria-hidden="true" tabindex="-1"></a>{{&lt; pagebreak &gt;}}</span>
-<span id="cb67-345"><a href="#cb67-345" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-346"><a href="#cb67-346" aria-hidden="true" tabindex="-1"></a><span class="fu"># Function Goals {#sec-goals}</span></span>
-<span id="cb67-347"><a href="#cb67-347" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-348"><a href="#cb67-348" aria-hidden="true" tabindex="-1"></a>I want to build a function that constructs a valid NPI from a 10-digit NPI "candidate." The function should print the validation steps to the console. </span>
-<span id="cb67-349"><a href="#cb67-349" aria-hidden="true" tabindex="-1"></a>If the input is syntactically valid, it should return the original NPI invisibly along with a <span class="in">`success!`</span> message. If invalid, it should return the valid NPI with a <span class="in">`warning!`</span> message.</span>
-<span id="cb67-350"><a href="#cb67-350" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-351"><a href="#cb67-351" aria-hidden="true" tabindex="-1"></a>There should also be a <span class="in">`verbose`</span> option to silence the messages and return only the valid NPI. And finally, a minimal version that simply returns <span class="in">`TRUE`</span> or <span class="in">`FALSE`</span>.</span>
-<span id="cb67-352"><a href="#cb67-352" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-353"><a href="#cb67-353" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-354"><a href="#cb67-354" aria-hidden="true" tabindex="-1"></a><span class="fu">## Validating the Input</span></span>
-<span id="cb67-355"><a href="#cb67-355" aria-hidden="true" tabindex="-1"></a>   </span>
-<span id="cb67-356"><a href="#cb67-356" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span>Input string (<span class="in">`x`</span>) validation order:</span>
-<span id="cb67-357"><a href="#cb67-357" aria-hidden="true" tabindex="-1"></a><span class="ss">      + </span>Abort if not <span class="in">`length(x) == 1`</span></span>
-<span id="cb67-358"><a href="#cb67-358" aria-hidden="true" tabindex="-1"></a><span class="ss">      + </span>Abort if not 10 characters long</span>
-<span id="cb67-359"><a href="#cb67-359" aria-hidden="true" tabindex="-1"></a><span class="ss">      + </span>Abort if any elements of <span class="in">`x`</span> are not <span class="in">`0-9`</span></span>
-<span id="cb67-360"><a href="#cb67-360" aria-hidden="true" tabindex="-1"></a><span class="ss">      + </span>Abort if first element is not <span class="in">`"1"`</span> or <span class="in">`"2"`</span></span>
-<span id="cb67-361"><a href="#cb67-361" aria-hidden="true" tabindex="-1"></a><span class="ss">      + </span>Coerce to <span class="in">`&lt;character&gt;`</span> if <span class="in">`x`</span> is a <span class="in">`&lt;numeric&gt;`</span> vector</span>
-<span id="cb67-362"><a href="#cb67-362" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-363"><a href="#cb67-363" aria-hidden="true" tabindex="-1"></a><span class="in">```{r filename="input_validation.R"}</span></span>
-<span id="cb67-364"><a href="#cb67-364" aria-hidden="true" tabindex="-1"></a><span class="in">#| error: true</span></span>
-<span id="cb67-365"><a href="#cb67-365" aria-hidden="true" tabindex="-1"></a><span class="in">#| message: true</span></span>
-<span id="cb67-366"><a href="#cb67-366" aria-hidden="true" tabindex="-1"></a><span class="in"># Abort if `x` is `length(x) != 1`</span></span>
-<span id="cb67-367"><a href="#cb67-367" aria-hidden="true" tabindex="-1"></a><span class="in">check_length &lt;- function(x) {</span></span>
-<span id="cb67-368"><a href="#cb67-368" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb67-369"><a href="#cb67-369" aria-hidden="true" tabindex="-1"></a><span class="in">  arg  &lt;- rlang::caller_arg(x)</span></span>
-<span id="cb67-370"><a href="#cb67-370" aria-hidden="true" tabindex="-1"></a><span class="in">  call &lt;- rlang::caller_env()</span></span>
-<span id="cb67-371"><a href="#cb67-371" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb67-372"><a href="#cb67-372" aria-hidden="true" tabindex="-1"></a><span class="in">  if (length(x) != 1) {</span></span>
-<span id="cb67-373"><a href="#cb67-373" aria-hidden="true" tabindex="-1"></a><span class="in">    cli::cli_abort(</span></span>
-<span id="cb67-374"><a href="#cb67-374" aria-hidden="true" tabindex="-1"></a><span class="in">      "{.arg {arg}} must be of length 1.", </span></span>
-<span id="cb67-375"><a href="#cb67-375" aria-hidden="true" tabindex="-1"></a><span class="in">      arg = arg, </span></span>
-<span id="cb67-376"><a href="#cb67-376" aria-hidden="true" tabindex="-1"></a><span class="in">      call = call,</span></span>
-<span id="cb67-377"><a href="#cb67-377" aria-hidden="true" tabindex="-1"></a><span class="in">      class = "check_length"</span></span>
-<span id="cb67-378"><a href="#cb67-378" aria-hidden="true" tabindex="-1"></a><span class="in">      )</span></span>
-<span id="cb67-379"><a href="#cb67-379" aria-hidden="true" tabindex="-1"></a><span class="in">  }</span></span>
-<span id="cb67-380"><a href="#cb67-380" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
-<span id="cb67-381"><a href="#cb67-381" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-382"><a href="#cb67-382" aria-hidden="true" tabindex="-1"></a><span class="in"># If `x` is a `&lt;numeric&gt;` </span></span>
-<span id="cb67-383"><a href="#cb67-383" aria-hidden="true" tabindex="-1"></a><span class="in"># vector, coerce to `&lt;character&gt;`</span></span>
-<span id="cb67-384"><a href="#cb67-384" aria-hidden="true" tabindex="-1"></a><span class="in">numeric_to_char &lt;- function(x) {</span></span>
-<span id="cb67-385"><a href="#cb67-385" aria-hidden="true" tabindex="-1"></a><span class="in">  if (!rlang::is_character(x)) { </span></span>
-<span id="cb67-386"><a href="#cb67-386" aria-hidden="true" tabindex="-1"></a><span class="in">    as.character(x)</span></span>
-<span id="cb67-387"><a href="#cb67-387" aria-hidden="true" tabindex="-1"></a><span class="in">  } else {</span></span>
-<span id="cb67-388"><a href="#cb67-388" aria-hidden="true" tabindex="-1"></a><span class="in">    x  </span></span>
-<span id="cb67-389"><a href="#cb67-389" aria-hidden="true" tabindex="-1"></a><span class="in">  }</span></span>
-<span id="cb67-390"><a href="#cb67-390" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
-<span id="cb67-391"><a href="#cb67-391" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-392"><a href="#cb67-392" aria-hidden="true" tabindex="-1"></a><span class="in"># Abort if any of `x`'s </span></span>
-<span id="cb67-393"><a href="#cb67-393" aria-hidden="true" tabindex="-1"></a><span class="in"># elements are not numbers</span></span>
-<span id="cb67-394"><a href="#cb67-394" aria-hidden="true" tabindex="-1"></a><span class="in">check_chars_numeric &lt;- function(x) {</span></span>
-<span id="cb67-395"><a href="#cb67-395" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb67-396"><a href="#cb67-396" aria-hidden="true" tabindex="-1"></a><span class="in">  arg  &lt;- rlang::caller_arg(x)</span></span>
-<span id="cb67-397"><a href="#cb67-397" aria-hidden="true" tabindex="-1"></a><span class="in">  call &lt;- rlang::caller_env()</span></span>
-<span id="cb67-398"><a href="#cb67-398" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb67-399"><a href="#cb67-399" aria-hidden="true" tabindex="-1"></a><span class="in">  if (!stringfish::sf_grepl(x, "^[[:digit:]]+$")) {</span></span>
-<span id="cb67-400"><a href="#cb67-400" aria-hidden="true" tabindex="-1"></a><span class="in">    cli::cli_abort(</span></span>
-<span id="cb67-401"><a href="#cb67-401" aria-hidden="true" tabindex="-1"></a><span class="in">      "An {.arg {arg}} must contain numbers only.", </span></span>
-<span id="cb67-402"><a href="#cb67-402" aria-hidden="true" tabindex="-1"></a><span class="in">      arg = arg, </span></span>
-<span id="cb67-403"><a href="#cb67-403" aria-hidden="true" tabindex="-1"></a><span class="in">      call = call,</span></span>
-<span id="cb67-404"><a href="#cb67-404" aria-hidden="true" tabindex="-1"></a><span class="in">      class = "check_chars_numeric"</span></span>
-<span id="cb67-405"><a href="#cb67-405" aria-hidden="true" tabindex="-1"></a><span class="in">      )</span></span>
-<span id="cb67-406"><a href="#cb67-406" aria-hidden="true" tabindex="-1"></a><span class="in">  }</span></span>
-<span id="cb67-407"><a href="#cb67-407" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
-<span id="cb67-408"><a href="#cb67-408" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-409"><a href="#cb67-409" aria-hidden="true" tabindex="-1"></a><span class="in"># Abort if `x` is not </span></span>
-<span id="cb67-410"><a href="#cb67-410" aria-hidden="true" tabindex="-1"></a><span class="in"># 10 characters long</span></span>
-<span id="cb67-411"><a href="#cb67-411" aria-hidden="true" tabindex="-1"></a><span class="in">check_nchars_10 &lt;- function(x) {</span></span>
-<span id="cb67-412"><a href="#cb67-412" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb67-413"><a href="#cb67-413" aria-hidden="true" tabindex="-1"></a><span class="in">  arg  &lt;- rlang::caller_arg(x)</span></span>
-<span id="cb67-414"><a href="#cb67-414" aria-hidden="true" tabindex="-1"></a><span class="in">  call &lt;- rlang::caller_env()</span></span>
-<span id="cb67-415"><a href="#cb67-415" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb67-416"><a href="#cb67-416" aria-hidden="true" tabindex="-1"></a><span class="in">  if (stringfish::sf_nchar(x) != 10L) {</span></span>
-<span id="cb67-417"><a href="#cb67-417" aria-hidden="true" tabindex="-1"></a><span class="in">    cli::cli_abort(</span></span>
-<span id="cb67-418"><a href="#cb67-418" aria-hidden="true" tabindex="-1"></a><span class="in">      "An {.arg {arg}} must be 10 characters long.", </span></span>
-<span id="cb67-419"><a href="#cb67-419" aria-hidden="true" tabindex="-1"></a><span class="in">      arg = arg, </span></span>
-<span id="cb67-420"><a href="#cb67-420" aria-hidden="true" tabindex="-1"></a><span class="in">      call = call,</span></span>
-<span id="cb67-421"><a href="#cb67-421" aria-hidden="true" tabindex="-1"></a><span class="in">      class = "check_nchars_10"</span></span>
-<span id="cb67-422"><a href="#cb67-422" aria-hidden="true" tabindex="-1"></a><span class="in">      )</span></span>
-<span id="cb67-423"><a href="#cb67-423" aria-hidden="true" tabindex="-1"></a><span class="in">  }</span></span>
-<span id="cb67-424"><a href="#cb67-424" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
-<span id="cb67-425"><a href="#cb67-425" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-426"><a href="#cb67-426" aria-hidden="true" tabindex="-1"></a><span class="in"># Must begin with 1 or 2</span></span>
-<span id="cb67-427"><a href="#cb67-427" aria-hidden="true" tabindex="-1"></a><span class="in">check_first_char &lt;- function(x) {</span></span>
-<span id="cb67-428"><a href="#cb67-428" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb67-429"><a href="#cb67-429" aria-hidden="true" tabindex="-1"></a><span class="in">  arg  &lt;- rlang::caller_arg(x)</span></span>
-<span id="cb67-430"><a href="#cb67-430" aria-hidden="true" tabindex="-1"></a><span class="in">  call &lt;- rlang::caller_env()</span></span>
-<span id="cb67-431"><a href="#cb67-431" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb67-432"><a href="#cb67-432" aria-hidden="true" tabindex="-1"></a><span class="in">  if (!stringfish::sf_substr(x, 1, 1) %in% c("1", "2")) {</span></span>
-<span id="cb67-433"><a href="#cb67-433" aria-hidden="true" tabindex="-1"></a><span class="in">    cli::cli_abort(</span></span>
-<span id="cb67-434"><a href="#cb67-434" aria-hidden="true" tabindex="-1"></a><span class="in">      "An {.arg {arg}} must start with a 1 or 2.", </span></span>
-<span id="cb67-435"><a href="#cb67-435" aria-hidden="true" tabindex="-1"></a><span class="in">      arg = arg, </span></span>
-<span id="cb67-436"><a href="#cb67-436" aria-hidden="true" tabindex="-1"></a><span class="in">      call = call,</span></span>
-<span id="cb67-437"><a href="#cb67-437" aria-hidden="true" tabindex="-1"></a><span class="in">      class = "check_first_char"</span></span>
-<span id="cb67-438"><a href="#cb67-438" aria-hidden="true" tabindex="-1"></a><span class="in">      )</span></span>
-<span id="cb67-439"><a href="#cb67-439" aria-hidden="true" tabindex="-1"></a><span class="in">  }</span></span>
-<span id="cb67-440"><a href="#cb67-440" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
-<span id="cb67-441"><a href="#cb67-441" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb67-442"><a href="#cb67-442" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-443"><a href="#cb67-443" aria-hidden="true" tabindex="-1"></a><span class="fu">## CLI Messages</span></span>
-<span id="cb67-444"><a href="#cb67-444" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-445"><a href="#cb67-445" aria-hidden="true" tabindex="-1"></a><span class="in">```{r filename="cli_messages.R"}</span></span>
-<span id="cb67-446"><a href="#cb67-446" aria-hidden="true" tabindex="-1"></a><span class="in">npi_inform &lt;- function(x, msg) {</span></span>
-<span id="cb67-447"><a href="#cb67-447" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb67-448"><a href="#cb67-448" aria-hidden="true" tabindex="-1"></a><span class="in">  arg  &lt;- rlang::caller_arg(x)</span></span>
-<span id="cb67-449"><a href="#cb67-449" aria-hidden="true" tabindex="-1"></a><span class="in">  call &lt;- rlang::caller_env()</span></span>
-<span id="cb67-450"><a href="#cb67-450" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb67-451"><a href="#cb67-451" aria-hidden="true" tabindex="-1"></a><span class="in">  rlang::inform(</span></span>
-<span id="cb67-452"><a href="#cb67-452" aria-hidden="true" tabindex="-1"></a><span class="in">    message = (</span></span>
-<span id="cb67-453"><a href="#cb67-453" aria-hidden="true" tabindex="-1"></a><span class="in">      c("*" = glue::glue("{msg}: {x}"))),</span></span>
-<span id="cb67-454"><a href="#cb67-454" aria-hidden="true" tabindex="-1"></a><span class="in">    use_cli_format = TRUE,</span></span>
-<span id="cb67-455"><a href="#cb67-455" aria-hidden="true" tabindex="-1"></a><span class="in">    arg = arg,</span></span>
-<span id="cb67-456"><a href="#cb67-456" aria-hidden="true" tabindex="-1"></a><span class="in">    call = call,</span></span>
-<span id="cb67-457"><a href="#cb67-457" aria-hidden="true" tabindex="-1"></a><span class="in">    class = "npi_inform"</span></span>
-<span id="cb67-458"><a href="#cb67-458" aria-hidden="true" tabindex="-1"></a><span class="in">  )</span></span>
-<span id="cb67-459"><a href="#cb67-459" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
-<span id="cb67-460"><a href="#cb67-460" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-461"><a href="#cb67-461" aria-hidden="true" tabindex="-1"></a><span class="in">npi_alert_invalid &lt;- function(x, y) {</span></span>
-<span id="cb67-462"><a href="#cb67-462" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb67-463"><a href="#cb67-463" aria-hidden="true" tabindex="-1"></a><span class="in">  arg  &lt;- rlang::caller_arg(x)</span></span>
-<span id="cb67-464"><a href="#cb67-464" aria-hidden="true" tabindex="-1"></a><span class="in">  call &lt;- rlang::caller_env()</span></span>
-<span id="cb67-465"><a href="#cb67-465" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb67-466"><a href="#cb67-466" aria-hidden="true" tabindex="-1"></a><span class="in">  rlang::inform(</span></span>
-<span id="cb67-467"><a href="#cb67-467" aria-hidden="true" tabindex="-1"></a><span class="in">    message = (c("x" = "NPI is invalid")),</span></span>
-<span id="cb67-468"><a href="#cb67-468" aria-hidden="true" tabindex="-1"></a><span class="in">    body = (c("!" = glue::glue("{x} != {y}"))),</span></span>
-<span id="cb67-469"><a href="#cb67-469" aria-hidden="true" tabindex="-1"></a><span class="in">    use_cli_format = TRUE,</span></span>
-<span id="cb67-470"><a href="#cb67-470" aria-hidden="true" tabindex="-1"></a><span class="in">    arg = arg,</span></span>
-<span id="cb67-471"><a href="#cb67-471" aria-hidden="true" tabindex="-1"></a><span class="in">    call = call,</span></span>
-<span id="cb67-472"><a href="#cb67-472" aria-hidden="true" tabindex="-1"></a><span class="in">    class = "npi_alert_invalid"</span></span>
-<span id="cb67-473"><a href="#cb67-473" aria-hidden="true" tabindex="-1"></a><span class="in">  )</span></span>
-<span id="cb67-474"><a href="#cb67-474" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
-<span id="cb67-475"><a href="#cb67-475" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-476"><a href="#cb67-476" aria-hidden="true" tabindex="-1"></a><span class="in">npi_alert_valid &lt;- function(x, y) {</span></span>
-<span id="cb67-477"><a href="#cb67-477" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb67-478"><a href="#cb67-478" aria-hidden="true" tabindex="-1"></a><span class="in">  arg  &lt;- rlang::caller_arg(x)</span></span>
-<span id="cb67-479"><a href="#cb67-479" aria-hidden="true" tabindex="-1"></a><span class="in">  call &lt;- rlang::caller_env()</span></span>
-<span id="cb67-480"><a href="#cb67-480" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb67-481"><a href="#cb67-481" aria-hidden="true" tabindex="-1"></a><span class="in">  rlang::inform(</span></span>
-<span id="cb67-482"><a href="#cb67-482" aria-hidden="true" tabindex="-1"></a><span class="in">    message = (c("v" = "NPI is valid")),</span></span>
-<span id="cb67-483"><a href="#cb67-483" aria-hidden="true" tabindex="-1"></a><span class="in">    body = (c("&gt;" = glue::glue("{x} == {y}"))),</span></span>
-<span id="cb67-484"><a href="#cb67-484" aria-hidden="true" tabindex="-1"></a><span class="in">    use_cli_format = TRUE,</span></span>
-<span id="cb67-485"><a href="#cb67-485" aria-hidden="true" tabindex="-1"></a><span class="in">    arg = arg,</span></span>
-<span id="cb67-486"><a href="#cb67-486" aria-hidden="true" tabindex="-1"></a><span class="in">    call = call,</span></span>
-<span id="cb67-487"><a href="#cb67-487" aria-hidden="true" tabindex="-1"></a><span class="in">    class = "npi_alert_valid"</span></span>
-<span id="cb67-488"><a href="#cb67-488" aria-hidden="true" tabindex="-1"></a><span class="in">  )</span></span>
-<span id="cb67-489"><a href="#cb67-489" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
-<span id="cb67-490"><a href="#cb67-490" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb67-491"><a href="#cb67-491" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-492"><a href="#cb67-492" aria-hidden="true" tabindex="-1"></a><span class="fu">## Constructor Function</span></span>
-<span id="cb67-493"><a href="#cb67-493" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-494"><a href="#cb67-494" aria-hidden="true" tabindex="-1"></a><span class="in">```{r filename="npi_constructor.R"}</span></span>
-<span id="cb67-495"><a href="#cb67-495" aria-hidden="true" tabindex="-1"></a><span class="in">npi_constructor &lt;- function(npi, verbose = TRUE) {</span></span>
-<span id="cb67-496"><a href="#cb67-496" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb67-497"><a href="#cb67-497" aria-hidden="true" tabindex="-1"></a><span class="in">  npi &lt;- numeric_to_char(npi)</span></span>
-<span id="cb67-498"><a href="#cb67-498" aria-hidden="true" tabindex="-1"></a><span class="in">  check_length(npi)</span></span>
-<span id="cb67-499"><a href="#cb67-499" aria-hidden="true" tabindex="-1"></a><span class="in">  check_chars_numeric(npi)</span></span>
-<span id="cb67-500"><a href="#cb67-500" aria-hidden="true" tabindex="-1"></a><span class="in">  check_nchars_10(npi)</span></span>
-<span id="cb67-501"><a href="#cb67-501" aria-hidden="true" tabindex="-1"></a><span class="in">  check_first_char(npi)</span></span>
-<span id="cb67-502"><a href="#cb67-502" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb67-503"><a href="#cb67-503" aria-hidden="true" tabindex="-1"></a><span class="in">  p &lt;- \(...) paste0(...)</span></span>
-<span id="cb67-504"><a href="#cb67-504" aria-hidden="true" tabindex="-1"></a><span class="in">  s &lt;- \(x) unlist(strsplit(x, ""), use.names = FALSE)</span></span>
-<span id="cb67-505"><a href="#cb67-505" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb67-506"><a href="#cb67-506" aria-hidden="true" tabindex="-1"></a><span class="in">  id &lt;- rev(s(npi)[1:9])</span></span>
-<span id="cb67-507"><a href="#cb67-507" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb67-508"><a href="#cb67-508" aria-hidden="true" tabindex="-1"></a><span class="in">  if (verbose) {</span></span>
-<span id="cb67-509"><a href="#cb67-509" aria-hidden="true" tabindex="-1"></a><span class="in">    npi_inform(npi, "Testing NPI candidate")</span></span>
-<span id="cb67-510"><a href="#cb67-510" aria-hidden="true" tabindex="-1"></a><span class="in">    npi_inform(p(id, collapse = ""), "Reverse 9-digit identifier")</span></span>
-<span id="cb67-511"><a href="#cb67-511" aria-hidden="true" tabindex="-1"></a><span class="in">  }</span></span>
-<span id="cb67-512"><a href="#cb67-512" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb67-513"><a href="#cb67-513" aria-hidden="true" tabindex="-1"></a><span class="in">  idx     &lt;- c(1, 3, 5, 7, 9)</span></span>
-<span id="cb67-514"><a href="#cb67-514" aria-hidden="true" tabindex="-1"></a><span class="in">  id      &lt;- as.numeric(id)</span></span>
-<span id="cb67-515"><a href="#cb67-515" aria-hidden="true" tabindex="-1"></a><span class="in">  id[idx] &lt;- as.numeric(id[idx]) * 2</span></span>
-<span id="cb67-516"><a href="#cb67-516" aria-hidden="true" tabindex="-1"></a><span class="in">  id[idx] &lt;- ifelse(id[idx] &gt; 9, id[idx] - 9, id[idx])</span></span>
-<span id="cb67-517"><a href="#cb67-517" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb67-518"><a href="#cb67-518" aria-hidden="true" tabindex="-1"></a><span class="in">  if (verbose) {</span></span>
-<span id="cb67-519"><a href="#cb67-519" aria-hidden="true" tabindex="-1"></a><span class="in">    npi_inform(p(id, collapse = " "), "Double &amp; reduce alternates")</span></span>
-<span id="cb67-520"><a href="#cb67-520" aria-hidden="true" tabindex="-1"></a><span class="in">  }</span></span>
-<span id="cb67-521"><a href="#cb67-521" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb67-522"><a href="#cb67-522" aria-hidden="true" tabindex="-1"></a><span class="in">  id   &lt;- sum(id)</span></span>
-<span id="cb67-523"><a href="#cb67-523" aria-hidden="true" tabindex="-1"></a><span class="in">  cn   &lt;- id + 24</span></span>
-<span id="cb67-524"><a href="#cb67-524" aria-hidden="true" tabindex="-1"></a><span class="in">  ml   &lt;- ceiling(cn / 10) * 10</span></span>
-<span id="cb67-525"><a href="#cb67-525" aria-hidden="true" tabindex="-1"></a><span class="in">  ck   &lt;- ml - cn</span></span>
-<span id="cb67-526"><a href="#cb67-526" aria-hidden="true" tabindex="-1"></a><span class="in">  test &lt;- substr(npi, 1, 9)</span></span>
-<span id="cb67-527"><a href="#cb67-527" aria-hidden="true" tabindex="-1"></a><span class="in">  test &lt;- p(test, ck)</span></span>
-<span id="cb67-528"><a href="#cb67-528" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb67-529"><a href="#cb67-529" aria-hidden="true" tabindex="-1"></a><span class="in">  if (verbose) {</span></span>
-<span id="cb67-530"><a href="#cb67-530" aria-hidden="true" tabindex="-1"></a><span class="in">    </span></span>
-<span id="cb67-531"><a href="#cb67-531" aria-hidden="true" tabindex="-1"></a><span class="in">    npi_inform(p(p(c(id, 24), collapse = " + "), p(" = ", cn)), "Add 24 to sum digits")</span></span>
-<span id="cb67-532"><a href="#cb67-532" aria-hidden="true" tabindex="-1"></a><span class="in">    npi_inform(p(p("⌈", cn, "⌉"), p(" = ", ml)) ,"Next multiple of 10")</span></span>
-<span id="cb67-533"><a href="#cb67-533" aria-hidden="true" tabindex="-1"></a><span class="in">    npi_inform(p(p(c(ml, cn), collapse = " - "), p(" = ", ck)), "Find check digit")</span></span>
-<span id="cb67-534"><a href="#cb67-534" aria-hidden="true" tabindex="-1"></a><span class="in">    npi_inform(p(test, collapse = ""), "Append check digit")</span></span>
-<span id="cb67-535"><a href="#cb67-535" aria-hidden="true" tabindex="-1"></a><span class="in">    </span></span>
-<span id="cb67-536"><a href="#cb67-536" aria-hidden="true" tabindex="-1"></a><span class="in">    if (identical(test, npi)) npi_alert_valid(test, npi)</span></span>
-<span id="cb67-537"><a href="#cb67-537" aria-hidden="true" tabindex="-1"></a><span class="in">    if (!identical(test, npi)) npi_alert_invalid(test, npi)</span></span>
-<span id="cb67-538"><a href="#cb67-538" aria-hidden="true" tabindex="-1"></a><span class="in">  }</span></span>
-<span id="cb67-539"><a href="#cb67-539" aria-hidden="true" tabindex="-1"></a><span class="in">  invisible(test)</span></span>
-<span id="cb67-540"><a href="#cb67-540" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
-<span id="cb67-541"><a href="#cb67-541" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb67-542"><a href="#cb67-542" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-543"><a href="#cb67-543" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Test Validations</span></span>
-<span id="cb67-544"><a href="#cb67-544" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-547"><a href="#cb67-547" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb67-548"><a href="#cb67-548" aria-hidden="true" tabindex="-1"></a><span class="co">#| error: true</span></span>
-<span id="cb67-549"><a href="#cb67-549" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: true</span></span>
-<span id="cb67-550"><a href="#cb67-550" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: true</span></span>
-<span id="cb67-551"><a href="#cb67-551" aria-hidden="true" tabindex="-1"></a><span class="fu">npi_constructor</span>(<span class="st">"123456789"</span>)</span>
-<span id="cb67-552"><a href="#cb67-552" aria-hidden="true" tabindex="-1"></a><span class="fu">npi_constructor</span>(<span class="st">"O123456789"</span>)</span>
-<span id="cb67-553"><a href="#cb67-553" aria-hidden="true" tabindex="-1"></a><span class="fu">npi_constructor</span>(<span class="st">"0000000000"</span>)</span>
-<span id="cb67-554"><a href="#cb67-554" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb67-555"><a href="#cb67-555" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-556"><a href="#cb67-556" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Test Verbose Output</span></span>
-<span id="cb67-557"><a href="#cb67-557" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-560"><a href="#cb67-560" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb67-561"><a href="#cb67-561" aria-hidden="true" tabindex="-1"></a><span class="co">#| error: true</span></span>
-<span id="cb67-562"><a href="#cb67-562" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: true</span></span>
-<span id="cb67-563"><a href="#cb67-563" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: true</span></span>
-<span id="cb67-564"><a href="#cb67-564" aria-hidden="true" tabindex="-1"></a><span class="fu">npi_constructor</span>(<span class="dv">1234567891</span>)</span>
-<span id="cb67-565"><a href="#cb67-565" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb67-566"><a href="#cb67-566" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-569"><a href="#cb67-569" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb67-570"><a href="#cb67-570" aria-hidden="true" tabindex="-1"></a><span class="co">#| error: true</span></span>
-<span id="cb67-571"><a href="#cb67-571" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: true</span></span>
-<span id="cb67-572"><a href="#cb67-572" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: true</span></span>
-<span id="cb67-573"><a href="#cb67-573" aria-hidden="true" tabindex="-1"></a><span class="fu">npi_constructor</span>(<span class="dv">1043477615</span>)</span>
-<span id="cb67-574"><a href="#cb67-574" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb67-575"><a href="#cb67-575" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-578"><a href="#cb67-578" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb67-579"><a href="#cb67-579" aria-hidden="true" tabindex="-1"></a><span class="co">#| error: true</span></span>
-<span id="cb67-580"><a href="#cb67-580" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: true</span></span>
-<span id="cb67-581"><a href="#cb67-581" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: true</span></span>
-<span id="cb67-582"><a href="#cb67-582" aria-hidden="true" tabindex="-1"></a><span class="fu">npi_constructor</span>(<span class="dv">1000000000</span>)</span>
-<span id="cb67-583"><a href="#cb67-583" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb67-584"><a href="#cb67-584" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-585"><a href="#cb67-585" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Test Verbose Option/Invisible Return</span></span>
-<span id="cb67-586"><a href="#cb67-586" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-589"><a href="#cb67-589" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb67-590"><a href="#cb67-590" aria-hidden="true" tabindex="-1"></a><span class="co">#| error: true</span></span>
-<span id="cb67-591"><a href="#cb67-591" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: true</span></span>
-<span id="cb67-592"><a href="#cb67-592" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: true</span></span>
-<span id="cb67-593"><a href="#cb67-593" aria-hidden="true" tabindex="-1"></a><span class="fu">npi_constructor</span>(<span class="dv">1000000000</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb67-594"><a href="#cb67-594" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-595"><a href="#cb67-595" aria-hidden="true" tabindex="-1"></a>new_npi <span class="ot">&lt;-</span> <span class="fu">npi_constructor</span>(<span class="dv">1000000000</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb67-596"><a href="#cb67-596" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-597"><a href="#cb67-597" aria-hidden="true" tabindex="-1"></a>new_npi</span>
-<span id="cb67-598"><a href="#cb67-598" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb67-599"><a href="#cb67-599" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-600"><a href="#cb67-600" aria-hidden="true" tabindex="-1"></a>{{&lt; pagebreak &gt;}}</span>
-<span id="cb67-601"><a href="#cb67-601" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-602"><a href="#cb67-602" aria-hidden="true" tabindex="-1"></a><span class="fu">## Minimal Validator</span></span>
-<span id="cb67-603"><a href="#cb67-603" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-604"><a href="#cb67-604" aria-hidden="true" tabindex="-1"></a><span class="in">```{r filename="is_valid_npi.R"}</span></span>
-<span id="cb67-605"><a href="#cb67-605" aria-hidden="true" tabindex="-1"></a><span class="in">is_valid_npi &lt;- function(npi) {</span></span>
-<span id="cb67-606"><a href="#cb67-606" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb67-607"><a href="#cb67-607" aria-hidden="true" tabindex="-1"></a><span class="in">  npi &lt;- numeric_to_char(npi)</span></span>
-<span id="cb67-608"><a href="#cb67-608" aria-hidden="true" tabindex="-1"></a><span class="in">  check_length(npi)</span></span>
-<span id="cb67-609"><a href="#cb67-609" aria-hidden="true" tabindex="-1"></a><span class="in">  check_chars_numeric(npi)</span></span>
-<span id="cb67-610"><a href="#cb67-610" aria-hidden="true" tabindex="-1"></a><span class="in">  check_nchars_10(npi)</span></span>
-<span id="cb67-611"><a href="#cb67-611" aria-hidden="true" tabindex="-1"></a><span class="in">  check_first_char(npi)</span></span>
-<span id="cb67-612"><a href="#cb67-612" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb67-613"><a href="#cb67-613" aria-hidden="true" tabindex="-1"></a><span class="in">  p  &lt;- \(...) paste0(...)</span></span>
-<span id="cb67-614"><a href="#cb67-614" aria-hidden="true" tabindex="-1"></a><span class="in">  s  &lt;- \(x) unlist(strsplit(x, ""), use.names = FALSE)</span></span>
-<span id="cb67-615"><a href="#cb67-615" aria-hidden="true" tabindex="-1"></a><span class="in">  ix &lt;- c(1, 3, 5, 7, 9)</span></span>
-<span id="cb67-616"><a href="#cb67-616" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb67-617"><a href="#cb67-617" aria-hidden="true" tabindex="-1"></a><span class="in">  id     &lt;- as.numeric(rev(s(npi)[1:9]))</span></span>
-<span id="cb67-618"><a href="#cb67-618" aria-hidden="true" tabindex="-1"></a><span class="in">  id[ix] &lt;- id[ix] * 2</span></span>
-<span id="cb67-619"><a href="#cb67-619" aria-hidden="true" tabindex="-1"></a><span class="in">  id[ix] &lt;- ifelse(id[ix] &gt; 9, id[ix] - 9, id[ix])</span></span>
-<span id="cb67-620"><a href="#cb67-620" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb67-621"><a href="#cb67-621" aria-hidden="true" tabindex="-1"></a><span class="in">  id   &lt;- sum(id) + 24</span></span>
-<span id="cb67-622"><a href="#cb67-622" aria-hidden="true" tabindex="-1"></a><span class="in">  ck   &lt;- (ceiling(id / 10) * 10) - id</span></span>
-<span id="cb67-623"><a href="#cb67-623" aria-hidden="true" tabindex="-1"></a><span class="in">  test &lt;- p(substr(npi, 1, 9), ck)</span></span>
-<span id="cb67-624"><a href="#cb67-624" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb67-625"><a href="#cb67-625" aria-hidden="true" tabindex="-1"></a><span class="in">  identical(test, npi)</span></span>
-<span id="cb67-626"><a href="#cb67-626" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
-<span id="cb67-627"><a href="#cb67-627" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb67-628"><a href="#cb67-628" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-629"><a href="#cb67-629" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Test Validator</span></span>
-<span id="cb67-630"><a href="#cb67-630" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-633"><a href="#cb67-633" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb67-634"><a href="#cb67-634" aria-hidden="true" tabindex="-1"></a><span class="co">#| error: true</span></span>
-<span id="cb67-635"><a href="#cb67-635" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: true</span></span>
-<span id="cb67-636"><a href="#cb67-636" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: true</span></span>
-<span id="cb67-637"><a href="#cb67-637" aria-hidden="true" tabindex="-1"></a><span class="fu">is_valid_npi</span>(<span class="dv">123456789</span>)</span>
-<span id="cb67-638"><a href="#cb67-638" aria-hidden="true" tabindex="-1"></a><span class="fu">is_valid_npi</span>(<span class="st">"O123456789"</span>)</span>
-<span id="cb67-639"><a href="#cb67-639" aria-hidden="true" tabindex="-1"></a><span class="fu">is_valid_npi</span>(<span class="dv">0000000000</span>) <span class="co"># All leading zeroes will be dropped</span></span>
-<span id="cb67-640"><a href="#cb67-640" aria-hidden="true" tabindex="-1"></a><span class="fu">is_valid_npi</span>(<span class="dv">3000000000</span>)</span>
-<span id="cb67-641"><a href="#cb67-641" aria-hidden="true" tabindex="-1"></a><span class="fu">is_valid_npi</span>(<span class="dv">1043477615</span>)</span>
-<span id="cb67-642"><a href="#cb67-642" aria-hidden="true" tabindex="-1"></a><span class="fu">is_valid_npi</span>(<span class="dv">1234567891</span>)</span>
-<span id="cb67-643"><a href="#cb67-643" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb67-644"><a href="#cb67-644" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-647"><a href="#cb67-647" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb67-648"><a href="#cb67-648" aria-hidden="true" tabindex="-1"></a>random_npi_generator <span class="ot">&lt;-</span> \(n) {</span>
-<span id="cb67-649"><a href="#cb67-649" aria-hidden="true" tabindex="-1"></a>  <span class="fu">replicate</span>(</span>
-<span id="cb67-650"><a href="#cb67-650" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> n, </span>
-<span id="cb67-651"><a href="#cb67-651" aria-hidden="true" tabindex="-1"></a>    <span class="at">expr =</span> <span class="fu">paste0</span>(</span>
-<span id="cb67-652"><a href="#cb67-652" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="dv">1</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>), </span>
-<span id="cb67-653"><a href="#cb67-653" aria-hidden="true" tabindex="-1"></a>        <span class="fu">sample</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">9</span>, <span class="dv">9</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>)), </span>
-<span id="cb67-654"><a href="#cb67-654" aria-hidden="true" tabindex="-1"></a>      <span class="at">collapse =</span> <span class="st">""</span>))</span>
-<span id="cb67-655"><a href="#cb67-655" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb67-656"><a href="#cb67-656" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-657"><a href="#cb67-657" aria-hidden="true" tabindex="-1"></a><span class="fu">random_npi_generator</span>(<span class="dv">3</span>)</span>
-<span id="cb67-658"><a href="#cb67-658" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb67-659"><a href="#cb67-659" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-662"><a href="#cb67-662" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb67-663"><a href="#cb67-663" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">100000</span></span>
-<span id="cb67-664"><a href="#cb67-664" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">random_npi_generator</span>(n)</span>
-<span id="cb67-665"><a href="#cb67-665" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> x[collapse<span class="sc">::</span><span class="fu">whichv</span>(purrr<span class="sc">::</span><span class="fu">map_lgl</span>(x, is_valid_npi), <span class="cn">TRUE</span>)]</span>
-<span id="cb67-666"><a href="#cb67-666" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-667"><a href="#cb67-667" aria-hidden="true" tabindex="-1"></a><span class="fu">paste0</span>((<span class="fu">length</span>(y) <span class="sc">/</span> n) <span class="sc">*</span> <span class="dv">100</span>, <span class="st">"%"</span>)</span>
-<span id="cb67-668"><a href="#cb67-668" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-669"><a href="#cb67-669" aria-hidden="true" tabindex="-1"></a>bench<span class="sc">::</span><span class="fu">mark</span>(</span>
-<span id="cb67-670"><a href="#cb67-670" aria-hidden="true" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">map_lgl</span>(x, is_valid_npi)) <span class="sc">|&gt;</span> </span>
-<span id="cb67-671"><a href="#cb67-671" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">glimpse</span>()</span>
-<span id="cb67-672"><a href="#cb67-672" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb67-673"><a href="#cb67-673" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-674"><a href="#cb67-674" aria-hidden="true" tabindex="-1"></a>{{&lt; pagebreak &gt;}}</span>
-<span id="cb67-675"><a href="#cb67-675" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-676"><a href="#cb67-676" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-677"><a href="#cb67-677" aria-hidden="true" tabindex="-1"></a><span class="fu"># Session Information</span></span>
-<span id="cb67-678"><a href="#cb67-678" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-681"><a href="#cb67-681" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb67-682"><a href="#cb67-682" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: sessioninfo</span></span>
-<span id="cb67-683"><a href="#cb67-683" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
-<span id="cb67-684"><a href="#cb67-684" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: true</span></span>
-<span id="cb67-685"><a href="#cb67-685" aria-hidden="true" tabindex="-1"></a>sessioninfo<span class="sc">::</span><span class="fu">session_info</span>(<span class="at">pkgs =</span> <span class="st">"loaded"</span>, <span class="at">info =</span> <span class="st">"packages"</span>)</span>
-<span id="cb67-686"><a href="#cb67-686" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<div class="sourceCode" id="cb66" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "NPIs &amp; Luhn's Algorithm"</span></span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Step-by-step National Provider Identifier Validation with Luhn's Algorithm"</span></span>
+<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> "Experimenting with the CMS standard for NPI validation."</span></span>
+<span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb66-6"><a href="#cb66-6" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb66-7"><a href="#cb66-7" aria-hidden="true" tabindex="-1"></a><span class="co">    reference-location: margin</span></span>
+<span id="cb66-8"><a href="#cb66-8" aria-hidden="true" tabindex="-1"></a><span class="co">    other-links:</span></span>
+<span id="cb66-9"><a href="#cb66-9" aria-hidden="true" tabindex="-1"></a><span class="co">      - text: Luhn Algorithm</span></span>
+<span id="cb66-10"><a href="#cb66-10" aria-hidden="true" tabindex="-1"></a><span class="co">        icon: bookmark-plus</span></span>
+<span id="cb66-11"><a href="#cb66-11" aria-hidden="true" tabindex="-1"></a><span class="co">        href: https://en.wikipedia.org/wiki/Luhn_algorithm</span></span>
+<span id="cb66-12"><a href="#cb66-12" aria-hidden="true" tabindex="-1"></a><span class="co">      - text: ISO/IEC 7812</span></span>
+<span id="cb66-13"><a href="#cb66-13" aria-hidden="true" tabindex="-1"></a><span class="co">        icon: bookmark-plus</span></span>
+<span id="cb66-14"><a href="#cb66-14" aria-hidden="true" tabindex="-1"></a><span class="co">        href: https://en.wikipedia.org/wiki/ISO/IEC_7812</span></span>
+<span id="cb66-15"><a href="#cb66-15" aria-hidden="true" tabindex="-1"></a><span class="co">      - text: CMS NPI Standard</span></span>
+<span id="cb66-16"><a href="#cb66-16" aria-hidden="true" tabindex="-1"></a><span class="co">        icon: bookmark-plus</span></span>
+<span id="cb66-17"><a href="#cb66-17" aria-hidden="true" tabindex="-1"></a><span class="co">        href: https://www.cms.gov/Regulations-and-Guidance/Administrative-Simplification/NationalProvIdentStand/Downloads/NPIcheckdigit.pdf</span></span>
+<span id="cb66-18"><a href="#cb66-18" aria-hidden="true" tabindex="-1"></a><span class="co">      - text: CMS-10114 NPI Application</span></span>
+<span id="cb66-19"><a href="#cb66-19" aria-hidden="true" tabindex="-1"></a><span class="co">        icon: bookmark-plus</span></span>
+<span id="cb66-20"><a href="#cb66-20" aria-hidden="true" tabindex="-1"></a><span class="co">        href: https://www.cms.gov/medicare/cms-forms/cms-forms/downloads/cms10114.pdf</span></span>
+<span id="cb66-21"><a href="#cb66-21" aria-hidden="true" tabindex="-1"></a><span class="an">editor_options:</span><span class="co"> </span></span>
+<span id="cb66-22"><a href="#cb66-22" aria-hidden="true" tabindex="-1"></a><span class="co">  chunk_output_type: console</span></span>
+<span id="cb66-23"><a href="#cb66-23" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb66-24"><a href="#cb66-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-25"><a href="#cb66-25" aria-hidden="true" tabindex="-1"></a><span class="in">```{r setup}</span></span>
+<span id="cb66-26"><a href="#cb66-26" aria-hidden="true" tabindex="-1"></a><span class="in">#| message: false</span></span>
+<span id="cb66-27"><a href="#cb66-27" aria-hidden="true" tabindex="-1"></a><span class="in">#| warning: false</span></span>
+<span id="cb66-28"><a href="#cb66-28" aria-hidden="true" tabindex="-1"></a><span class="in">#| echo: false</span></span>
+<span id="cb66-29"><a href="#cb66-29" aria-hidden="true" tabindex="-1"></a><span class="in">#| cache: false</span></span>
+<span id="cb66-30"><a href="#cb66-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-31"><a href="#cb66-31" aria-hidden="true" tabindex="-1"></a><span class="in">knitr::opts_chunk$set(</span></span>
+<span id="cb66-32"><a href="#cb66-32" aria-hidden="true" tabindex="-1"></a><span class="in">  collapse  = FALSE,</span></span>
+<span id="cb66-33"><a href="#cb66-33" aria-hidden="true" tabindex="-1"></a><span class="in">  echo      = TRUE, </span></span>
+<span id="cb66-34"><a href="#cb66-34" aria-hidden="true" tabindex="-1"></a><span class="in">  message   = FALSE, </span></span>
+<span id="cb66-35"><a href="#cb66-35" aria-hidden="true" tabindex="-1"></a><span class="in">  warning   = FALSE,</span></span>
+<span id="cb66-36"><a href="#cb66-36" aria-hidden="true" tabindex="-1"></a><span class="in">  error     = TRUE,</span></span>
+<span id="cb66-37"><a href="#cb66-37" aria-hidden="true" tabindex="-1"></a><span class="in">  comment   = "",</span></span>
+<span id="cb66-38"><a href="#cb66-38" aria-hidden="true" tabindex="-1"></a><span class="in">  dpi       = 600, </span></span>
+<span id="cb66-39"><a href="#cb66-39" aria-hidden="true" tabindex="-1"></a><span class="in">  dev       = "ragg_png",</span></span>
+<span id="cb66-40"><a href="#cb66-40" aria-hidden="true" tabindex="-1"></a><span class="in">  out.width = "100%",</span></span>
+<span id="cb66-41"><a href="#cb66-41" aria-hidden="true" tabindex="-1"></a><span class="in">  fig.align = "center",</span></span>
+<span id="cb66-42"><a href="#cb66-42" aria-hidden="true" tabindex="-1"></a><span class="in">  fig.width = 8</span></span>
+<span id="cb66-43"><a href="#cb66-43" aria-hidden="true" tabindex="-1"></a><span class="in">)</span></span>
+<span id="cb66-44"><a href="#cb66-44" aria-hidden="true" tabindex="-1"></a><span class="in">options(scipen = 999)</span></span>
+<span id="cb66-45"><a href="#cb66-45" aria-hidden="true" tabindex="-1"></a><span class="in">library(tidyverse)</span></span>
+<span id="cb66-46"><a href="#cb66-46" aria-hidden="true" tabindex="-1"></a><span class="in">library(fuimus)</span></span>
+<span id="cb66-47"><a href="#cb66-47" aria-hidden="true" tabindex="-1"></a><span class="in">library(rlang)</span></span>
+<span id="cb66-48"><a href="#cb66-48" aria-hidden="true" tabindex="-1"></a><span class="in">library(cli)</span></span>
+<span id="cb66-49"><a href="#cb66-49" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-50"><a href="#cb66-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-51"><a href="#cb66-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-52"><a href="#cb66-52" aria-hidden="true" tabindex="-1"></a>A **National Provider Identifier (NPI)** is a unique 10-digit identification number assigned to health care providers in the United States through NPPES^<span class="co">[</span><span class="ot">NPPES is the National Plan and Provider Enumeration System (NPPES) NPI Registry, a free directory of all active NPI records.</span><span class="co">]</span> The Centers for Medicare &amp; Medicaid Services (CMS) developed the NPI as a way to standardize the identification of health care providers across the health care industry.</span>
+<span id="cb66-53"><a href="#cb66-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-54"><a href="#cb66-54" aria-hidden="true" tabindex="-1"></a><span class="fu"># CMS NPI Standard {#sec-cmsstandard}</span></span>
+<span id="cb66-55"><a href="#cb66-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-56"><a href="#cb66-56" aria-hidden="true" tabindex="-1"></a>The following is an excerpt from the CMS document on the NPI check digit calculation, <span class="co">[</span><span class="ot">Requirements for National Provider Identifier (NPI) and NPI Check Digit (2004-01-23)</span><span class="co">](https://www.cms.gov/Regulations-and-Guidance/Administrative-Simplification/NationalProvIdentStand/Downloads/NPIcheckdigit.pdf)</span>.</span>
+<span id="cb66-57"><a href="#cb66-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-58"><a href="#cb66-58" aria-hidden="true" tabindex="-1"></a><span class="fu">## NPI Requirements {#sec-requirements}</span></span>
+<span id="cb66-59"><a href="#cb66-59" aria-hidden="true" tabindex="-1"></a>|                              |                                                                                     |</span>
+<span id="cb66-60"><a href="#cb66-60" aria-hidden="true" tabindex="-1"></a>|------------------------------|-------------------------------------------------------------------------------------|</span>
+<span id="cb66-61"><a href="#cb66-61" aria-hidden="true" tabindex="-1"></a>| {{&lt; mi wrong_location &gt;}}    | Must consist of **10** numeric digits, with the 10&lt;sup&gt;th&lt;/sup&gt; as the check digit. |</span>
+<span id="cb66-62"><a href="#cb66-62" aria-hidden="true" tabindex="-1"></a>| {{&lt; mi explore_off &gt;}}       | Have no embedded intelligence.                                                      |</span>
+<span id="cb66-63"><a href="#cb66-63" aria-hidden="true" tabindex="-1"></a>| {{&lt; mi lightbulb_circle &gt;}}  | Begin with a <span class="in">`1`</span> or <span class="in">`2`</span>.^<span class="co">[</span><span class="ot">Use of other first digits for the NPI must be coordinated with the use of first digits by the standard health plan identifier, when it is adopted.</span><span class="co">]</span> |</span>
+<span id="cb66-64"><a href="#cb66-64" aria-hidden="true" tabindex="-1"></a>| {{&lt; mi pattern &gt;}}           | Be generated by a scattering algorithm using all possible numeric combinations.     |</span>
+<span id="cb66-65"><a href="#cb66-65" aria-hidden="true" tabindex="-1"></a>| {{&lt; mi fingerprint &gt;}}       | Be unique, without requiring database access for verification.                      |</span>
+<span id="cb66-66"><a href="#cb66-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-67"><a href="#cb66-67" aria-hidden="true" tabindex="-1"></a><span class="fu">## NPI Check Digit {#sec-checkdigit}</span></span>
+<span id="cb66-68"><a href="#cb66-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-69"><a href="#cb66-69" aria-hidden="true" tabindex="-1"></a>The check digit is calculated using the <span class="co">[</span><span class="ot">Luhn formula</span><span class="co">](https://en.wikipedia.org/wiki/Luhn_algorithm)</span> for computing the modulus 10 *double-add-double* check digit.^<span class="co">[</span><span class="ot">This algorithm is recognized as an ISO standard (ISO/IEC 7812) and is the specified check digit algorithm to be used for the card issuer identifier on a standard health identification card.</span><span class="co">]</span></span>
+<span id="cb66-70"><a href="#cb66-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-71"><a href="#cb66-71" aria-hidden="true" tabindex="-1"></a>When an NPI is used as a card issuer identifier on a standard health identification card, it is prefixed with **80840**, in which **80** indicates *health applications* and **840** indicates the *United States*.</span>
+<span id="cb66-72"><a href="#cb66-72" aria-hidden="true" tabindex="-1"></a>To enable this feature for any NPI, the check digit will always be calculated as if the prefix is present. For a non-prefixed NPI, this is accomplished by adding the constant **24** in step 2 of the calculation.</span>
+<span id="cb66-73"><a href="#cb66-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-74"><a href="#cb66-74" aria-hidden="true" tabindex="-1"></a><span class="fu">### Check Digit Calculation</span></span>
+<span id="cb66-75"><a href="#cb66-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-76"><a href="#cb66-76" aria-hidden="true" tabindex="-1"></a>The calculation is as follows:</span>
+<span id="cb66-77"><a href="#cb66-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-78"><a href="#cb66-78" aria-hidden="true" tabindex="-1"></a><span class="ss">   1. </span>Beginning with the rightmost digit, double the value of the alternate digits.</span>
+<span id="cb66-79"><a href="#cb66-79" aria-hidden="true" tabindex="-1"></a>   </span>
+<span id="cb66-80"><a href="#cb66-80" aria-hidden="true" tabindex="-1"></a><span class="ss">   1. </span>Add the individual digits of the products from Step 1 to the unaffected digits from the original number.</span>
+<span id="cb66-81"><a href="#cb66-81" aria-hidden="true" tabindex="-1"></a>   </span>
+<span id="cb66-82"><a href="#cb66-82" aria-hidden="true" tabindex="-1"></a><span class="ss">   1. </span>Subtract the result of step 2 from the next highest number ending in zero. This is the check digit.</span>
+<span id="cb66-83"><a href="#cb66-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-84"><a href="#cb66-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-85"><a href="#cb66-85" aria-hidden="true" tabindex="-1"></a>::: {#note-mod .callout-note}</span>
+<span id="cb66-86"><a href="#cb66-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-87"><a href="#cb66-87" aria-hidden="true" tabindex="-1"></a><span class="fu">### Next Multiple of Ten</span></span>
+<span id="cb66-88"><a href="#cb66-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-89"><a href="#cb66-89" aria-hidden="true" tabindex="-1"></a>The *next highest number ending in zero* is the next multiple of ten. </span>
+<span id="cb66-90"><a href="#cb66-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-91"><a href="#cb66-91" aria-hidden="true" tabindex="-1"></a>Specifically, for some number $n$, the next multiple of ten would be $n + (10 - (n \mod 10))$:</span>
+<span id="cb66-92"><a href="#cb66-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-95"><a href="#cb66-95" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb66-96"><a href="#cb66-96" aria-hidden="true" tabindex="-1"></a>next_10 <span class="ot">&lt;-</span> \(n) n <span class="sc">+</span> (<span class="dv">10</span> <span class="sc">-</span> (n <span class="sc">%%</span> <span class="dv">10</span>))</span>
+<span id="cb66-97"><a href="#cb66-97" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-98"><a href="#cb66-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-99"><a href="#cb66-99" aria-hidden="true" tabindex="-1"></a>For example, if $n$ is <span class="in">`23`</span>, the next multiple of ten is <span class="in">`30`</span>:</span>
+<span id="cb66-100"><a href="#cb66-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-103"><a href="#cb66-103" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb66-104"><a href="#cb66-104" aria-hidden="true" tabindex="-1"></a><span class="fu">next_10</span>(<span class="dv">23</span>)</span>
+<span id="cb66-105"><a href="#cb66-105" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-106"><a href="#cb66-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-107"><a href="#cb66-107" aria-hidden="true" tabindex="-1"></a>If $n$ is a multiple of ten, such as <span class="in">`50`</span>, the next multiple of 10 is <span class="in">`60`</span>:</span>
+<span id="cb66-108"><a href="#cb66-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-111"><a href="#cb66-111" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb66-112"><a href="#cb66-112" aria-hidden="true" tabindex="-1"></a><span class="fu">next_10</span>(<span class="dv">50</span>)</span>
+<span id="cb66-113"><a href="#cb66-113" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-114"><a href="#cb66-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-115"><a href="#cb66-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-116"><a href="#cb66-116" aria-hidden="true" tabindex="-1"></a>::: </span>
+<span id="cb66-117"><a href="#cb66-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-118"><a href="#cb66-118" aria-hidden="true" tabindex="-1"></a>{{&lt; pagebreak &gt;}}</span>
+<span id="cb66-119"><a href="#cb66-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-120"><a href="#cb66-120" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples</span></span>
+<span id="cb66-121"><a href="#cb66-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-122"><a href="#cb66-122" aria-hidden="true" tabindex="-1"></a>The following check digit calculation examples are reproduced from the CMS Standard document, which includes demonstrations for both prefixed and non-prefixed NPIs.</span>
+<span id="cb66-123"><a href="#cb66-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-124"><a href="#cb66-124" aria-hidden="true" tabindex="-1"></a>::: {.panel-tabset}</span>
+<span id="cb66-125"><a href="#cb66-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-126"><a href="#cb66-126" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prefix</span></span>
+<span id="cb66-127"><a href="#cb66-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-128"><a href="#cb66-128" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Assume the prefixed 9-position identifier is:</span></span>
+<span id="cb66-129"><a href="#cb66-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-132"><a href="#cb66-132" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb66-133"><a href="#cb66-133" aria-hidden="true" tabindex="-1"></a>(y <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">splitter</span>(<span class="st">"80840123456789"</span>)))</span>
+<span id="cb66-134"><a href="#cb66-134" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-135"><a href="#cb66-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-136"><a href="#cb66-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-139"><a href="#cb66-139" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb66-140"><a href="#cb66-140" aria-hidden="true" tabindex="-1"></a>prefix_id <span class="ot">&lt;-</span> \(x) {</span>
+<span id="cb66-141"><a href="#cb66-141" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.integer</span>(</span>
+<span id="cb66-142"><a href="#cb66-142" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unlist</span>(</span>
+<span id="cb66-143"><a href="#cb66-143" aria-hidden="true" tabindex="-1"></a>      <span class="fu">strsplit</span>(</span>
+<span id="cb66-144"><a href="#cb66-144" aria-hidden="true" tabindex="-1"></a>        <span class="fu">paste0</span>(<span class="dv">80840</span>, x), <span class="st">""</span>)</span>
+<span id="cb66-145"><a href="#cb66-145" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb66-146"><a href="#cb66-146" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb66-147"><a href="#cb66-147" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb66-148"><a href="#cb66-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-149"><a href="#cb66-149" aria-hidden="true" tabindex="-1"></a>(x <span class="ot">&lt;-</span> <span class="fu">prefix_id</span>(<span class="dv">123456789</span>))</span>
+<span id="cb66-150"><a href="#cb66-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-151"><a href="#cb66-151" aria-hidden="true" tabindex="-1"></a><span class="fu">all.equal</span>(x, y)</span>
+<span id="cb66-152"><a href="#cb66-152" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-153"><a href="#cb66-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-154"><a href="#cb66-154" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Beginning on the right, </span></span>
+<span id="cb66-155"><a href="#cb66-155" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; double the alternate digits: </span></span>
+<span id="cb66-156"><a href="#cb66-156" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; </span><span class="in">`8 0 8 8 0 2 2 6 4 10 6 14 8 18`</span></span>
+<span id="cb66-157"><a href="#cb66-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-160"><a href="#cb66-160" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb66-161"><a href="#cb66-161" aria-hidden="true" tabindex="-1"></a>reverse_double <span class="ot">&lt;-</span> \(x) {</span>
+<span id="cb66-162"><a href="#cb66-162" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb66-163"><a href="#cb66-163" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">rev</span>(x)</span>
+<span id="cb66-164"><a href="#cb66-164" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb66-165"><a href="#cb66-165" aria-hidden="true" tabindex="-1"></a>  idx <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>, <span class="dv">9</span>, <span class="dv">11</span>, <span class="dv">13</span>)</span>
+<span id="cb66-166"><a href="#cb66-166" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb66-167"><a href="#cb66-167" aria-hidden="true" tabindex="-1"></a>  x[idx] <span class="ot">&lt;-</span> x[idx] <span class="sc">*</span> <span class="dv">2</span></span>
+<span id="cb66-168"><a href="#cb66-168" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb66-169"><a href="#cb66-169" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rev</span>(x)</span>
+<span id="cb66-170"><a href="#cb66-170" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb66-171"><a href="#cb66-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-172"><a href="#cb66-172" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">reverse_double</span>(x)</span>
+<span id="cb66-173"><a href="#cb66-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-174"><a href="#cb66-174" aria-hidden="true" tabindex="-1"></a>x</span>
+<span id="cb66-175"><a href="#cb66-175" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-176"><a href="#cb66-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-177"><a href="#cb66-177" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Sum the *individual* digits: </span></span>
+<span id="cb66-178"><a href="#cb66-178" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; </span><span class="in">`8 + 0 + 8 + 8 +`</span><span class="at"> </span></span>
+<span id="cb66-179"><a href="#cb66-179" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; </span><span class="in">`0 + 2 + 2 + 6 +`</span><span class="at"> </span></span>
+<span id="cb66-180"><a href="#cb66-180" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; </span><span class="in">`4 + 1 + 0 + 6 +`</span></span>
+<span id="cb66-181"><a href="#cb66-181" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; </span><span class="in">`1 + 4 + 8 + 1 +`</span><span class="at"> </span></span>
+<span id="cb66-182"><a href="#cb66-182" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; </span><span class="in">`8 = 67`</span></span>
+<span id="cb66-183"><a href="#cb66-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-184"><a href="#cb66-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-187"><a href="#cb66-187" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb66-188"><a href="#cb66-188" aria-hidden="true" tabindex="-1"></a>add_digits <span class="ot">&lt;-</span> \(x) {</span>
+<span id="cb66-189"><a href="#cb66-189" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>(</span>
+<span id="cb66-190"><a href="#cb66-190" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.integer</span>(</span>
+<span id="cb66-191"><a href="#cb66-191" aria-hidden="true" tabindex="-1"></a>      <span class="fu">unlist</span>(</span>
+<span id="cb66-192"><a href="#cb66-192" aria-hidden="true" tabindex="-1"></a>        <span class="fu">strsplit</span>(</span>
+<span id="cb66-193"><a href="#cb66-193" aria-hidden="true" tabindex="-1"></a>          <span class="fu">as.character</span>(x), <span class="st">""</span>)</span>
+<span id="cb66-194"><a href="#cb66-194" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb66-195"><a href="#cb66-195" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb66-196"><a href="#cb66-196" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb66-197"><a href="#cb66-197" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb66-198"><a href="#cb66-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-199"><a href="#cb66-199" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">add_digits</span>(x)</span>
+<span id="cb66-200"><a href="#cb66-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-201"><a href="#cb66-201" aria-hidden="true" tabindex="-1"></a>x</span>
+<span id="cb66-202"><a href="#cb66-202" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-203"><a href="#cb66-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-204"><a href="#cb66-204" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Subtract the sum from the next multiple of 10. </span></span>
+<span id="cb66-205"><a href="#cb66-205" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; This is the check digit: </span><span class="in">`70 – 67 = 3`</span></span>
+<span id="cb66-206"><a href="#cb66-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-207"><a href="#cb66-207" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-210"><a href="#cb66-210" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb66-211"><a href="#cb66-211" aria-hidden="true" tabindex="-1"></a>check_digit <span class="ot">&lt;-</span> \(x) {</span>
+<span id="cb66-212"><a href="#cb66-212" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ceiling</span>(x <span class="sc">/</span> <span class="dv">10</span>) <span class="sc">*</span> <span class="dv">10</span> <span class="sc">-</span> x</span>
+<span id="cb66-213"><a href="#cb66-213" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb66-214"><a href="#cb66-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-215"><a href="#cb66-215" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">check_digit</span>(x)</span>
+<span id="cb66-216"><a href="#cb66-216" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-217"><a href="#cb66-217" aria-hidden="true" tabindex="-1"></a>x</span>
+<span id="cb66-218"><a href="#cb66-218" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-219"><a href="#cb66-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-220"><a href="#cb66-220" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Append the check digit to the </span></span>
+<span id="cb66-221"><a href="#cb66-221" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; identifier: </span><span class="in">`808401234567893`</span></span>
+<span id="cb66-222"><a href="#cb66-222" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-225"><a href="#cb66-225" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb66-226"><a href="#cb66-226" aria-hidden="true" tabindex="-1"></a>append_check <span class="ot">&lt;-</span> \(id, check) {</span>
+<span id="cb66-227"><a href="#cb66-227" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(</span>
+<span id="cb66-228"><a href="#cb66-228" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste0</span>(</span>
+<span id="cb66-229"><a href="#cb66-229" aria-hidden="true" tabindex="-1"></a>      <span class="fu">paste0</span>(</span>
+<span id="cb66-230"><a href="#cb66-230" aria-hidden="true" tabindex="-1"></a>        <span class="fu">prefix_id</span>(id), </span>
+<span id="cb66-231"><a href="#cb66-231" aria-hidden="true" tabindex="-1"></a>        <span class="at">collapse =</span> <span class="st">""</span>), </span>
+<span id="cb66-232"><a href="#cb66-232" aria-hidden="true" tabindex="-1"></a>      check)</span>
+<span id="cb66-233"><a href="#cb66-233" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb66-234"><a href="#cb66-234" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb66-235"><a href="#cb66-235" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-236"><a href="#cb66-236" aria-hidden="true" tabindex="-1"></a><span class="fu">append_check</span>(<span class="dv">123456789</span>, x)</span>
+<span id="cb66-237"><a href="#cb66-237" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-238"><a href="#cb66-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-239"><a href="#cb66-239" aria-hidden="true" tabindex="-1"></a><span class="fu">## Non-Prefix</span></span>
+<span id="cb66-240"><a href="#cb66-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-241"><a href="#cb66-241" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Assume the non-prefixed </span></span>
+<span id="cb66-242"><a href="#cb66-242" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; 9-position identifier </span></span>
+<span id="cb66-243"><a href="#cb66-243" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; is </span><span class="in">`123456789`</span></span>
+<span id="cb66-244"><a href="#cb66-244" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-247"><a href="#cb66-247" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb66-248"><a href="#cb66-248" aria-hidden="true" tabindex="-1"></a>split_id <span class="ot">&lt;-</span> \(x) {</span>
+<span id="cb66-249"><a href="#cb66-249" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.integer</span>(</span>
+<span id="cb66-250"><a href="#cb66-250" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unlist</span>(</span>
+<span id="cb66-251"><a href="#cb66-251" aria-hidden="true" tabindex="-1"></a>      <span class="fu">strsplit</span>(</span>
+<span id="cb66-252"><a href="#cb66-252" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as.character</span>(x), <span class="st">""</span></span>
+<span id="cb66-253"><a href="#cb66-253" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb66-254"><a href="#cb66-254" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb66-255"><a href="#cb66-255" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb66-256"><a href="#cb66-256" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb66-257"><a href="#cb66-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-258"><a href="#cb66-258" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">split_id</span>(<span class="dv">123456789</span>)</span>
+<span id="cb66-259"><a href="#cb66-259" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-260"><a href="#cb66-260" aria-hidden="true" tabindex="-1"></a>x</span>
+<span id="cb66-261"><a href="#cb66-261" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-262"><a href="#cb66-262" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-263"><a href="#cb66-263" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Beginning on the right, </span></span>
+<span id="cb66-264"><a href="#cb66-264" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; double the alternate digits:</span></span>
+<span id="cb66-265"><a href="#cb66-265" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; </span><span class="in">`2  2  6  4 10  6 14  8 18`</span></span>
+<span id="cb66-266"><a href="#cb66-266" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-269"><a href="#cb66-269" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb66-270"><a href="#cb66-270" aria-hidden="true" tabindex="-1"></a>reverse_double <span class="ot">&lt;-</span> \(x) {</span>
+<span id="cb66-271"><a href="#cb66-271" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb66-272"><a href="#cb66-272" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">rev</span>(x)</span>
+<span id="cb66-273"><a href="#cb66-273" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb66-274"><a href="#cb66-274" aria-hidden="true" tabindex="-1"></a>  idx <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>, <span class="dv">9</span>)</span>
+<span id="cb66-275"><a href="#cb66-275" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb66-276"><a href="#cb66-276" aria-hidden="true" tabindex="-1"></a>  x[idx] <span class="ot">&lt;-</span> x[idx] <span class="sc">*</span> <span class="dv">2</span></span>
+<span id="cb66-277"><a href="#cb66-277" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb66-278"><a href="#cb66-278" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rev</span>(x)</span>
+<span id="cb66-279"><a href="#cb66-279" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb66-280"><a href="#cb66-280" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-281"><a href="#cb66-281" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">reverse_double</span>(x)</span>
+<span id="cb66-282"><a href="#cb66-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-283"><a href="#cb66-283" aria-hidden="true" tabindex="-1"></a>x</span>
+<span id="cb66-284"><a href="#cb66-284" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-285"><a href="#cb66-285" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-286"><a href="#cb66-286" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Add constant 24 to the sum of the individual digits: </span></span>
+<span id="cb66-287"><a href="#cb66-287" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; </span><span class="in">`2 + 2 + 6 + 4 + 1 + 0 + 6 + 1 + 4 + 8 + 1 + 8 + 24 = 67`</span></span>
+<span id="cb66-288"><a href="#cb66-288" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-289"><a href="#cb66-289" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-292"><a href="#cb66-292" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb66-293"><a href="#cb66-293" aria-hidden="true" tabindex="-1"></a>sum_plus_24 <span class="ot">&lt;-</span> \(x) {</span>
+<span id="cb66-294"><a href="#cb66-294" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>(</span>
+<span id="cb66-295"><a href="#cb66-295" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.integer</span>(</span>
+<span id="cb66-296"><a href="#cb66-296" aria-hidden="true" tabindex="-1"></a>      <span class="fu">unlist</span>(</span>
+<span id="cb66-297"><a href="#cb66-297" aria-hidden="true" tabindex="-1"></a>        <span class="fu">strsplit</span>(</span>
+<span id="cb66-298"><a href="#cb66-298" aria-hidden="true" tabindex="-1"></a>          <span class="fu">as.character</span>(x), <span class="st">""</span>)</span>
+<span id="cb66-299"><a href="#cb66-299" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb66-300"><a href="#cb66-300" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb66-301"><a href="#cb66-301" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span> <span class="dv">24</span></span>
+<span id="cb66-302"><a href="#cb66-302" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb66-303"><a href="#cb66-303" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-304"><a href="#cb66-304" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">sum_plus_24</span>(x)</span>
+<span id="cb66-305"><a href="#cb66-305" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-306"><a href="#cb66-306" aria-hidden="true" tabindex="-1"></a>x</span>
+<span id="cb66-307"><a href="#cb66-307" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-308"><a href="#cb66-308" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-309"><a href="#cb66-309" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Subtract the sum from the next multiple of 10. </span></span>
+<span id="cb66-310"><a href="#cb66-310" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; This is the check digit: </span><span class="in">`70 – 67 = 3`</span></span>
+<span id="cb66-311"><a href="#cb66-311" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-314"><a href="#cb66-314" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb66-315"><a href="#cb66-315" aria-hidden="true" tabindex="-1"></a>check_digit <span class="ot">&lt;-</span> \(x) {</span>
+<span id="cb66-316"><a href="#cb66-316" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ceiling</span>(x <span class="sc">/</span> <span class="dv">10</span>) <span class="sc">*</span> <span class="dv">10</span> <span class="sc">-</span> x</span>
+<span id="cb66-317"><a href="#cb66-317" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb66-318"><a href="#cb66-318" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-319"><a href="#cb66-319" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">check_digit</span>(x)</span>
+<span id="cb66-320"><a href="#cb66-320" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-321"><a href="#cb66-321" aria-hidden="true" tabindex="-1"></a>x</span>
+<span id="cb66-322"><a href="#cb66-322" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-323"><a href="#cb66-323" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-324"><a href="#cb66-324" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Append the check digit to </span></span>
+<span id="cb66-325"><a href="#cb66-325" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; the identifier: </span><span class="in">`1234567893`</span></span>
+<span id="cb66-326"><a href="#cb66-326" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-329"><a href="#cb66-329" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb66-330"><a href="#cb66-330" aria-hidden="true" tabindex="-1"></a>append_check <span class="ot">&lt;-</span> \(id, check) {</span>
+<span id="cb66-331"><a href="#cb66-331" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(</span>
+<span id="cb66-332"><a href="#cb66-332" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste0</span>(</span>
+<span id="cb66-333"><a href="#cb66-333" aria-hidden="true" tabindex="-1"></a>      id, </span>
+<span id="cb66-334"><a href="#cb66-334" aria-hidden="true" tabindex="-1"></a>      check</span>
+<span id="cb66-335"><a href="#cb66-335" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb66-336"><a href="#cb66-336" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb66-337"><a href="#cb66-337" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb66-338"><a href="#cb66-338" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-339"><a href="#cb66-339" aria-hidden="true" tabindex="-1"></a><span class="fu">append_check</span>(<span class="dv">123456789</span>, x)</span>
+<span id="cb66-340"><a href="#cb66-340" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-341"><a href="#cb66-341" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-342"><a href="#cb66-342" aria-hidden="true" tabindex="-1"></a>::: </span>
+<span id="cb66-343"><a href="#cb66-343" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-344"><a href="#cb66-344" aria-hidden="true" tabindex="-1"></a>{{&lt; pagebreak &gt;}}</span>
+<span id="cb66-345"><a href="#cb66-345" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-346"><a href="#cb66-346" aria-hidden="true" tabindex="-1"></a><span class="fu"># Function Goals {#sec-goals}</span></span>
+<span id="cb66-347"><a href="#cb66-347" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-348"><a href="#cb66-348" aria-hidden="true" tabindex="-1"></a>I want to build a function that constructs a valid NPI from a 10-digit NPI "candidate." The function should print the validation steps to the console. </span>
+<span id="cb66-349"><a href="#cb66-349" aria-hidden="true" tabindex="-1"></a>If the input is syntactically valid, it should return the original NPI invisibly along with a <span class="in">`success!`</span> message. If invalid, it should return the valid NPI with a <span class="in">`warning!`</span> message.</span>
+<span id="cb66-350"><a href="#cb66-350" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-351"><a href="#cb66-351" aria-hidden="true" tabindex="-1"></a>There should also be a <span class="in">`verbose`</span> option to silence the messages and return only the valid NPI. And finally, a minimal version that simply returns <span class="in">`TRUE`</span> or <span class="in">`FALSE`</span>.</span>
+<span id="cb66-352"><a href="#cb66-352" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-353"><a href="#cb66-353" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-354"><a href="#cb66-354" aria-hidden="true" tabindex="-1"></a><span class="fu">## Validating the Input</span></span>
+<span id="cb66-355"><a href="#cb66-355" aria-hidden="true" tabindex="-1"></a>   </span>
+<span id="cb66-356"><a href="#cb66-356" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span>Input string (<span class="in">`x`</span>) validation order:</span>
+<span id="cb66-357"><a href="#cb66-357" aria-hidden="true" tabindex="-1"></a><span class="ss">      + </span>Abort if not <span class="in">`length(x) == 1`</span></span>
+<span id="cb66-358"><a href="#cb66-358" aria-hidden="true" tabindex="-1"></a><span class="ss">      + </span>Abort if not 10 characters long</span>
+<span id="cb66-359"><a href="#cb66-359" aria-hidden="true" tabindex="-1"></a><span class="ss">      + </span>Abort if any elements of <span class="in">`x`</span> are not <span class="in">`0-9`</span></span>
+<span id="cb66-360"><a href="#cb66-360" aria-hidden="true" tabindex="-1"></a><span class="ss">      + </span>Abort if first element is not <span class="in">`"1"`</span> or <span class="in">`"2"`</span></span>
+<span id="cb66-361"><a href="#cb66-361" aria-hidden="true" tabindex="-1"></a><span class="ss">      + </span>Coerce to <span class="in">`&lt;character&gt;`</span> if <span class="in">`x`</span> is a <span class="in">`&lt;numeric&gt;`</span> vector</span>
+<span id="cb66-362"><a href="#cb66-362" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-363"><a href="#cb66-363" aria-hidden="true" tabindex="-1"></a><span class="in">```{r filename="input_validation.R"}</span></span>
+<span id="cb66-364"><a href="#cb66-364" aria-hidden="true" tabindex="-1"></a><span class="in">#| error: true</span></span>
+<span id="cb66-365"><a href="#cb66-365" aria-hidden="true" tabindex="-1"></a><span class="in">#| message: true</span></span>
+<span id="cb66-366"><a href="#cb66-366" aria-hidden="true" tabindex="-1"></a><span class="in"># Abort if `x` is `length(x) != 1`</span></span>
+<span id="cb66-367"><a href="#cb66-367" aria-hidden="true" tabindex="-1"></a><span class="in">check_length &lt;- function(x) {</span></span>
+<span id="cb66-368"><a href="#cb66-368" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb66-369"><a href="#cb66-369" aria-hidden="true" tabindex="-1"></a><span class="in">  arg  &lt;- rlang::caller_arg(x)</span></span>
+<span id="cb66-370"><a href="#cb66-370" aria-hidden="true" tabindex="-1"></a><span class="in">  call &lt;- rlang::caller_env()</span></span>
+<span id="cb66-371"><a href="#cb66-371" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb66-372"><a href="#cb66-372" aria-hidden="true" tabindex="-1"></a><span class="in">  if (length(x) != 1) {</span></span>
+<span id="cb66-373"><a href="#cb66-373" aria-hidden="true" tabindex="-1"></a><span class="in">    cli::cli_abort(</span></span>
+<span id="cb66-374"><a href="#cb66-374" aria-hidden="true" tabindex="-1"></a><span class="in">      "{.arg {arg}} must be of length 1.", </span></span>
+<span id="cb66-375"><a href="#cb66-375" aria-hidden="true" tabindex="-1"></a><span class="in">      arg = arg, </span></span>
+<span id="cb66-376"><a href="#cb66-376" aria-hidden="true" tabindex="-1"></a><span class="in">      call = call,</span></span>
+<span id="cb66-377"><a href="#cb66-377" aria-hidden="true" tabindex="-1"></a><span class="in">      class = "check_length"</span></span>
+<span id="cb66-378"><a href="#cb66-378" aria-hidden="true" tabindex="-1"></a><span class="in">      )</span></span>
+<span id="cb66-379"><a href="#cb66-379" aria-hidden="true" tabindex="-1"></a><span class="in">  }</span></span>
+<span id="cb66-380"><a href="#cb66-380" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb66-381"><a href="#cb66-381" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-382"><a href="#cb66-382" aria-hidden="true" tabindex="-1"></a><span class="in"># If `x` is a `&lt;numeric&gt;` </span></span>
+<span id="cb66-383"><a href="#cb66-383" aria-hidden="true" tabindex="-1"></a><span class="in"># vector, coerce to `&lt;character&gt;`</span></span>
+<span id="cb66-384"><a href="#cb66-384" aria-hidden="true" tabindex="-1"></a><span class="in">numeric_to_char &lt;- function(x) {</span></span>
+<span id="cb66-385"><a href="#cb66-385" aria-hidden="true" tabindex="-1"></a><span class="in">  if (!rlang::is_character(x)) { </span></span>
+<span id="cb66-386"><a href="#cb66-386" aria-hidden="true" tabindex="-1"></a><span class="in">    as.character(x)</span></span>
+<span id="cb66-387"><a href="#cb66-387" aria-hidden="true" tabindex="-1"></a><span class="in">  } else {</span></span>
+<span id="cb66-388"><a href="#cb66-388" aria-hidden="true" tabindex="-1"></a><span class="in">    x  </span></span>
+<span id="cb66-389"><a href="#cb66-389" aria-hidden="true" tabindex="-1"></a><span class="in">  }</span></span>
+<span id="cb66-390"><a href="#cb66-390" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb66-391"><a href="#cb66-391" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-392"><a href="#cb66-392" aria-hidden="true" tabindex="-1"></a><span class="in"># Abort if any of `x`'s </span></span>
+<span id="cb66-393"><a href="#cb66-393" aria-hidden="true" tabindex="-1"></a><span class="in"># elements are not numbers</span></span>
+<span id="cb66-394"><a href="#cb66-394" aria-hidden="true" tabindex="-1"></a><span class="in">check_chars_numeric &lt;- function(x) {</span></span>
+<span id="cb66-395"><a href="#cb66-395" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb66-396"><a href="#cb66-396" aria-hidden="true" tabindex="-1"></a><span class="in">  arg  &lt;- rlang::caller_arg(x)</span></span>
+<span id="cb66-397"><a href="#cb66-397" aria-hidden="true" tabindex="-1"></a><span class="in">  call &lt;- rlang::caller_env()</span></span>
+<span id="cb66-398"><a href="#cb66-398" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb66-399"><a href="#cb66-399" aria-hidden="true" tabindex="-1"></a><span class="in">  if (!stringfish::sf_grepl(x, "^[[:digit:]]+$")) {</span></span>
+<span id="cb66-400"><a href="#cb66-400" aria-hidden="true" tabindex="-1"></a><span class="in">    cli::cli_abort(</span></span>
+<span id="cb66-401"><a href="#cb66-401" aria-hidden="true" tabindex="-1"></a><span class="in">      "An {.arg {arg}} must contain numbers only.", </span></span>
+<span id="cb66-402"><a href="#cb66-402" aria-hidden="true" tabindex="-1"></a><span class="in">      arg = arg, </span></span>
+<span id="cb66-403"><a href="#cb66-403" aria-hidden="true" tabindex="-1"></a><span class="in">      call = call,</span></span>
+<span id="cb66-404"><a href="#cb66-404" aria-hidden="true" tabindex="-1"></a><span class="in">      class = "check_chars_numeric"</span></span>
+<span id="cb66-405"><a href="#cb66-405" aria-hidden="true" tabindex="-1"></a><span class="in">      )</span></span>
+<span id="cb66-406"><a href="#cb66-406" aria-hidden="true" tabindex="-1"></a><span class="in">  }</span></span>
+<span id="cb66-407"><a href="#cb66-407" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb66-408"><a href="#cb66-408" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-409"><a href="#cb66-409" aria-hidden="true" tabindex="-1"></a><span class="in"># Abort if `x` is not </span></span>
+<span id="cb66-410"><a href="#cb66-410" aria-hidden="true" tabindex="-1"></a><span class="in"># 10 characters long</span></span>
+<span id="cb66-411"><a href="#cb66-411" aria-hidden="true" tabindex="-1"></a><span class="in">check_nchars_10 &lt;- function(x) {</span></span>
+<span id="cb66-412"><a href="#cb66-412" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb66-413"><a href="#cb66-413" aria-hidden="true" tabindex="-1"></a><span class="in">  arg  &lt;- rlang::caller_arg(x)</span></span>
+<span id="cb66-414"><a href="#cb66-414" aria-hidden="true" tabindex="-1"></a><span class="in">  call &lt;- rlang::caller_env()</span></span>
+<span id="cb66-415"><a href="#cb66-415" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb66-416"><a href="#cb66-416" aria-hidden="true" tabindex="-1"></a><span class="in">  if (stringfish::sf_nchar(x) != 10L) {</span></span>
+<span id="cb66-417"><a href="#cb66-417" aria-hidden="true" tabindex="-1"></a><span class="in">    cli::cli_abort(</span></span>
+<span id="cb66-418"><a href="#cb66-418" aria-hidden="true" tabindex="-1"></a><span class="in">      "An {.arg {arg}} must be 10 characters long.", </span></span>
+<span id="cb66-419"><a href="#cb66-419" aria-hidden="true" tabindex="-1"></a><span class="in">      arg = arg, </span></span>
+<span id="cb66-420"><a href="#cb66-420" aria-hidden="true" tabindex="-1"></a><span class="in">      call = call,</span></span>
+<span id="cb66-421"><a href="#cb66-421" aria-hidden="true" tabindex="-1"></a><span class="in">      class = "check_nchars_10"</span></span>
+<span id="cb66-422"><a href="#cb66-422" aria-hidden="true" tabindex="-1"></a><span class="in">      )</span></span>
+<span id="cb66-423"><a href="#cb66-423" aria-hidden="true" tabindex="-1"></a><span class="in">  }</span></span>
+<span id="cb66-424"><a href="#cb66-424" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb66-425"><a href="#cb66-425" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-426"><a href="#cb66-426" aria-hidden="true" tabindex="-1"></a><span class="in"># Must begin with 1 or 2</span></span>
+<span id="cb66-427"><a href="#cb66-427" aria-hidden="true" tabindex="-1"></a><span class="in">check_first_char &lt;- function(x) {</span></span>
+<span id="cb66-428"><a href="#cb66-428" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb66-429"><a href="#cb66-429" aria-hidden="true" tabindex="-1"></a><span class="in">  arg  &lt;- rlang::caller_arg(x)</span></span>
+<span id="cb66-430"><a href="#cb66-430" aria-hidden="true" tabindex="-1"></a><span class="in">  call &lt;- rlang::caller_env()</span></span>
+<span id="cb66-431"><a href="#cb66-431" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb66-432"><a href="#cb66-432" aria-hidden="true" tabindex="-1"></a><span class="in">  if (!stringfish::sf_substr(x, 1, 1) %in% c("1", "2")) {</span></span>
+<span id="cb66-433"><a href="#cb66-433" aria-hidden="true" tabindex="-1"></a><span class="in">    cli::cli_abort(</span></span>
+<span id="cb66-434"><a href="#cb66-434" aria-hidden="true" tabindex="-1"></a><span class="in">      "An {.arg {arg}} must start with a 1 or 2.", </span></span>
+<span id="cb66-435"><a href="#cb66-435" aria-hidden="true" tabindex="-1"></a><span class="in">      arg = arg, </span></span>
+<span id="cb66-436"><a href="#cb66-436" aria-hidden="true" tabindex="-1"></a><span class="in">      call = call,</span></span>
+<span id="cb66-437"><a href="#cb66-437" aria-hidden="true" tabindex="-1"></a><span class="in">      class = "check_first_char"</span></span>
+<span id="cb66-438"><a href="#cb66-438" aria-hidden="true" tabindex="-1"></a><span class="in">      )</span></span>
+<span id="cb66-439"><a href="#cb66-439" aria-hidden="true" tabindex="-1"></a><span class="in">  }</span></span>
+<span id="cb66-440"><a href="#cb66-440" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb66-441"><a href="#cb66-441" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-442"><a href="#cb66-442" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-443"><a href="#cb66-443" aria-hidden="true" tabindex="-1"></a><span class="fu">## CLI Messages</span></span>
+<span id="cb66-444"><a href="#cb66-444" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-445"><a href="#cb66-445" aria-hidden="true" tabindex="-1"></a><span class="in">```{r filename="cli_messages.R"}</span></span>
+<span id="cb66-446"><a href="#cb66-446" aria-hidden="true" tabindex="-1"></a><span class="in">npi_inform &lt;- function(x, msg) {</span></span>
+<span id="cb66-447"><a href="#cb66-447" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb66-448"><a href="#cb66-448" aria-hidden="true" tabindex="-1"></a><span class="in">  arg  &lt;- rlang::caller_arg(x)</span></span>
+<span id="cb66-449"><a href="#cb66-449" aria-hidden="true" tabindex="-1"></a><span class="in">  call &lt;- rlang::caller_env()</span></span>
+<span id="cb66-450"><a href="#cb66-450" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb66-451"><a href="#cb66-451" aria-hidden="true" tabindex="-1"></a><span class="in">  rlang::inform(</span></span>
+<span id="cb66-452"><a href="#cb66-452" aria-hidden="true" tabindex="-1"></a><span class="in">    message = (</span></span>
+<span id="cb66-453"><a href="#cb66-453" aria-hidden="true" tabindex="-1"></a><span class="in">      c("*" = glue::glue("{msg}: {x}"))),</span></span>
+<span id="cb66-454"><a href="#cb66-454" aria-hidden="true" tabindex="-1"></a><span class="in">    use_cli_format = TRUE,</span></span>
+<span id="cb66-455"><a href="#cb66-455" aria-hidden="true" tabindex="-1"></a><span class="in">    arg = arg,</span></span>
+<span id="cb66-456"><a href="#cb66-456" aria-hidden="true" tabindex="-1"></a><span class="in">    call = call,</span></span>
+<span id="cb66-457"><a href="#cb66-457" aria-hidden="true" tabindex="-1"></a><span class="in">    class = "npi_inform"</span></span>
+<span id="cb66-458"><a href="#cb66-458" aria-hidden="true" tabindex="-1"></a><span class="in">  )</span></span>
+<span id="cb66-459"><a href="#cb66-459" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb66-460"><a href="#cb66-460" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-461"><a href="#cb66-461" aria-hidden="true" tabindex="-1"></a><span class="in">npi_alert_invalid &lt;- function(x, y) {</span></span>
+<span id="cb66-462"><a href="#cb66-462" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb66-463"><a href="#cb66-463" aria-hidden="true" tabindex="-1"></a><span class="in">  arg  &lt;- rlang::caller_arg(x)</span></span>
+<span id="cb66-464"><a href="#cb66-464" aria-hidden="true" tabindex="-1"></a><span class="in">  call &lt;- rlang::caller_env()</span></span>
+<span id="cb66-465"><a href="#cb66-465" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb66-466"><a href="#cb66-466" aria-hidden="true" tabindex="-1"></a><span class="in">  rlang::inform(</span></span>
+<span id="cb66-467"><a href="#cb66-467" aria-hidden="true" tabindex="-1"></a><span class="in">    message = (c("x" = "NPI is invalid")),</span></span>
+<span id="cb66-468"><a href="#cb66-468" aria-hidden="true" tabindex="-1"></a><span class="in">    body = (c("!" = glue::glue("{x} != {y}"))),</span></span>
+<span id="cb66-469"><a href="#cb66-469" aria-hidden="true" tabindex="-1"></a><span class="in">    use_cli_format = TRUE,</span></span>
+<span id="cb66-470"><a href="#cb66-470" aria-hidden="true" tabindex="-1"></a><span class="in">    arg = arg,</span></span>
+<span id="cb66-471"><a href="#cb66-471" aria-hidden="true" tabindex="-1"></a><span class="in">    call = call,</span></span>
+<span id="cb66-472"><a href="#cb66-472" aria-hidden="true" tabindex="-1"></a><span class="in">    class = "npi_alert_invalid"</span></span>
+<span id="cb66-473"><a href="#cb66-473" aria-hidden="true" tabindex="-1"></a><span class="in">  )</span></span>
+<span id="cb66-474"><a href="#cb66-474" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb66-475"><a href="#cb66-475" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-476"><a href="#cb66-476" aria-hidden="true" tabindex="-1"></a><span class="in">npi_alert_valid &lt;- function(x, y) {</span></span>
+<span id="cb66-477"><a href="#cb66-477" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb66-478"><a href="#cb66-478" aria-hidden="true" tabindex="-1"></a><span class="in">  arg  &lt;- rlang::caller_arg(x)</span></span>
+<span id="cb66-479"><a href="#cb66-479" aria-hidden="true" tabindex="-1"></a><span class="in">  call &lt;- rlang::caller_env()</span></span>
+<span id="cb66-480"><a href="#cb66-480" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb66-481"><a href="#cb66-481" aria-hidden="true" tabindex="-1"></a><span class="in">  rlang::inform(</span></span>
+<span id="cb66-482"><a href="#cb66-482" aria-hidden="true" tabindex="-1"></a><span class="in">    message = (c("v" = "NPI is valid")),</span></span>
+<span id="cb66-483"><a href="#cb66-483" aria-hidden="true" tabindex="-1"></a><span class="in">    body = (c("&gt;" = glue::glue("{x} == {y}"))),</span></span>
+<span id="cb66-484"><a href="#cb66-484" aria-hidden="true" tabindex="-1"></a><span class="in">    use_cli_format = TRUE,</span></span>
+<span id="cb66-485"><a href="#cb66-485" aria-hidden="true" tabindex="-1"></a><span class="in">    arg = arg,</span></span>
+<span id="cb66-486"><a href="#cb66-486" aria-hidden="true" tabindex="-1"></a><span class="in">    call = call,</span></span>
+<span id="cb66-487"><a href="#cb66-487" aria-hidden="true" tabindex="-1"></a><span class="in">    class = "npi_alert_valid"</span></span>
+<span id="cb66-488"><a href="#cb66-488" aria-hidden="true" tabindex="-1"></a><span class="in">  )</span></span>
+<span id="cb66-489"><a href="#cb66-489" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb66-490"><a href="#cb66-490" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-491"><a href="#cb66-491" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-492"><a href="#cb66-492" aria-hidden="true" tabindex="-1"></a><span class="fu">## Constructor Function</span></span>
+<span id="cb66-493"><a href="#cb66-493" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-494"><a href="#cb66-494" aria-hidden="true" tabindex="-1"></a><span class="in">```{r filename="npi_constructor.R"}</span></span>
+<span id="cb66-495"><a href="#cb66-495" aria-hidden="true" tabindex="-1"></a><span class="in">npi_constructor &lt;- function(npi, verbose = TRUE) {</span></span>
+<span id="cb66-496"><a href="#cb66-496" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb66-497"><a href="#cb66-497" aria-hidden="true" tabindex="-1"></a><span class="in">  npi &lt;- numeric_to_char(npi)</span></span>
+<span id="cb66-498"><a href="#cb66-498" aria-hidden="true" tabindex="-1"></a><span class="in">  check_length(npi)</span></span>
+<span id="cb66-499"><a href="#cb66-499" aria-hidden="true" tabindex="-1"></a><span class="in">  check_chars_numeric(npi)</span></span>
+<span id="cb66-500"><a href="#cb66-500" aria-hidden="true" tabindex="-1"></a><span class="in">  check_nchars_10(npi)</span></span>
+<span id="cb66-501"><a href="#cb66-501" aria-hidden="true" tabindex="-1"></a><span class="in">  check_first_char(npi)</span></span>
+<span id="cb66-502"><a href="#cb66-502" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb66-503"><a href="#cb66-503" aria-hidden="true" tabindex="-1"></a><span class="in">  p &lt;- \(...) paste0(...)</span></span>
+<span id="cb66-504"><a href="#cb66-504" aria-hidden="true" tabindex="-1"></a><span class="in">  s &lt;- \(x) unlist(strsplit(x, ""), use.names = FALSE)</span></span>
+<span id="cb66-505"><a href="#cb66-505" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb66-506"><a href="#cb66-506" aria-hidden="true" tabindex="-1"></a><span class="in">  id &lt;- rev(s(npi)[1:9])</span></span>
+<span id="cb66-507"><a href="#cb66-507" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb66-508"><a href="#cb66-508" aria-hidden="true" tabindex="-1"></a><span class="in">  if (verbose) {</span></span>
+<span id="cb66-509"><a href="#cb66-509" aria-hidden="true" tabindex="-1"></a><span class="in">    npi_inform(npi, "Testing NPI candidate")</span></span>
+<span id="cb66-510"><a href="#cb66-510" aria-hidden="true" tabindex="-1"></a><span class="in">    npi_inform(p(id, collapse = ""), "Reverse 9-digit identifier")</span></span>
+<span id="cb66-511"><a href="#cb66-511" aria-hidden="true" tabindex="-1"></a><span class="in">  }</span></span>
+<span id="cb66-512"><a href="#cb66-512" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb66-513"><a href="#cb66-513" aria-hidden="true" tabindex="-1"></a><span class="in">  idx     &lt;- c(1, 3, 5, 7, 9)</span></span>
+<span id="cb66-514"><a href="#cb66-514" aria-hidden="true" tabindex="-1"></a><span class="in">  id      &lt;- as.numeric(id)</span></span>
+<span id="cb66-515"><a href="#cb66-515" aria-hidden="true" tabindex="-1"></a><span class="in">  id[idx] &lt;- as.numeric(id[idx]) * 2</span></span>
+<span id="cb66-516"><a href="#cb66-516" aria-hidden="true" tabindex="-1"></a><span class="in">  id[idx] &lt;- ifelse(id[idx] &gt; 9, id[idx] - 9, id[idx])</span></span>
+<span id="cb66-517"><a href="#cb66-517" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb66-518"><a href="#cb66-518" aria-hidden="true" tabindex="-1"></a><span class="in">  if (verbose) {</span></span>
+<span id="cb66-519"><a href="#cb66-519" aria-hidden="true" tabindex="-1"></a><span class="in">    npi_inform(p(id, collapse = " "), "Double &amp; reduce alternates")</span></span>
+<span id="cb66-520"><a href="#cb66-520" aria-hidden="true" tabindex="-1"></a><span class="in">  }</span></span>
+<span id="cb66-521"><a href="#cb66-521" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb66-522"><a href="#cb66-522" aria-hidden="true" tabindex="-1"></a><span class="in">  id   &lt;- sum(id)</span></span>
+<span id="cb66-523"><a href="#cb66-523" aria-hidden="true" tabindex="-1"></a><span class="in">  cn   &lt;- id + 24</span></span>
+<span id="cb66-524"><a href="#cb66-524" aria-hidden="true" tabindex="-1"></a><span class="in">  ml   &lt;- ceiling(cn / 10) * 10</span></span>
+<span id="cb66-525"><a href="#cb66-525" aria-hidden="true" tabindex="-1"></a><span class="in">  ck   &lt;- ml - cn</span></span>
+<span id="cb66-526"><a href="#cb66-526" aria-hidden="true" tabindex="-1"></a><span class="in">  test &lt;- substr(npi, 1, 9)</span></span>
+<span id="cb66-527"><a href="#cb66-527" aria-hidden="true" tabindex="-1"></a><span class="in">  test &lt;- p(test, ck)</span></span>
+<span id="cb66-528"><a href="#cb66-528" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb66-529"><a href="#cb66-529" aria-hidden="true" tabindex="-1"></a><span class="in">  if (verbose) {</span></span>
+<span id="cb66-530"><a href="#cb66-530" aria-hidden="true" tabindex="-1"></a><span class="in">    </span></span>
+<span id="cb66-531"><a href="#cb66-531" aria-hidden="true" tabindex="-1"></a><span class="in">    npi_inform(p(p(c(id, 24), collapse = " + "), p(" = ", cn)), "Add 24 to sum digits")</span></span>
+<span id="cb66-532"><a href="#cb66-532" aria-hidden="true" tabindex="-1"></a><span class="in">    npi_inform(p(p("⌈", cn, "⌉"), p(" = ", ml)) ,"Next multiple of 10")</span></span>
+<span id="cb66-533"><a href="#cb66-533" aria-hidden="true" tabindex="-1"></a><span class="in">    npi_inform(p(p(c(ml, cn), collapse = " - "), p(" = ", ck)), "Find check digit")</span></span>
+<span id="cb66-534"><a href="#cb66-534" aria-hidden="true" tabindex="-1"></a><span class="in">    npi_inform(p(test, collapse = ""), "Append check digit")</span></span>
+<span id="cb66-535"><a href="#cb66-535" aria-hidden="true" tabindex="-1"></a><span class="in">    </span></span>
+<span id="cb66-536"><a href="#cb66-536" aria-hidden="true" tabindex="-1"></a><span class="in">    if (identical(test, npi)) npi_alert_valid(test, npi)</span></span>
+<span id="cb66-537"><a href="#cb66-537" aria-hidden="true" tabindex="-1"></a><span class="in">    if (!identical(test, npi)) npi_alert_invalid(test, npi)</span></span>
+<span id="cb66-538"><a href="#cb66-538" aria-hidden="true" tabindex="-1"></a><span class="in">  }</span></span>
+<span id="cb66-539"><a href="#cb66-539" aria-hidden="true" tabindex="-1"></a><span class="in">  invisible(test)</span></span>
+<span id="cb66-540"><a href="#cb66-540" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb66-541"><a href="#cb66-541" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-542"><a href="#cb66-542" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-543"><a href="#cb66-543" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Test Validations</span></span>
+<span id="cb66-544"><a href="#cb66-544" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-547"><a href="#cb66-547" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb66-548"><a href="#cb66-548" aria-hidden="true" tabindex="-1"></a><span class="co">#| error: true</span></span>
+<span id="cb66-549"><a href="#cb66-549" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: true</span></span>
+<span id="cb66-550"><a href="#cb66-550" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: true</span></span>
+<span id="cb66-551"><a href="#cb66-551" aria-hidden="true" tabindex="-1"></a><span class="fu">npi_constructor</span>(<span class="st">"123456789"</span>)</span>
+<span id="cb66-552"><a href="#cb66-552" aria-hidden="true" tabindex="-1"></a><span class="fu">npi_constructor</span>(<span class="st">"O123456789"</span>)</span>
+<span id="cb66-553"><a href="#cb66-553" aria-hidden="true" tabindex="-1"></a><span class="fu">npi_constructor</span>(<span class="st">"0000000000"</span>)</span>
+<span id="cb66-554"><a href="#cb66-554" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-555"><a href="#cb66-555" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-556"><a href="#cb66-556" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Test Verbose Output</span></span>
+<span id="cb66-557"><a href="#cb66-557" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-560"><a href="#cb66-560" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb66-561"><a href="#cb66-561" aria-hidden="true" tabindex="-1"></a><span class="co">#| error: true</span></span>
+<span id="cb66-562"><a href="#cb66-562" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: true</span></span>
+<span id="cb66-563"><a href="#cb66-563" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: true</span></span>
+<span id="cb66-564"><a href="#cb66-564" aria-hidden="true" tabindex="-1"></a><span class="fu">npi_constructor</span>(<span class="dv">1234567891</span>)</span>
+<span id="cb66-565"><a href="#cb66-565" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-566"><a href="#cb66-566" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-569"><a href="#cb66-569" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb66-570"><a href="#cb66-570" aria-hidden="true" tabindex="-1"></a><span class="co">#| error: true</span></span>
+<span id="cb66-571"><a href="#cb66-571" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: true</span></span>
+<span id="cb66-572"><a href="#cb66-572" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: true</span></span>
+<span id="cb66-573"><a href="#cb66-573" aria-hidden="true" tabindex="-1"></a><span class="fu">npi_constructor</span>(<span class="dv">1043477615</span>)</span>
+<span id="cb66-574"><a href="#cb66-574" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-575"><a href="#cb66-575" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-578"><a href="#cb66-578" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb66-579"><a href="#cb66-579" aria-hidden="true" tabindex="-1"></a><span class="co">#| error: true</span></span>
+<span id="cb66-580"><a href="#cb66-580" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: true</span></span>
+<span id="cb66-581"><a href="#cb66-581" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: true</span></span>
+<span id="cb66-582"><a href="#cb66-582" aria-hidden="true" tabindex="-1"></a><span class="fu">npi_constructor</span>(<span class="dv">1000000000</span>)</span>
+<span id="cb66-583"><a href="#cb66-583" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-584"><a href="#cb66-584" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-585"><a href="#cb66-585" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Test Verbose Option/Invisible Return</span></span>
+<span id="cb66-586"><a href="#cb66-586" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-589"><a href="#cb66-589" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb66-590"><a href="#cb66-590" aria-hidden="true" tabindex="-1"></a><span class="co">#| error: true</span></span>
+<span id="cb66-591"><a href="#cb66-591" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: true</span></span>
+<span id="cb66-592"><a href="#cb66-592" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: true</span></span>
+<span id="cb66-593"><a href="#cb66-593" aria-hidden="true" tabindex="-1"></a><span class="fu">npi_constructor</span>(<span class="dv">1000000000</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb66-594"><a href="#cb66-594" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-595"><a href="#cb66-595" aria-hidden="true" tabindex="-1"></a>new_npi <span class="ot">&lt;-</span> <span class="fu">npi_constructor</span>(<span class="dv">1000000000</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb66-596"><a href="#cb66-596" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-597"><a href="#cb66-597" aria-hidden="true" tabindex="-1"></a>new_npi</span>
+<span id="cb66-598"><a href="#cb66-598" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-599"><a href="#cb66-599" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-600"><a href="#cb66-600" aria-hidden="true" tabindex="-1"></a>{{&lt; pagebreak &gt;}}</span>
+<span id="cb66-601"><a href="#cb66-601" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-602"><a href="#cb66-602" aria-hidden="true" tabindex="-1"></a><span class="fu">## Minimal Validator</span></span>
+<span id="cb66-603"><a href="#cb66-603" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-604"><a href="#cb66-604" aria-hidden="true" tabindex="-1"></a><span class="in">```{r filename="is_valid_npi.R"}</span></span>
+<span id="cb66-605"><a href="#cb66-605" aria-hidden="true" tabindex="-1"></a><span class="in">is_valid_npi &lt;- function(npi) {</span></span>
+<span id="cb66-606"><a href="#cb66-606" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb66-607"><a href="#cb66-607" aria-hidden="true" tabindex="-1"></a><span class="in">  npi &lt;- numeric_to_char(npi)</span></span>
+<span id="cb66-608"><a href="#cb66-608" aria-hidden="true" tabindex="-1"></a><span class="in">  check_length(npi)</span></span>
+<span id="cb66-609"><a href="#cb66-609" aria-hidden="true" tabindex="-1"></a><span class="in">  check_chars_numeric(npi)</span></span>
+<span id="cb66-610"><a href="#cb66-610" aria-hidden="true" tabindex="-1"></a><span class="in">  check_nchars_10(npi)</span></span>
+<span id="cb66-611"><a href="#cb66-611" aria-hidden="true" tabindex="-1"></a><span class="in">  check_first_char(npi)</span></span>
+<span id="cb66-612"><a href="#cb66-612" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb66-613"><a href="#cb66-613" aria-hidden="true" tabindex="-1"></a><span class="in">  p  &lt;- \(...) paste0(...)</span></span>
+<span id="cb66-614"><a href="#cb66-614" aria-hidden="true" tabindex="-1"></a><span class="in">  s  &lt;- \(x) unlist(strsplit(x, ""), use.names = FALSE)</span></span>
+<span id="cb66-615"><a href="#cb66-615" aria-hidden="true" tabindex="-1"></a><span class="in">  ix &lt;- c(1, 3, 5, 7, 9)</span></span>
+<span id="cb66-616"><a href="#cb66-616" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb66-617"><a href="#cb66-617" aria-hidden="true" tabindex="-1"></a><span class="in">  id     &lt;- as.numeric(rev(s(npi)[1:9]))</span></span>
+<span id="cb66-618"><a href="#cb66-618" aria-hidden="true" tabindex="-1"></a><span class="in">  id[ix] &lt;- id[ix] * 2</span></span>
+<span id="cb66-619"><a href="#cb66-619" aria-hidden="true" tabindex="-1"></a><span class="in">  id[ix] &lt;- ifelse(id[ix] &gt; 9, id[ix] - 9, id[ix])</span></span>
+<span id="cb66-620"><a href="#cb66-620" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb66-621"><a href="#cb66-621" aria-hidden="true" tabindex="-1"></a><span class="in">  id   &lt;- sum(id) + 24</span></span>
+<span id="cb66-622"><a href="#cb66-622" aria-hidden="true" tabindex="-1"></a><span class="in">  ck   &lt;- (ceiling(id / 10) * 10) - id</span></span>
+<span id="cb66-623"><a href="#cb66-623" aria-hidden="true" tabindex="-1"></a><span class="in">  test &lt;- p(substr(npi, 1, 9), ck)</span></span>
+<span id="cb66-624"><a href="#cb66-624" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb66-625"><a href="#cb66-625" aria-hidden="true" tabindex="-1"></a><span class="in">  identical(test, npi)</span></span>
+<span id="cb66-626"><a href="#cb66-626" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb66-627"><a href="#cb66-627" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-628"><a href="#cb66-628" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-629"><a href="#cb66-629" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Test Validator</span></span>
+<span id="cb66-630"><a href="#cb66-630" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-633"><a href="#cb66-633" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb66-634"><a href="#cb66-634" aria-hidden="true" tabindex="-1"></a><span class="co">#| error: true</span></span>
+<span id="cb66-635"><a href="#cb66-635" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: true</span></span>
+<span id="cb66-636"><a href="#cb66-636" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: true</span></span>
+<span id="cb66-637"><a href="#cb66-637" aria-hidden="true" tabindex="-1"></a><span class="fu">is_valid_npi</span>(<span class="dv">123456789</span>)</span>
+<span id="cb66-638"><a href="#cb66-638" aria-hidden="true" tabindex="-1"></a><span class="fu">is_valid_npi</span>(<span class="st">"O123456789"</span>)</span>
+<span id="cb66-639"><a href="#cb66-639" aria-hidden="true" tabindex="-1"></a><span class="fu">is_valid_npi</span>(<span class="dv">0000000000</span>) <span class="co"># All leading zeroes will be dropped</span></span>
+<span id="cb66-640"><a href="#cb66-640" aria-hidden="true" tabindex="-1"></a><span class="fu">is_valid_npi</span>(<span class="dv">3000000000</span>)</span>
+<span id="cb66-641"><a href="#cb66-641" aria-hidden="true" tabindex="-1"></a><span class="fu">is_valid_npi</span>(<span class="dv">1043477615</span>)</span>
+<span id="cb66-642"><a href="#cb66-642" aria-hidden="true" tabindex="-1"></a><span class="fu">is_valid_npi</span>(<span class="dv">1234567891</span>)</span>
+<span id="cb66-643"><a href="#cb66-643" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-644"><a href="#cb66-644" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-647"><a href="#cb66-647" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb66-648"><a href="#cb66-648" aria-hidden="true" tabindex="-1"></a>random_npi_generator <span class="ot">&lt;-</span> \(n) {</span>
+<span id="cb66-649"><a href="#cb66-649" aria-hidden="true" tabindex="-1"></a>  <span class="fu">replicate</span>(</span>
+<span id="cb66-650"><a href="#cb66-650" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> n, </span>
+<span id="cb66-651"><a href="#cb66-651" aria-hidden="true" tabindex="-1"></a>    <span class="at">expr =</span> <span class="fu">paste0</span>(</span>
+<span id="cb66-652"><a href="#cb66-652" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="dv">1</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>), </span>
+<span id="cb66-653"><a href="#cb66-653" aria-hidden="true" tabindex="-1"></a>        <span class="fu">sample</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">9</span>, <span class="dv">9</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>)), </span>
+<span id="cb66-654"><a href="#cb66-654" aria-hidden="true" tabindex="-1"></a>      <span class="at">collapse =</span> <span class="st">""</span>))</span>
+<span id="cb66-655"><a href="#cb66-655" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb66-656"><a href="#cb66-656" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-657"><a href="#cb66-657" aria-hidden="true" tabindex="-1"></a><span class="fu">random_npi_generator</span>(<span class="dv">3</span>)</span>
+<span id="cb66-658"><a href="#cb66-658" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-659"><a href="#cb66-659" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-662"><a href="#cb66-662" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb66-663"><a href="#cb66-663" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">100000</span></span>
+<span id="cb66-664"><a href="#cb66-664" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">random_npi_generator</span>(n)</span>
+<span id="cb66-665"><a href="#cb66-665" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> x[collapse<span class="sc">::</span><span class="fu">whichv</span>(purrr<span class="sc">::</span><span class="fu">map_lgl</span>(x, is_valid_npi), <span class="cn">TRUE</span>)]</span>
+<span id="cb66-666"><a href="#cb66-666" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-667"><a href="#cb66-667" aria-hidden="true" tabindex="-1"></a><span class="fu">paste0</span>((<span class="fu">length</span>(y) <span class="sc">/</span> n) <span class="sc">*</span> <span class="dv">100</span>, <span class="st">"%"</span>)</span>
+<span id="cb66-668"><a href="#cb66-668" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-669"><a href="#cb66-669" aria-hidden="true" tabindex="-1"></a>bench<span class="sc">::</span><span class="fu">mark</span>(</span>
+<span id="cb66-670"><a href="#cb66-670" aria-hidden="true" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">map_lgl</span>(x, is_valid_npi)) <span class="sc">|&gt;</span> </span>
+<span id="cb66-671"><a href="#cb66-671" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">glimpse</span>()</span>
+<span id="cb66-672"><a href="#cb66-672" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-673"><a href="#cb66-673" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-674"><a href="#cb66-674" aria-hidden="true" tabindex="-1"></a>{{&lt; pagebreak &gt;}}</span>
+<span id="cb66-675"><a href="#cb66-675" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-676"><a href="#cb66-676" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-677"><a href="#cb66-677" aria-hidden="true" tabindex="-1"></a><span class="fu">## Session Information </span></span>
+<span id="cb66-678"><a href="#cb66-678" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-681"><a href="#cb66-681" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb66-682"><a href="#cb66-682" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb66-683"><a href="#cb66-683" aria-hidden="true" tabindex="-1"></a>pander<span class="sc">::</span><span class="fu">pander</span>(<span class="fu">sessionInfo</span>())</span>
+<span id="cb66-684"><a href="#cb66-684" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
