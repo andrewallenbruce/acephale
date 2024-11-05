@@ -113,7 +113,7 @@ wrap   <- \(x) stringr::str_wrap(string = x, width = 60, exdent = 5, whitespace_
 
 view <- \(x) {
   idx  <- seq_along(x)
-  len  <- collapse::vlengths(x, use.names = FALSE)
+  len  <- vlen(x)
   tree <- unname(purrr::map_vec(x, paste0, collapse = " ")) |> purrr::map_vec(cutoff)
   
     glue::glue(
@@ -155,7 +155,7 @@ split_lengths <- function(x, verbose = TRUE) {
     unique_narm() |> 
     stringr::str_sort()
   
-  l <- collapse::vlengths(x)
+  l <- vlen(x)
   
   out <- list(
     x1 = x[l == 1],
