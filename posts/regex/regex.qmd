@@ -254,31 +254,49 @@ random_hcpcs() |>
 
 Group each set of vectors into regex patterns. Deal with groups containing letters separately.
 
-```{r}
-# $r
-# [1] "L80"
-# $f
-# [1] "L56" "L59"
-# 
-# ^L(5[69]|80)$
-
-lcodes <- c(
-  "L6789", 
-  "L8000", 
-  "L5600", 
-  "L5900")
-
-lcodes[
-  sf_detect(
-    lcodes, 
-    "^L(5[69]|80)[0-9]{2}$"
-    )
-  ]
-```
-
 ::: {.panel-tabset}
 
-## [g3]
+## Edge Cases
+
+```{r}
+#| label: edge_cases
+
+#---------- 1
+## Problem
+list("L80", c("L56", "L59"))
+
+## Solution
+"^L(5[69]|80)$"
+
+## Test
+sf_extract(hcpcs, "^L(5[69]|80)[0-9]{2}$")
+
+#---------- 2
+## Problem
+list(c("021", "022", "026", "027"), c("032", "033"), c("042", "044"), "050")
+
+## Solution
+"^0(2[1267]|3[23]|4[24]|50)[A-Z0-9]{2}$"
+
+## Test
+sf_extract(hcpcs, "^0(2[1267]|3[23]|4[24]|50)[A-Z0-9]{2}$")
+
+#---------- 3
+# How do you tell the difference?
+
+## Problem
+list(c("C75", "C97"), c("G02", "G04"))
+
+## Solution
+"^C(75|97)[A-Z0-9]{2}$"
+
+"^G0[24][A-Z0-9]{2}$"
+
+## Test
+sf_extract(hcpcs, "^C(75|97)[0-9]{2}$|^G0[24][0-9]{2}$")
+```
+
+## Group 3
 
 ```{r}
 #| label: group_3
@@ -349,7 +367,7 @@ random_hcpcs(30) |>
   group_3()
 ```
 
-## [All]
+## All
 
 ```{r}
 #| label: process_groups
@@ -441,11 +459,11 @@ reduce_runs <- function(x) {
 
 ::: {.panel-tabset}
 
-## `reduce_1()`
+## `red1()`
 
 ```{r}
-#| label: reduce_1
-reduce_1 <- function(x) {
+#| label: red1
+red1 <- function(x) {
   
   if (empty(x[["g1"]])) return(character(0))
   
@@ -465,7 +483,7 @@ hcpcs_tests |>
   remove_redundant() |> 
   split_first() |>
   process_groups() |> 
-  reduce_1()
+  red1()
 
 
 c(LETTERS[1:5], 0:9) |> 
@@ -473,54 +491,51 @@ c(LETTERS[1:5], 0:9) |>
   remove_redundant() |> 
   split_first() |>
   process_groups() |> 
-  reduce_1()
+  red1()
 
 long_test2 |>
   split_lengths() |> 
   remove_redundant() |> 
   split_first() |>
   process_groups() |> 
-  reduce_1()
+  red1()
 
-list(g1 = list(c(0:9, LETTERS))) |> reduce_1()
+list(g1 = list(c(0:9, LETTERS))) |> 
+  red1()
 
-list(g1 = list(c(LETTERS[1:5], 0:9))) |> reduce_1()
+list(g1 = list(c(LETTERS[1:5], 0:9))) |> 
+  red1()
 ```
 
-## `reduce_2()`
+## `red2()`
 
 ```{r}
-#| label: reduce_2
-reduce_2 <- function(x, nm = "g2") {
+#| label: red2
+red2 <- function(x) {
   
-  if (empty(x[[nm]])) return(character(0))
+  if (empty(x[["g2"]])) return(character(0))
   
-  x <- collapse::get_elem(x, nm)
+  x <- collapse::get_elem(x, "g2")
   l <- vlen(x)
-  leave <- x[l == 1]
-  test  <- x[l > 1]
   
-  process_parts <- \(x) {
-  
-  parts <- stringr::str_split_fixed(x, "", max_vlen(x)) |> 
+  c(x[l == 1], 
+    purrr::map(x[l > 1], \(x) {
+    
+    parts <- stringr::str_split_fixed(x, "", max_vlen(x)) |> 
     as.data.frame() |>
-    purrr::map(unique_narm) |> 
+    purrr::map(unique_narm) |>
     purrr::map(sort_order) |>
-    purrr::map(reduce_runs) |> 
+    purrr::map(reduce_runs) |>
     delist()
   
-  multi   <- stringfish::sf_nchar(parts, nthreads = 4L) > 1
-  nobrk <- !stringfish::sf_grepl(parts[multi], "\\[|\\]", nthreads = 4L)
+  multi <- stringfish::sf_nchar(parts, nthreads = 4L) > 1
+  nobrk <- !sf_detect(parts[multi], "\\[|\\]")
   
+  parts[multi] <- ifelse(any(nobrk), purrr::map_chr(parts[multi], bracket), parts[multi])
   
-  parts[multi] <- ifelse(
-    any(nobrk), 
-    purrr::map_chr(parts[multi], bracket), 
-    parts[multi])
-
   smush(parts)
-  }
-  vctrs::vec_c(leave, purrr::map(test, process_parts))
+    
+  }))
 }
 
 all_tests |> 
@@ -528,21 +543,98 @@ all_tests |>
   remove_redundant() |> 
   split_first() |>
   process_groups() |> 
-  reduce_2("g2")
+  red2()
 
 hcpcs_tests |>
   split_lengths() |>
   remove_redundant() |>
   split_first() |>
   process_groups() |>
-  reduce_2("g3")
+  red2()
 
 paste0("A", c(0:5, LETTERS)) |> 
   split_lengths() |>
   remove_redundant() |>
   split_first() |>
   process_groups() |>
-  reduce_2("g2")
+  red2()
+```
+
+
+## `red3()`
+
+```{r}
+#| label: grp_nest
+#| eval: false
+#| echo: false
+grp_nest <- long_test2[nchar(long_test2) == 3] |> 
+  split_lengths() |> 
+  remove_redundant() |>
+  split_first() |>
+  process_groups()
+
+grp_nest$g3
+
+depth <- purrr::map_int(grp_nest$g3, purrr::pluck_depth)
+
+depth
+
+grp_nest$g3[depth == 1]
+grp_nest$g3[depth > 1]
+
+len <- vlen(grp_nest$g3)
+
+len
+
+grp_nest$g3[len == 1]
+grp_nest$g3[depth > 1]
+
+pluck(grp_nest, 7)
+
+
+x <- grp_nest
+```
+
+```{r}
+#| label: red3
+#| eval: false
+red3 <- function(x) {
+  
+  if (empty(x[["g3"]])) return(character(0))
+  
+  x <- collapse::get_elem(x, "g3")
+  d <- purrr::map_int(x, purrr::pluck_depth)
+  
+  top   <- x[d == 1]
+  leave <- top[vlen(top) == 1]
+  top   <- top[vlen(top) > 1]
+  nest  <- x[d > 1]
+  
+  first <- purrr::map_chr(nest[[1]], function(x) take_at(purrr::pluck(x, 1, 1)[1])) |> collapse::funique()
+  
+  rest <- purrr::map(nest[[1]], function(x) sf_remove(x, glue::glue("^{first}")))
+  
+  vctrs::vec_c(
+    leave, 
+    purrr::map(top, function(x) {
+      x <- top[[1]]
+      x <- top[[2]]
+      
+      parts <- stringr::str_split_fixed(x, "", n = max_vlen(x)) |> 
+        as.data.frame() |>
+        purrr::map(unique_narm) |> 
+        purrr::map(sort_order) |>
+        purrr::map(reduce_runs) |> 
+        delist()
+      
+      multi <- stringfish::sf_nchar(parts, nthreads = 4L) > 1
+      
+      if (any(multi)) parts[multi] <- parent(paste0(parts[multi], collapse = "|"))
+      
+      smush(unique_narm(parts))
+    })
+  )
+}
 ```
 
 ::: 
@@ -617,6 +709,7 @@ random_hcpcs() |>
 ```{r}
 #| label: final_output
 #| eval: false
+#| echo: false
 #| message: false
 #| error: true
 medrex <- function(x, verbose = TRUE) {
