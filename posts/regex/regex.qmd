@@ -103,10 +103,9 @@ data.frame(
    -   [ ] `g5()`
 -   [ ] `reduce_groups()`
 
-# Helpers
-
 ```{r}
 #| label: helpers
+#| echo: false
 cutoff <- \(x) stringr::str_trunc(string = x, width = 40, side = "right")
 wrap   <- \(x) stringr::str_wrap(string = x, width = 60, exdent = 5, whitespace_only = FALSE)
 
@@ -131,9 +130,7 @@ view_remove <- \(x) {
 }
 ```
 
-# Preprocessing
-
-## `split_lengths()`
+# `split_lengths()`
 
 ```{r}
 #| label: split_lengths
@@ -175,7 +172,7 @@ random_hcpcs() |>
   split_lengths()
 ```
 
-## `remove_redundant()`
+# `remove_redundant()`
 
 If a vector contains both `"A"` and `"A0"`, remove `"A0"`, i.e., remove longer codes that share a common sub-string with shorter codes.
 
@@ -213,7 +210,7 @@ random_hcpcs() |>
   remove_redundant()
 ```
 
-## `split_first()`
+# `split_first()`
 
 ```{r}
 #| label: split_first
@@ -265,7 +262,11 @@ Group each set of vectors into regex patterns. Deal with groups containing lette
 # 
 # ^L(5[69]|80)$
 
-lcodes <- c("L6789", "L8000", "L5600", "L5900")
+lcodes <- c(
+  "L6789", 
+  "L8000", 
+  "L5600", 
+  "L5900")
 
 lcodes[
   sf_detect(
@@ -385,7 +386,7 @@ random_hcpcs(50) |>
 
 ::: 
 
-# Reduce Runs
+# `reduce_runs()`
 
 ```{r}
 #| label: reduce_runs
@@ -437,11 +438,13 @@ reduce_runs <- function(x) {
 }
 ```
 
-## G == 1
+
+::: {.panel-tabset}
+
+## `reduce_1()`
 
 ```{r}
 #| label: reduce_1
-#| eval: false
 reduce_1 <- function(x) {
   
   if (empty(x[["g1"]])) return(character(0))
@@ -484,11 +487,10 @@ list(g1 = list(c(0:9, LETTERS))) |> reduce_1()
 list(g1 = list(c(LETTERS[1:5], 0:9))) |> reduce_1()
 ```
 
-## G > 1
+## `reduce_2()`
 
 ```{r}
 #| label: reduce_2
-#| eval: false
 reduce_2 <- function(x, nm = "g2") {
   
   if (empty(x[[nm]])) return(character(0))
@@ -535,13 +537,15 @@ hcpcs_tests |>
   process_groups() |>
   reduce_2("g3")
 
-x <- paste0("A", c(0:5, LETTERS)) |> 
+paste0("A", c(0:5, LETTERS)) |> 
   split_lengths() |>
   remove_redundant() |>
   split_first() |>
   process_groups() |>
   reduce_2("g2")
 ```
+
+::: 
 
 # Reduce Groups
 
@@ -550,7 +554,7 @@ x <- paste0("A", c(0:5, LETTERS)) |>
 #| eval: false
 #| message: false
 #| error: true
-vec_to_regex <- vrg <- function(x, n) {
+vec_to_regex <- vrg <- \(x, n) {
   
   if (empty(x)) return(character(0))
   
@@ -566,7 +570,7 @@ vec_to_regex <- vrg <- function(x, n) {
   glue::glue_collapse(x)
 }
 
-reduce_groups <- function(x) {
+reduce_groups <- \(x) {
   
   list(
     g1 = p1(x),
@@ -609,8 +613,6 @@ random_hcpcs() |>
   process_groups() |> 
   reduce_groups()
 ```
-
-# `medrex()`
 
 ```{r}
 #| label: final_output
