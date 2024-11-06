@@ -236,7 +236,7 @@ split_first <- function(x, verbose = FALSE) {
     
     cli::cat_boxx(
       label = view(out), 
-      header = glue::glue("{cli::symbol$stop} Split By Lengths"),
+      header = glue::glue("{strrep(cli::symbol$stop, 3)} Split At First"),
       align = "left", 
       padding = c(0, 1, 0, 1))
     
@@ -276,64 +276,6 @@ lcodes[
 ```
 
 ::: {.panel-tabset}
-
-```{r}
-#| label: g1
-#| eval: false
-#| echo: false
-g1 <- function(x, verbose = FALSE) {
-  
-  x <- collapse::get_elem(x, "x1")
-  
-  if (empty(x)) return(character(0))
-  
-  out <- list(x)
-  
-  if (verbose) {
-    
-    cli::cat_line(label = paste0(cli::symbol$stop, " Group 1"))
-    cat(view(out), sep = "\n")
-    
-    return(invisible(out))
-    
-  } else {
-    return(out)
-  }
-}
-
-random_hcpcs() |> 
-  split_lengths() |> 
-  remove_redundant() |>
-  split_first() |>
-  g1()
-
-g2 <- function(x, verbose = FALSE) {
-  
-  x <- collapse::get_elem(x, "x2")
-  
-  if (empty(x)) return(character(0))
-  
-  # out <- collapse::rsplit(x, take_at(x, 1), use.names = FALSE)
-  out <- x
-  
-  if (verbose) {
-    
-    cli::cat_line(label = paste0(cli::symbol$stop, " Group 2"))
-    cat(view(out), sep = "\n")
-    
-    return(invisible(out))
-    
-  } else {
-    return(out)
-  }
-}
-
-random_hcpcs(25) |>
-  split_lengths() |> 
-  remove_redundant() |> 
-  split_first() |>
-  g2()
-```
 
 ## [g3]
 
@@ -406,123 +348,6 @@ random_hcpcs(30) |>
   group_3()
 ```
 
-## [g4]
-
-```{r}
-#| label: g4
-#| eval: false
-g4 <- function(x, verbose = TRUE) {
-  
-  x <- collapse::get_elem(x, "x4")
-  
-  if (empty(x)) return(character(0))
-  
-  chr <- sf_extract(x, "[A-Z]{1}")
-  num <- x[x %!in% chr]
-  
-  num <- data.table::data.table(code = num, lump = lump(as.integer(num)))
-  
-  chr <- data.table::data.table(
-    code = chr, 
-    lump = lump(
-      as.integer(
-        stringr::str_replace_all(chr, "[A-Z]", letters_to_numbers)
-        )))
-  
-  out <- vctrs::vec_c(
-    if (empty(num)) NULL else chop(num$code, num$lump),
-    if (empty(chr)) NULL else chop(chr$code, chr$lump))
-  
-  if (empty(out)) return(character(0))
-  
-  if (verbose) {
-    
-    cli::cat_line(label = paste0(cli::symbol$stop, " Group 4"), col = "orange")
-    cat(view(out), sep = "\n")  
-    return(invisible(out))
-    
-  } else {
-    return(out)
-  }
-}
-
-hcpcs_tests[20:25] |> 
-  split_lengths() |> 
-  remove_redundant() |> 
-  g4()
-
-long_test2 |> 
-  split_lengths() |> 
-  remove_redundant() |>
-  g4()
-
-random_hcpcs() |> 
-  split_lengths() |> 
-  remove_redundant() |>
-  g4()
-```
-
-## [g5]
-
-```{r}
-#| label: g5
-#| eval: false
-g5 <- function(x, verbose = TRUE) {
-  
-  x <- collapse::get_elem(x, "x5")
-  
-  if (empty(x)) return(character(0))
-  
-  chr <- sf_extract(x, "[A-Z]{1}")
-  num <- x[x %!in% chr]
-  
-  num  <- data.table::data.table(code = num, lump = lump(as.integer(num)))
-  
-  chr <- data.table::data.table(
-    code = chr, 
-    lump = lump(
-      as.integer(
-        stringr::str_remove_all(chr, "[A-Z]")
-        )))
-  
-  out <- vctrs::vec_c(
-    if (empty(num)) NULL else chop(num$code, num$lump),
-    if (empty(chr)) NULL else chop(chr$code, chr$lump))
-  
-  if (empty(out)) return(character(0))
-  
-  if (verbose) {
-    
-    cli::cat_line(label = paste0(cli::symbol$stop, " Group 5"), col = "orange")
-    cat(view(out), sep = "\n")  
-    return(invisible(out))
-    
-  } else {
-    return(out)
-  }
-}
-
-hcpcs_tests[26:30] |> 
-  split_lengths() |> 
-  remove_redundant() |>
-  g5()
-
-long_test2 |> 
-  split_lengths() |> 
-  remove_redundant() |>
-  g5()
-
-new_test |>
-  split_lengths() |> 
-  remove_redundant() |>
-  g5()
-
-random_hcpcs() |> 
-  split_lengths() |> 
-  remove_redundant() |>
-  g5()
-```
-
 ## [All]
 
 ```{r}
@@ -532,7 +357,7 @@ process_groups <- function(x) {
   list(
     g1 = x$x1,
     g2 = x$x2,
-    g3 = group_hcpcs_3(x)
+    g3 = group_3(x)
     # ,
     # g4 = g4(x, verbose = verbose),
     # g5 = g5(x, verbose = verbose)
@@ -549,12 +374,6 @@ long_test2 |>
   split_lengths() |> 
   # remove_redundant() |> 
   split_first() |> 
-  process_groups()
-
-all_tests |> 
-  split_lengths() |> 
-  remove_redundant() |> 
-  split_first() |>
   process_groups()
 
 random_hcpcs(50) |> 
@@ -574,52 +393,56 @@ random_hcpcs(50) |>
 #| eval: true
 reduce_runs <- function(x) {
   
-  ad <- c(LETTERS, 0:9)
-  
-  vec  <- rlang::set_names(rep(0, 36), ad)
-  
-  vec2 <- vec[fuimus::splitter(x)]
-  
-  vec2 <- vec2[!is.na(vec2)]
-  
-  vec[names(vec2)] <- 1
+  if (nchar(x) == 1) return(x)
 
-  vec_group <- dplyr::tibble(
-    value = names(vec),
-    key = vec,
-    idx = seq_along(vec),
-    group = dplyr::consecutive_id(key)) |>
-    dplyr::mutate(group_size = dplyr::n(), .by = group) |>
-    dplyr::filter(key == 1, group_size >= 3) |>
+  # poss <- c(LETTERS, 0:9)
+  poss <- c(0:9, "&", LETTERS)
+  
+  test <- setNames(rep(0, 37), poss)
+  
+  vctr <- test[c(splitter(x), "&")]
+  
+  vctr <- vctr[!is.na(vctr)]
+  
+  test[names(vctr)] <- 1
+  
+  test[names(test) == "&"] <- 0
+
+  groups <- data.table::data.table(
+    value = names(test),
+    keys = test,
+    group = dplyr::consecutive_id(test)) |>
+    dplyr::mutate(size = dplyr::n(), .by = group) |> 
+    dplyr::filter(keys == 1, size >= 3) |>
     dplyr::select(value, group)
 
-  if (empty(vec_group)) return(x)
+  if (empty(groups)) return(x)
   
-  xgroups <- chop(vec_group$value, vec_group$group) |>
-    purrr::map(fuimus::collapser) |>
+  xgroups <- chop(groups$value, groups$group) |>
+    purrr::map(smush) |>
     purrr::list_c()
   
-  if (all(xgroups == paste0(ad, collapse = ""))) return("[A-Z0-9]")
+  if (all(xgroups == smush(poss))) return("[A-Z0-9]")
   
   replacements <- dplyr::left_join(
-    dplyr::slice_min(vec_group, by = group, order_by = value) |> dplyr::rename(start = value),
-    dplyr::slice_max(vec_group, by = group, order_by = value) |> dplyr::rename(end = value),
+    dplyr::slice_min(groups, by = group, order_by = value) |> dplyr::rename(start = value),
+    dplyr::slice_max(groups, by = group, order_by = value) |> dplyr::rename(end = value),
     by = dplyr::join_by(group)) |>
     glue::glue_data("{start}-{end}") |>
     as.vector()
 
   res <- stringi::stri_replace_all_regex(x, xgroups, replacements, vectorize_all = FALSE)
 
-  paste0("[", res, "]")
+  bracket(res)
 }
 ```
 
 ## G == 1
 
 ```{r}
-#| label: p1
+#| label: reduce_1
 #| eval: false
-p1 <- function(x) {
+reduce_1 <- function(x) {
   
   if (empty(x[["g1"]])) return(character(0))
   
@@ -637,53 +460,87 @@ p1 <- function(x) {
 hcpcs_tests |> 
   split_lengths() |> 
   remove_redundant() |> 
+  split_first() |>
   process_groups() |> 
-  p1()
+  reduce_1()
 
-long_test2 |> 
+
+c(LETTERS[1:5], 0:9) |> 
   split_lengths() |> 
   remove_redundant() |> 
+  split_first() |>
   process_groups() |> 
-  p1()
+  reduce_1()
 
-list(g1 = list(c(0:9, LETTERS))) |> p1()
+long_test2 |>
+  split_lengths() |> 
+  remove_redundant() |> 
+  split_first() |>
+  process_groups() |> 
+  reduce_1()
 
-list(g1 = list(c(LETTERS[1:5], 0:9))) |> p1()
+list(g1 = list(c(0:9, LETTERS))) |> reduce_1()
+
+list(g1 = list(c(LETTERS[1:5], 0:9))) |> reduce_1()
 ```
 
 ## G > 1
 
 ```{r}
-#| label: p2
+#| label: reduce_2
 #| eval: false
-p2 <- function(x) {
+reduce_2 <- function(x, nm = "g2") {
   
-  if (empty(x)) return(character(0))
+  if (empty(x[[nm]])) return(character(0))
   
-  vec <- stringr::str_split_fixed(x, "", max_vlength(x)) |> 
-    as.data.frame() |> 
+  x <- collapse::get_elem(x, nm)
+  l <- vlen(x)
+  leave <- x[l == 1]
+  test  <- x[l > 1]
+  
+  process_parts <- \(x) {
+  
+  parts <- stringr::str_split_fixed(x, "", max_vlen(x)) |> 
+    as.data.frame() |>
     purrr::map(unique_narm) |> 
     purrr::map(sort_order) |>
-    purrr::map(reduce_runs)
+    purrr::map(reduce_runs) |> 
+    delist()
   
-  multi <- unname(nchar(vec) > 1)
+  multi   <- stringfish::sf_nchar(parts, nthreads = 4L) > 1
+  nobrk <- !stringfish::sf_grepl(parts[multi], "\\[|\\]", nthreads = 4L)
   
-  nobrack <- stringr::str_detect(vec[multi], "\\[|\\]", TRUE)
   
-  vec[multi] <- ifelse(any(nobrack), purrr::map_chr(vec[multi], \(x) paste0("[", x, "]")), vec[multi])
+  parts[multi] <- ifelse(
+    any(nobrk), 
+    purrr::map_chr(parts[multi], bracket), 
+    parts[multi])
 
-  paste0(purrr::list_c(vec), collapse = "")
+  smush(parts)
+  }
+  vctrs::vec_c(leave, purrr::map(test, process_parts))
 }
 
-# hcpcs_tests |> 
-#   split_lengths() |> 
-#   remove_redundant() |> 
-#   process_groups() |>
-#   map(p2)
-# 
-# list(g2 = list(c(0:9, LETTERS))) |> p2()
-# 
-# list(g2 = list(c(LETTERS[1:5], 0:9))) |> p2()
+all_tests |> 
+  split_lengths() |> 
+  remove_redundant() |> 
+  split_first() |>
+  process_groups() |> 
+  reduce_2("g2")
+
+hcpcs_tests |>
+  split_lengths() |>
+  remove_redundant() |>
+  split_first() |>
+  process_groups() |>
+  reduce_2("g3")
+
+x <- paste0("A", c(0:5, LETTERS)) |> 
+  split_lengths() |>
+  remove_redundant() |>
+  split_first() |>
+  process_groups() |>
+  reduce_2("g2")
 ```
 
 # Reduce Groups
