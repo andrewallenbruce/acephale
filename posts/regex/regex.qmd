@@ -66,28 +66,29 @@ source(here::here("posts/regex/scripts", "data.R"))
 #| echo: false
 #| results: asis
 rx <- list(
-  all  = "^[A-CEGHJ-MP-V0-9][0-9]{3}[AFMTU0-9]$",
-  iI   = "^[0-9]{4}[AFMTU0-9]$",
-  cI   = "^[0-9]{4}[AMU0-9]$",
-  cII  = "^[0-9]{4}F$",
-  cIII = "^[0-9]{4}T$",
-  iII  = "^[A-CEGHJ-MP-V][0-9]{4}$"
+  All              = "^[A-CEGHJ-MP-V0-9][0-9]{3}[AFMTU0-9]$",
+  "-Level I"       = "^[0-9]{4}[AFMTU0-9]$",
+  "--Category I"   = "^[0-9]{4}[AMU0-9]$",
+  "--Category II"  = "^[0-9]{4}F$",
+  "--Category III" = "^[0-9]{4}T$",
+  "-Level II"      = "^[A-CEGHJ-MP-V][0-9]{4}$"
 )
 
-len <- \(rx) cheapr::vector_length(vctrs::vec_slice(hcpcs, stringfish::sf_grepl(hcpcs, rx, nthreads = 4L)))
+greys <- c("black", "grey20", "grey50", "grey80", "grey90", "grey20")
+
+len <- \(rx) cheapr::vector_length(vctrs::vec_slice(hcpcs, sf_detect(hcpcs, rx)))
 
 data.frame(
-  row.names = c("All", "-Level I", "--Category I", "--Category II", "--Category III", "-Level II"),
-  Count = map_int(unlist(rx, use.names = FALSE), len), 
-  Regex = unlist(rx, use.names = FALSE)) |> 
-  hl(c("black", "grey20", "grey50", "grey80", "grey90", "grey20"), cols = 1) |>
+  row.names = names(rx),
+  Count = map_int(delist(rx), len), 
+  Regex = delist(rx)) |> 
+  hl(greys, cols = 1) |>
   knit_print.emphatic()
 ```
 
 # TODO
 
-   * ~~If a **wildcard** begins with a **letter**, the *postfix* should be `[0-9]{n}`.~~
-   * Eliminate `g1()` step in grouping.
+   * If a **wildcard** begins with a **letter**, the *postfix* should be `[0-9]{n}`.
    * In `remove_redundant()`, try pmap for `rr()` step.
 
 
@@ -95,13 +96,21 @@ data.frame(
 
 -   [X] `split_lengths()`
 -   [X] `remove_redundant()`
+   - `contrast()`
+-   [X] `split_first()`
+   - `spf()`
 -   [ ] `process_groups()`
-   -   [X] `g1()`
-   -   [X] `g2()`
-   -   [ ] `g3()`
-   -   [ ] `g4()`
-   -   [ ] `g5()`
+   - `g1()`
+   - `g2()`
+   - `group_3()`
+   - `group_4()`
+   - `group_5()`
 -   [ ] `reduce_groups()`
+   - `reduce_runs()`
+   - `vec_to_regex()`
+   - `red1()`
+   - `red2()`
+   - `red3()`
 
 ```{r}
 #| label: helpers
@@ -260,7 +269,6 @@ Group each set of vectors into regex patterns. Deal with groups containing lette
 
 ```{r}
 #| label: edge_cases
-
 #---------- 1
 ## Problem
 list("L80", c("L56", "L59"))
@@ -307,52 +315,51 @@ group_3 <- function(x) {
   
   if (empty(x)) return(x)
   
-  l     <- vlen(x)
-  leave <- x[l < 3]
-  test  <- x[l >= 3]
-  
-  if (empty(test)) return(x)
-  
-  process_3 <- \(test) {
-
-  indices <- data.table::data.table(
-    code = test,
-    a1 = take_at(test),
-    a2 = take_at(test, 2),
-    a3 = take_at(test, 3)) |>
-    dplyr::mutate(i1 = dplyr::consecutive_id(a1)) |>
-    dplyr::mutate(i2 = dplyr::consecutive_id(a2), .by = a1) |>
-    dplyr::mutate(i3 = dplyr::consecutive_id(a3), .by = c(a1, a2))
-
-  orphans <- indices |>
-    dplyr::add_count(i1, name = "n1", sort = TRUE) |>
-    dplyr::filter((i2 + i3 + n1) == 3) |>
-    dplyr::pull(code)
-
-  last <- indices |>
-    dplyr::filter(code %!in% orphans) |>
-    dplyr::select(code, a1:a3) |>
-    fuimus::combine(group_id, columns = c("a1"), sep = "")
-
-  last <- dplyr::left_join(
-    last |> dplyr::count(group_id, a2),
-    last |> dplyr::count(group_id, name = "g"),
-    by = dplyr::join_by(group_id)) |>
-    dplyr::filter(n == g) |>
-    dplyr::right_join(last, by = dplyr::join_by(group_id, a2)) |>
-    dplyr::filter(!is.na(n))
-
-  rest <- indices |>
-    dplyr::filter(code %!in% c(orphans, dplyr::pull(last, code))) |>
-    fuimus::combine(group_id, columns = c("a1", "a2"), sep = "")
-
-  vctrs::vec_c(
-    if (empty(orphans)) NULL else list(orphans),
-    if (empty(last)) NULL else chop(last$code, last$group_id),
-    if (empty(rest)) NULL else chop(rest$code, rest$group_id))
-  }
-  vctrs::vec_c(leave, purrr::map(test, process_3))
+  purrr::map(x, function(x) {
+    
+    indices <- data.table::data.table(
+        code = x,
+        a1 = take_at(x),
+        a2 = take_at(x, 2),
+        a3 = take_at(x, 3)) |>
+        dplyr::mutate(i1 = dplyr::consecutive_id(a1)) |>
+        dplyr::mutate(i2 = dplyr::consecutive_id(a2), .by = a1) |>
+        dplyr::mutate(i3 = dplyr::consecutive_id(a3), .by = c(a1, a2))
+      
+      orphans <- indices |>
+        dplyr::add_count(i1, name = "n1", sort = TRUE) |>
+        dplyr::filter((i2 + i3 + n1) == 3) |>
+        dplyr::pull(code)
+      
+      last <- indices |>
+        dplyr::filter(code %!in% orphans) |>
+        dplyr::select(code, a1:a3) |>
+        fuimus::combine(group_id, columns = c("a1"), sep = "")
+      
+      last <- dplyr::left_join(
+        last |> dplyr::count(group_id, a2),
+        last |> dplyr::count(group_id, name = "g"),
+        by = dplyr::join_by(group_id)) |>
+        dplyr::filter(n == g) |>
+        dplyr::right_join(last, by = dplyr::join_by(group_id, a2)) |>
+        dplyr::filter(!is.na(n))
+      
+      rest <- indices |>
+        dplyr::filter(code %!in% c(orphans, dplyr::pull(last, code))) |>
+        fuimus::combine(group_id, columns = c("a1", "a2"), sep = "")
+      
+      vctrs::vec_c(
+        if (empty(orphans)) NULL else list(orphans),
+        if (empty(last)) NULL else chop(last$code, last$group_id),
+        if (empty(rest)) NULL else chop(rest$code, rest$group_id))
+    })
 }
+
+c("C75", "C97", "G02", "G04") |> 
+  split_lengths() |> 
+  remove_redundant() |>
+  split_first() |>
+  group_3()
 
 long_test2[nchar(long_test2) == 3] |> 
   split_lengths() |> 
@@ -367,6 +374,153 @@ random_hcpcs(30) |>
   group_3()
 ```
 
+
+## Group 4
+
+```{r}
+#| label: group_4
+#| eval: true
+group_4 <- function(x) {
+
+  x <- collapse::get_elem(x, "x4")
+  
+  if (empty(x)) return(x)
+  
+  purrr::map(x, function(x) {
+    
+    indices <- data.table::data.table(
+      code = x,
+      a1 = take_at(x),
+      a2 = take_at(x, 2),
+      a3 = take_at(x, 3),
+      a4 = take_at(x, 4)) |>
+      dplyr::mutate(i1 = dplyr::consecutive_id(a1)) |>
+      dplyr::mutate(i2 = dplyr::consecutive_id(a2), .by = a1) |>
+      dplyr::mutate(i3 = dplyr::consecutive_id(a3), .by = c(a1, a2)) |>
+      dplyr::mutate(i4 = dplyr::consecutive_id(a4), .by = c(a1, a2, a3))
+      
+      orphans <- indices |>
+        dplyr::add_count(i1, name = "n1", sort = TRUE) |>
+        dplyr::filter((i2 + i3 + i4 + n1) == 4) |>
+        dplyr::pull(code)
+      
+      last <- indices |>
+        dplyr::filter(code %!in% orphans) |>
+        dplyr::select(code, a1:a4) |>
+        fuimus::combine(group_id, columns = c("a1", "a2"), sep = "")
+      
+      last <- dplyr::left_join(
+        last |> dplyr::count(group_id, a3),
+        last |> dplyr::count(group_id, name = "g"),
+        by = dplyr::join_by(group_id)) |>
+        dplyr::filter(n == g) |>
+        dplyr::right_join(last, by = dplyr::join_by(group_id, a3)) |>
+        dplyr::filter(!is.na(n))
+      
+      rest <- indices |>
+        dplyr::filter(code %!in% c(orphans, dplyr::pull(last, code))) |>
+        fuimus::combine(group_id, columns = c("a1", "a2", "a3"), sep = "")
+      
+      vctrs::vec_c(
+        if (empty(orphans)) NULL else list(orphans),
+        if (empty(last)) NULL else chop(last$code, last$group_id),
+        if (empty(rest)) NULL else chop(rest$code, rest$group_id))
+    })
+}
+
+c("C751", "C970", "G020", "G040") |> 
+  split_lengths() |> 
+  remove_redundant() |>
+  split_first() |>
+  group_4()
+
+long_test2[nchar(long_test2) == 4] |> 
+  split_lengths() |> 
+  remove_redundant() |>
+  split_first() |>
+  group_4()
+
+random_hcpcs(30) |> 
+  split_lengths() |> 
+  remove_redundant() |>
+  split_first() |>
+  group_4()
+```
+
+## Group 5
+
+```{r}
+#| label: group_5
+#| eval: true
+group_5 <- function(x) {
+
+  x <- collapse::get_elem(x, "x5")
+  
+  if (empty(x)) return(x)
+  
+  purrr::map(x, function(x) {
+    
+    indices <- data.table::data.table(
+      code = x,
+      a1 = take_at(x),
+      a2 = take_at(x, 2),
+      a3 = take_at(x, 3),
+      a4 = take_at(x, 4),
+      a5 = take_at(x, 5)) |>
+      dplyr::mutate(i1 = dplyr::consecutive_id(a1)) |>
+      dplyr::mutate(i2 = dplyr::consecutive_id(a2), .by = a1) |>
+      dplyr::mutate(i3 = dplyr::consecutive_id(a3), .by = c(a1, a2)) |>
+      dplyr::mutate(i4 = dplyr::consecutive_id(a4), .by = c(a1, a2, a3)) |> 
+      dplyr::mutate(i5 = dplyr::consecutive_id(a5), .by = c(a1, a2, a3, a4))
+      
+      orphans <- indices |>
+        dplyr::add_count(i1, name = "n1", sort = TRUE) |>
+        dplyr::filter((i2 + i3 + i4 + i5 + n1) == 5) |>
+        dplyr::pull(code)
+      
+      last <- indices |>
+        dplyr::filter(code %!in% orphans) |>
+        dplyr::select(code, a1:a5) |>
+        fuimus::combine(group_id, columns = c("a1", "a2", "a3"), sep = "")
+      
+      last <- dplyr::left_join(
+        last |> dplyr::count(group_id, a4),
+        last |> dplyr::count(group_id, name = "g"),
+        by = dplyr::join_by(group_id)) |>
+        dplyr::filter(n == g) |>
+        dplyr::right_join(last, by = dplyr::join_by(group_id, a4)) |>
+        dplyr::filter(!is.na(n))
+      
+      rest <- indices |>
+        dplyr::filter(code %!in% c(orphans, dplyr::pull(last, code))) |>
+        fuimus::combine(group_id, columns = c("a1", "a2", "a3", "a4"), sep = "")
+      
+      vctrs::vec_c(
+        if (empty(orphans)) NULL else list(orphans),
+        if (empty(last)) NULL else chop(last$code, last$group_id),
+        if (empty(rest)) NULL else chop(rest$code, rest$group_id))
+    })
+}
+
+c("C7510", "C9701", "G0200", "G0400") |> 
+  split_lengths() |> 
+  remove_redundant() |>
+  split_first() |>
+  group_5()
+
+long_test2[nchar(long_test2) == 5] |> 
+  split_lengths() |> 
+  remove_redundant() |>
+  split_first() |>
+  group_5()
+
+random_hcpcs(30) |> 
+  split_lengths() |> 
+  remove_redundant() |>
+  split_first() |>
+  group_5()
+```
+
 ## All
 
 ```{r}
@@ -376,10 +530,9 @@ process_groups <- function(x) {
   list(
     g1 = x$x1,
     g2 = x$x2,
-    g3 = group_3(x)
-    # ,
-    # g4 = g4(x, verbose = verbose),
-    # g5 = g5(x, verbose = verbose)
+    g3 = group_3(x),
+    g4 = group_4(x),
+    g5 = group_5(x)
     )
 }
 
@@ -473,9 +626,9 @@ red1 <- function(x) {
   
   if (re == "[A-Z0-9]") return(glue::glue("^{re}{{5}}$"))
   
-  postfix <- ifelse(sf_detect(re, "\\[?[0-9]{1}"), "[A-Z0-9]", "[0-9]")
+  post <- ifelse(sf_detect(re, "\\[?[0-9]{1}"), "[A-Z0-9]", "[0-9]")
   
-  glue::glue("^{re}{postfix}{{4}}$")
+  glue::glue("^{re}{post}{{4}}$")
 }
 
 hcpcs_tests |> 
@@ -535,7 +688,8 @@ red2 <- function(x) {
   
   smush(parts)
     
-  }))
+  })
+  )
 }
 
 all_tests |> 
@@ -573,23 +727,23 @@ grp_nest <- long_test2[nchar(long_test2) == 3] |>
   split_first() |>
   process_groups()
 
-grp_nest$g3
-
-depth <- purrr::map_int(grp_nest$g3, purrr::pluck_depth)
-
-depth
-
-grp_nest$g3[depth == 1]
-grp_nest$g3[depth > 1]
-
-len <- vlen(grp_nest$g3)
-
-len
-
-grp_nest$g3[len == 1]
-grp_nest$g3[depth > 1]
-
-pluck(grp_nest, 7)
+# grp_nest$g3
+# 
+# depth <- purrr::map_int(grp_nest$g3, purrr::pluck_depth)
+# 
+# depth
+# 
+# grp_nest$g3[depth == 1]
+# grp_nest$g3[depth > 1]
+# 
+# len <- vlen(grp_nest$g3)
+# 
+# len
+# 
+# grp_nest$g3[len == 1]
+# grp_nest$g3[depth > 1]
+# 
+# pluck(grp_nest, 7)
 
 
 x <- grp_nest
