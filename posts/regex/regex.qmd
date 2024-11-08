@@ -40,22 +40,23 @@ knitr::opts_chunk$set(
 )
 options(scipen = 999, digits = 2)
 
+library(fuimus)
 library(tidyverse)
 library(rlang)
 library(vctrs)
 library(cli)
-library(stringfish)
 library(codex)
+library(stringfish)
 library(data.table)
 library(collapse)
-library(fuimus)
 library(emphatic)
+library(compiler)
+library(cheapr)
+library(fastplyr)
 # library(re2)
 # library(re2r)
-# library(compiler)
 # library(tidyfast)
-# library(cheapr)
-# library(fastplyr)
+# library(tidytable)
 source(here::here("posts/regex/scripts", "data.R"))
 ```
 
@@ -225,7 +226,7 @@ random_hcpcs() |>
 #| label: split_first
 #| message: true
 #| echo: true
-spf <- \(x) collapse::rsplit(x, take_at(x, 1), use.names = FALSE)
+spf <- \(x, z = 1) collapse::rsplit(x, sf_sub(x, i = 1, z = z), use.names = FALSE, flatten = FALSE)
 
 split_first <- function(x, verbose = FALSE) {
   
@@ -253,7 +254,7 @@ split_first <- function(x, verbose = FALSE) {
   }
 }
 
-random_hcpcs() |> 
+random_hcpcs(50) |> 
   split_lengths() |> 
   remove_redundant() |> 
   split_first()
@@ -317,41 +318,37 @@ group_3 <- function(x) {
   
   purrr::map(x, function(x) {
     
-    indices <- data.table::data.table(
+    idx <- data.table::data.table(
         code = x,
         a1 = take_at(x),
         a2 = take_at(x, 2),
         a3 = take_at(x, 3)) |>
-        dplyr::mutate(i1 = dplyr::consecutive_id(a1)) |>
-        dplyr::mutate(i2 = dplyr::consecutive_id(a2), .by = a1) |>
-        dplyr::mutate(i3 = dplyr::consecutive_id(a3), .by = c(a1, a2))
+        dplyr::mutate(i1 = fastplyr::f_consecutive_id(a1)) |>
+        dplyr::mutate(i2 = fastplyr::f_consecutive_id(a2), .by = a1) |>
+        dplyr::mutate(i3 = fastplyr::f_consecutive_id(a3), .by = c(a1, a2))
       
-      orphans <- indices |>
-        dplyr::add_count(i1, name = "n1", sort = TRUE) |>
-        dplyr::filter((i2 + i3 + n1) == 3) |>
-        dplyr::pull(code)
+      lone <- idx |>
+        fastplyr::f_add_count(i1, name = "n1") |>
+        fastplyr::f_filter((i2 + i3 + n1) == 3)
       
-      last <- indices |>
-        dplyr::filter(code %!in% orphans) |>
-        dplyr::select(code, a1:a3) |>
-        fuimus::combine(group_id, columns = c("a1"), sep = "")
+      last <- idx |>
+        fastplyr::f_filter(code %!in% lone[["code"]]) |>
+        fastplyr::f_select(code, group_id = a1, a2:a3)
+
+      last <- fastplyr::f_left_join(
+        fastplyr::f_count(last, group_id, a2),
+        fastplyr::f_count(last, group_id, name = "g"), by = "group_id") |>
+        fastplyr::f_filter(n == g) |>
+        fastplyr::f_right_join(last, by = c("group_id", "a2")) |>
+        fastplyr::f_filter(!cheapr::is_na(n))
       
-      last <- dplyr::left_join(
-        last |> dplyr::count(group_id, a2),
-        last |> dplyr::count(group_id, name = "g"),
-        by = dplyr::join_by(group_id)) |>
-        dplyr::filter(n == g) |>
-        dplyr::right_join(last, by = dplyr::join_by(group_id, a2)) |>
-        dplyr::filter(!is.na(n))
-      
-      rest <- indices |>
-        dplyr::filter(code %!in% c(orphans, dplyr::pull(last, code))) |>
+      rest <- idx |>
+        fastplyr::f_filter(code %!in% c(lone[["code"]], last[["code"]])) |>
         fuimus::combine(group_id, columns = c("a1", "a2"), sep = "")
       
-      vctrs::vec_c(
-        if (empty(orphans)) NULL else list(orphans),
-        if (empty(last)) NULL else chop(last$code, last$group_id),
-        if (empty(rest)) NULL else chop(rest$code, rest$group_id))
+      c(if (empty(lone)) NULL else list(lone[["code"]]),
+        if (empty(last)) NULL else codex::chop(last[["code"]], last[["group_id"]]),
+        if (empty(rest)) NULL else codex::chop(rest[["code"]], rest[["group_id"]]))
     })
 }
 
@@ -385,46 +382,44 @@ group_4 <- function(x) {
   x <- collapse::get_elem(x, "x4")
   
   if (empty(x)) return(x)
+  # x <- x[[1]]
   
   purrr::map(x, function(x) {
     
-    indices <- data.table::data.table(
+    idx <- data.table::data.table(
       code = x,
       a1 = take_at(x),
       a2 = take_at(x, 2),
       a3 = take_at(x, 3),
       a4 = take_at(x, 4)) |>
-      dplyr::mutate(i1 = dplyr::consecutive_id(a1)) |>
-      dplyr::mutate(i2 = dplyr::consecutive_id(a2), .by = a1) |>
-      dplyr::mutate(i3 = dplyr::consecutive_id(a3), .by = c(a1, a2)) |>
-      dplyr::mutate(i4 = dplyr::consecutive_id(a4), .by = c(a1, a2, a3))
+      dplyr::mutate(i1 = fastplyr::f_consecutive_id(a1)) |>
+      dplyr::mutate(i2 = fastplyr::f_consecutive_id(a2), .by = a1) |>
+      dplyr::mutate(i3 = fastplyr::f_consecutive_id(a3), .by = c(a1, a2)) |>
+      dplyr::mutate(i4 = fastplyr::f_consecutive_id(a4), .by = c(a1, a2, a3))
       
-      orphans <- indices |>
-        dplyr::add_count(i1, name = "n1", sort = TRUE) |>
-        dplyr::filter((i2 + i3 + i4 + n1) == 4) |>
-        dplyr::pull(code)
+      lone <- idx |>
+        fastplyr::f_add_count(i1, name = "n1") |>
+        fastplyr::f_filter((i2 + i3 + i4 + n1) == 4)
       
-      last <- indices |>
-        dplyr::filter(code %!in% orphans) |>
-        dplyr::select(code, a1:a4) |>
+      last <- idx |>
+        fastplyr::f_filter(code %!in% lone[["code"]]) |>
+        fastplyr::f_select(code, a1:a4) |>
         fuimus::combine(group_id, columns = c("a1", "a2"), sep = "")
       
-      last <- dplyr::left_join(
-        last |> dplyr::count(group_id, a3),
-        last |> dplyr::count(group_id, name = "g"),
-        by = dplyr::join_by(group_id)) |>
-        dplyr::filter(n == g) |>
-        dplyr::right_join(last, by = dplyr::join_by(group_id, a3)) |>
-        dplyr::filter(!is.na(n))
+      last <- fastplyr::f_left_join(
+        fastplyr::f_count(last, group_id, a3),
+        fastplyr::f_count(last, group_id, name = "g"), by = "group_id") |>
+        fastplyr::f_filter(n == g) |>
+        fastplyr::f_right_join(last, by = c("group_id", "a3")) |>
+        fastplyr::f_filter(!cheapr::is_na(n))
       
-      rest <- indices |>
-        dplyr::filter(code %!in% c(orphans, dplyr::pull(last, code))) |>
+      rest <- idx |>
+        fastplyr::f_filter(code %!in% c(lone[["code"]], last[["code"]])) |>
         fuimus::combine(group_id, columns = c("a1", "a2", "a3"), sep = "")
       
-      vctrs::vec_c(
-        if (empty(orphans)) NULL else list(orphans),
-        if (empty(last)) NULL else chop(last$code, last$group_id),
-        if (empty(rest)) NULL else chop(rest$code, rest$group_id))
+      c(if (empty(lone)) NULL else list(lone[["code"]]),
+        if (empty(last)) NULL else codex::chop(last[["code"]], last[["group_id"]]),
+        if (empty(rest)) NULL else codex::chop(rest[["code"]], rest[["group_id"]]))
     })
 }
 
@@ -434,7 +429,7 @@ c("C751", "C970", "G020", "G040") |>
   split_first() |>
   group_4()
 
-long_test2[nchar(long_test2) == 4] |> 
+x <- long_test2[nchar(long_test2) == 4] |> 
   split_lengths() |> 
   remove_redundant() |>
   split_first() |>
