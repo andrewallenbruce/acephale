@@ -104,12 +104,8 @@ data.frame(
 
 -   [X] `split_lengths()`
 -   [X] `remove_redundant()`
-   - `contrast()`
 -   [X] `split_first()`
-   - `spf()`
 -   [ ] `process_groups()`
-   - `g1()`
-   - `g2()`
    - `group_3()`
    - `group_4()`
    - `group_5()`
@@ -147,7 +143,11 @@ view_remove <- \(x) {
 }
 ```
 
-# `split_lengths()`
+# Preprocessing
+
+::: {.panel-tabset}
+
+## `split_lengths()`
 
 ```{r}
 #| label: split_lengths
@@ -189,7 +189,7 @@ random_hcpcs() |>
   split_lengths()
 ```
 
-# `remove_redundant()`
+## `remove_redundant()`
 
 If a vector contains both `"A"` and `"A0"`, remove `"A0"`, i.e., remove longer codes that share a common sub-string with shorter codes.
 
@@ -227,7 +227,66 @@ random_hcpcs() |>
   remove_redundant()
 ```
 
-# Letters
+## `split_first()`
+
+```{r}
+#| label: split_first
+#| message: true
+#| echo: true
+split_at <- \(x, y = x, i, z) collapse::rsplit(x, sf_sub(y, i, z), use.names = FALSE)
+
+split_1 <- \(x) split_at(x, y = x, i = 1, z = 1)
+
+split_end <- \(x) {
+  
+  if (any(sf_detect(x, "[A-Z]$"))) {
+    
+    end <- sf_extract(x, "[A-Z]$")
+    beg <- glue::glue("{take_at(end, 5)}{sf_remove(end, '[A-Z]$')}")
+
+  c(split_at(x = x[!sf_detect(x, "[A-Z]$")], i = 1, z = 1),
+    split_at(x = end, y = beg, i = 1, z = 2))
+  
+  } else {
+    
+  split_at(x, i = 1, z = 1)
+    
+  }
+}
+
+split_first <- function(x, verbose = FALSE) {
+  
+  .c(x1, x2, x3, x4, x5) %=% x
+  
+  out <- list(
+    x1 = list(x1),
+    x2 = split_1(x2),
+    x3 = split_1(x3),
+    x4 = split_1(x4),
+    x5 = split_end(x5))
+  
+  if (verbose) {
+    
+    cli::cat_boxx(
+      label = view(out), 
+      header = glue::glue("{strrep(cli::symbol$stop, 3)} Split At First"),
+      align = "left", 
+      padding = c(0, 1, 0, 1))
+    
+    return(invisible(out))
+    
+  } else {
+    return(out)
+  }
+}
+
+random_hcpcs(50) |> 
+  split_lengths() |>
+  remove_redundant() |>
+  split_first()
+```
+
+### Letters
 
 ```{r}
 #| label: starts_ends_with_letter
@@ -245,132 +304,13 @@ print_ls(as.list(table(sf_extract(sf_sub(start_chr, 1, 1), "[A-Z]"))))
 cat("Total:", length(start_chr))
 ```
 
-
-```{r}
-#| label: len4
-#| eval: false
-x <- random_hcpcs(50) |> 
-  split_lengths()
-
-# Length 4 Start with a Letter
-if (any(sf_detect(x$x4, "^[A-Z]"))) {
-  
-  # Isolate codes starting with letter
-  x4s  <- sf_extract(x$x4, "^[A-Z]")
-  
-  # Isolate letters
-  sf_sub(x4s, 1, 1)
-  # Isolate codes, sans letters
-  sf_remove(x4s, "^[A-Z]")
-  
-  # Remove letter codes from original vector
-  x$x4[!sf_detect(x$x4, "^[A-Z]")]
-}
-```
-
-
-```{r}
-#| label: len5
-x <- random_hcpcs(50) |> 
-  split_lengths()
-
-# Length 5 End with Letter
-# if (any(sf_detect(x$x5, "[A-Z]$"))) {
-
-x$x5
-
-# Isolate codes starting with letter
-  x5e <- sf_extract(x$x5, "[A-Z]$")
-  
-  glue::glue("{take_at(x5e, 5)}{sf_remove(x5e, '[A-Z]$')}")
-
-  # Remove letter codes from original vector
-  x$x5[!sf_detect(x$x5, "^[A-Z]")]
-# }
-```
-
-
-# `split_first()`
-
-```{r}
-#| label: split_first
-#| message: true
-#| echo: true
-split_at <- \(x, i, z) collapse::rsplit(x, sf_sub(x, i, z), use.names = FALSE)
-
-sp1 <- \(x) split_at(x, 1, 1)
-
-split_first <- function(x, verbose = FALSE) {
-  
-  .c(x1, x2, x3, x4, x5) %=% x
-  
-  out <- list(
-    x1 = list(x1),
-    x2 = sp1(x2),
-    x3 = sp1(x3),
-    x4 = sp1(x4),
-    x5 = sp1(x5))
-  
-  if (verbose) {
-    
-    cli::cat_boxx(
-      label = view(out), 
-      header = glue::glue("{strrep(cli::symbol$stop, 3)} Split At First"),
-      align = "left", 
-      padding = c(0, 1, 0, 1))
-    
-    return(invisible(out))
-    
-  } else {
-    return(out)
-  }
-}
-```
+::: 
 
 # Grouping
 
 Group each set of vectors into regex patterns. Deal with groups containing letters separately.
 
 ::: {.panel-tabset}
-
-## Edge Cases
-
-```{r}
-#| label: edge_cases
-#---------- 1
-## Problem
-list("L80", c("L56", "L59"))
-
-## Solution
-"^L(5[69]|80)$"
-
-## Test
-sf_extract(hcpcs, "^L(5[69]|80)[0-9]{2}$")
-
-#---------- 2
-## Problem
-list(c("021", "022", "026", "027"), c("032", "033"), c("042", "044"), "050")
-
-## Solution
-"^0(2[1267]|3[23]|4[24]|50)[A-Z0-9]{2}$"
-
-## Test
-sf_extract(hcpcs, "^0(2[1267]|3[23]|4[24]|50)[A-Z0-9]{2}$")
-
-#---------- 3
-# How do you tell the difference?
-
-## Problem
-list(c("C75", "C97"), c("G02", "G04"))
-
-## Solution
-"^C(75|97)[A-Z0-9]{2}$"
-
-"^G0[24][A-Z0-9]{2}$"
-
-## Test
-sf_extract(hcpcs, "^C(75|97)[0-9]{2}$|^G0[24][0-9]{2}$")
-```
 
 ## Group 3
 
@@ -588,7 +528,7 @@ random_hcpcs(30) |>
   group_5()
 ```
 
-## All
+## process_groups
 
 ```{r}
 #| label: process_groups
@@ -622,9 +562,52 @@ random_hcpcs(50) |>
   process_groups()
 ```
 
+### Problems
+
+```{r}
+#| label: edge_cases
+#---------- 1
+## Problem
+list("L80", c("L56", "L59"))
+
+## Solution
+"^L(5[69]|80)$"
+
+## Test
+sf_extract(hcpcs, "^L(5[69]|80)[0-9]{2}$")
+
+#---------- 2
+## Problem
+list(c("021", "022", "026", "027"), c("032", "033"), c("042", "044"), "050")
+
+## Solution
+"^0(2[1267]|3[23]|4[24]|50)[A-Z0-9]{2}$"
+
+## Test
+sf_extract(hcpcs, "^0(2[1267]|3[23]|4[24]|50)[A-Z0-9]{2}$")
+
+#---------- 3
+# How do you tell the difference?
+
+## Problem
+list(c("C75", "C97"), c("G02", "G04"))
+
+## Solution
+"^C(75|97)[A-Z0-9]{2}$"
+
+"^G0[24][A-Z0-9]{2}$"
+
+## Test
+sf_extract(hcpcs, "^C(75|97)[0-9]{2}$|^G0[24][0-9]{2}$")
+```
+
 ::: 
 
-# `reduce_runs()`
+# Reduction
+
+::: {.panel-tabset}
+
+## `reduce_runs()`
 
 ```{r}
 #| label: reduce_runs
@@ -634,7 +617,6 @@ reduce_runs <- function(x) {
   
   if (nchar(x) == 1) return(x)
 
-  # poss <- c(LETTERS, 0:9)
   poss <- c(0:9, "&", LETTERS)
   
   test <- setNames(rep(0, 37), poss)
@@ -675,9 +657,6 @@ reduce_runs <- function(x) {
   bracket(res)
 }
 ```
-
-
-::: {.panel-tabset}
 
 ## `red1()`
 
@@ -780,7 +759,6 @@ paste0("A", c(0:5, LETTERS)) |>
   process_groups() |>
   red2()
 ```
-
 
 ## `red3()`
 
