@@ -291,17 +291,18 @@ random_hcpcs(50) |>
 ```{r}
 #| label: starts_ends_with_letter
 #| echo: false
+#| message: true
 end_chr <- stringfish::convert_to_sf(sf_extract(hcpcs, "[A-Z]$"))
 
-cat("HCPCS Ending with Letter", sep = "\n")
+message("HCPCS Ending with Letter")
 print_ls(as.list(table(sf_extract(sf_sub(end_chr, 5, 5), "[A-Z]"))))
-cat("Total: ", length(end_chr))
+message("Total: ", length(end_chr))
 
 start_chr <- stringfish::convert_to_sf(sf_extract(hcpcs, "^[A-Z]"))
 
-cat("HCPCS Beginning with Letter", sep = "\n")
+message("HCPCS Beginning with Letter", sep = "\n")
 print_ls(as.list(table(sf_extract(sf_sub(start_chr, 1, 1), "[A-Z]"))))
-cat("Total:", length(start_chr))
+message("Total:", length(start_chr))
 ```
 
 ::: 
@@ -326,36 +327,36 @@ group_3 <- function(x) {
   purrr::map(x, function(x) {
     
     idx <- data.table::data.table(
-        code = x,
-        a1 = take_at(x),
-        a2 = take_at(x, 2),
-        a3 = take_at(x, 3)) |>
-        dplyr::mutate(i1 = fastplyr::f_consecutive_id(a1)) |>
-        dplyr::mutate(i2 = fastplyr::f_consecutive_id(a2), .by = a1) |>
-        dplyr::mutate(i3 = fastplyr::f_consecutive_id(a3), .by = c(a1, a2))
+      code = x,
+      grp = sf_sub(x, 1, 2),
+      a1 = take_at(x),
+      a2 = take_at(x, 2),
+      a3 = take_at(x, 3),
+      i1 = collapse::groupid(take_at(x)),
+      i2 = collapse::groupid(take_at(x, 2))) |>
+      # collapse::fgroup_by(a1) |>
+      # collapse::fmutate(i2 = collapse::groupid(a2)) |>
+      collapse::fgroup_by(a1, a2) |>
+      collapse::fmutate(i3 = collapse::groupid(a3)) |> 
+      collapse::fungroup()
       
-      lone <- idx |>
-        fastplyr::f_add_count(i1, name = "n1") |>
-        fastplyr::f_filter((i2 + i3 + n1) == 3)
+      lone <- collapse::fcount(idx, i1, add = TRUE) |>
+        collapse::fsubset((i2 + i3 + N) == 3)
       
-      last <- idx |>
-        fastplyr::f_filter(code %!in% lone[["code"]]) |>
-        fastplyr::f_select(code, group_id = a1, a2:a3)
-
-      last <- fastplyr::f_left_join(
-        fastplyr::f_count(last, group_id, a2),
-        fastplyr::f_count(last, group_id, name = "g"), by = "group_id") |>
-        fastplyr::f_filter(n == g) |>
-        fastplyr::f_right_join(last, by = c("group_id", "a2")) |>
-        fastplyr::f_filter(!cheapr::is_na(n))
+      last <- collapse::fsubset(idx, code %!in% lone[["code"]])
       
-      rest <- idx |>
-        fastplyr::f_filter(code %!in% c(lone[["code"]], last[["code"]])) |>
-        fuimus::combine(group_id, columns = c("a1", "a2"), sep = "")
+      last <- collapse::join(
+        collapse::fcount(last, a1, a2),
+        collapse::fcount(last, a1, name = "G"), on = "a1", verbose = 0) |>
+        collapse::fsubset(N == G) |>
+        collapse::join(last, on = c("a1", "a2"), how = "right", verbose = 0) |>
+        collapse::fsubset(!cheapr::is_na(N))
+      
+      rest <- collapse::fsubset(idx, code %!in% c(lone[["code"]], last[["code"]]))
       
       c(if (empty(lone)) NULL else list(lone[["code"]]),
-        if (empty(last)) NULL else codex::chop(last[["code"]], last[["group_id"]]),
-        if (empty(rest)) NULL else codex::chop(rest[["code"]], rest[["group_id"]]))
+        if (empty(last)) NULL else codex::chop(last[["code"]], last[["a1"]]),
+        if (empty(rest)) NULL else codex::chop(rest[["code"]], rest[["grp"]]))
     })
 }
 
@@ -371,13 +372,12 @@ long_test2[nchar(long_test2) == 3] |>
   split_first() |>
   group_3()
 
-random_hcpcs(30) |> 
+random_hcpcs(50) |> 
   split_lengths() |> 
   remove_redundant() |>
   split_first() |>
   group_3()
 ```
-
 
 ## Group 4
 
@@ -394,44 +394,38 @@ group_4 <- function(x) {
     
     idx <- data.table::data.table(
       code = x,
+      grp1 = sf_sub(x, 1, 2),
+      grp2 = sf_sub(x, 1, 3),
       a1 = take_at(x),
       a2 = take_at(x, 2),
       a3 = take_at(x, 3),
-      a4 = take_at(x, 4)) |>
-      dplyr::mutate(i1 = fastplyr::f_consecutive_id(a1)) |>
-      dplyr::mutate(i2 = fastplyr::f_consecutive_id(a2), .by = a1) |>
-      dplyr::mutate(i3 = fastplyr::f_consecutive_id(a3), .by = c(a1, a2)) |>
-      dplyr::mutate(i4 = fastplyr::f_consecutive_id(a4), .by = c(a1, a2, a3))
-      
-      lone <- idx |>
-        fastplyr::f_add_count(i1, name = "n1") |>
-        fastplyr::f_filter((i2 + i3 + i4 + n1) == 4)
-      
-      last <- idx |>
-        fastplyr::f_filter(code %!in% lone[["code"]]) |>
-        fastplyr::f_select(code, a1:a4) |>
-        fuimus::combine(group_id, columns = c("a1", "a2"), sep = "")
-      
-      last_1 <- fastplyr::f_left_join(
-        fastplyr::f_count(last, group_id, a3),
-        fastplyr::f_count(last, group_id, name = "g"), by = "group_id") |>
-        fastplyr::f_filter(n == g)
-      
-      if (empty(last_1)) {
-        last <- list(code = character(0), group_id = character(0))
-      } else {
-        last <- last_1 |> 
-          fastplyr::f_right_join(last, by = c("group_id", "a3")) |> 
-          fastplyr::f_filter(!cheapr::is_na(n))
-        }
-      
-      rest <- idx |>
-        fastplyr::f_filter(code %!in% c(lone[["code"]], last[["code"]])) |>
-        fuimus::combine(group_id, columns = c("a1", "a2", "a3"), sep = "")
+      a4 = take_at(x, 4),
+      i1 = collapse::groupid(take_at(x))) |>
+      collapse::fgroup_by(a1) |>
+      collapse::fmutate(i2 = collapse::groupid(a2)) |>
+      collapse::fgroup_by(a1, a2) |>
+      collapse::fmutate(i3 = collapse::groupid(a3)) |> 
+      collapse::fgroup_by(a1, a2, a3) |>
+      collapse::fmutate(i4 = collapse::groupid(a4)) |> 
+      collapse::fungroup()
+    
+    lone <- collapse::fcount(idx, i1, add = TRUE) |>
+        collapse::fsubset((i2 + i3 + i4 + N) == 4)
+    
+    last <- collapse::fsubset(idx, code %!in% lone[["code"]])
+    
+    last <- collapse::join(
+        collapse::fcount(last, grp1, a3),
+        collapse::fcount(last, grp1, name = "G"), on = "grp1", verbose = 0) |>
+        collapse::fsubset(N == G) |>
+        collapse::join(last, on = c("grp1", "a3"), how = "right", verbose = 0) |>
+        collapse::fsubset(!cheapr::is_na(N))
+    
+      rest <- collapse::fsubset(idx, code %!in% c(lone[["code"]], last[["code"]]))
       
       c(if (empty(lone)) NULL else list(lone[["code"]]),
-        if (empty(last)) NULL else codex::chop(last[["code"]], last[["group_id"]]),
-        if (empty(rest)) NULL else codex::chop(rest[["code"]], rest[["group_id"]]))
+        if (empty(last)) NULL else codex::chop(last[["code"]], last[["grp1"]]),
+        if (empty(rest)) NULL else codex::chop(rest[["code"]], rest[["grp2"]]))
     })
 }
 
@@ -447,7 +441,7 @@ long_test2[nchar(long_test2) == 4] |>
   split_first() |>
   group_4()
 
-random_hcpcs(30) |> 
+random_hcpcs(50) |> 
   split_lengths() |> 
   remove_redundant() |>
   split_first() |>
