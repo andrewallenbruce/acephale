@@ -222,10 +222,26 @@ random_hcpcs() |>
 # `split_first()`
 
 ```{r}
+#| label: starts_ends_with_letter
+end_chr <- stringfish::convert_to_sf(sf_extract(hcpcs, "[A-Z]$"))
+
+cat("Total: ", length(end_chr))
+table(sf_extract(sf_sub(hcpcs, 5, 5), "[A-Z]"))
+
+start_chr <- stringfish::convert_to_sf(sf_extract(hcpcs, "^[A-Z]"))
+
+cat("Total: ", length(start_chr))
+table(sf_extract(sf_sub(hcpcs, 1, 1), "[A-Z]"))
+```
+
+
+```{r}
 #| label: split_first
 #| message: true
 #| echo: true
-spf <- \(x, z = 1) collapse::rsplit(x, sf_sub(x, i = 1, z = z), use.names = FALSE, flatten = FALSE)
+split_at <- \(x, i, z) collapse::rsplit(x, sf_sub(x, i, z), use.names = FALSE)
+
+sp1 <- \(x) split_at(x, 1, 1)
 
 split_first <- function(x, verbose = FALSE) {
   
@@ -233,10 +249,10 @@ split_first <- function(x, verbose = FALSE) {
   
   out <- list(
     x1 = list(x1),
-    x2 = spf(x2),
-    x3 = spf(x3),
-    x4 = spf(x4),
-    x5 = spf(x5))
+    x2 = sp1(x2),
+    x3 = sp1(x3),
+    x4 = sp1(x4),
+    x5 = sp1(x5))
   
   if (verbose) {
     
@@ -253,10 +269,30 @@ split_first <- function(x, verbose = FALSE) {
   }
 }
 
-random_hcpcs(50) |> 
+x <- random_hcpcs(50) |> 
   split_lengths() |> 
-  remove_redundant() |> 
-  split_first()
+  remove_redundant()
+
+# Length 4 Start with a Letter
+if (any(sf_detect(x$x4, "^[A-Z]"))) {
+  
+  # Isolate codes starting with letter
+  x4A  <- sf_extract(x$x4, "^[A-Z]")
+  
+  # Isolate letters
+  sf_sub(x4A, 1, 1)
+  # Isolate codes, sans letters
+  sf_remove(x4A, "^[A-Z]")
+  
+  # Remove letter codes from original vector
+  x$x4[!sf_detect(x$x4, "^[A-Z]")]
+}
+
+# Length 5 Start with Letter
+any(sf_detect(x$x5, "^[A-Z]"))
+
+# Length 5 End with Letter
+any(sf_detect(x$x5, "[A-Z]$"))
 ```
 
 # Grouping
