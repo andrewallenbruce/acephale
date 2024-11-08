@@ -39,7 +39,6 @@ knitr::opts_chunk$set(
   fig.width = 8
 )
 options(scipen = 999, digits = 2)
-
 library(fuimus)
 library(tidyverse)
 library(rlang)
@@ -382,7 +381,6 @@ group_4 <- function(x) {
   x <- collapse::get_elem(x, "x4")
   
   if (empty(x)) return(x)
-  # x <- x[[1]]
   
   purrr::map(x, function(x) {
     
@@ -406,12 +404,18 @@ group_4 <- function(x) {
         fastplyr::f_select(code, a1:a4) |>
         fuimus::combine(group_id, columns = c("a1", "a2"), sep = "")
       
-      last <- fastplyr::f_left_join(
+      last_1 <- fastplyr::f_left_join(
         fastplyr::f_count(last, group_id, a3),
         fastplyr::f_count(last, group_id, name = "g"), by = "group_id") |>
-        fastplyr::f_filter(n == g) |>
-        fastplyr::f_right_join(last, by = c("group_id", "a3")) |>
-        fastplyr::f_filter(!cheapr::is_na(n))
+        fastplyr::f_filter(n == g)
+      
+      if (empty(last_1)) {
+        last <- list(code = character(0), group_id = character(0))
+      } else {
+        last <- last_1 |> 
+          fastplyr::f_right_join(last, by = c("group_id", "a3")) |> 
+          fastplyr::f_filter(!cheapr::is_na(n))
+        }
       
       rest <- idx |>
         fastplyr::f_filter(code %!in% c(lone[["code"]], last[["code"]])) |>
@@ -429,7 +433,7 @@ c("C751", "C970", "G020", "G040") |>
   split_first() |>
   group_4()
 
-x <- long_test2[nchar(long_test2) == 4] |> 
+long_test2[nchar(long_test2) == 4] |> 
   split_lengths() |> 
   remove_redundant() |>
   split_first() |>
