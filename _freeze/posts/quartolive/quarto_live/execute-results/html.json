@@ -1,0 +1,15 @@
+{
+  "hash": "33398592fae442c92ea61035e6e23a99",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: quarto-live Sandbox\nengine: knitr\nformat: live-html\n---\n\n::: {.cell}\n\n:::\n\n\n\n\n\n# Basic Output/Plotting\n\n\n\n\n::: {.cell}\n```{webr}\nfit = lm(mpg ~ am, data = mtcars)\n\nsummary(fit)\n\nplot(fit)\n```\n:::\n\n\n\n\n# {ggplot2} Output\n\n\n\n\n::: {.cell}\n```{webr}\n#| fig-width: 8\n#| fig-height: 4\nlibrary(ggplot2)\n\nggplot(\n  mtcars, \n  aes(x = wt, y = mpg, group = am)) +\n  geom_point(\n    aes(color = cyl, shape = cyl)) +\n  geom_smooth(method = lm, formula = y ~ x) +\n  ggtitle(\"Motor Trend Car Road Tests 🚀\") +\n  scale_shape_binned()\n```\n:::\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

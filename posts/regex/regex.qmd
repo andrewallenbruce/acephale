@@ -39,19 +39,27 @@ knitr::opts_chunk$set(
   fig.width = 8
 )
 options(scipen = 999, digits = 2)
+
 library(fuimus)
-library(tidyverse)
-library(rlang)
-library(vctrs)
-library(cli)
 library(codex)
+
+library(dplyr)
+library(purrr)
+library(stringr)
+library(rlang)
+library(cli)
+library(dtplyr)
+library(vctrs)
+
 library(stringfish)
 library(data.table)
 library(collapse)
+library(kit)
 library(emphatic)
 library(compiler)
 library(cheapr)
 library(fastplyr)
+
 # library(re2)
 # library(re2r)
 # library(tidyfast)
@@ -219,21 +227,70 @@ random_hcpcs() |>
   remove_redundant()
 ```
 
-# `split_first()`
+# Letters
 
 ```{r}
 #| label: starts_ends_with_letter
+#| echo: false
 end_chr <- stringfish::convert_to_sf(sf_extract(hcpcs, "[A-Z]$"))
 
+cat("HCPCS Ending with Letter", sep = "\n")
+print_ls(as.list(table(sf_extract(sf_sub(end_chr, 5, 5), "[A-Z]"))))
 cat("Total: ", length(end_chr))
-table(sf_extract(sf_sub(hcpcs, 5, 5), "[A-Z]"))
 
 start_chr <- stringfish::convert_to_sf(sf_extract(hcpcs, "^[A-Z]"))
 
-cat("Total: ", length(start_chr))
-table(sf_extract(sf_sub(hcpcs, 1, 1), "[A-Z]"))
+cat("HCPCS Beginning with Letter", sep = "\n")
+print_ls(as.list(table(sf_extract(sf_sub(start_chr, 1, 1), "[A-Z]"))))
+cat("Total:", length(start_chr))
 ```
 
+
+```{r}
+#| label: len4
+#| eval: false
+x <- random_hcpcs(50) |> 
+  split_lengths()
+
+# Length 4 Start with a Letter
+if (any(sf_detect(x$x4, "^[A-Z]"))) {
+  
+  # Isolate codes starting with letter
+  x4s  <- sf_extract(x$x4, "^[A-Z]")
+  
+  # Isolate letters
+  sf_sub(x4s, 1, 1)
+  # Isolate codes, sans letters
+  sf_remove(x4s, "^[A-Z]")
+  
+  # Remove letter codes from original vector
+  x$x4[!sf_detect(x$x4, "^[A-Z]")]
+}
+```
+
+
+```{r}
+#| label: len5
+x <- random_hcpcs(50) |> 
+  split_lengths()
+
+# Length 5 End with Letter
+# if (any(sf_detect(x$x5, "[A-Z]$"))) {
+
+x$x5
+
+# Isolate codes starting with letter
+  x5e <- sf_extract(x$x5, "[A-Z]$")
+  
+  glue::glue("{take_at(x5e, 5)}{sf_remove(x5e, '[A-Z]$')}")
+
+  # Remove letter codes from original vector
+  x$x5[!sf_detect(x$x5, "^[A-Z]")]
+# }
+```
+
+
+# `split_first()`
 
 ```{r}
 #| label: split_first
@@ -268,31 +325,6 @@ split_first <- function(x, verbose = FALSE) {
     return(out)
   }
 }
-
-x <- random_hcpcs(50) |> 
-  split_lengths() |> 
-  remove_redundant()
-
-# Length 4 Start with a Letter
-if (any(sf_detect(x$x4, "^[A-Z]"))) {
-  
-  # Isolate codes starting with letter
-  x4A  <- sf_extract(x$x4, "^[A-Z]")
-  
-  # Isolate letters
-  sf_sub(x4A, 1, 1)
-  # Isolate codes, sans letters
-  sf_remove(x4A, "^[A-Z]")
-  
-  # Remove letter codes from original vector
-  x$x4[!sf_detect(x$x4, "^[A-Z]")]
-}
-
-# Length 5 Start with Letter
-any(sf_detect(x$x5, "^[A-Z]"))
-
-# Length 5 End with Letter
-any(sf_detect(x$x5, "[A-Z]$"))
 ```
 
 # Grouping
