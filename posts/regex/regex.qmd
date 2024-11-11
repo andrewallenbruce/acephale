@@ -116,115 +116,25 @@ data.frame(
    - `red2()`
    - `red3()`
 
-```{r}
-#| label: helpers
-#| echo: false
-cutoff <- \(x) stringr::str_trunc(string = x, width = 40, side = "right")
-wrap   <- \(x) stringr::str_wrap(string = x, width = 60, exdent = 5, whitespace_only = FALSE)
-
-view <- \(x) {
-  idx  <- seq_along(x)
-  len  <- vlen(x)
-  tree <- unname(purrr::map_vec(x, paste0, collapse = " ")) |> purrr::map_vec(cutoff)
-  
-    glue::glue("{format(idx)}: ", 
-               "{format(len)}|", 
-               "--[{if (empty(tree)) NULL else format(tree, justify = 'none')}]")
-}
-
-view_remove <- \(x) {
-  
-  len  <- length(x)
-  tree <- unname(paste0(x, collapse = " ")) |> purrr::map_vec(cutoff)
-  
-  glue::glue("Removed ", 
-             "{format(len, justify = 'left')}|", 
-             "--[{if (empty(tree)) NULL else format(tree, justify = 'none')}]")
-}
-```
-
 # Preprocessing
-
-::: {.panel-tabset}
-
-## `split_lengths()`
 
 ```{r}
 #| label: split_lengths
 #| message: true
 #| echo: true
-split_lengths <- function(x, verbose = FALSE) {
-  
-  stopifnot(is.character(x))
-  
-  x <- sf_remove(x, "\\*|\\s") |> 
-    unique_narm() |> 
-    stringr::str_sort()
-  
-  l <- vlen(x)
-  
-  out <- list(
-    x1 = x[l == 1],
-    x2 = x[l == 2],
-    x3 = x[l == 3],
-    x4 = x[l == 4],
-    x5 = x[l == 5])
-  
-  if (verbose) {
-    
-    cli::cat_boxx(
-      label = view(out), 
-      header = glue::glue("{cli::symbol$stop} Split By Lengths"),
-      align = "left", 
-      padding = c(0, 1, 0, 1))
-    
-    return(invisible(out))
-    
-  } else {
-    return(out)
-  }
-}
+x <- random_hcpcs()
 
-random_hcpcs() |>
+x |>
   split_lengths()
-```
 
-## `remove_redundant()`
-
-If a vector contains both `"A"` and `"A0"`, remove `"A0"`, i.e., remove longer codes that share a common sub-string with shorter codes.
-
-```{r}
-#| label: remove_redundant
-remove_redundant <- function(x, verbose = FALSE) {
-
-  .c(x1, x2, x3, x4, x5) %=% x
-  
-  out <- list(
-    x1 = x1,
-    x2 = rr(x2, x1),
-    x3 = rr(x3, x1) |> rr(x2),
-    x4 = rr(x4, x1) |> rr(x2) |> rr(x3),
-    x5 = rr(x5, x1) |> rr(x2) |> rr(x3) |> rr(x4)
-  )
-  
-  if (verbose) {
-    
-    cli::cat_boxx(
-      label = view(out), 
-      header = glue::glue("{strrep(cli::symbol$stop, 2)} Remove Redundancies"),
-      align = "left", 
-      padding = c(0, 1, 0, 1))
-
-    return(invisible(out))
-    
-  } else {
-    return(out)
-  }
-}
-
-random_hcpcs() |> 
-  split_lengths() |> 
+x |>
+  split_lengths() |>
   remove_redundant()
+
+x |>
+  split_lengths() |>
+  remove_redundant() |>
+  split_first()
 ```
 
 ## `split_first()`
@@ -233,57 +143,44 @@ random_hcpcs() |>
 #| label: split_first
 #| message: true
 #| echo: true
-split_at <- \(x, y = x, i, z) collapse::rsplit(x, sf_sub(y, i, z), use.names = FALSE)
+# split_at <- \(x, y = x, i, z) collapse::rsplit(x, sf_sub(y, i, z), use.names = FALSE)
+# 
+# split_1 <- \(x) split_at(x, y = x, i = 1, z = 1)
+# 
+# split_end <- \(x) {
+#   
+#   if (any(sf_detect(x, "[A-Z]$"))) {
+#     
+#     end <- sf_extract(x, "[A-Z]$")
+#     beg <- glue::glue("{take_at(end, 5)}{sf_remove(end, '[A-Z]$')}")
+# 
+#   c(split_at(x = x[!sf_detect(x, "[A-Z]$")], i = 1, z = 1),
+#     split_at(x = end, y = beg, i = 1, z = 2))
+#   
+#   } else {
+#     
+#   split_at(x, i = 1, z = 1)
+#     
+#   }
+# }
 
-split_1 <- \(x) split_at(x, y = x, i = 1, z = 1)
-
-split_end <- \(x) {
-  
-  if (any(sf_detect(x, "[A-Z]$"))) {
-    
-    end <- sf_extract(x, "[A-Z]$")
-    beg <- glue::glue("{take_at(end, 5)}{sf_remove(end, '[A-Z]$')}")
-
-  c(split_at(x = x[!sf_detect(x, "[A-Z]$")], i = 1, z = 1),
-    split_at(x = end, y = beg, i = 1, z = 2))
-  
-  } else {
-    
-  split_at(x, i = 1, z = 1)
-    
-  }
-}
-
-split_first <- function(x, verbose = FALSE) {
+split_first_v2 <- function(x) {
   
   .c(x1, x2, x3, x4, x5) %=% x
   
-  out <- list(
+  list(
     x1 = list(x1),
     x2 = split_1(x2),
     x3 = split_1(x3),
-    x4 = split_1(x4),
+    x4 = split_at(x = x4, y = x4, i = 1, z = 2),
+    # x4 = split_1(x4),
     x5 = split_end(x5))
-  
-  if (verbose) {
-    
-    cli::cat_boxx(
-      label = view(out), 
-      header = glue::glue("{strrep(cli::symbol$stop, 3)} Split At First"),
-      align = "left", 
-      padding = c(0, 1, 0, 1))
-    
-    return(invisible(out))
-    
-  } else {
-    return(out)
-  }
 }
 
 random_hcpcs(50) |> 
   split_lengths() |>
   remove_redundant() |>
-  split_first()
+  split_first_v2()
 ```
 
 ### Letters
@@ -305,8 +202,6 @@ print_ls(as.list(table(sf_extract(sf_sub(start_chr, 1, 1), "[A-Z]"))))
 message("Total:", length(start_chr))
 ```
 
-::: 
-
 # Grouping
 
 Group each set of vectors into regex patterns. Deal with groups containing letters separately.
@@ -318,6 +213,8 @@ Group each set of vectors into regex patterns. Deal with groups containing lette
 ```{r}
 #| label: group_3
 #| eval: true
+not_na <- \(x) !cheapr::is_na(x)
+
 group_3 <- function(x) {
 
   x <- collapse::get_elem(x, "x3")
@@ -332,10 +229,9 @@ group_3 <- function(x) {
       a1 = take_at(x),
       a2 = take_at(x, 2),
       a3 = take_at(x, 3),
-      i1 = collapse::groupid(take_at(x)),
-      i2 = collapse::groupid(take_at(x, 2))) |>
-      # collapse::fgroup_by(a1) |>
-      # collapse::fmutate(i2 = collapse::groupid(a2)) |>
+      i1 = collapse::groupid(take_at(x))) |>
+      collapse::fgroup_by(a1) |>
+      collapse::fmutate(i2 = collapse::groupid(a2)) |>
       collapse::fgroup_by(a1, a2) |>
       collapse::fmutate(i3 = collapse::groupid(a3)) |> 
       collapse::fungroup()
@@ -350,13 +246,13 @@ group_3 <- function(x) {
         collapse::fcount(last, a1, name = "G"), on = "a1", verbose = 0) |>
         collapse::fsubset(N == G) |>
         collapse::join(last, on = c("a1", "a2"), how = "right", verbose = 0) |>
-        collapse::fsubset(!cheapr::is_na(N))
+        collapse::fsubset(not_na(N))
       
       rest <- collapse::fsubset(idx, code %!in% c(lone[["code"]], last[["code"]]))
       
       c(if (empty(lone)) NULL else list(lone[["code"]]),
-        if (empty(last)) NULL else codex::chop(last[["code"]], last[["a1"]]),
-        if (empty(rest)) NULL else codex::chop(rest[["code"]], rest[["grp"]]))
+        if (empty(last)) NULL else gchop(last[["code"]], last[["a1"]]),
+        if (empty(rest)) NULL else gchop(rest[["code"]], rest[["grp"]]))
     })
 }
 
@@ -419,13 +315,13 @@ group_4 <- function(x) {
         collapse::fcount(last, grp1, name = "G"), on = "grp1", verbose = 0) |>
         collapse::fsubset(N == G) |>
         collapse::join(last, on = c("grp1", "a3"), how = "right", verbose = 0) |>
-        collapse::fsubset(!cheapr::is_na(N))
+        collapse::fsubset(not_na(N))
     
       rest <- collapse::fsubset(idx, code %!in% c(lone[["code"]], last[["code"]]))
       
       c(if (empty(lone)) NULL else list(lone[["code"]]),
-        if (empty(last)) NULL else codex::chop(last[["code"]], last[["grp1"]]),
-        if (empty(rest)) NULL else codex::chop(rest[["code"]], rest[["grp2"]]))
+        if (empty(last)) NULL else gchop(last[["code"]], last[["grp1"]]),
+        if (empty(rest)) NULL else gchop(rest[["code"]], rest[["grp2"]]))
     })
 }
 
@@ -490,7 +386,7 @@ group_5 <- function(x) {
         by = dplyr::join_by(group_id)) |>
         dplyr::filter(n == g) |>
         dplyr::right_join(last, by = dplyr::join_by(group_id, a4)) |>
-        dplyr::filter(!is.na(n))
+        collapse::fsubset(not_na(N))
       
       rest <- indices |>
         dplyr::filter(code %!in% c(orphans, dplyr::pull(last, code))) |>
@@ -532,8 +428,8 @@ process_groups <- function(x) {
     g1 = x$x1,
     g2 = x$x2,
     g3 = group_3(x),
-    g4 = group_4(x),
-    g5 = group_5(x)
+    g4 = group_4(x)
+    # g5 = group_5(x)
     )
 }
 
