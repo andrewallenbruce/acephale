@@ -145,44 +145,20 @@ message("Total:", length(start_chr))
 #| label: split_lengths
 #| message: true
 #| echo: true
-(x <- random_hcpcs())
+x <- random_hcpcs()
 
-x |> split_lengths()
-
-x |>
-  split_lengths() |>
-  remove_redundant()
-
-x |>
-  split_lengths() |>
-  remove_redundant() |>
-  split_first()
+# x |> split_lengths()
+# 
+# x |>
+#   split_lengths() |>
+#   remove_redundant()
+# 
+# x |>
+#   split_lengths() |>
+#   remove_redundant() |>
+#   split_first()
 
 x |> 
-  split_lengths() |>
-  remove_redundant() |>
-  split_first()
-```
-
-```{r}
-#| label: split_first
-#| message: true
-#| echo: false
-#| eval: false
-# split_first_v2 <- function(x) {
-#   
-#   .c(x1, x2, x3, x4, x5) %=% x
-#   
-#   list(
-#     x1 = list(x1),
-#     x2 = split_1(x2),
-#     x3 = split_1(x3),
-#     x4 = split_at(x = x4, y = x4, i = 1, z = 2),
-#     # x4 = split_1(x4),
-#     x5 = split_end(x5))
-# }
-
-random_hcpcs(50) |> 
   split_lengths() |>
   remove_redundant() |>
   split_first()
@@ -399,41 +375,41 @@ random_hcpcs(50) |>
 
 ```{r}
 #| label: edge_cases
-#| eval: false
+#| eval: true
 #| echo: true
-#---------- 1
-## Problem
+# 1
 list("L80", c("L56", "L59"))
-
-## Solution
 "^L(5[69]|80)$"
-
-## Test
 sf_extract(hcpcs, "^L(5[69]|80)[0-9]{2}$")
 
-#---------- 2
-## Problem
+# 2
 list(c("021", "022", "026", "027"), c("032", "033"), c("042", "044"), "050")
-
-## Solution
 "^0(2[1267]|3[23]|4[24]|50)[A-Z0-9]{2}$"
-
-## Test
 sf_extract(hcpcs, "^0(2[1267]|3[23]|4[24]|50)[A-Z0-9]{2}$")
 
 #---------- 3
-# How do you tell the difference?
-
-## Problem
 list(c("C75", "C97"), c("G02", "G04"))
-
-## Solution
 "^C(75|97)[A-Z0-9]{2}$"
-
 "^G0[24][A-Z0-9]{2}$"
 
-## Test
-sf_extract(hcpcs, "^C(75|97)[0-9]{2}$|^G0[24][0-9]{2}$")
+length(sf_extract(hcpcs, "^C(75|97)[0-9]{2}$|^G0[24][0-9]{2}$"))
+length(sf_extract(hcpcs, "^(C75|C97|G0[24])[0-9]{2}$"))
+
+# red2() output
+list("0[2-5]", "15", "2[027]", "3[0-24-6]", "5[0458]", "6[134]", "76", "9[25]", "C[79]", "E0", "G0", "S2")
+
+# solution
+red2test <- paste0(
+  "^(", 
+  sf_collapse(
+    list("0[2-5]", "15", "2[027]", "3[0-24-6]", "5[0458]", "6[134]", "76", "9[25]", "C[79]", "E0", "G0", "S2") |> 
+      purrr::list_c(), 
+    collapse = "|"), 
+  ")[A-Z0-9]{3}$")
+
+red2test
+
+length(sf_extract(hcpcs, red2test))
 ```
 
 ::: 
@@ -449,6 +425,7 @@ sf_extract(hcpcs, "^C(75|97)[0-9]{2}$|^G0[24][0-9]{2}$")
 #| echo: true
 #| eval: true
 length_gto <- \(x) length(x) > 1
+length_eto <- \(x) length(x) == 1
 
 reduce_runs <- function(x) {
   
@@ -632,15 +609,12 @@ red3 <- function(x) {
   })
 }
 
-xred3 <- long_test2[sf_nchar(long_test2) == 3] |>
+long_test2[sf_nchar(long_test2) == 3] |>
   split_lengths() |>
   remove_redundant() |>
   split_first() |>
-  process_groups()
-
-xred3
-
-xred3 |> red3()
+  process_groups() |> 
+  red3()
 ```
 
 ## `red4()`
@@ -674,15 +648,12 @@ red4 <- function(x) {
   })
 }
 
-xred4 <- long_test2[sf_nchar(long_test2) == 4] |>
+long_test2[sf_nchar(long_test2) == 4] |>
   split_lengths() |>
   remove_redundant() |>
   split_first() |>
-  process_groups()
-
-xred4
-
-xred4 |> red4()
+  process_groups() |> 
+  red4()
 ```
 
 ## `red5()`
@@ -716,15 +687,139 @@ red5 <- function(x) {
   })
 }
 
-xred5 <- long_test2[sf_nchar(long_test2) == 5] |>
+long_test2[sf_nchar(long_test2) == 5] |>
   split_lengths() |>
   # remove_redundant() |>
   split_first() |>
-  process_groups()
+  process_groups() |> 
+  red5()
+```
 
-xred5
+## reduce_groups
 
-xred5 |> red5()
+```{r}
+reduce_groups <- \(x) {
+  
+  list(
+    g1 = red1(x),
+    g2 = red2(x),
+    g3 = red3(x),
+    g4 = red4(x),
+    g5 = red5(x)
+  )
+}
+
+long_test2 |>
+  split_lengths() |>
+  # remove_redundant() |>
+  split_first() |>
+  process_groups() |> 
+  reduce_groups()
+```
+
+
+::: 
+
+# Recombination
+
+::: {.panel-tabset}
+
+## recomb2
+
+```{r}
+#| label: recomb2
+recomb2 <- function(x) {
+  
+  x <- getelem(x, "g2")
+  
+  if (empty(x)) return(character(0))
+  
+  sf_convert(paste0("^(", sf_collapse(list_c(x), collapse = "|"), ")[A-Z0-9]{3}$"))
+}
+
+long_test2[sf_nchar(long_test2) == 2] |>
+  split_lengths() |>
+  remove_redundant() |>
+  split_first() |>
+  process_groups() |>
+  reduce_groups() |> 
+  recomb2()
+
+random_hcpcs() |>
+  split_lengths() |>
+  remove_redundant() |>
+  split_first() |>
+  process_groups() |>
+  reduce_groups() |> 
+  recomb2()
+```
+
+## recomb3
+
+```{r}
+#| label: recomb3
+uniq <- \(x, ...) collapse::funique(x, ...)
+
+recomb3 <- function(x) {
+  
+  x <- getelem(x, "g3")
+  
+  if (empty(x)) return(character(0))
+  
+  single <- if (!empty(x[vlen(x) == 1])) {
+    
+    sf_convert(paste0("^", list_c(x[vlen(x) == 1]), "[A-Z0-9]{2}$")) 
+    
+    } else { 
+    
+      character(0) 
+    }
+  
+  family <- if (!empty(x[vlen(x) > 1])) { 
+    
+    map(x[vlen(x) > 1], function(x) {
+      
+       front <- uniq(sf_sub(delist(x), start = 1, stop = 1))
+        
+        sf_convert(
+          paste0(
+          "^", 
+          front, 
+          "(", 
+          sf_collapse(
+          sf_remove(
+          delist(x), 
+          paste0("^[", front, "]{1}")), 
+          collapse = "|"), 
+          ")[A-Z0-9]{2}$"
+          ))
+      
+    })
+    
+    } else { 
+      
+      character(0) 
+    
+    }
+  
+  c(single, family)
+}
+
+long_test2[sf_nchar(long_test2) == 3] |>
+  split_lengths() |>
+  remove_redundant() |>
+  split_first() |>
+  process_groups() |> 
+  reduce_groups() |> 
+  recomb3()
+
+random_hcpcs() |>
+  split_lengths() |>
+  remove_redundant() |>
+  split_first() |>
+  process_groups() |>
+  reduce_groups() |> 
+  recomb3()
 ```
 
 ::: 
@@ -752,7 +847,7 @@ vec_to_regex <- vrg <- \(x, n) {
   glue::glue_collapse(x)
 }
 
-reduce_groups <- \(x) {
+rename_reduce_groups <- \(x) {
   
   list(
     g1 = red1(x),
