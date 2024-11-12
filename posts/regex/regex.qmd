@@ -41,14 +41,12 @@ knitr::opts_chunk$set(
 options(scipen = 999, digits = 2)
 
 library(fuimus)
-library(codex)
 
 library(dplyr)
 library(purrr)
 library(stringr)
 library(rlang)
 library(cli)
-library(dtplyr)
 library(vctrs)
 
 library(stringfish)
@@ -57,17 +55,23 @@ library(collapse)
 library(kit)
 library(emphatic)
 library(compiler)
-library(cheapr)
-library(fastplyr)
+
+library(codex)
+
+# library(dtplyr)
+# library(cheapr)
+# library(fastplyr)
+# library(tidyfast)
+# library(tidytable)
+
 
 # library(re2)
 # library(re2r)
-# library(tidyfast)
-# library(tidytable)
+
 source(here::here("posts/regex/scripts", "data.R"))
 ```
 
-# HCPCS
+# HCPCS Overview
 
 ```{r}
 #| label: hcpcs_all
@@ -92,6 +96,25 @@ data.frame(
   Regex = delist(rx)) |> 
   hl(greys, cols = 1) |>
   knit_print.emphatic()
+```
+
+### Letters
+
+```{r}
+#| label: starts_ends_with_letter
+#| echo: false
+#| message: true
+end_chr <- sf_convert(sf_extract(hcpcs, "[A-Z]$"))
+
+message("HCPCS Ending with Letter:")
+print_ls(as.list(table(sf_extract(sf_sub(end_chr, 5, 5), "[A-Z]"))))
+message("Total: ", length(end_chr))
+
+start_chr <- sf_convert(sf_extract(hcpcs, "^[A-Z]"))
+
+message("HCPCS Beginning with Letter:", sep = "\n")
+print_ls(as.list(table(sf_extract(sf_sub(start_chr, 1, 1), "[A-Z]"))))
+message("Total:", length(start_chr))
 ```
 
 # TODO
@@ -122,10 +145,9 @@ data.frame(
 #| label: split_lengths
 #| message: true
 #| echo: true
-x <- random_hcpcs()
+(x <- random_hcpcs())
 
-x |>
-  split_lengths()
+x |> split_lengths()
 
 x |>
   split_lengths() |>
@@ -135,71 +157,35 @@ x |>
   split_lengths() |>
   remove_redundant() |>
   split_first()
-```
 
-## `split_first()`
+x |> 
+  split_lengths() |>
+  remove_redundant() |>
+  split_first()
+```
 
 ```{r}
 #| label: split_first
 #| message: true
-#| echo: true
-# split_at <- \(x, y = x, i, z) collapse::rsplit(x, sf_sub(y, i, z), use.names = FALSE)
-# 
-# split_1 <- \(x) split_at(x, y = x, i = 1, z = 1)
-# 
-# split_end <- \(x) {
+#| echo: false
+#| eval: false
+# split_first_v2 <- function(x) {
 #   
-#   if (any(sf_detect(x, "[A-Z]$"))) {
-#     
-#     end <- sf_extract(x, "[A-Z]$")
-#     beg <- glue::glue("{take_at(end, 5)}{sf_remove(end, '[A-Z]$')}")
-# 
-#   c(split_at(x = x[!sf_detect(x, "[A-Z]$")], i = 1, z = 1),
-#     split_at(x = end, y = beg, i = 1, z = 2))
+#   .c(x1, x2, x3, x4, x5) %=% x
 #   
-#   } else {
-#     
-#   split_at(x, i = 1, z = 1)
-#     
-#   }
+#   list(
+#     x1 = list(x1),
+#     x2 = split_1(x2),
+#     x3 = split_1(x3),
+#     x4 = split_at(x = x4, y = x4, i = 1, z = 2),
+#     # x4 = split_1(x4),
+#     x5 = split_end(x5))
 # }
-
-split_first_v2 <- function(x) {
-  
-  .c(x1, x2, x3, x4, x5) %=% x
-  
-  list(
-    x1 = list(x1),
-    x2 = split_1(x2),
-    x3 = split_1(x3),
-    x4 = split_at(x = x4, y = x4, i = 1, z = 2),
-    # x4 = split_1(x4),
-    x5 = split_end(x5))
-}
 
 random_hcpcs(50) |> 
   split_lengths() |>
   remove_redundant() |>
-  split_first_v2()
-```
-
-### Letters
-
-```{r}
-#| label: starts_ends_with_letter
-#| echo: false
-#| message: true
-end_chr <- stringfish::convert_to_sf(sf_extract(hcpcs, "[A-Z]$"))
-
-message("HCPCS Ending with Letter")
-print_ls(as.list(table(sf_extract(sf_sub(end_chr, 5, 5), "[A-Z]"))))
-message("Total: ", length(end_chr))
-
-start_chr <- stringfish::convert_to_sf(sf_extract(hcpcs, "^[A-Z]"))
-
-message("HCPCS Beginning with Letter", sep = "\n")
-print_ls(as.list(table(sf_extract(sf_sub(start_chr, 1, 1), "[A-Z]"))))
-message("Total:", length(start_chr))
+  split_first()
 ```
 
 # Grouping
@@ -212,50 +198,6 @@ Group each set of vectors into regex patterns. Deal with groups containing lette
 
 ```{r}
 #| label: group_3
-#| eval: true
-not_na <- \(x) !cheapr::is_na(x)
-
-group_3 <- function(x) {
-
-  x <- collapse::get_elem(x, "x3")
-  
-  if (empty(x)) return(x)
-  
-  purrr::map(x, function(x) {
-    
-    idx <- data.table::data.table(
-      code = x,
-      grp = sf_sub(x, 1, 2),
-      a1 = take_at(x),
-      a2 = take_at(x, 2),
-      a3 = take_at(x, 3),
-      i1 = collapse::groupid(take_at(x))) |>
-      collapse::fgroup_by(a1) |>
-      collapse::fmutate(i2 = collapse::groupid(a2)) |>
-      collapse::fgroup_by(a1, a2) |>
-      collapse::fmutate(i3 = collapse::groupid(a3)) |> 
-      collapse::fungroup()
-      
-      lone <- collapse::fcount(idx, i1, add = TRUE) |>
-        collapse::fsubset((i2 + i3 + N) == 3)
-      
-      last <- collapse::fsubset(idx, code %!in% lone[["code"]])
-      
-      last <- collapse::join(
-        collapse::fcount(last, a1, a2),
-        collapse::fcount(last, a1, name = "G"), on = "a1", verbose = 0) |>
-        collapse::fsubset(N == G) |>
-        collapse::join(last, on = c("a1", "a2"), how = "right", verbose = 0) |>
-        collapse::fsubset(not_na(N))
-      
-      rest <- collapse::fsubset(idx, code %!in% c(lone[["code"]], last[["code"]]))
-      
-      c(if (empty(lone)) NULL else list(lone[["code"]]),
-        if (empty(last)) NULL else gchop(last[["code"]], last[["a1"]]),
-        if (empty(rest)) NULL else gchop(rest[["code"]], rest[["grp"]]))
-    })
-}
-
 c("C75", "C97", "G02", "G04") |> 
   split_lengths() |> 
   remove_redundant() |>
@@ -282,13 +224,13 @@ random_hcpcs(50) |>
 #| eval: true
 group_4 <- function(x) {
 
-  x <- collapse::get_elem(x, "x4")
+  x <- getelem(x, "x4")
   
   if (empty(x)) return(x)
   
-  purrr::map(x, function(x) {
+  map(x, function(x) {
     
-    idx <- data.table::data.table(
+    idx <- data.table(
       code = x,
       grp1 = sf_sub(x, 1, 2),
       grp2 = sf_sub(x, 1, 3),
@@ -296,28 +238,28 @@ group_4 <- function(x) {
       a2 = take_at(x, 2),
       a3 = take_at(x, 3),
       a4 = take_at(x, 4),
-      i1 = collapse::groupid(take_at(x))) |>
-      collapse::fgroup_by(a1) |>
-      collapse::fmutate(i2 = collapse::groupid(a2)) |>
-      collapse::fgroup_by(a1, a2) |>
-      collapse::fmutate(i3 = collapse::groupid(a3)) |> 
-      collapse::fgroup_by(a1, a2, a3) |>
-      collapse::fmutate(i4 = collapse::groupid(a4)) |> 
-      collapse::fungroup()
+      i1 = groupid(take_at(x))) |>
+      fgroup_by(a1) |>
+      fmutate(i2 = groupid(a2)) |>
+      fgroup_by(a1, a2) |>
+      fmutate(i3 = groupid(a3)) |> 
+      fgroup_by(a1, a2, a3) |>
+      fmutate(i4 = groupid(a4)) |> 
+      fungroup()
     
-    lone <- collapse::fcount(idx, i1, add = TRUE) |>
-        collapse::fsubset((i2 + i3 + i4 + N) == 4)
+    lone <- fcount(idx, i1, add = TRUE) |>
+        fsubset((i2 + i3 + i4 + N) == 4)
     
-    last <- collapse::fsubset(idx, code %!in% lone[["code"]])
+    last <- fsubset(idx, code %!in% lone[["code"]])
     
-    last <- collapse::join(
-        collapse::fcount(last, grp1, a3),
-        collapse::fcount(last, grp1, name = "G"), on = "grp1", verbose = 0) |>
-        collapse::fsubset(N == G) |>
-        collapse::join(last, on = c("grp1", "a3"), how = "right", verbose = 0) |>
-        collapse::fsubset(not_na(N))
+    last <- join(
+        fcount(last, grp1, a3),
+        fcount(last, grp1, name = "G"), on = "grp1", verbose = 0) |>
+        fsubset(N == G) |>
+        join(last, on = c("grp1", "a3"), how = "right", verbose = 0) |>
+        fsubset(not_na(N))
     
-      rest <- collapse::fsubset(idx, code %!in% c(lone[["code"]], last[["code"]]))
+      rest <- fsubset(idx, code %!in% c(lone[["code"]], last[["code"]]))
       
       c(if (empty(lone)) NULL else list(lone[["code"]]),
         if (empty(last)) NULL else gchop(last[["code"]], last[["grp1"]]),
@@ -351,51 +293,52 @@ random_hcpcs(50) |>
 #| eval: true
 group_5 <- function(x) {
 
-  x <- collapse::get_elem(x, "x5")
+  x <- getelem(x, "x5")
   
   if (empty(x)) return(x)
   
-  purrr::map(x, function(x) {
+  # x <- x[[1]]
+  
+  map(x, function(x) {
     
-    indices <- data.table::data.table(
+    idx <- data.table(
       code = x,
+      grp1 = sf_sub(x, 1, 2),
+      grp2 = sf_sub(x, 1, 3),
+      grp3 = sf_sub(x, 1, 4),
       a1 = take_at(x),
       a2 = take_at(x, 2),
       a3 = take_at(x, 3),
       a4 = take_at(x, 4),
-      a5 = take_at(x, 5)) |>
-      dplyr::mutate(i1 = dplyr::consecutive_id(a1)) |>
-      dplyr::mutate(i2 = dplyr::consecutive_id(a2), .by = a1) |>
-      dplyr::mutate(i3 = dplyr::consecutive_id(a3), .by = c(a1, a2)) |>
-      dplyr::mutate(i4 = dplyr::consecutive_id(a4), .by = c(a1, a2, a3)) |> 
-      dplyr::mutate(i5 = dplyr::consecutive_id(a5), .by = c(a1, a2, a3, a4))
+      a5 = take_at(x, 5),
+      i1 = groupid(take_at(x))) |>
+      fgroup_by(a1) |> 
+      fmutate(i2 = groupid(a2)) |>
+      fgroup_by(a1, a2) |> 
+      fmutate(i3 = groupid(a3)) |>
+      fgroup_by(a1, a2, a3) |> 
+      fmutate(i4 = groupid(a4)) |>
+      fgroup_by(a1, a2, a3, a4) |> 
+      fmutate(i5 = groupid(a5)) |> 
+      fungroup()
+
+      lone <- fcount(idx, i1, add = TRUE) |> 
+        fsubset((i2 + i3 + i4 + i5 + N) == 5)
       
-      orphans <- indices |>
-        dplyr::add_count(i1, name = "n1", sort = TRUE) |>
-        dplyr::filter((i2 + i3 + i4 + i5 + n1) == 5) |>
-        dplyr::pull(code)
+      last <- fsubset(idx, code %!in% lone[["code"]])
       
-      last <- indices |>
-        dplyr::filter(code %!in% orphans) |>
-        dplyr::select(code, a1:a5) |>
-        fuimus::combine(group_id, columns = c("a1", "a2", "a3"), sep = "")
+      last <- join(
+        fcount(last, grp2, a4),
+        fcount(last, grp2, name = "G"), on = "grp2", verbose = 0) |>
+        fsubset(N == G) |>
+        join(last, on = c("grp2", "a4"), how = "right", verbose = 0) |> 
+        fsubset(not_na(N))
       
-      last <- dplyr::left_join(
-        last |> dplyr::count(group_id, a4),
-        last |> dplyr::count(group_id, name = "g"),
-        by = dplyr::join_by(group_id)) |>
-        dplyr::filter(n == g) |>
-        dplyr::right_join(last, by = dplyr::join_by(group_id, a4)) |>
-        collapse::fsubset(not_na(N))
+      rest <- fsubset(idx, code %!in% c(lone[["code"]], last[["code"]]))
       
-      rest <- indices |>
-        dplyr::filter(code %!in% c(orphans, dplyr::pull(last, code))) |>
-        fuimus::combine(group_id, columns = c("a1", "a2", "a3", "a4"), sep = "")
-      
-      vctrs::vec_c(
-        if (empty(orphans)) NULL else list(orphans),
-        if (empty(last)) NULL else chop(last$code, last$group_id),
-        if (empty(rest)) NULL else chop(rest$code, rest$group_id))
+      c(if (empty(lone)) NULL else list(lone[["code"]]),
+        if (empty(last)) NULL else gchop(last[["code"]], last[["grp2"]]),
+        if (empty(rest)) NULL else gchop(rest[["code"]], rest[["grp3"]]))
     })
 }
 
@@ -428,20 +371,20 @@ process_groups <- function(x) {
     g1 = x$x1,
     g2 = x$x2,
     g3 = group_3(x),
-    g4 = group_4(x)
-    # g5 = group_5(x)
+    g4 = group_4(x),
+    g5 = group_5(x)
     )
 }
 
 hcpcs_tests |>
   split_lengths() |> 
-  # remove_redundant() |> 
+  remove_redundant() |>
   split_first() |>
   process_groups()
 
 long_test2 |> 
   split_lengths() |> 
-  # remove_redundant() |> 
+  remove_redundant() |>
   split_first() |> 
   process_groups()
 
@@ -456,6 +399,8 @@ random_hcpcs(50) |>
 
 ```{r}
 #| label: edge_cases
+#| eval: false
+#| echo: true
 #---------- 1
 ## Problem
 list("L80", c("L56", "L59"))
@@ -507,33 +452,40 @@ reduce_runs <- function(x) {
   
   if (nchar(x) == 1) return(x)
 
-  poss <- c(0:9, "&", LETTERS)
+  test <- setNames(rep(0, 37), c(0:9, "&", LETTERS))
   
-  test <- setNames(rep(0, 37), poss)
+  vec <- test[c(splits(x), "&")]
   
-  vctr <- test[c(splitter(x), "&")]
+  vec <- vec[not_na(vec)]
   
-  vctr <- vctr[!is.na(vctr)]
-  
-  test[names(vctr)] <- 1
+  test[names(vec)] <- 1
   
   test[names(test) == "&"] <- 0
 
-  groups <- data.table::data.table(
+  groups <- data.table(
     value = names(test),
     keys = test,
-    group = dplyr::consecutive_id(test)) |>
-    dplyr::mutate(size = dplyr::n(), .by = group) |> 
-    dplyr::filter(keys == 1, size >= 3) |>
-    dplyr::select(value, group)
-
+    group = groupid(test)) |>
+    fgroup_by(group)
+  
+  groups <- join(
+    groups, 
+    fcount(groups, group), 
+    on = "group", 
+    verbose = 0) |> 
+    fungroup() |> 
+    fsubset(keys == 1) |>
+    fsubset(N >= 3) |>
+    fselect(value, group)
+    
   if (empty(groups)) return(x)
   
-  xgroups <- chop(groups$value, groups$group) |>
-    purrr::map(smush) |>
-    purrr::list_c()
+  xgroups <- gchop(groups$value, 
+                   groups$group) |>
+    map(smush) |>
+    list_c()
   
-  if (all(xgroups == smush(poss))) return("[A-Z0-9]")
+  if (all(xgroups == smush(c(0:9, "&", LETTERS)))) return("[A-Z0-9]")
   
   replacements <- dplyr::left_join(
     dplyr::slice_min(groups, by = group, order_by = value) |> dplyr::rename(start = value),
@@ -554,16 +506,23 @@ reduce_runs <- function(x) {
 #| label: red1
 red1 <- function(x) {
   
-  if (empty(x[["g1"]])) return(character(0))
+  x <- getelem(x, "g1")[[1]]
   
-  x <- collapse::get_elem(x, "g1")[[1]]
+  if (empty(x)) return(character(0))
   
   re <- sort_order(x) |> reduce_runs()
   
   if (re == "[A-Z0-9]") return(glue::glue("^{re}{{5}}$"))
+  # return(paste0("^", re, "{5}$"))
   
-  post <- ifelse(sf_detect(re, "\\[?[0-9]{1}"), "[A-Z0-9]", "[0-9]")
+  post <- iif_else(
+    sf_detect(
+      re, 
+      "\\[?[0-9]{1}"), 
+    "[A-Z0-9]", 
+    "[0-9]")
   
+  # paste0("^", re, post, "{4}")
   glue::glue("^{re}{post}{{4}}$")
 }
 
@@ -602,30 +561,33 @@ list(g1 = list(c(LETTERS[1:5], 0:9))) |>
 #| label: red2
 red2 <- function(x) {
   
-  if (empty(x[["g2"]])) return(character(0))
+  x <- getelem(x, "g2")
   
-  x <- collapse::get_elem(x, "g2")
+  if (empty(x)) return(character(0))
+  
   l <- vlen(x)
   
   c(x[l == 1], 
-    purrr::map(x[l > 1], \(x) {
+    map(x[l > 1], \(x) {
     
     parts <- stringr::str_split_fixed(x, "", max_vlen(x)) |> 
     as.data.frame() |>
-    purrr::map(unique_narm) |>
-    purrr::map(sort_order) |>
-    purrr::map(reduce_runs) |>
+    map(uniq_narm) |>
+    map(sort_order) |>
+    map(reduce_runs) |>
     delist()
-  
-  multi <- stringfish::sf_nchar(parts, nthreads = 4L) > 1
+
+  multi <- sf_nchar(parts) > 1
   nobrk <- !sf_detect(parts[multi], "\\[|\\]")
   
-  parts[multi] <- ifelse(any(nobrk), purrr::map_chr(parts[multi], bracket), parts[multi])
+  parts[multi] <- iif_else(
+    any(nobrk), 
+    map_chr(parts[multi], bracket), 
+    parts[multi])
   
   smush(parts)
-    
   })
-  )
+ )
 }
 
 all_tests |> 
@@ -682,6 +644,20 @@ grp_nest <- long_test2[nchar(long_test2) == 3] |>
 
 
 x <- grp_nest
+
+# purrr::map_int(x[[1]], purrr::pluck_depth)
+  
+  top   <- x[depth == 1]
+  
+  leave <- top[vlen(top) == 1]
+  
+  top   <- top[vlen(top) > 1]
+  
+  nest  <- x[depth > 1]
+  
+  # first <- purrr::map(nest, \(x) take_at(purrr::pluck(x, 1, 1)))
+  # 
+  # rest <- purrr::map(nest, \(x) sf_remove(x, glue::glue("^{first}")))
 ```
 
 ```{r}
@@ -689,34 +665,26 @@ x <- grp_nest
 #| eval: false
 red3 <- function(x) {
   
-  if (empty(x[["g3"]])) return(character(0))
+  x <- getelem(x, "g3")
   
-  x <- collapse::get_elem(x, "g3")
-  d <- purrr::map_int(x, purrr::pluck_depth)
+  if (empty(x)) return(character(0))
   
-  top   <- x[d == 1]
-  leave <- top[vlen(top) == 1]
-  top   <- top[vlen(top) > 1]
-  nest  <- x[d > 1]
+  vlen(x)
   
-  first <- purrr::map_chr(nest[[1]], function(x) take_at(purrr::pluck(x, 1, 1)[1])) |> collapse::funique()
-  
-  rest <- purrr::map(nest[[1]], function(x) sf_remove(x, glue::glue("^{first}")))
-  
-  vctrs::vec_c(
+  c(
     leave, 
-    purrr::map(top, function(x) {
+    map(top, function(x) {
       x <- top[[1]]
       x <- top[[2]]
       
       parts <- stringr::str_split_fixed(x, "", n = max_vlen(x)) |> 
         as.data.frame() |>
-        purrr::map(unique_narm) |> 
-        purrr::map(sort_order) |>
-        purrr::map(reduce_runs) |> 
+        map(unique_narm) |> 
+        map(sort_order) |>
+        map(reduce_runs) |> 
         delist()
       
-      multi <- stringfish::sf_nchar(parts, nthreads = 4L) > 1
+      multi <- sf_nchr(parts) > 1
       
       if (any(multi)) parts[multi] <- parent(paste0(parts[multi], collapse = "|"))
       
@@ -724,6 +692,13 @@ red3 <- function(x) {
     })
   )
 }
+
+x <- long_test2[sf_nchar(long_test2) == 3] |>
+  split_lengths() |>
+  remove_redundant() |>
+  split_first() |>
+  process_groups() |>
+  red3()
 ```
 
 ::: 
@@ -739,7 +714,7 @@ vec_to_regex <- vrg <- \(x, n) {
   
   if (empty(x)) return(character(0))
   
-  post <- ifelse(sf_detect(x, "^\\[?[A-Z]\\-?"), "[0-9]", "[A-Z0-9]")
+  post <- iif_else(sf_detect(x, "^\\[?[A-Z]\\-?"), "[0-9]", "[A-Z0-9]")
   
   x <- data.table::fcase(
     n == 0, glue::glue("^{x}$"),                
@@ -755,14 +730,14 @@ reduce_groups <- \(x) {
   
   list(
     g1 = p1(x),
-    g2 = purrr::map_chr(x$g2, p2) |> purrr::map_chr(vrg, n = 3) |> glue::as_glue(),
-    g3 = purrr::map_chr(x$g3, p2) |> purrr::map_chr(vrg, n = 2) |> glue::as_glue(),
-    g4 = purrr::map_chr(x$g4, p2) |> purrr::map_chr(vrg, n = 1) |> glue::as_glue(),
-    g5 = purrr::map_chr(x$g5, p2) |> purrr::map_chr(vrg, n = 0) |> glue::as_glue()
+    g2 = map_chr(x$g2, p2) |> map_chr(vrg, n = 3) |> glue::as_glue(),
+    g3 = map_chr(x$g3, p2) |> map_chr(vrg, n = 2) |> glue::as_glue(),
+    g4 = map_chr(x$g4, p2) |> map_chr(vrg, n = 1) |> glue::as_glue(),
+    g5 = map_chr(x$g5, p2) |> map_chr(vrg, n = 0) |> glue::as_glue()
   )
 }
 
-all_tests[nchar(all_tests) > 2] |> 
+all_tests[sf_nchar(all_tests) > 2] |> 
   split_lengths() |> 
   remove_redundant() |> 
   process_groups() |> 
