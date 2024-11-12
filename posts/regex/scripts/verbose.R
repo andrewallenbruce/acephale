@@ -55,11 +55,7 @@ detect_list <- \(ll, re, negate = TRUE) {
   fn <- if (negate) !sf_detect else sf_detect
 
   purrr::map(ll, \(x) {
-    TRUE %in% purrr::map_lgl(
-      x,
-      fn,
-      re
-    )
+    TRUE %in% purrr::map_lgl(x, fn, re)
   }
   )
 }
