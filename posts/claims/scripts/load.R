@@ -53,22 +53,22 @@ claims <- read_csv(
     by = join_by(pos == pos_code)
   )
 
-claims <- claims |>
-  full_join(
-    expand_date_range(claims$dos, "dos"),
-    by = join_by(dos)
-  ) |>
-  arrange(id, enc) |>
-  mutate(
-    ppa = payments + adjustments,
-    gt = charges > ppa,
-    allowed = case_when(
-      is.na(allowed) & gt ~ ppa,
-      is.na(allowed) & !gt ~ payments,
-      .default = allowed),
-    ppa = NULL,
-    gt = NULL,
-    .after = charges)
+# claims <- claims |>
+#   full_join(
+#     expand_date_range(claims$dos, "dos"),
+#     by = join_by(dos)
+#   ) |>
+#   arrange(id, enc) |>
+#   mutate(
+#     ppa = payments + adjustments,
+#     gt = charges > ppa,
+#     allowed = case_when(
+#       is.na(allowed) & gt ~ ppa,
+#       is.na(allowed) & !gt ~ payments,
+#       .default = allowed),
+#     ppa = NULL,
+#     gt = NULL,
+#     .after = charges)
 
 rvu_spec <- cols(
   date_start  = col_date(format = ""),
@@ -91,22 +91,67 @@ pprrvu <- read_csv(
   here("posts/claims/data", "results.csv"),
   col_types = rvu_spec)
 
-blog_theme <-
-  theme_minimal(18, base_family = "IBM Plex Mono") +
-  theme(
-    plot.background = element_rect(fill = "#f9fafa", color = NA),
-    plot.title.position = "plot",
-    plot.title = element_text(size = 24, margin = margin(b = 1, unit = "line")),
-    legend.position = c(0, 1),
-    legend.direction = "horizontal",
-    legend.justification = c(0, 1),
-    legend.title.align = 1,
-    axis.title.y = element_text(hjust = 0),
-    axis.title.x = element_text(hjust = 0),
-    panel.grid.major = element_line(color = "#d3d9db"),
-    panel.grid.minor = element_blank()
-  )
-
-theme_set(blog_theme)
-
-type_colors <- c(reply = "#5e5b7f", tweet = "#ef8c02", retweet = "#7ab26f")
+# blog_theme <-
+#   theme_minimal(18, base_family = "IBM Plex Mono") +
+#   theme(
+#     plot.background = element_rect(fill = "#f9fafa", color = NA),
+#     plot.title.position = "plot",
+#     plot.title = element_text(size = 24, margin = margin(b = 1, unit = "line")),
+#     legend.position = c(0, 1),
+#     legend.direction = "horizontal",
+#     legend.justification = c(0, 1),
+#     legend.title.align = 1,
+#     axis.title.y = element_text(hjust = 0),
+#     axis.title.x = element_text(hjust = 0),
+#     panel.grid.major = element_line(color = "#d3d9db"),
+#     panel.grid.minor = element_blank()
+#   )
+#
+# theme_set(blog_theme)
+#
+# type_colors <- c(reply = "#5e5b7f", tweet = "#ef8c02", retweet = "#7ab26f")
+#
+#
+# encounters <- claims |>
+#   select(
+#     id,
+#     enc,
+#     dos,
+#     dob,
+#     age,
+#     # dor,
+#     # lag,
+#     # ref,
+#     # ref_cred,
+#     rendering = ren,
+#     cred = ren_cred,
+#     icd,
+#     pos,
+#     pos_name,
+#     pos_type,
+#     loc,
+#     ins_class,
+#     ins_prim,
+#     # ins_sec,
+#     year:wday_l) |>
+#   distinct()
+#
+# procedures <- claims |>
+#   select(
+#     id,
+#     enc,
+#     dos,
+#     ord,
+#     hcpcs,
+#     desc,
+#     units,
+#     mod1,
+#     mod2,
+#     charges,
+#     allowed,
+#     payments,
+#     adjustments,
+#     adj1,
+#     adj2,
+#     adj3) |>
+#   distinct()

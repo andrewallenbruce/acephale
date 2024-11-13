@@ -34,250 +34,18 @@ library(northstar)
 library(fuimus)
 
 source(here("posts/claims/scripts", "load.R"))
-
-claims <- claims |> distinct()
-
-encounters <- claims |> 
-  select(
-    id, 
-    enc, 
-    dos, 
-    dob,
-    age, 
-    # dor,
-    # lag,
-    # ref,
-    # ref_cred,
-    rendering = ren,
-    cred = ren_cred,
-    icd,
-    pos,
-    pos_name,
-    pos_type,
-    loc,
-    ins_class,
-    ins_prim,
-    # ins_sec,
-    year:wday_l) |> 
-  distinct()
-
-procedures <- claims |> 
-  select(
-    id, 
-    enc,
-    dos,
-    ord,
-    hcpcs, 
-    desc,
-    units,
-    mod1,
-    mod2,
-    charges, 
-    allowed, 
-    payments, 
-    adjustments,
-    adj1,
-    adj2,
-    adj3) |> 
-  distinct()
 ```
 
 
-# Summary
+# Claims
 
 ```{r}
 #| label: claims_summary
 #| echo: true
 #| message: false
 #| warning: false
-procedure_sum <- procedures |>
-  summarise(
-    n_hcpcs = n_distinct(hcpcs, na.rm = TRUE),
-    n_units = na_sum(units),
-    n_mod1 = na_sum(!is.na(mod1)),
-    n_mod2 = na_sum(!is.na(mod2)),
-    charges = na_sum(charges),
-    allowed = na_sum(allowed),
-    payments = na_sum(payments),
-    adjustments = na_sum(adjustments),
-    .by = c(id, enc, dos)) |>
-  filter(charges > 0) |>
-  arrange(dos) |> 
-  left_join(
-    encounters, by = join_by(id, enc, dos)) |> 
-  select(
-    id, 
-    enc, 
-    dos, 
-    year:wday_l,
-    n_hcpcs, 
-    n_units, 
-    n_mod1, 
-    n_mod2, 
-    charges, 
-    allowed, 
-    payments, 
-    adjustments,
-    dob,
-    age,
-    rendering,
-    cred,
-    icd,
-    pos,
-    pos_name,
-    pos_type,
-    loc,
-    ins_class,
-    ins_prim)
-
-procedure_sum
+claims
 ```
-
-
-
-```{r}
-#| label: theme
-#| echo: false
-#| eval: false
-#| message: false
-#| warning: false
-type_colors <- c(reply = "#5e5b7f", tweet = "#ef8c02", retweet = "#7ab26f")
-
-top_5_tweets_text <- function(data) {
-  slice_max(
-    data,
-    n = 5,
-    order_by = retweet_count * 2 + favorite_count,
-    with_ties = FALSE
-  ) |>
-    pull(full_text) |>
-    str_trunc(width = 120)
-}
-
-plot_monthly <-
-  tidy_tweets |>
-  # Group nest by month and tweet type ---
-  mutate(dt_month = sprintf("%d-%02d", year, month(created_at))) |>
-  group_nest(dt_month, month, year, type) |>
-  mutate(
-    # Calculate number of tweets per month/type
-    n = map_int(data, nrow),
-    # and extract the top 5 tweets
-    top = map(data, top_5_tweets_text)
-  ) |>
-  select(-data) |>
-  # Then build the tooltip (one row per month/type)
-  rowwise() |>
-  mutate(
-    type_pl = plu::ral(type, n = n),
-    tooltip = glue::glue(
-      "<p><strong>{month} {year}: ",
-      "<span style=\"color:{type_colors[type]}\">{n} {type_pl}</span></strong></p>",
-      "<ol>{tweets}</ol>",
-      tweets = paste(sprintf("<li>%s</li>", top), collapse = "")
-    ),
-    tooltip = htmltools::HTML(tooltip)
-  ) |>
-  ungroup() |>
-  # Finally ensure the order of factors (including month!)
-  mutate(type = factor(type, rev(c("tweet", "reply", "retweet")))) |>
-  arrange(dt_month, type) |>
-  mutate(dt_month = fct_inorder(dt_month)) |>
-  # Plot time! ----
-  ggplot() +
-  aes(x = dt_month, y = n, fill = type, color = type, group = type) +
-  ggiraph::geom_col_interactive(
-    width = 1,
-    aes(tooltip = tooltip)
-  ) +
-  scale_fill_manual(values = type_colors) +
-  scale_color_manual(values = type_colors) +
-  # The x-axis is factors for each month,
-  # we need labels for each year, e.g. 2010-01 => 2010
-  scale_x_discrete(
-    breaks = paste0(seq(2008, 2022, by = 1), "-01"),
-    labels = seq(2008, 2022, by = 1)
-  ) +
-  scale_y_continuous(expand = expansion(add = c(1, 1))) +
-  labs(
-    title = "Tweets per month",
-    x = "Month Tweeted →",
-    y = "Count →",
-    fill = NULL,
-    color = NULL
-  ) +
-  theme(
-    plot.title = element_text(size = 24, margin = margin(b = 2, unit = "line")),
-    legend.position = c(0, 1.14)
-  )
-
-ggiraph::girafe(
-  ggobj = plot_monthly,
-  width_svg = 14,
-  height_svg = 6,
-  desc = knitr::opts_current$get("fig.alt")
-)
-```
-
-
-```{r}
-procedure_sum |> 
-  summarise(
-    encounters = n(),
-    n_hcpcs = na_sum(n_hcpcs),
-    n_units = na_sum(n_units),
-    n_mod1 = na_sum(n_mod1),
-    n_mod2 = na_sum(n_mod2),
-    charges = na_sum(charges),
-    allowed = na_sum(allowed),
-    payments = na_sum(payments),
-    adjustments = na_sum(adjustments),
-    .by = c(year, quarter, month_l, rendering, ins_prim)) |> 
-  arrange(year, quarter, month_l) |> 
-  ggplot(aes(y = charges)) +
-  geom_boxplot(aes(group = year, fill = year)) +
-  scale_x_continuous(labels = scales::label_number(scale = 0.001, suffix = "k")) +
-  ggthemes::theme_fivethirtyeight() +
-  theme(legend.position = "none") +
-  theme(
-    axis.text.y = element_blank(),
-    panel.grid.major.x = element_blank(),
-    panel.grid.minor.x = element_blank()
-  )
-```
-
-
-
-```{r}
-procedure_sum |> 
-  summarise(
-    encounters = n(),
-    n_hcpcs = na_sum(n_hcpcs),
-    n_units = na_sum(n_units),
-    n_mod1 = na_sum(n_mod1),
-    n_mod2 = na_sum(n_mod2),
-    charges = na_sum(charges),
-    allowed = na_sum(allowed),
-    payments = na_sum(payments),
-    adjustments = na_sum(adjustments),
-    .by = c(year, quarter, month_l, rendering, ins_prim)) |> 
-  arrange(year, quarter, month_l) |> 
-  ggplot(aes(x = payments, y = charges)) +
-  geom_point(aes(size = encounters, group = ins_prim, fill = ins_prim), colour = "black", shape = 21) +
-  geom_quantile(colour = "royalblue", linewidth = 1) +
-  # geom_hline(yintercept = 0, color = "black", linewidth = 0.5) +
-  # geom_vline(xintercept = 0, color = "grey50", linewidth = 0.5) +
-  scale_y_continuous(labels = scales::label_number(scale = 0.001, suffix = "k")) +
-  scale_x_continuous(labels = scales::label_number(scale = 0.001, suffix = "k")) +
-  ggthemes::theme_fivethirtyeight() +
-  coord_cartesian(clip = "off") +
-  theme(legend.position = "none") +
-  theme(
-    panel.grid.major.x = element_blank(),
-    panel.grid.minor.x = element_blank()
-  )
-```
-
 
 ## Ratio Analysis
 
@@ -287,10 +55,11 @@ Revenue Per Visit
 
 ```{r}
 #| label: claims_ratio
-#| echo: true
+#| echo: false
+#| eval: false
 #| message: false
 #| warning: false
-claims_summary <- claims |>
+claims |>
     select(
     id,
     enc,
@@ -394,7 +163,8 @@ claims_summary |>
 
 ```{r}
 #| label: insurance_summary
-#| echo: true
+#| echo: false
+#| eval: false
 #| message: false
 #| warning: false
 insurance_summary <- claims |>
@@ -441,6 +211,7 @@ insurance_summary |>
 ```{r}
 #| label: insurance_ratios
 #| echo: true
+#| eval: false
 #| message: false
 #| warning: false
 insurance_summary |> 
@@ -467,7 +238,8 @@ insurance_summary |>
 
 ```{r}
 #| label: rvu_new
-#| echo: true
+#| echo: false
+#| eval: false
 #| message: false
 #| warning: false
 
@@ -545,7 +317,8 @@ pprrvu |>
 
 ```{r}
 #| label: rvu_summary
-#| echo: true
+#| echo: false
+#| eval: false
 #| message: false
 #| warning: false
 rvu_join <- pprrvu |> 
