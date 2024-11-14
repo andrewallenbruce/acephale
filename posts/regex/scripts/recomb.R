@@ -43,3 +43,37 @@ list(
 ) |>
   purrr::list_flatten() |>
   purrr::list_c()
+
+
+rx <- list(
+  All              = "^[A-CEGHJ-MP-V0-9][0-9]{3}[AFMTU0-9]$",
+  "-Level I"       = "^[0-9]{4}[AFMTU0-9]$",
+  "--Category I"   = "^[0-9]{4}[AMU0-9]$",
+  "--Category II"  = "^[0-9]{4}F$",
+  "--Category III" = "^[0-9]{4}T$",
+  "-Level II"      = "^[A-CEGHJ-MP-V][0-9]{4}$"
+)
+
+greys <- c("black", "grey20", "grey50", "grey80", "grey90", "grey20")
+
+len <- \(rx) cheapr::vector_length(vctrs::vec_slice(hcpcs, sf_detect(hcpcs, rx)))
+
+data.frame(
+  row.names = names(rx),
+  Count = map_int(delist(rx), len),
+  Regex = delist(rx)) |>
+  hl(greys, cols = 1) |>
+  knit_print.emphatic()
+
+
+end_chr <- sf_convert(sf_extract(hcpcs, "[A-Z]$"))
+
+message("HCPCS Ending with Letter:")
+print_ls(as.list(table(sf_extract(sf_sub(end_chr, 5, 5), "[A-Z]"))))
+message("Total: ", length(end_chr))
+
+start_chr <- sf_convert(sf_extract(hcpcs, "^[A-Z]"))
+
+message("HCPCS Beginning with Letter:", sep = "\n")
+print_ls(as.list(table(sf_extract(sf_sub(start_chr, 1, 1), "[A-Z]"))))
+message("Total:", length(start_chr))

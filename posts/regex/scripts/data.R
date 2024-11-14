@@ -59,6 +59,8 @@ hcpcs <- stringfish::convert_to_sf(
   collapse::funique(
     northstar::search_descriptions()$hcpcs_code))
 
+start_chr <- sf_convert(sf_extract(hcpcs, "^[A-Z]"))
+end_chr   <- sf_convert(sf_extract(hcpcs, "[A-Z]$"))
 
 split_string <- \(...) {
   stringfish::convert_to_sf(paste0(...)) |>

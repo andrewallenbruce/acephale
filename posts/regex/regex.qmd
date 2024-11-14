@@ -71,102 +71,105 @@ library(codex)
 source(here::here("posts/regex/scripts", "data.R"))
 ```
 
-# HCPCS Overview
-
-```{r}
-#| label: hcpcs_all
-#| echo: false
-#| results: asis
-rx <- list(
-  All              = "^[A-CEGHJ-MP-V0-9][0-9]{3}[AFMTU0-9]$",
-  "-Level I"       = "^[0-9]{4}[AFMTU0-9]$",
-  "--Category I"   = "^[0-9]{4}[AMU0-9]$",
-  "--Category II"  = "^[0-9]{4}F$",
-  "--Category III" = "^[0-9]{4}T$",
-  "-Level II"      = "^[A-CEGHJ-MP-V][0-9]{4}$"
-)
-
-greys <- c("black", "grey20", "grey50", "grey80", "grey90", "grey20")
-
-len <- \(rx) cheapr::vector_length(vctrs::vec_slice(hcpcs, sf_detect(hcpcs, rx)))
-
-data.frame(
-  row.names = names(rx),
-  Count = map_int(delist(rx), len), 
-  Regex = delist(rx)) |> 
-  hl(greys, cols = 1) |>
-  knit_print.emphatic()
-```
-
-### Letters
-
-```{r}
-#| label: starts_ends_with_letter
-#| echo: false
-#| message: true
-end_chr <- sf_convert(sf_extract(hcpcs, "[A-Z]$"))
-
-message("HCPCS Ending with Letter:")
-print_ls(as.list(table(sf_extract(sf_sub(end_chr, 5, 5), "[A-Z]"))))
-message("Total: ", length(end_chr))
-
-start_chr <- sf_convert(sf_extract(hcpcs, "^[A-Z]"))
-
-message("HCPCS Beginning with Letter:", sep = "\n")
-print_ls(as.list(table(sf_extract(sf_sub(start_chr, 1, 1), "[A-Z]"))))
-message("Total:", length(start_chr))
-```
-
 # TODO
 
-   * If a **wildcard** begins with a **letter**, the *postfix* should be `[0-9]{n}`.
+   * The *postfix* for a **wildcard** that begins with a **letter** is `[0-9]{n}`.
    * In `remove_redundant()`, try pmap for `rr()` step.
+   * Groups 3, 4 & 5 beginning with letters.
+   * Group 5 ending with letters.
 
 
-## Checklist
+{{< pagebreak >}}
 
--   [X] `split_lengths()`
--   [X] `remove_redundant()`
--   [X] `split_first()`
--   [ ] `process_groups()`
-   - `group_3()`
-   - `group_4()`
-   - `group_5()`
--   [ ] `reduce_groups()`
-   - `reduce_runs()`
-   - `vec_to_regex()`
-   - `red1()`
-   - `red2()`
-   - `red3()`
+::: {#note-good .callout-note}
 
-# Preprocessing
+### Good Examples
+
+#### Case 1
 
 ```{r}
-#| label: split_lengths
-#| message: true
-#| echo: true
-x <- random_hcpcs()
+list("L80", 
+     c("L56", "L59"))
 
-# x |> split_lengths()
-# 
-# x |>
-#   split_lengths() |>
-#   remove_redundant()
-# 
-# x |>
-#   split_lengths() |>
-#   remove_redundant() |>
-#   split_first()
+length(sf_extract(hcpcs, "^L56|^L59|^L80"))
+length(sf_extract(hcpcs, "^L(5[69]|80)[0-9]{2}$"))
+```
+
+#### Case 2
+
+```{r}
+list(c("021", "022", "026", "027"), 
+     c("032", "033"), 
+     c("042", "044"), 
+     "050")
+
+length(sf_extract(hcpcs, "^021|^022|^026|^027|^032|^033|^042|^044|^050"))
+length(sf_extract(hcpcs, "^0(2[1267]|3[23]|4[24]|50)[A-Z0-9]{2}$"))
+```
+
+#### Case 3
+
+```{r}
+list(c("C75", "C97"),
+     c("G02", "G04"))
+
+length(sf_extract(hcpcs, "^C75|^C97|^G02|^G04"))
+length(sf_extract(hcpcs, "^C(75|97)[0-9]{2}$|^G0[24][0-9]{2}$"))
+length(sf_extract(hcpcs, "^(C75|C97|G0[24])[0-9]{2}$"))
+```
+
+#### Case 4
+
+```{r}
+list("0[2-5]", 
+     "15", 
+     "2[027]", 
+     "3[0-24-6]", 
+     "5[0458]", 
+     "6[134]", 
+     "76", 
+     "9[25]", 
+     "C[79]", 
+     "E0", 
+     "G0", 
+     "S2") -> c4list
+
+paste0(
+  "^(",
+  sf_collapse(
+    list_c(c4list), 
+    collapse = "|"), 
+  ")[A-Z0-9]{3}$") -> c4regex
+
+length(sf_extract(hcpcs, c4regex))
+```
+
+::: 
+
+{{< pagebreak >}}
+
+# Preprocess Steps
+
+```{r}
+#| label: preprocess
+x <- random_hcpcs2()
 
 x |> 
+  split_lengths()
+
+x |>
+  split_lengths() |>
+  remove_redundant()
+
+x |>
   split_lengths() |>
   remove_redundant() |>
   split_first()
 ```
 
-# Grouping
+{{< pagebreak >}}
 
-Group each set of vectors into regex patterns. Deal with groups containing letters separately.
+# Process Groups
 
 ::: {.panel-tabset}
 
@@ -186,7 +189,7 @@ long_test2[nchar(long_test2) == 3] |>
   split_first() |>
   group_3()
 
-random_hcpcs2(50) |> 
+random_hcpcs2() |> 
   split_lengths() |> 
   remove_redundant() |>
   split_first() |>
@@ -197,12 +200,12 @@ random_hcpcs2(50) |>
 
 ```{r}
 #| label: group_4
-#| eval: true
 group_4 <- function(x) {
 
   x <- getelem(x, "x4")
   
-  if (empty(x)) return(x)
+  if (empty(x)) 
+    return(x)
   
   map(x, function(x) {
     
@@ -255,7 +258,7 @@ long_test2[nchar(long_test2) == 4] |>
   split_first() |>
   group_4()
 
-random_hcpcs2(50) |> 
+random_hcpcs2() |> 
   split_lengths() |> 
   remove_redundant() |>
   split_first() |>
@@ -266,12 +269,12 @@ random_hcpcs2(50) |>
 
 ```{r}
 #| label: group_5
-#| eval: true
 group_5 <- function(x) {
 
   x <- getelem(x, "x5")
   
-  if (empty(x)) return(x)
+  if (empty(x)) 
+    return(x)
   
   # x <- x[[1]]
   
@@ -330,7 +333,7 @@ long_test2[nchar(long_test2) == 5] |>
   split_first() |>
   group_5()
 
-random_hcpcs2(30) |> 
+random_hcpcs2() |> 
   split_lengths() |> 
   remove_redundant() |>
   split_first() |>
@@ -364,69 +367,40 @@ long_test2 |>
   split_first() |> 
   process_groups()
 
-random_hcpcs2(50) |> 
+random_hcpcs2() |> 
   split_lengths() |> 
   remove_redundant() |>
   split_first() |>
   process_groups()
 ```
 
-### Problems
-
-```{r}
-#| label: edge_cases
-#| eval: true
-#| echo: true
-# 1
-list("L80", c("L56", "L59"))
-"^L(5[69]|80)$"
-sf_extract(hcpcs, "^L(5[69]|80)[0-9]{2}$")
-
-# 2
-list(c("021", "022", "026", "027"), c("032", "033"), c("042", "044"), "050")
-"^0(2[1267]|3[23]|4[24]|50)[A-Z0-9]{2}$"
-sf_extract(hcpcs, "^0(2[1267]|3[23]|4[24]|50)[A-Z0-9]{2}$")
-
-#---------- 3
-list(c("C75", "C97"), c("G02", "G04"))
-"^C(75|97)[A-Z0-9]{2}$"
-"^G0[24][A-Z0-9]{2}$"
-
-length(sf_extract(hcpcs, "^C(75|97)[0-9]{2}$|^G0[24][0-9]{2}$"))
-length(sf_extract(hcpcs, "^(C75|C97|G0[24])[0-9]{2}$"))
-
-# red2() output
-list("0[2-5]", "15", "2[027]", "3[0-24-6]", "5[0458]", "6[134]", "76", "9[25]", "C[79]", "E0", "G0", "S2")
-
-# solution
-red2test <- paste0(
-  "^(", 
-  sf_collapse(
-    list("0[2-5]", "15", "2[027]", "3[0-24-6]", "5[0458]", "6[134]", "76", "9[25]", "C[79]", "E0", "G0", "S2") |> 
-      purrr::list_c(), 
-    collapse = "|"), 
-  ")[A-Z0-9]{3}$")
-
-red2test
-
-length(sf_extract(hcpcs, red2test))
-```
-
 ::: 
 
-# Reduction
+
+{{< pagebreak >}}
+
+# Reduce Groups
+
+```{r}
+len_gt_one <- \(x) length(x) > 1
+
+len_eq_one <- \(x) length(x) == 1
+
+replace_regex <- \(x, p, r) stringi::stri_replace_all_regex(str = x, pattern = p, replacement = r, vectorize_all = FALSE)
+
+split_max_vlen <- \(x) stringr::str_split_fixed(string = x, pattern = "", n = max_vlen(x))
+```
 
 ::: {.panel-tabset}
 
-## `reduce_runs()`
+## reduce_runs
 
 ```{r}
 #| label: reduce_runs
-#| echo: true
-#| eval: true
 reduce_runs <- function(x) {
   
-  if (sf_nchar(x) == 1) return(x)
+  if (sf_nchar(x) == 1) 
+    return(x)
 
   test <- setNames(rep(0, 37), c(0:9, "&", LETTERS))
   
@@ -454,14 +428,17 @@ reduce_runs <- function(x) {
     fsubset(N >= 3) |>
     fselect(value, group)
     
-  if (empty(groups)) return(x)
+  if (empty(groups)) 
+    return(x)
   
-  xgroups <- gchop(groups$value, 
-                   groups$group) |>
+  xgroups <- gchop(
+    groups$value, 
+    groups$group) |>
     map(smush) |>
     list_c()
   
-  if (all(xgroups == smush(c(0:9, "&", LETTERS)))) return("[A-Z0-9]")
+  if (all(xgroups == smush(c(0:9, "&", LETTERS)))) 
+    return("[A-Z0-9]")
   
   replacements <- dplyr::left_join(
     dplyr::slice_min(groups, by = group, order_by = value) |> dplyr::rename(start = value),
@@ -470,18 +447,11 @@ reduce_runs <- function(x) {
     glue::glue_data("{start}-{end}") |>
     as.vector()
 
-  bracket(
-    stringi::stri_replace_all_regex(
-      x, 
-      xgroups, 
-      replacements, 
-      vectorize_all = FALSE
-      )
-    )
+  bracket(replace_regex(x, xgroups, replacements))
 }
 ```
 
-## `red1()`
+## red1
 
 ```{r}
 #| label: red1
@@ -489,13 +459,22 @@ red1 <- function(x) {
   
   x <- getelem(x, "g1")[[1]]
   
-  if (empty(x)) return(character(0))
+  if (empty(x)) 
+    return(character(0))
   
-  re <- sort_order(x) |> reduce_runs()
+  re <- sort_order(x) |> 
+    reduce_runs()
   
-  if (re == "[A-Z0-9]") return(paste0("^", re, "{5}$"))
+  if (re == "[A-Z0-9]") 
+    return(paste0("^", re, "{5}$"))
   
-  post <- iif_else(sf_detect(re, "\\[?[0-9]{1}"), "[A-Z0-9]", "[0-9]")
+  post <- iif_else(
+    sf_detect(
+      re, 
+      "\\[?[0-9]{1}"), 
+    "[A-Z0-9]", 
+    "[0-9]"
+    )
   
   paste0("^", re, post, "{4}")
 }
@@ -533,22 +512,20 @@ list(g1 = list(c(LETTERS[1:5], 0:9))) |>
   red1()
 ```
 
-## `red2()`
+## red2
 
 ```{r}
 #| label: red2
-len_gt_one <- \(x) length(x) > 1
-len_eq_one <- \(x) length(x) == 1
-
 red2 <- function(x) {
   
   x <- getelem(x, "g2")
   
-  if (empty(x)) return(character(0))
+  if (empty(x)) 
+    return(character(0))
   
   modify_if(x, len_gt_one, function(x) {
     
-    parts <- stringr::str_split_fixed(x, "", max_vlen(x)) |> 
+    parts <- split_max_vlen(x) |> 
     as.data.frame() |>
     map(uniq_narm) |>
     map(sort_order) |>
@@ -582,11 +559,10 @@ paste0("A", c(0:5, LETTERS)) |>
   red2()
 ```
 
-## `red3()`
+## red3
 
 ```{r}
 #| label: red3
-#| eval: true
 red3 <- function(x) {
   
   x <- getelem(x, "g3")
@@ -597,7 +573,7 @@ red3 <- function(x) {
     
     modify_if(x, len_gt_one, function(x) {
       
-      parts <- stringr::str_split_fixed(x, "", n = max_vlen(x)) |> 
+      parts <- split_max_vlen(x) |> 
         as.data.frame() |>
         map(uniq_narm) |> 
         map(sort_order) |>
@@ -621,22 +597,22 @@ long_test2[sf_nchar(long_test2) == 3] |>
   red3()
 ```
 
-## `red4()`
+## red4
 
 ```{r}
 #| label: red4
-#| eval: true
 red4 <- function(x) {
   
   x <- getelem(x, "g4")
   
-  if (empty(x)) return(character(0))
+  if (empty(x)) 
+    return(character(0))
   
   map(x, function(x) {
     
     modify_if(x, len_gt_one, function(x) {
       
-      parts <- stringr::str_split_fixed(x, "", n = max_vlen(x)) |> 
+      parts <- split_max_vlen(x) |> 
         as.data.frame() |>
         map(uniq_narm) |> 
         map(sort_order) |>
@@ -660,11 +636,10 @@ long_test2[sf_nchar(long_test2) == 4] |>
   red4()
 ```
 
-## `red5()`
+## red5
 
 ```{r}
 #| label: red5
-#| eval: true
 red5 <- function(x) {
   
   x <- getelem(x, "g5")
@@ -676,7 +651,7 @@ red5 <- function(x) {
     
     modify_if(x, len_gt_one, function(x) {
       
-      parts <- stringr::str_split_fixed(x, "", n = max_vlen(x)) |> 
+      parts <- split_max_vlen(x) |> 
         as.data.frame() |>
         map(uniq_narm) |> 
         map(sort_order) |>
@@ -722,10 +697,12 @@ long_test2 |>
   reduce_groups()
 ```
 
-
 ::: 
 
-# Recombination
+{{< pagebreak >}}
+
+
+# Recombine Vectors
 
 ::: {.panel-tabset}
 
@@ -758,15 +735,15 @@ long_test2[sf_nchar(long_test2) == 2] |>
   split_first() |>
   process_groups() |>
   reduce_groups() |> 
-  recomb2()
+  recom2()
 
-random_hcpcs() |>
+random_hcpcs2() |>
   split_lengths() |>
   remove_redundant() |>
   split_first() |>
   process_groups() |>
   reduce_groups() |> 
-  recomb2()
+  recom2()
 ```
 
 ## recom3
@@ -825,7 +802,7 @@ long_test2[sf_nchar(long_test2) == 3] |>
   split_first() |>
   process_groups() |> 
   reduce_groups() |> 
-  recomb3()
+  recom3()
 
 random_hcpcs2() |>
   split_lengths() |>
@@ -833,21 +810,24 @@ random_hcpcs2() |>
   split_first() |>
   process_groups() |>
   reduce_groups() |> 
-  recomb3()
+  recom3()
 ```
 
 ::: 
 
-# Reduce Groups
+{{< pagebreak >}}
+
+
+# Collapse Regex
 
 ```{r}
-#| label: reduce_groups
+#| label: collapse_regex
 #| eval: false
-#| message: false
 #| error: true
 vec_to_regex <- vrg <- \(x, n) {
   
-  if (empty(x)) return(character(0))
+  if (empty(x)) 
+    return(character(0))
   
   post <- iif_else(sf_detect(x, "^\\[?[A-Z]\\-?"), "[0-9]", "[A-Z0-9]")
   
@@ -861,7 +841,7 @@ vec_to_regex <- vrg <- \(x, n) {
   glue::glue_collapse(x)
 }
 
-rename_reduce_groups <- \(x) {
+collapse_regex <- \(x) {
   
   list(
     g1 = red1(x),
