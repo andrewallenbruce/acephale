@@ -1,5 +1,5 @@
 ---
-title: "Claims Analysis"
+title: "Post-Audit Development"
 format:
   html:
     reference-location: block
@@ -18,34 +18,96 @@ knitr::opts_chunk$set(
   out.width = "100%",
   fig.width = 8,
   fig.height = 10,
-  # fig.asp = 0.618,
-  # fig.retina = 2,
   fig.align = "center",
   fig.show = "hold"
 )
 options(scipen = 999)
 library(tidyverse)
-library(ggiraph)
 library(here)
 library(gt)
-library(gtExtras)
 library(rbrvs)
 library(northstar)
 library(fuimus)
 
 source(here("posts/claims/scripts", "load.R"))
+
+cclaims <- claims |> 
+  fuimus::combine(adj_codes, c("adj1", "adj2", "adj3"), sep = " | ") |>
+  fuimus::combine(mods, c("mod1", "mod2"), sep = " = ") |>
+  fuimus::combine(refer, c("ref", "ref_cred"), sep = " <|||") |>
+  fuimus::combine(render, c("ren", "ren_cred"), sep = " <|||") |>
+  dplyr::reframe(
+    ptid = id, 
+    dos, 
+    ptdob = dob, 
+    ptage = age, 
+    refer = as_factor(str_replace(str_to_upper(refer), "PH D", "PHD")), 
+    render = as_factor(str_to_upper(render)), 
+    .enc = enc, 
+    .ord = ord, 
+    icd10 = str_replace_all(icd, ",", " -> "),
+    hcpcs, 
+    desc, 
+    units, 
+    mods = as_factor(str_to_upper(mods)), 
+    pos = as_factor(pos),
+    pos_type, 
+    location = as_factor(str_to_title(loc)), 
+    inclass = ins_class,
+    inprim = ins_prim, 
+    insec = ins_sec, 
+    charges, 
+    allowed, 
+    payments, 
+    adjustments, 
+    adj_codes = str_replace(adj_codes, " -45", " CO-45")) |> 
+  dplyr::arrange(dos, .enc, .ord, ptid)
 ```
 
+# Findings
 
-# Claims
+Between the dates of **2022-06-14** and **2024-03-12** *(approx 637 days)*,
+
+   - 512 Dates of Service were recorded
+   - 7158 Unique Patients were seen
+   - Referred by 232 different Providers
+   - Seen by 66 different Rendering Providers
+
+# EDA
 
 ```{r}
-#| label: claims_summary
+#| label: overview
 #| echo: true
 #| message: false
 #| warning: false
-claims
+cclaims |> cheapr::overview(hist = TRUE, digits = 2)
 ```
+
+<br>
+
+```{r}
+cclaims |> 
+  select(dos, ptid) |> 
+  distinct() |> 
+  count(dos) |> 
+  ggplot() + 
+  geom_step(aes(dos, n), color = "#E87800", direction = "hv") +
+  fuimus::gg_theme()
+```
+
+
+```{r}
+cclaims |> 
+  select(dos, ptid, pos_type, render) |> 
+  distinct() |> 
+  count(dos, pos_type, render) |> 
+  mutate(n = cumsum(n), .by = c(pos_type, render)) |> 
+  ggplot() + 
+  geom_step(aes(dos, n, colour = pos_type), direction = "hv") +
+  fuimus::gg_theme()
+```
+
+
 
 ## Ratio Analysis
 
@@ -59,60 +121,6 @@ Revenue Per Visit
 #| eval: false
 #| message: false
 #| warning: false
-claims |>
-    select(
-    id,
-    enc,
-    age,
-    ins_prim,
-    charges,
-    allowed,
-    payments,
-    adjustments) |> 
-  summarise(
-    procedures = n(),
-    charges = sum(charges, na.rm = TRUE),
-    allowed = sum(allowed, na.rm = TRUE),
-    payments = sum(payments, na.rm = TRUE),
-    adjustments = sum(adjustments, na.rm = TRUE),
-    .by = c(id, enc, age)) |>
-  summarise(
-    visits = n(),
-    procedures = sum(procedures, na.rm = TRUE),
-    charges = sum(charges, na.rm = TRUE),
-    allowed = sum(allowed, na.rm = TRUE),
-    payments = sum(payments, na.rm = TRUE),
-    adjustments = sum(adjustments, na.rm = TRUE),
-    .by = c(age)
-  ) |> 
-  summarise(
-    # patients = n(),
-    avg_age = mean(age, na.rm = TRUE),
-    procedures = sum(procedures, na.rm = TRUE),
-    visits = sum(visits, na.rm = TRUE),
-    charges = sum(charges, na.rm = TRUE),
-    allowed = sum(allowed, na.rm = TRUE),
-    revenue = sum(payments, na.rm = TRUE),
-    adjustments = sum(adjustments, na.rm = TRUE))
-
-claims_summary |> 
-  set_names(
-    c("Average Patient Age", 
-      "Procedures", 
-      "Visits", 
-      "Charges", 
-      "Allowed", 
-      "Net Payment", 
-      "Adjustments")) |> 
-  pivot_longer(
-    cols = everything(), 
-    names_to = "Metric", 
-    values_to = "Value") |>
-  gt() |> 
-  opt_table_font(font = google_font(name = "Fira Code")) |> 
-  tab_options(table.width = pct(100),
-              quarto.disable_processing = TRUE)
-
 claims_summary |>
   mutate(
     revenue_adjustments = revenue + adjustments, 
@@ -162,53 +170,6 @@ claims_summary |>
 ```
 
 ```{r}
-#| label: insurance_summary
-#| echo: false
-#| eval: false
-#| message: false
-#| warning: false
-insurance_summary <- claims |>
-  summarise(
-    procedures = n(),
-    charges = sum(charges, na.rm = TRUE),
-    allowed = sum(allowed, na.rm = TRUE),
-    payments = sum(payments, na.rm = TRUE),
-    adjustments = sum(adjustments, na.rm = TRUE),
-    .by = c(id, enc, age, ins_prim)) |>
-  summarise(
-    visits = n(),
-    procedures = sum(procedures, na.rm = TRUE),
-    charges = sum(charges, na.rm = TRUE),
-    allowed = sum(allowed, na.rm = TRUE),
-    payments = sum(payments, na.rm = TRUE),
-    adjustments = sum(adjustments, na.rm = TRUE),
-    .by = c(id, age, ins_prim)
-  ) |> 
-  summarise(
-    patients = n(),
-    avg_age = mean(age, na.rm = TRUE),
-    procedures = sum(procedures, na.rm = TRUE),
-    visits = sum(visits, na.rm = TRUE),
-    charges = sum(charges, na.rm = TRUE),
-    allowed = sum(allowed, na.rm = TRUE),
-    revenue = sum(payments, na.rm = TRUE),
-    adjustments = sum(adjustments, na.rm = TRUE),
-    .by = c(ins_prim)
-  ) |> 
-  filter(!is.na(ins_prim)) |> 
-  arrange(desc(procedures))
-
-# Patients are counted once per insurance class
-insurance_summary |>
-  gt(rowname_col = "ins_prim") |> 
-  opt_all_caps() |> 
-  opt_table_font(font = google_font(name = "Fira Code")) |> 
-  tab_options(table.width = pct(100),
-              quarto.disable_processing = TRUE)
-```
-
-
-```{r}
 #| label: insurance_ratios
 #| echo: true
 #| eval: false
@@ -235,6 +196,11 @@ insurance_summary |>
 
 
 # Reimbursement
+
+```{r}
+pprrvu
+```
+
 
 ```{r}
 #| label: rvu_new
