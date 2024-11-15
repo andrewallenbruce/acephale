@@ -48,12 +48,12 @@ library(stringr)
 library(rlang)
 library(cli)
 library(vctrs)
+library(S7)
 
 library(stringfish)
 library(data.table)
 library(collapse)
 library(kit)
-library(emphatic)
 library(compiler)
 
 library(codex)
@@ -85,7 +85,7 @@ source(here::here("posts/regex/scripts", "data.R"))
 
 ### Good Examples
 
-#### Case 1
+### Case 1
 
 ```{r}
 list("L80", 
@@ -95,7 +95,7 @@ length(sf_extract(hcpcs, "^L56|^L59|^L80"))
 length(sf_extract(hcpcs, "^L(5[69]|80)[0-9]{2}$"))
 ```
 
-#### Case 2
+### Case 2
 
 ```{r}
 list(c("021", "022", "026", "027"), 
@@ -103,11 +103,14 @@ list(c("021", "022", "026", "027"),
      c("042", "044"), 
      "050")
 
-length(sf_extract(hcpcs, "^021|^022|^026|^027|^032|^033|^042|^044|^050"))
-length(sf_extract(hcpcs, "^0(2[1267]|3[23]|4[24]|50)[A-Z0-9]{2}$"))
+bench::mark(
+  raw = sf_extract(hcpcs, "^021|^022|^026|^027|^032|^033|^042|^044|^050"),
+  compact = sf_extract(hcpcs, sf_convert("^0(2[1267]|3[23]|4[24]|50)[A-Z0-9]{2}$")),
+  iterations = 10000) |> 
+  select(expression:total_time)
 ```
 
-#### Case 3
+### Case 3
 
 ```{r}
 list(c("C75", "C97"),
@@ -115,10 +118,17 @@ list(c("C75", "C97"),
 
 length(sf_extract(hcpcs, "^C75|^C97|^G02|^G04"))
 length(sf_extract(hcpcs, "^C(75|97)[0-9]{2}$|^G0[24][0-9]{2}$"))
-length(sf_extract(hcpcs, "^(C75|C97|G0[24])[0-9]{2}$"))
+length(sf_extract(hcpcs, "^(C(75|97)|G0[24])[0-9]{2}$"))
+
+bench::mark(
+  raw = sf_extract(hcpcs, "^C75|^C97|^G02|^G04"),
+  reduced = sf_extract(hcpcs, "^C(75|97)[0-9]{2}$|^G0[24][0-9]{2}$"),
+  compact = sf_extract(hcpcs, sf_convert("^(C(75|97)|G0[24])[0-9]{2}$")),
+  iterations = 10000) |> 
+  select(expression:total_time)
 ```
 
-#### Case 4
+### Case 4
 
 ```{r}
 list("0[2-5]", 
@@ -134,14 +144,20 @@ list("0[2-5]",
      "G0", 
      "S2") -> c4list
 
-paste0(
-  "^(",
-  sf_collapse(
-    list_c(c4list), 
-    collapse = "|"), 
-  ")[A-Z0-9]{3}$") -> c4regex
+c4list
 
-length(sf_extract(hcpcs, c4regex))
+"^02|^03|^04|^05|^15|^20|^22|^27|^30|^31|^32|^34|^35|^36|^50|^54|^55|^58|^61|^63|^64|^76|^92|^95|^C7|^C9|^E0|^G0|^S2" -> c4raw
+
+paste0("^(", sf_collapse(list_c(c4list), collapse = "|"), ")[A-Z0-9]{3}$") -> c4compact
+
+length(sf_extract(hcpcs, c4raw))
+length(sf_extract(hcpcs, c4compact))
+
+bench::mark(
+  raw = sf_extract(hcpcs, c4raw),
+  compact = sf_extract(hcpcs, c4compact),
+  iterations = 10000) |> 
+  select(expression:total_time)
 ```
 
 ::: 
@@ -804,7 +820,7 @@ long_test2[sf_nchar(long_test2) == 3] |>
   reduce_groups() |> 
   recom3()
 
-random_hcpcs2() |>
+random_hcpcs() |>
   split_lengths() |>
   remove_redundant() |>
   split_first() |>
@@ -812,6 +828,29 @@ random_hcpcs2() |>
   reduce_groups() |> 
   recom3()
 ```
+
+## recombine_groups
+
+```{r}
+#| label: recombine_groups
+recombine_groups <- \(x) {
+  
+  list(
+    v1 = red1(x),
+    v2 = recom2(x),
+    v3 = recom3(x)
+  )
+}
+
+random_hcpcs() |>
+  split_lengths() |>
+  remove_redundant() |>
+  split_first() |>
+  process_groups() |>
+  reduce_groups() |>
+  recombine_groups()
+```
+
 
 ::: 
 
@@ -851,38 +890,6 @@ collapse_regex <- \(x) {
     g5 = map_chr(x$g5, red5) |> map_chr(vrg, n = 0) |> glue::as_glue()
   )
 }
-
-all_tests[sf_nchar(all_tests) > 2] |> 
-  split_lengths() |> 
-  remove_redundant() |> 
-  process_groups() |> 
-  reduce_groups()
-
-hcpcs_tests |> 
-  split_lengths() |> 
-  remove_redundant() |> 
-  process_groups() |> 
-  reduce_groups()
-
-long_test2 |> 
-  split_lengths() |> 
-  remove_redundant() |> 
-  process_groups() |> 
-  reduce_groups()
-
-# long_test2[nchar(long_test2) == 4]
-
-new_test |> 
-  split_lengths() |> 
-  remove_redundant() |> 
-  process_groups() |> 
-  reduce_groups()
-
-random_hcpcs() |> 
-  split_lengths() |> 
-  remove_redundant() |> 
-  process_groups() |> 
-  reduce_groups()
 ```
 
 
@@ -918,6 +925,31 @@ vctrs::vec_slice(
       )
     )
   )
+```
+
+
+{{< pagebreak >}}
+
+# S7 Class
+
+```{r}
+#| label: s7_class
+hcpcs <- new_class(
+  name = "hcpcs",
+  properties = list(
+    input = class_vector,
+    split_length     = new_property(class = class_list, getter = \(self) split_lengths(self@input)),
+    remove_redundant = new_property(class = class_list, getter = \(self) remove_redundant(self@split_length)),
+    split_first      = new_property(class = class_list, getter = \(self) split_first(self@remove_redundant)),
+    process_groups   = new_property(class = class_list, getter = \(self) process_groups(self@split_first)),
+    reduce_groups    = new_property(class = class_list, getter = \(self) reduce_groups(self@process_groups)),
+    recombine_groups = new_property(class = class_list, getter = \(self) recombine_groups(self@reduce_groups))
+    )
+  )
+
+x <- hcpcs(input = random_hcpcs(50))
+
+x
 ```
 
 

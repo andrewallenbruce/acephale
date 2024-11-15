@@ -1,67 +1,48 @@
-library(RPatternJoin)
-
-# teststrings <- c("cat", "ecast", "bat", "cats", "chat")
-
-similarityJoin(
-  strings = c("cat", "ecast", "bat", "cats", "chat"),
-  cutoff = 2,
-  metric = "Levenshtein",
-  # metric = "Hamming",
-  method = "partition_pattern",
-  drop_deg_one = FALSE,
-  output_format = "adj_matrix")
-
-data.table::data.table(
-  code = x,
-  group_id = stringfish::sf_substr(x, 1, 2, nthreads = 4L),
-  a1 = take_at(x, 1),
-  a2 = take_at(x, 2),
-  a3 = take_at(x, 3),
-  i1 = data.table::rleid(take_at(x, 1)),
-  y = data.table::shift(x, 1, type = "cyclic"),
-  jac = jaccard(x, data.table::shift(x, 1, type = "cyclic")))
-
-detect_string <- function(list, strings) {
-
-  purrr::map_lgl(list, \(x) {
-
-    if (TRUE %in% sf_detect(
-      x,
-      paste(strings, collapse = "|")
-    )) {
-      TRUE
-    } else {
-      FALSE
-    }
-  }
+ascii_box <- \(msg) {
+  cat(
+    paste0(
+      "┌", strrep("─", sf_nchar(msg) + 2), "┐\n",
+      "│ ", msg,                          " │\n",
+      "└", strrep("─", sf_nchar(msg) + 2), "┘\n"
+    )
   )
 }
 
-x <- list(
-  x1 = list("a", "A", "y"),
-  x2 = list("b", "B", "y"),
-  x3 = list("c", "C", "y"))
-
-x <- list(
-  list("a", "A", "y"),
-  list("b", "B", "y"),
-  list("c", "C", "y"))
-
-# y <- c("a", "B")
+ascii_box("Hello, World!")
 
 
-detect_list <- \(ll, re, negate = TRUE) {
+rx <- list(
+  All              = "^[A-CEGHJ-MP-V0-9][0-9]{3}[AFMTU0-9]$",
+  "-Level I"       = "^[0-9]{4}[AFMTU0-9]$",
+  "--Category I"   = "^[0-9]{4}[AMU0-9]$",
+  "--Category II"  = "^[0-9]{4}F$",
+  "--Category III" = "^[0-9]{4}T$",
+  "-Level II"      = "^[A-CEGHJ-MP-V][0-9]{4}$"
+)
 
-  fn <- if (negate) !sf_detect else sf_detect
+greys <- c("black", "grey20", "grey50", "grey80", "grey90", "grey20")
 
-  purrr::map(ll, \(x) {
-    TRUE %in% purrr::map_lgl(x, fn, re)
-  }
-  )
-}
+len <- \(rx) cheapr::vector_length(vctrs::vec_slice(hcpcs, sf_detect(hcpcs, rx)))
+
+data.frame(
+  row.names = names(rx),
+  Count = map_int(delist(rx), len),
+  Regex = delist(rx)) |>
+  hl(greys, cols = 1) |>
+  knit_print.emphatic()
 
 
-detect_list(x, "a|B", TRUE)
+end_chr <- sf_convert(sf_extract(hcpcs, "[A-Z]$"))
+
+message("HCPCS Ending with Letter:")
+print_ls(as.list(table(sf_extract(sf_sub(end_chr, 5, 5), "[A-Z]"))))
+message("Total: ", length(end_chr))
+
+start_chr <- sf_convert(sf_extract(hcpcs, "^[A-Z]"))
+
+message("HCPCS Beginning with Letter:", sep = "\n")
+print_ls(as.list(table(sf_extract(sf_sub(start_chr, 1, 1), "[A-Z]"))))
+message("Total:", length(start_chr))
 
 
 # CLI ---------------------------------------------------------------------
