@@ -53,12 +53,19 @@ wk_2024_01_01_deact |> count(deact_date)
 
 ## Basic
 
-Filter out deactivated NPIs
+   - Filter out deactivated NPIs
+   - Split into Individual and Organization
 
 ```{r}
 #| label: wk_2024_01_01_basic
-wk_2024_01_01$basic |> 
-  filter(!npi %in% wk_2024_01_01_deact_npi)
+wk_2024_01_01_basic <- filter(wk_2024_01_01$basic, !npi %in% wk_2024_01_01_deact_npi)
+
+# wk_2024_01_01_ind <- 
+filter(wk_2024_01_01_basic, entity == "Ind") |> 
+  remove_quiet()
+
+filter(wk_2024_01_01_basic, entity == "Org") |> 
+  remove_quiet()
 ```
 
 ## Address
@@ -128,10 +135,16 @@ wk_2024_01_22_deact |>
 
 ## Basic
 
+   - Filter out deactivated NPIs
+   - Split into Individual and Organization
+
 ```{r}
 #| label: wk_2024_01_22_basic
-wk_2024_01_22$basic |> 
-  filter(!npi %in% wk_2024_01_22_deact_npi)
+wk_2024_01_22_basic <- filter(wk_2024_01_22$basic, !npi %in% wk_2024_01_22_deact_npi)
+
+filter(wk_2024_01_22_basic, entity == "Ind") |> remove_quiet()
+
+filter(wk_2024_01_22_basic, entity == "Org") |> remove_quiet()
 ```
 
 ## Address
