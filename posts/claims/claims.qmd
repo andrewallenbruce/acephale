@@ -81,7 +81,7 @@ claims |>
   distinct() |> 
   mutate(year = lubridate::year(dos),
          month = lubridate::month(dos, label = TRUE, abbr = TRUE),
-         ymon = yearmon(dos)) |>
+         ymon = data.table::yearmon(dos)) |>
   dplyr::group_by(year) |>
   dplyr::count(dos) |>
   ggplot(aes(dos, n)) + 
@@ -99,7 +99,7 @@ claims |>
   distinct() |> 
   mutate(year = lubridate::year(dos),
          month = lubridate::month(dos, label = TRUE, abbr = TRUE),
-         ymon = yearmon(dos)) |>
+         ymon = data.table::yearmon(dos)) |>
   dplyr::group_by(year) |>
   dplyr::count(dos) |> 
   ggplot(aes(x = n, y = year, group = year)) + 

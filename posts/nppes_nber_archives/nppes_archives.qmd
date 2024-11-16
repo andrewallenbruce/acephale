@@ -1,0 +1,57 @@
+---
+title: "NPPES NPI Archives"
+format:
+  html:
+    reference-location: block
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#| label: setup
+#| echo: true
+#| message: false
+#| warning: false
+
+knitr::opts_chunk$set(
+  dev = "ragg_png",
+  dpi = 320,
+  out.width = "100%",
+  fig.width = 8,
+  fig.asp = 0.818,
+  fig.retina = 2,
+  fig.align = "center",
+  fig.show = "hold"
+)
+options(scipen = 999)
+
+library(tidyverse)
+library(nppez)
+
+wk_2024_01_01 <- nppez:::get_pin("wk20240101")
+wk_2024_01_22 <- nppez:::get_pin("wk20240122")
+```
+
+# NPPES NPI Archives
+
+```{r}
+#| label: wk_2024_01_01
+wk_2024_01_01
+```
+
+
+```{r}
+#| label: wk_2024_01_22
+wk_2024_01_22
+```
+
+
+{{< pagebreak >}}
+
+
+## Session Information 
+
+```{r}
+#| echo: false
+pander::pander(sessionInfo())
+```
