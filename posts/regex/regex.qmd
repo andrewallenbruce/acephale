@@ -712,27 +712,20 @@ long_test2 |>
 
 ::: {.panel-tabset}
 
-## recom2
+## recombine2
 
 ```{r}
-#| label: recom2
-recom2 <- function(x) {
+#| label: recombine2
+recombine2 <- function(x) {
   
   x <- getelem(x, "g2")
   
   if (empty(x)) 
     return(character(0))
   
-  sf_convert(
-    paste0(
-      "^(", 
-      sf_collapse(
-        list_c(x), 
-        collapse = "|"
-        ), 
-      ")[A-Z0-9]{3}$"
-      )
-    )
+  sf_convert(str_glue("^({sf_collapse(list_c(x), collapse = '|')})[A-Z0-9]{{3}}$"))
+  
+  # paste0("^(", sf_collapse(list_c(x), collapse = "|"), ")[A-Z0-9]{3}$")
 }
 
 long_test2[sf_nchar(long_test2) == 2] |>
@@ -741,7 +734,7 @@ long_test2[sf_nchar(long_test2) == 2] |>
   split_first() |>
   process_groups() |>
   reduce_groups() |> 
-  recom2()
+  recombine2()
 
 random_hcpcs2() |>
   split_lengths() |>
@@ -749,14 +742,14 @@ random_hcpcs2() |>
   split_first() |>
   process_groups() |>
   reduce_groups() |> 
-  recom2()
+  recombine2()
 ```
 
-## recom3
+## recombine3
 
 ```{r}
-#| label: recom3
-recom3 <- function(x) {
+#| label: recombine3
+recombine3 <- function(x) {
   
   x <- getelem(x, "g3")
   
@@ -767,13 +760,7 @@ recom3 <- function(x) {
     if (empty(x[vlen(x) == 1])) 
       character(0) 
     else 
-      sf_convert(
-        paste0(
-          "^", 
-          list_c(x[vlen(x) == 1]), 
-          "[A-Z0-9]{2}$"
-          )
-        ),
+      sf_convert(str_glue("{list_c(x[vlen(x) == 1])}")),
     
     if (empty(x[vlen(x) > 1])) 
       character(0) 
@@ -782,21 +769,8 @@ recom3 <- function(x) {
         x[vlen(x) > 1], function(x) {
           
           front <- uniq(sf_sub(delist(x), start = 1, stop = 1))
-          
-          sf_convert(
-            paste0(
-              "^", 
-              front, 
-              "(", 
-              sf_collapse(
-                sf_remove(
-                  delist(x), 
-                  paste0("^[", front, "]{1}")
-                  ), 
-                collapse = "|"), 
-              ")[A-Z0-9]{2}$"
-              )
-            )
+          back  <- sf_collapse(sf_remove(delist(x), str_glue("^[{front}]{{1}}")), collapse = "|")
+          sf_convert(str_glue("{front}({back})"))
           }
         )
     )
@@ -808,15 +782,111 @@ long_test2[sf_nchar(long_test2) == 3] |>
   split_first() |>
   process_groups() |> 
   reduce_groups() |> 
-  recom3()
+  recombine3()
 
-random_hcpcs() |>
+random_hcpcs(50) |>
   split_lengths() |>
   remove_redundant() |>
   split_first() |>
   process_groups() |>
   reduce_groups() |> 
-  recom3()
+  recombine3()
+```
+
+## recombine4
+
+```{r}
+#| label: recombine4
+recombine4 <- function(x) {
+  
+  x <- getelem(x, "g4")
+  
+  if (empty(x)) 
+    return(character(0))
+  
+  c(
+    if (empty(x[vlen(x) == 1])) 
+      character(0) 
+    else 
+      sf_convert(str_glue("{list_c(x[vlen(x) == 1])}")),
+    
+    if (empty(x[vlen(x) > 1])) 
+      character(0) 
+    else 
+      map(
+        x[vlen(x) > 1], function(x) {
+          
+          front <- uniq(sf_sub(delist(x), start = 1, stop = 1))
+          back  <- sf_collapse(sf_remove(delist(x), str_glue("^[{front}]{{1}}")), collapse = "|")
+          sf_convert(str_glue("{front}({back})"))
+          }
+        )
+    )
+  }
+
+long_test2[sf_nchar(long_test2) == 4] |>
+  split_lengths() |>
+  remove_redundant() |>
+  split_first() |>
+  process_groups() |> 
+  reduce_groups() |> 
+  recombine4()
+
+random_hcpcs(50) |>
+  split_lengths() |>
+  remove_redundant() |>
+  split_first() |>
+  process_groups() |>
+  reduce_groups() |> 
+  recombine4()
+```
+
+## recombine5
+
+```{r}
+#| label: recombine5
+recombine5 <- function(x) {
+  
+  x <- getelem(x, "g5")
+  
+  if (empty(x)) 
+    return(character(0))
+  
+  c(
+    if (empty(x[vlen(x) == 1])) 
+      character(0) 
+    else 
+      sf_convert(str_glue("{list_c(x[vlen(x) == 1])}")),
+    
+    if (empty(x[vlen(x) > 1])) 
+      character(0) 
+    else 
+      map(
+        x[vlen(x) > 1], function(x) {
+          
+          front <- uniq(sf_sub(delist(x), start = 1, stop = 1))
+          back  <- sf_collapse(sf_remove(delist(x), str_glue("^[{front}]{{1}}")), collapse = "|")
+          sf_convert(str_glue("{front}({back})"))
+          }
+        )
+    )
+  }
+
+long_test2[sf_nchar(long_test2) == 5] |>
+  split_lengths() |>
+  remove_redundant() |>
+  split_first() |>
+  process_groups() |> 
+  reduce_groups() |> 
+  recombine5()
+
+random_hcpcs(50) |>
+  split_lengths() |>
+  remove_redundant() |>
+  split_first() |>
+  process_groups() |>
+  reduce_groups() |> 
+  recombine5()
 ```
 
 ## recombine_groups
@@ -826,13 +896,24 @@ random_hcpcs() |>
 recombine_groups <- \(x) {
   
   list(
-    v1 = red1(x),
-    v2 = recom2(x),
-    v3 = recom3(x)
+    v1 = x$g1,
+    v2 = recombine2(x),
+    v3 = recombine3(x),
+    v4 = recombine4(x),
+    v5 = recombine5(x)
   )
 }
 
-random_hcpcs() |>
+long_test2 |>
+  split_lengths() |>
+  remove_redundant() |>
+  split_first() |>
+  process_groups() |> 
+  reduce_groups() |> 
+  recombine_groups()
+
+
+random_hcpcs(50) |>
   split_lengths() |>
   remove_redundant() |>
   split_first() |>
@@ -844,8 +925,8 @@ random_hcpcs() |>
 
 ::: 
 
-{{< pagebreak >}}
 
+{{< pagebreak >}}
 
 # Collapse Regex
 
