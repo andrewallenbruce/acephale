@@ -9,7 +9,7 @@ editor_options:
 
 ```{r}
 #| label: setup
-#| echo: true
+#| echo: false
 #| message: false
 #| warning: false
 
@@ -27,22 +27,154 @@ options(scipen = 999)
 
 library(tidyverse)
 library(nppez)
+library(fuimus)
 
 wk_2024_01_01 <- nppez:::get_pin("wk20240101")
 wk_2024_01_22 <- nppez:::get_pin("wk20240122")
 ```
 
-# NPPES NPI Archives
+# Week of January 1, 2024
+
+## Deactivated
+
+Remove deactivated NPIs with no reactivation date
 
 ```{r}
-#| label: wk_2024_01_01
-wk_2024_01_01
+#| label: wk_2024_01_01_deact
+wk_2024_01_01_deact <- wk_2024_01_01$basic |> 
+  filter(!is.na(deact_date), is.na(react_date)) |> 
+  remove_quiet()
+
+# 601 NPIs were deactivated
+wk_2024_01_01_deact_npi <- codex::uniq_narm(wk_2024_01_01_deact$npi)
+
+wk_2024_01_01_deact |> count(deact_date)
+```
+
+## Basic
+
+Filter out deactivated NPIs
+
+```{r}
+#| label: wk_2024_01_01_basic
+wk_2024_01_01$basic |> 
+  filter(!npi %in% wk_2024_01_01_deact_npi)
+```
+
+## Address
+
+Filter out deactivated NPIs
+
+```{r}
+#| label: wk_2024_01_01_address
+wk_2024_01_01$address |> 
+  filter(!npi %in% wk_2024_01_01_deact_npi) |> 
+  pivot_longer(-npi, names_to = "type_part", values_to = "value") |> 
+  separate_wider_delim(type_part, delim = "_", names = c("type", "part")) |> 
+  pivot_wider(names_from = part, values_from = value) |> 
+  mutate(type = case_match(type,
+                           "mail" ~ "Mailing",
+                           "prac" ~ "Practice",
+                           .default = type))
+```
+
+## Taxonomy
+
+```{r}
+#| label: wk_2024_01_01_taxonomy
+wk_2024_01_01$taxonomy
+```
+
+## Identifiers
+
+```{r}
+#| label: wk_2024_01_01_identifier
+wk_2024_01_01$identifier
+```
+
+## Other
+
+```{r}
+#| label: wk_2024_01_01_other
+wk_2024_01_01$other
+```
+
+## Authorized
+
+```{r}
+#| label: wk_2024_01_01_authorized
+wk_2024_01_01$authorized
 ```
 
 
+{{< pagebreak >}}
+
+# Week of January 22, 2024
+
+## Deactivated
+
 ```{r}
-#| label: wk_2024_01_22
-wk_2024_01_22
+#| label: wk_2024_01_22_deact
+wk_2024_01_22_deact <- wk_2024_01_22$basic |> 
+  filter(!is.na(deact_date), is.na(react_date)) |> 
+  remove_quiet()
+
+# 1002 NPIs were deactivated
+wk_2024_01_22_deact_npi <- codex::uniq_narm(wk_2024_01_22_deact$npi)
+
+wk_2024_01_22_deact |> 
+  count(deact_date)
+```
+
+## Basic
+
+```{r}
+#| label: wk_2024_01_22_basic
+wk_2024_01_22$basic |> 
+  filter(!npi %in% wk_2024_01_22_deact_npi)
+```
+
+## Address
+
+```{r}
+#| label: wk_2024_01_22_address
+wk_2024_01_22$address |> 
+  filter(!npi %in% wk_2024_01_22_deact_npi) |> 
+  pivot_longer(-npi, names_to = "type_part", values_to = "value") |> 
+  separate_wider_delim(type_part, delim = "_", names = c("type", "part")) |> 
+  pivot_wider(names_from = part, values_from = value) |> 
+  mutate(type = case_match(type,
+                           "mail" ~ "Mailing",
+                           "prac" ~ "Practice",
+                           .default = type))
+```
+
+## Taxonomy
+
+```{r}
+#| label: wk_2024_01_22_taxonomy
+wk_2024_01_22$taxonomy
+```
+
+## Identifiers
+
+```{r}
+#| label: wk_2024_01_22_identifier
+wk_2024_01_22$identifier
+```
+
+## Other
+
+```{r}
+#| label: wk_2024_01_22_other
+wk_2024_01_22$other
+```
+
+## Authorized
+
+```{r}
+#| label: wk_2024_01_22_authorized
+wk_2024_01_22$authorized
 ```
 
 
