@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
   dpi = 150,
   out.width = "100%",
   fig.width = 8,
-  fig.height = 10,
+  fig.height = 7.5,
   fig.align = "center",
   fig.show = "hold"
 )
@@ -89,7 +89,7 @@ cclaims |> cheapr::overview(hist = TRUE, digits = 2)
 cclaims |> 
   select(dos, ptid) |> 
   distinct() |> 
-  count(dos) |> 
+  dplyr::count(dos) |> 
   ggplot() + 
   geom_step(aes(dos, n), color = "#E87800", direction = "hv") +
   fuimus::gg_theme()
@@ -100,11 +100,12 @@ cclaims |>
 cclaims |> 
   select(dos, ptid, pos_type, render) |> 
   distinct() |> 
-  count(dos, pos_type, render) |> 
-  mutate(n = cumsum(n), .by = c(pos_type, render)) |> 
+  dplyr::count(dos, pos_type) |> 
+  # mutate(n = cumsum(n), .by = c(pos_type, render)) |> 
   ggplot() + 
   geom_step(aes(dos, n, colour = pos_type), direction = "hv") +
-  fuimus::gg_theme()
+  fuimus::gg_theme() +
+  theme(legend.position = "bottom")
 ```
 
 

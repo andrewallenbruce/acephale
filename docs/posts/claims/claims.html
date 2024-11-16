@@ -5,7 +5,7 @@
 <meta name="generator" content="quarto-1.6.32">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Andrew Allen Bruce">
-<meta name="dcterms.date" content="2024-11-13">
+<meta name="dcterms.date" content="2024-11-15">
 <title>Post-Audit Development – acéphale</title>
 <style>
 code{white-space: pre-wrap;}
@@ -200,7 +200,7 @@ window.Quarto = {
       <div>
       <div class="quarto-title-meta-heading">Last updated</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">November 13, 2024</p>
+        <p class="date">November 15, 2024</p>
       </div>
     </div>
     
@@ -311,7 +311,7 @@ cols: 24
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">cclaims</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">dos</span>, <span class="va">ptid</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">distinct</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu">count</span><span class="op">(</span><span class="va">dos</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html">count</a></span><span class="op">(</span><span class="va">dos</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu">geom_step</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span><span class="va">dos</span>, <span class="va">n</span><span class="op">)</span>, color <span class="op">=</span> <span class="st">"#E87800"</span>, direction <span class="op">=</span> <span class="st">"hv"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">fuimus</span><span class="fu">::</span><span class="fu"><a href="https://andrewallenbruce.github.io/fuimus/reference/gg_theme.html">gg_theme</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -326,11 +326,12 @@ cols: 24
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">cclaims</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">dos</span>, <span class="va">ptid</span>, <span class="va">pos_type</span>, <span class="va">render</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">distinct</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu">count</span><span class="op">(</span><span class="va">dos</span>, <span class="va">pos_type</span>, <span class="va">render</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu">mutate</span><span class="op">(</span>n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cumsum.html">cumsum</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, .by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">pos_type</span>, <span class="va">render</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html">count</a></span><span class="op">(</span><span class="va">dos</span>, <span class="va">pos_type</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="co"># mutate(n = cumsum(n), .by = c(pos_type, render)) |&gt; </span></span>
 <span>  <span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu">geom_step</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span><span class="va">dos</span>, <span class="va">n</span>, colour <span class="op">=</span> <span class="va">pos_type</span><span class="op">)</span>, direction <span class="op">=</span> <span class="st">"hv"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">fuimus</span><span class="fu">::</span><span class="fu"><a href="https://andrewallenbruce.github.io/fuimus/reference/gg_theme.html">gg_theme</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span>  <span class="fu">fuimus</span><span class="fu">::</span><span class="fu"><a href="https://andrewallenbruce.github.io/fuimus/reference/gg_theme.html">gg_theme</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme</span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure"><p><img src="claims_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%"></p>
@@ -393,12 +394,12 @@ cols: 24
 <span class="header-section-number">3.1</span> Session Information</h2>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<p><strong>R version 4.4.1 (2024-06-14 ucrt)</strong></p>
+<p><strong>R version 4.4.2 (2024-10-31 ucrt)</strong></p>
 <p><strong>Platform:</strong> x86_64-w64-mingw32/x64</p>
 <p><strong>locale:</strong> <em>LC_COLLATE=English_United States.utf8</em>, <em>LC_CTYPE=English_United States.utf8</em>, <em>LC_MONETARY=English_United States.utf8</em>, <em>LC_NUMERIC=C</em> and <em>LC_TIME=English_United States.utf8</em></p>
 <p><strong>attached base packages:</strong> <em>stats</em>, <em>graphics</em>, <em>grDevices</em>, <em>utils</em>, <em>datasets</em>, <em>methods</em> and <em>base</em></p>
 <p><strong>other attached packages:</strong> <em>fuimus(v.0.0.2)</em>, <em>northstar(v.0.0.7)</em>, <em>rbrvs(v.0.0.1)</em>, <em>gt(v.0.11.1)</em>, <em>here(v.1.0.1)</em>, <em>lubridate(v.1.9.3)</em>, <em>forcats(v.1.0.0)</em>, <em>stringr(v.1.5.1)</em>, <em>dplyr(v.1.1.4)</em>, <em>purrr(v.1.0.2)</em>, <em>readr(v.2.1.5)</em>, <em>tidyr(v.1.3.1)</em>, <em>tibble(v.3.2.1)</em>, <em>ggplot2(v.3.5.1)</em> and <em>tidyverse(v.2.0.0)</em></p>
-<p><strong>loaded via a namespace (and not attached):</strong> <em>gtable(v.0.3.6)</em>, <em>xfun(v.0.49)</em>, <em>htmlwidgets(v.1.6.4)</em>, <em>collapse(v.2.0.17)</em>, <em>RApiSerialize(v.0.1.4)</em>, <em>tzdb(v.0.4.0)</em>, <em>vctrs(v.0.6.5)</em>, <em>tools(v.4.4.1)</em>, <em>generics(v.0.1.3)</em>, <em>parallel(v.4.4.1)</em>, <em>fansi(v.1.0.6)</em>, <em>pkgconfig(v.2.0.3)</em>, <em>RcppParallel(v.5.1.9)</em>, <em>lifecycle(v.1.0.4)</em>, <em>farver(v.2.1.2)</em>, <em>cheapr(v.0.9.91)</em>, <em>compiler(v.4.4.1)</em>, <em>textshaping(v.0.4.0)</em>, <em>munsell(v.0.5.1)</em>, <em>janitor(v.2.2.0)</em>, <em>qs(v.0.27.2)</em>, <em>snakecase(v.0.11.1)</em>, <em>htmltools(v.0.5.8.1)</em>, <em>yaml(v.2.3.10)</em>, <em>pillar(v.1.9.0)</em>, <em>crayon(v.1.5.3)</em>, <em>tidyselect(v.1.2.1)</em>, <em>digest(v.0.6.37)</em>, <em>stringi(v.1.8.4)</em>, <em>pander(v.0.6.5)</em>, <em>labeling(v.0.4.3)</em>, <em>pins(v.1.4.0)</em>, <em>rprojroot(v.2.0.4)</em>, <em>fastmap(v.1.2.0)</em>, <em>grid(v.4.4.1)</em>, <em>archive(v.1.1.10)</em>, <em>colorspace(v.2.1-1)</em>, <em>cli(v.3.6.3)</em>, <em>magrittr(v.2.0.3)</em>, <em>utf8(v.1.2.4)</em>, <em>withr(v.3.0.2)</em>, <em>scales(v.1.3.0)</em>, <em>rappdirs(v.0.3.3)</em>, <em>bit64(v.4.5.2)</em>, <em>timechange(v.0.3.0)</em>, <em>rmarkdown(v.2.29)</em>, <em>bit(v.4.5.0)</em>, <em>ragg(v.1.3.3)</em>, <em>hms(v.1.1.3)</em>, <em>stringfish(v.0.16.0)</em>, <em>evaluate(v.1.0.1)</em>, <em>knitr(v.1.49)</em>, <em>rlang(v.1.1.4)</em>, <em>Rcpp(v.1.0.13-1)</em>, <em>glue(v.1.8.0)</em>, <em>xml2(v.1.3.6)</em>, <em>rstudioapi(v.0.17.1)</em>, <em>vroom(v.1.6.5)</em>, <em>jsonlite(v.1.8.9)</em>, <em>R6(v.2.5.1)</em>, <em>systemfonts(v.1.1.0)</em> and <em>fs(v.1.6.5)</em></p>
+<p><strong>loaded via a namespace (and not attached):</strong> <em>gtable(v.0.3.6)</em>, <em>xfun(v.0.49)</em>, <em>htmlwidgets(v.1.6.4)</em>, <em>collapse(v.2.0.17)</em>, <em>RApiSerialize(v.0.1.4)</em>, <em>tzdb(v.0.4.0)</em>, <em>vctrs(v.0.6.5)</em>, <em>tools(v.4.4.2)</em>, <em>generics(v.0.1.3)</em>, <em>parallel(v.4.4.2)</em>, <em>fansi(v.1.0.6)</em>, <em>pkgconfig(v.2.0.3)</em>, <em>RcppParallel(v.5.1.9)</em>, <em>lifecycle(v.1.0.4)</em>, <em>farver(v.2.1.2)</em>, <em>cheapr(v.0.9.91)</em>, <em>compiler(v.4.4.2)</em>, <em>textshaping(v.0.4.0)</em>, <em>munsell(v.0.5.1)</em>, <em>janitor(v.2.2.0)</em>, <em>qs(v.0.27.2)</em>, <em>snakecase(v.0.11.1)</em>, <em>htmltools(v.0.5.8.1)</em>, <em>yaml(v.2.3.10)</em>, <em>pillar(v.1.9.0)</em>, <em>crayon(v.1.5.3)</em>, <em>tidyselect(v.1.2.1)</em>, <em>digest(v.0.6.37)</em>, <em>stringi(v.1.8.4)</em>, <em>pander(v.0.6.5)</em>, <em>labeling(v.0.4.3)</em>, <em>pins(v.1.4.0)</em>, <em>rprojroot(v.2.0.4)</em>, <em>fastmap(v.1.2.0)</em>, <em>grid(v.4.4.2)</em>, <em>archive(v.1.1.10)</em>, <em>colorspace(v.2.1-1)</em>, <em>cli(v.3.6.3)</em>, <em>magrittr(v.2.0.3)</em>, <em>utf8(v.1.2.4)</em>, <em>withr(v.3.0.2)</em>, <em>scales(v.1.3.0)</em>, <em>rappdirs(v.0.3.3)</em>, <em>bit64(v.4.5.2)</em>, <em>timechange(v.0.3.0)</em>, <em>rmarkdown(v.2.29)</em>, <em>bit(v.4.5.0)</em>, <em>ragg(v.1.3.3)</em>, <em>hms(v.1.1.3)</em>, <em>stringfish(v.0.16.0)</em>, <em>evaluate(v.1.0.1)</em>, <em>knitr(v.1.49)</em>, <em>rlang(v.1.1.4)</em>, <em>Rcpp(v.1.0.13-1)</em>, <em>glue(v.1.8.0)</em>, <em>xml2(v.1.3.6)</em>, <em>rstudioapi(v.0.17.1)</em>, <em>vroom(v.1.6.5)</em>, <em>jsonlite(v.1.8.9)</em>, <em>R6(v.2.5.1)</em>, <em>systemfonts(v.1.1.0)</em> and <em>fs(v.1.6.5)</em></p>
 </div>
 </div>
 
@@ -408,13 +409,13 @@ cols: 24
 </section></section><a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a><div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-reuse"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div class="quarto-appendix-contents"><div><a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></div></div></section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{allen_bruce2024,
   author = {Allen Bruce, Andrew},
   title = {Post-Audit {Development}},
-  date = {2024-11-13},
+  date = {2024-11-15},
   url = {https://andrewallenbruce.github.io/acephale/posts/claims/claims.html},
   langid = {en}
 }
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-allen_bruce2024" class="csl-entry quarto-appendix-citeas" role="listitem">
 Allen Bruce, Andrew. 2024. <span>“Post-Audit Development.”</span>
-November 13, 2024. <a href="https://andrewallenbruce.github.io/acephale/posts/claims/claims.html">https://andrewallenbruce.github.io/acephale/posts/claims/claims.html</a>.
+November 15, 2024. <a href="https://andrewallenbruce.github.io/acephale/posts/claims/claims.html">https://andrewallenbruce.github.io/acephale/posts/claims/claims.html</a>.
 </div></div></section></div></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -905,7 +906,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">dpi =</span> <span class="dv">150</span>,</span>
 <span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">out.width =</span> <span class="st">"100%"</span>,</span>
 <span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.width =</span> <span class="dv">8</span>,</span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.height =</span> <span class="dv">10</span>,</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.height =</span> <span class="fl">7.5</span>,</span>
 <span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.align =</span> <span class="st">"center"</span>,</span>
 <span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.show =</span> <span class="st">"hold"</span></span>
 <span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>)</span>
@@ -977,7 +978,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb8-95"><a href="#cb8-95" aria-hidden="true" tabindex="-1"></a>cclaims <span class="sc">|&gt;</span> </span>
 <span id="cb8-96"><a href="#cb8-96" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(dos, ptid) <span class="sc">|&gt;</span> </span>
 <span id="cb8-97"><a href="#cb8-97" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb8-98"><a href="#cb8-98" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(dos) <span class="sc">|&gt;</span> </span>
+<span id="cb8-98"><a href="#cb8-98" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">count</span>(dos) <span class="sc">|&gt;</span> </span>
 <span id="cb8-99"><a href="#cb8-99" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
 <span id="cb8-100"><a href="#cb8-100" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_step</span>(<span class="fu">aes</span>(dos, n), <span class="at">color =</span> <span class="st">"#E87800"</span>, <span class="at">direction =</span> <span class="st">"hv"</span>) <span class="sc">+</span></span>
 <span id="cb8-101"><a href="#cb8-101" aria-hidden="true" tabindex="-1"></a>  fuimus<span class="sc">::</span><span class="fu">gg_theme</span>()</span>
@@ -988,330 +989,331 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb8-108"><a href="#cb8-108" aria-hidden="true" tabindex="-1"></a>cclaims <span class="sc">|&gt;</span> </span>
 <span id="cb8-109"><a href="#cb8-109" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(dos, ptid, pos_type, render) <span class="sc">|&gt;</span> </span>
 <span id="cb8-110"><a href="#cb8-110" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb8-111"><a href="#cb8-111" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(dos, pos_type, render) <span class="sc">|&gt;</span> </span>
-<span id="cb8-112"><a href="#cb8-112" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">n =</span> <span class="fu">cumsum</span>(n), <span class="at">.by =</span> <span class="fu">c</span>(pos_type, render)) <span class="sc">|&gt;</span> </span>
+<span id="cb8-111"><a href="#cb8-111" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">count</span>(dos, pos_type) <span class="sc">|&gt;</span> </span>
+<span id="cb8-112"><a href="#cb8-112" aria-hidden="true" tabindex="-1"></a>  <span class="co"># mutate(n = cumsum(n), .by = c(pos_type, render)) |&gt; </span></span>
 <span id="cb8-113"><a href="#cb8-113" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
 <span id="cb8-114"><a href="#cb8-114" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_step</span>(<span class="fu">aes</span>(dos, n, <span class="at">colour =</span> pos_type), <span class="at">direction =</span> <span class="st">"hv"</span>) <span class="sc">+</span></span>
-<span id="cb8-115"><a href="#cb8-115" aria-hidden="true" tabindex="-1"></a>  fuimus<span class="sc">::</span><span class="fu">gg_theme</span>()</span>
-<span id="cb8-116"><a href="#cb8-116" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb8-117"><a href="#cb8-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-115"><a href="#cb8-115" aria-hidden="true" tabindex="-1"></a>  fuimus<span class="sc">::</span><span class="fu">gg_theme</span>() <span class="sc">+</span></span>
+<span id="cb8-116"><a href="#cb8-116" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span>
+<span id="cb8-117"><a href="#cb8-117" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb8-118"><a href="#cb8-118" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-119"><a href="#cb8-119" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-120"><a href="#cb8-120" aria-hidden="true" tabindex="-1"></a><span class="fu">## Ratio Analysis</span></span>
-<span id="cb8-121"><a href="#cb8-121" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-122"><a href="#cb8-122" aria-hidden="true" tabindex="-1"></a>Revenue Per Visit</span>
-<span id="cb8-123"><a href="#cb8-123" aria-hidden="true" tabindex="-1"></a>: $RPV =$ Total Payments $\div$ Number of Patient Visits</span>
-<span id="cb8-124"><a href="#cb8-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-120"><a href="#cb8-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-121"><a href="#cb8-121" aria-hidden="true" tabindex="-1"></a><span class="fu">## Ratio Analysis</span></span>
+<span id="cb8-122"><a href="#cb8-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-123"><a href="#cb8-123" aria-hidden="true" tabindex="-1"></a>Revenue Per Visit</span>
+<span id="cb8-124"><a href="#cb8-124" aria-hidden="true" tabindex="-1"></a>: $RPV =$ Total Payments $\div$ Number of Patient Visits</span>
 <span id="cb8-125"><a href="#cb8-125" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-128"><a href="#cb8-128" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb8-129"><a href="#cb8-129" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: claims_ratio</span></span>
-<span id="cb8-130"><a href="#cb8-130" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
-<span id="cb8-131"><a href="#cb8-131" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb8-132"><a href="#cb8-132" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb8-133"><a href="#cb8-133" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb8-134"><a href="#cb8-134" aria-hidden="true" tabindex="-1"></a>claims_summary <span class="sc">|&gt;</span></span>
-<span id="cb8-135"><a href="#cb8-135" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb8-136"><a href="#cb8-136" aria-hidden="true" tabindex="-1"></a>    <span class="at">revenue_adjustments =</span> revenue <span class="sc">+</span> adjustments, </span>
-<span id="cb8-137"><a href="#cb8-137" aria-hidden="true" tabindex="-1"></a>    <span class="at">.after =</span> charges) <span class="sc">|&gt;</span> </span>
-<span id="cb8-138"><a href="#cb8-138" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reframe</span>(</span>
-<span id="cb8-139"><a href="#cb8-139" aria-hidden="true" tabindex="-1"></a>    <span class="at">cpp =</span> charges <span class="sc">/</span> procedures,</span>
-<span id="cb8-140"><a href="#cb8-140" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpp =</span> allowed <span class="sc">/</span> procedures,</span>
-<span id="cb8-141"><a href="#cb8-141" aria-hidden="true" tabindex="-1"></a>    <span class="at">rpp =</span> revenue <span class="sc">/</span> procedures,</span>
-<span id="cb8-142"><a href="#cb8-142" aria-hidden="true" tabindex="-1"></a>    <span class="at">adpp =</span> adjustments <span class="sc">/</span> procedures,</span>
-<span id="cb8-143"><a href="#cb8-143" aria-hidden="true" tabindex="-1"></a>    <span class="at">ppv =</span> procedures <span class="sc">/</span> visits,</span>
-<span id="cb8-144"><a href="#cb8-144" aria-hidden="true" tabindex="-1"></a>    <span class="at">cpv =</span> charges <span class="sc">/</span> visits,</span>
-<span id="cb8-145"><a href="#cb8-145" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpv =</span> allowed <span class="sc">/</span> visits,</span>
-<span id="cb8-146"><a href="#cb8-146" aria-hidden="true" tabindex="-1"></a>    <span class="at">rpv =</span> revenue <span class="sc">/</span> visits,</span>
-<span id="cb8-147"><a href="#cb8-147" aria-hidden="true" tabindex="-1"></a>    <span class="at">adpv =</span> adjustments <span class="sc">/</span> visits,</span>
-<span id="cb8-148"><a href="#cb8-148" aria-hidden="true" tabindex="-1"></a>    <span class="at">cpr =</span> charges <span class="sc">/</span> revenue_adjustments,</span>
-<span id="cb8-149"><a href="#cb8-149" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpr =</span> allowed <span class="sc">/</span> revenue,</span>
-<span id="cb8-150"><a href="#cb8-150" aria-hidden="true" tabindex="-1"></a>    <span class="at">adpr =</span> adjustments <span class="sc">/</span> revenue,</span>
-<span id="cb8-151"><a href="#cb8-151" aria-hidden="true" tabindex="-1"></a>    <span class="at">net_collect =</span> revenue <span class="sc">/</span> (charges <span class="sc">-</span> adjustments),</span>
-<span id="cb8-152"><a href="#cb8-152" aria-hidden="true" tabindex="-1"></a>    <span class="at">net_allow =</span> revenue <span class="sc">/</span> allowed,</span>
-<span id="cb8-153"><a href="#cb8-153" aria-hidden="true" tabindex="-1"></a>    <span class="at">net_adjust =</span> revenue <span class="sc">/</span> adjustments,</span>
-<span id="cb8-154"><a href="#cb8-154" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span> </span>
-<span id="cb8-155"><a href="#cb8-155" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_names</span>(</span>
-<span id="cb8-156"><a href="#cb8-156" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(<span class="st">"Charge Per Procedure"</span>, </span>
-<span id="cb8-157"><a href="#cb8-157" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Allowed Per Procedure"</span>, </span>
-<span id="cb8-158"><a href="#cb8-158" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Payment Per Procedure"</span>, </span>
-<span id="cb8-159"><a href="#cb8-159" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Adjustment Per Procedure"</span>, </span>
-<span id="cb8-160"><a href="#cb8-160" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Procedures Per Visit"</span>, </span>
-<span id="cb8-161"><a href="#cb8-161" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Charge Per Visit"</span>, </span>
-<span id="cb8-162"><a href="#cb8-162" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Allowed Per Visit"</span>, </span>
-<span id="cb8-163"><a href="#cb8-163" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Payment Per Visit"</span>, </span>
-<span id="cb8-164"><a href="#cb8-164" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Adjustment Per Visit"</span>,</span>
-<span id="cb8-165"><a href="#cb8-165" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Charge To Payment + Adjustment"</span>,</span>
-<span id="cb8-166"><a href="#cb8-166" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Allowed Per Dollar"</span>, </span>
-<span id="cb8-167"><a href="#cb8-167" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Adjustment Per Dollar"</span>,</span>
-<span id="cb8-168"><a href="#cb8-168" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Net Collection Ratio"</span>,</span>
-<span id="cb8-169"><a href="#cb8-169" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Net Allowable Ratio"</span>,</span>
-<span id="cb8-170"><a href="#cb8-170" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Net Adjustment Ratio"</span></span>
-<span id="cb8-171"><a href="#cb8-171" aria-hidden="true" tabindex="-1"></a>      )) <span class="sc">|&gt;</span> </span>
-<span id="cb8-172"><a href="#cb8-172" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
-<span id="cb8-173"><a href="#cb8-173" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">everything</span>(), </span>
-<span id="cb8-174"><a href="#cb8-174" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"Metric"</span>, </span>
-<span id="cb8-175"><a href="#cb8-175" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"Value"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb8-176"><a href="#cb8-176" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb8-177"><a href="#cb8-177" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_table_font</span>(<span class="at">font =</span> <span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb8-178"><a href="#cb8-178" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_options</span>(<span class="at">table.width =</span> <span class="fu">pct</span>(<span class="dv">100</span>),</span>
-<span id="cb8-179"><a href="#cb8-179" aria-hidden="true" tabindex="-1"></a>              <span class="at">quarto.disable_processing =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb8-180"><a href="#cb8-180" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb8-181"><a href="#cb8-181" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-184"><a href="#cb8-184" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb8-185"><a href="#cb8-185" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: insurance_ratios</span></span>
-<span id="cb8-186"><a href="#cb8-186" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
-<span id="cb8-187"><a href="#cb8-187" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb8-188"><a href="#cb8-188" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb8-189"><a href="#cb8-189" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb8-190"><a href="#cb8-190" aria-hidden="true" tabindex="-1"></a>insurance_summary <span class="sc">|&gt;</span> </span>
-<span id="cb8-191"><a href="#cb8-191" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reframe</span>(</span>
-<span id="cb8-192"><a href="#cb8-192" aria-hidden="true" tabindex="-1"></a>    ins_prim,</span>
-<span id="cb8-193"><a href="#cb8-193" aria-hidden="true" tabindex="-1"></a>    <span class="at">pts =</span> patients,</span>
-<span id="cb8-194"><a href="#cb8-194" aria-hidden="true" tabindex="-1"></a>    <span class="at">vpp =</span> visits <span class="sc">/</span> patients,</span>
-<span id="cb8-195"><a href="#cb8-195" aria-hidden="true" tabindex="-1"></a>    <span class="at">ppp =</span> procedures <span class="sc">/</span> patients,</span>
-<span id="cb8-196"><a href="#cb8-196" aria-hidden="true" tabindex="-1"></a>    <span class="at">rpp =</span> revenue <span class="sc">/</span> patients,</span>
-<span id="cb8-197"><a href="#cb8-197" aria-hidden="true" tabindex="-1"></a>    <span class="at">ppv =</span> procedures <span class="sc">/</span> visits,</span>
-<span id="cb8-198"><a href="#cb8-198" aria-hidden="true" tabindex="-1"></a>    <span class="at">rpv =</span> revenue <span class="sc">/</span> visits,</span>
-<span id="cb8-199"><a href="#cb8-199" aria-hidden="true" tabindex="-1"></a>    <span class="at">rpp =</span> revenue <span class="sc">/</span> procedures</span>
-<span id="cb8-200"><a href="#cb8-200" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb8-201"><a href="#cb8-201" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(pts)) <span class="sc">|&gt;</span></span>
-<span id="cb8-202"><a href="#cb8-202" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>(<span class="at">rowname_col =</span> <span class="st">"ins_prim"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb8-203"><a href="#cb8-203" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_all_caps</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb8-204"><a href="#cb8-204" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_table_font</span>(<span class="at">font =</span> <span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb8-205"><a href="#cb8-205" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_options</span>(<span class="at">table.width =</span> <span class="fu">pct</span>(<span class="dv">100</span>),</span>
-<span id="cb8-206"><a href="#cb8-206" aria-hidden="true" tabindex="-1"></a>              <span class="at">quarto.disable_processing =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb8-207"><a href="#cb8-207" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb8-208"><a href="#cb8-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-126"><a href="#cb8-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-129"><a href="#cb8-129" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb8-130"><a href="#cb8-130" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: claims_ratio</span></span>
+<span id="cb8-131"><a href="#cb8-131" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb8-132"><a href="#cb8-132" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb8-133"><a href="#cb8-133" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb8-134"><a href="#cb8-134" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb8-135"><a href="#cb8-135" aria-hidden="true" tabindex="-1"></a>claims_summary <span class="sc">|&gt;</span></span>
+<span id="cb8-136"><a href="#cb8-136" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb8-137"><a href="#cb8-137" aria-hidden="true" tabindex="-1"></a>    <span class="at">revenue_adjustments =</span> revenue <span class="sc">+</span> adjustments, </span>
+<span id="cb8-138"><a href="#cb8-138" aria-hidden="true" tabindex="-1"></a>    <span class="at">.after =</span> charges) <span class="sc">|&gt;</span> </span>
+<span id="cb8-139"><a href="#cb8-139" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reframe</span>(</span>
+<span id="cb8-140"><a href="#cb8-140" aria-hidden="true" tabindex="-1"></a>    <span class="at">cpp =</span> charges <span class="sc">/</span> procedures,</span>
+<span id="cb8-141"><a href="#cb8-141" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpp =</span> allowed <span class="sc">/</span> procedures,</span>
+<span id="cb8-142"><a href="#cb8-142" aria-hidden="true" tabindex="-1"></a>    <span class="at">rpp =</span> revenue <span class="sc">/</span> procedures,</span>
+<span id="cb8-143"><a href="#cb8-143" aria-hidden="true" tabindex="-1"></a>    <span class="at">adpp =</span> adjustments <span class="sc">/</span> procedures,</span>
+<span id="cb8-144"><a href="#cb8-144" aria-hidden="true" tabindex="-1"></a>    <span class="at">ppv =</span> procedures <span class="sc">/</span> visits,</span>
+<span id="cb8-145"><a href="#cb8-145" aria-hidden="true" tabindex="-1"></a>    <span class="at">cpv =</span> charges <span class="sc">/</span> visits,</span>
+<span id="cb8-146"><a href="#cb8-146" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpv =</span> allowed <span class="sc">/</span> visits,</span>
+<span id="cb8-147"><a href="#cb8-147" aria-hidden="true" tabindex="-1"></a>    <span class="at">rpv =</span> revenue <span class="sc">/</span> visits,</span>
+<span id="cb8-148"><a href="#cb8-148" aria-hidden="true" tabindex="-1"></a>    <span class="at">adpv =</span> adjustments <span class="sc">/</span> visits,</span>
+<span id="cb8-149"><a href="#cb8-149" aria-hidden="true" tabindex="-1"></a>    <span class="at">cpr =</span> charges <span class="sc">/</span> revenue_adjustments,</span>
+<span id="cb8-150"><a href="#cb8-150" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpr =</span> allowed <span class="sc">/</span> revenue,</span>
+<span id="cb8-151"><a href="#cb8-151" aria-hidden="true" tabindex="-1"></a>    <span class="at">adpr =</span> adjustments <span class="sc">/</span> revenue,</span>
+<span id="cb8-152"><a href="#cb8-152" aria-hidden="true" tabindex="-1"></a>    <span class="at">net_collect =</span> revenue <span class="sc">/</span> (charges <span class="sc">-</span> adjustments),</span>
+<span id="cb8-153"><a href="#cb8-153" aria-hidden="true" tabindex="-1"></a>    <span class="at">net_allow =</span> revenue <span class="sc">/</span> allowed,</span>
+<span id="cb8-154"><a href="#cb8-154" aria-hidden="true" tabindex="-1"></a>    <span class="at">net_adjust =</span> revenue <span class="sc">/</span> adjustments,</span>
+<span id="cb8-155"><a href="#cb8-155" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span> </span>
+<span id="cb8-156"><a href="#cb8-156" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_names</span>(</span>
+<span id="cb8-157"><a href="#cb8-157" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(<span class="st">"Charge Per Procedure"</span>, </span>
+<span id="cb8-158"><a href="#cb8-158" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Allowed Per Procedure"</span>, </span>
+<span id="cb8-159"><a href="#cb8-159" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Payment Per Procedure"</span>, </span>
+<span id="cb8-160"><a href="#cb8-160" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Adjustment Per Procedure"</span>, </span>
+<span id="cb8-161"><a href="#cb8-161" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Procedures Per Visit"</span>, </span>
+<span id="cb8-162"><a href="#cb8-162" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Charge Per Visit"</span>, </span>
+<span id="cb8-163"><a href="#cb8-163" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Allowed Per Visit"</span>, </span>
+<span id="cb8-164"><a href="#cb8-164" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Payment Per Visit"</span>, </span>
+<span id="cb8-165"><a href="#cb8-165" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Adjustment Per Visit"</span>,</span>
+<span id="cb8-166"><a href="#cb8-166" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Charge To Payment + Adjustment"</span>,</span>
+<span id="cb8-167"><a href="#cb8-167" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Allowed Per Dollar"</span>, </span>
+<span id="cb8-168"><a href="#cb8-168" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Adjustment Per Dollar"</span>,</span>
+<span id="cb8-169"><a href="#cb8-169" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Net Collection Ratio"</span>,</span>
+<span id="cb8-170"><a href="#cb8-170" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Net Allowable Ratio"</span>,</span>
+<span id="cb8-171"><a href="#cb8-171" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Net Adjustment Ratio"</span></span>
+<span id="cb8-172"><a href="#cb8-172" aria-hidden="true" tabindex="-1"></a>      )) <span class="sc">|&gt;</span> </span>
+<span id="cb8-173"><a href="#cb8-173" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb8-174"><a href="#cb8-174" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">everything</span>(), </span>
+<span id="cb8-175"><a href="#cb8-175" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"Metric"</span>, </span>
+<span id="cb8-176"><a href="#cb8-176" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"Value"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb8-177"><a href="#cb8-177" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb8-178"><a href="#cb8-178" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_table_font</span>(<span class="at">font =</span> <span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb8-179"><a href="#cb8-179" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_options</span>(<span class="at">table.width =</span> <span class="fu">pct</span>(<span class="dv">100</span>),</span>
+<span id="cb8-180"><a href="#cb8-180" aria-hidden="true" tabindex="-1"></a>              <span class="at">quarto.disable_processing =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-181"><a href="#cb8-181" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-182"><a href="#cb8-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-185"><a href="#cb8-185" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb8-186"><a href="#cb8-186" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: insurance_ratios</span></span>
+<span id="cb8-187"><a href="#cb8-187" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
+<span id="cb8-188"><a href="#cb8-188" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb8-189"><a href="#cb8-189" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb8-190"><a href="#cb8-190" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb8-191"><a href="#cb8-191" aria-hidden="true" tabindex="-1"></a>insurance_summary <span class="sc">|&gt;</span> </span>
+<span id="cb8-192"><a href="#cb8-192" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reframe</span>(</span>
+<span id="cb8-193"><a href="#cb8-193" aria-hidden="true" tabindex="-1"></a>    ins_prim,</span>
+<span id="cb8-194"><a href="#cb8-194" aria-hidden="true" tabindex="-1"></a>    <span class="at">pts =</span> patients,</span>
+<span id="cb8-195"><a href="#cb8-195" aria-hidden="true" tabindex="-1"></a>    <span class="at">vpp =</span> visits <span class="sc">/</span> patients,</span>
+<span id="cb8-196"><a href="#cb8-196" aria-hidden="true" tabindex="-1"></a>    <span class="at">ppp =</span> procedures <span class="sc">/</span> patients,</span>
+<span id="cb8-197"><a href="#cb8-197" aria-hidden="true" tabindex="-1"></a>    <span class="at">rpp =</span> revenue <span class="sc">/</span> patients,</span>
+<span id="cb8-198"><a href="#cb8-198" aria-hidden="true" tabindex="-1"></a>    <span class="at">ppv =</span> procedures <span class="sc">/</span> visits,</span>
+<span id="cb8-199"><a href="#cb8-199" aria-hidden="true" tabindex="-1"></a>    <span class="at">rpv =</span> revenue <span class="sc">/</span> visits,</span>
+<span id="cb8-200"><a href="#cb8-200" aria-hidden="true" tabindex="-1"></a>    <span class="at">rpp =</span> revenue <span class="sc">/</span> procedures</span>
+<span id="cb8-201"><a href="#cb8-201" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb8-202"><a href="#cb8-202" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(pts)) <span class="sc">|&gt;</span></span>
+<span id="cb8-203"><a href="#cb8-203" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>(<span class="at">rowname_col =</span> <span class="st">"ins_prim"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb8-204"><a href="#cb8-204" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_all_caps</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb8-205"><a href="#cb8-205" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_table_font</span>(<span class="at">font =</span> <span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb8-206"><a href="#cb8-206" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_options</span>(<span class="at">table.width =</span> <span class="fu">pct</span>(<span class="dv">100</span>),</span>
+<span id="cb8-207"><a href="#cb8-207" aria-hidden="true" tabindex="-1"></a>              <span class="at">quarto.disable_processing =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-208"><a href="#cb8-208" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb8-209"><a href="#cb8-209" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-210"><a href="#cb8-210" aria-hidden="true" tabindex="-1"></a><span class="fu"># Reimbursement</span></span>
-<span id="cb8-211"><a href="#cb8-211" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-214"><a href="#cb8-214" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb8-215"><a href="#cb8-215" aria-hidden="true" tabindex="-1"></a>pprrvu</span>
-<span id="cb8-216"><a href="#cb8-216" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb8-217"><a href="#cb8-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-210"><a href="#cb8-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-211"><a href="#cb8-211" aria-hidden="true" tabindex="-1"></a><span class="fu"># Reimbursement</span></span>
+<span id="cb8-212"><a href="#cb8-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-215"><a href="#cb8-215" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb8-216"><a href="#cb8-216" aria-hidden="true" tabindex="-1"></a>pprrvu</span>
+<span id="cb8-217"><a href="#cb8-217" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb8-218"><a href="#cb8-218" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-221"><a href="#cb8-221" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb8-222"><a href="#cb8-222" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: rvu_new</span></span>
-<span id="cb8-223"><a href="#cb8-223" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
-<span id="cb8-224"><a href="#cb8-224" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb8-225"><a href="#cb8-225" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb8-226"><a href="#cb8-226" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb8-227"><a href="#cb8-227" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-228"><a href="#cb8-228" aria-hidden="true" tabindex="-1"></a><span class="co"># mult = 0: "No adjustment. If procedure is reported on </span></span>
-<span id="cb8-229"><a href="#cb8-229" aria-hidden="true" tabindex="-1"></a><span class="co"># the same day as another procedure, base the payment on </span></span>
-<span id="cb8-230"><a href="#cb8-230" aria-hidden="true" tabindex="-1"></a><span class="co"># the lower of (a) the actual charge, or (b) the fee </span></span>
-<span id="cb8-231"><a href="#cb8-231" aria-hidden="true" tabindex="-1"></a><span class="co"># schedule amount for the procedure."</span></span>
-<span id="cb8-232"><a href="#cb8-232" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-233"><a href="#cb8-233" aria-hidden="true" tabindex="-1"></a><span class="co"># glob = ZZZ: "Code related to another service and is </span></span>
-<span id="cb8-234"><a href="#cb8-234" aria-hidden="true" tabindex="-1"></a><span class="co"># always included in Global period of other service."</span></span>
-<span id="cb8-235"><a href="#cb8-235" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-236"><a href="#cb8-236" aria-hidden="true" tabindex="-1"></a>pprrvu <span class="sc">|&gt;</span> </span>
-<span id="cb8-237"><a href="#cb8-237" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reframe</span>(</span>
-<span id="cb8-238"><a href="#cb8-238" aria-hidden="true" tabindex="-1"></a>    <span class="co"># dos, </span></span>
-<span id="cb8-239"><a href="#cb8-239" aria-hidden="true" tabindex="-1"></a>    <span class="at">yr =</span> data.table<span class="sc">::</span><span class="fu">year</span>(dos),</span>
-<span id="cb8-240"><a href="#cb8-240" aria-hidden="true" tabindex="-1"></a>    <span class="at">qtr =</span> data.table<span class="sc">::</span><span class="fu">quarter</span>(dos),</span>
-<span id="cb8-241"><a href="#cb8-241" aria-hidden="true" tabindex="-1"></a>    <span class="co"># mon = data.table::month(dos),</span></span>
-<span id="cb8-242"><a href="#cb8-242" aria-hidden="true" tabindex="-1"></a>    pos,</span>
-<span id="cb8-243"><a href="#cb8-243" aria-hidden="true" tabindex="-1"></a>    hcpcs, </span>
-<span id="cb8-244"><a href="#cb8-244" aria-hidden="true" tabindex="-1"></a>    <span class="co"># description, </span></span>
-<span id="cb8-245"><a href="#cb8-245" aria-hidden="true" tabindex="-1"></a>    <span class="co"># glob_days,</span></span>
-<span id="cb8-246"><a href="#cb8-246" aria-hidden="true" tabindex="-1"></a>    <span class="co"># mult_proc,</span></span>
-<span id="cb8-247"><a href="#cb8-247" aria-hidden="true" tabindex="-1"></a>    work_rvu, </span>
-<span id="cb8-248"><a href="#cb8-248" aria-hidden="true" tabindex="-1"></a>    pe_rvu, </span>
-<span id="cb8-249"><a href="#cb8-249" aria-hidden="true" tabindex="-1"></a>    mp_rvu, </span>
-<span id="cb8-250"><a href="#cb8-250" aria-hidden="true" tabindex="-1"></a>    <span class="at">tot_rvu =</span> rvu_total,</span>
-<span id="cb8-251"><a href="#cb8-251" aria-hidden="true" tabindex="-1"></a>    <span class="at">cf =</span> conv_factor,</span>
-<span id="cb8-252"><a href="#cb8-252" aria-hidden="true" tabindex="-1"></a>    <span class="at">allow_unadj =</span> tot_rvu <span class="sc">*</span> cf,</span>
-<span id="cb8-253"><a href="#cb8-253" aria-hidden="true" tabindex="-1"></a>    <span class="at">nonpar_unadj =</span> allow_unadj <span class="sc">*</span> <span class="fl">1.15</span>,</span>
-<span id="cb8-254"><a href="#cb8-254" aria-hidden="true" tabindex="-1"></a>    <span class="at">lim_unadj =</span> nonpar_unadj <span class="sc">*</span> <span class="fl">0.95</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb8-255"><a href="#cb8-255" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb8-256"><a href="#cb8-256" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(hcpcs, yr, qtr) <span class="sc">|&gt;</span></span>
-<span id="cb8-257"><a href="#cb8-257" aria-hidden="true" tabindex="-1"></a>  <span class="co"># head(n = 50) |&gt;</span></span>
-<span id="cb8-258"><a href="#cb8-258" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>(<span class="at">rowname_col =</span> <span class="st">"year"</span>, </span>
-<span id="cb8-259"><a href="#cb8-259" aria-hidden="true" tabindex="-1"></a>     <span class="at">groupname_col =</span> <span class="st">"hcpcs"</span>,</span>
-<span id="cb8-260"><a href="#cb8-260" aria-hidden="true" tabindex="-1"></a>     <span class="at">row_group_as_column =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb8-261"><a href="#cb8-261" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_table_font</span>(</span>
-<span id="cb8-262"><a href="#cb8-262" aria-hidden="true" tabindex="-1"></a>    <span class="at">font =</span> <span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Roboto Condensed"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb8-263"><a href="#cb8-263" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_currency</span>(</span>
-<span id="cb8-264"><a href="#cb8-264" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">"nonpar_unadj"</span>, </span>
-<span id="cb8-265"><a href="#cb8-265" aria-hidden="true" tabindex="-1"></a>                <span class="st">"allow_unadj"</span>, </span>
-<span id="cb8-266"><a href="#cb8-266" aria-hidden="true" tabindex="-1"></a>                <span class="st">"lim_unadj"</span>, </span>
-<span id="cb8-267"><a href="#cb8-267" aria-hidden="true" tabindex="-1"></a>                <span class="st">"cf"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb8-268"><a href="#cb8-268" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
-<span id="cb8-269"><a href="#cb8-269" aria-hidden="true" tabindex="-1"></a>    <span class="at">yr =</span> <span class="fu">md</span>(<span class="st">"**YR**"</span>),</span>
-<span id="cb8-270"><a href="#cb8-270" aria-hidden="true" tabindex="-1"></a>    <span class="at">qtr =</span> <span class="fu">md</span>(<span class="st">"**QTR**"</span>),</span>
-<span id="cb8-271"><a href="#cb8-271" aria-hidden="true" tabindex="-1"></a>    <span class="at">work_rvu =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;wk&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
-<span id="cb8-272"><a href="#cb8-272" aria-hidden="true" tabindex="-1"></a>    <span class="at">pe_rvu =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;pe&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
-<span id="cb8-273"><a href="#cb8-273" aria-hidden="true" tabindex="-1"></a>    <span class="at">mp_rvu =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;mp&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
-<span id="cb8-274"><a href="#cb8-274" aria-hidden="true" tabindex="-1"></a>    <span class="at">cf =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;Conversion&lt;br&gt;Factor&lt;/small&gt;&lt;/b&gt;"</span>),</span>
-<span id="cb8-275"><a href="#cb8-275" aria-hidden="true" tabindex="-1"></a>    <span class="at">tot_rvu =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;total&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
-<span id="cb8-276"><a href="#cb8-276" aria-hidden="true" tabindex="-1"></a>    <span class="at">allow_unadj =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;Allowed&lt;br&gt;Amount&lt;/small&gt;&lt;/b&gt;"</span>),</span>
-<span id="cb8-277"><a href="#cb8-277" aria-hidden="true" tabindex="-1"></a>    <span class="at">nonpar_unadj =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;Non-Participating&lt;br&gt;Amount&lt;/small&gt;&lt;/b&gt;"</span>),</span>
-<span id="cb8-278"><a href="#cb8-278" aria-hidden="true" tabindex="-1"></a>    <span class="at">lim_unadj =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;Limiting&lt;br&gt;Charge&lt;/small&gt;&lt;/b&gt;"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb8-279"><a href="#cb8-279" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_align</span>(<span class="at">align =</span> <span class="st">"right"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb8-280"><a href="#cb8-280" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_style</span>(</span>
-<span id="cb8-281"><a href="#cb8-281" aria-hidden="true" tabindex="-1"></a>      <span class="at">style =</span> <span class="fu">cell_text</span>(</span>
-<span id="cb8-282"><a href="#cb8-282" aria-hidden="true" tabindex="-1"></a>        <span class="at">align =</span> <span class="st">'center'</span>,</span>
-<span id="cb8-283"><a href="#cb8-283" aria-hidden="true" tabindex="-1"></a>        <span class="at">size =</span> <span class="fu">px</span>(<span class="dv">16</span>),</span>
-<span id="cb8-284"><a href="#cb8-284" aria-hidden="true" tabindex="-1"></a>        <span class="at">font =</span> <span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>),</span>
-<span id="cb8-285"><a href="#cb8-285" aria-hidden="true" tabindex="-1"></a>        <span class="at">weight =</span> <span class="st">"bold"</span>),</span>
-<span id="cb8-286"><a href="#cb8-286" aria-hidden="true" tabindex="-1"></a>      <span class="at">locations =</span> <span class="fu">cells_row_groups</span>()) <span class="sc">|&gt;</span> </span>
-<span id="cb8-287"><a href="#cb8-287" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_style</span>(</span>
-<span id="cb8-288"><a href="#cb8-288" aria-hidden="true" tabindex="-1"></a>      <span class="at">style =</span> <span class="fu">cell_text</span>(</span>
-<span id="cb8-289"><a href="#cb8-289" aria-hidden="true" tabindex="-1"></a>        <span class="at">align =</span> <span class="st">'right'</span>,</span>
-<span id="cb8-290"><a href="#cb8-290" aria-hidden="true" tabindex="-1"></a>        <span class="at">font =</span> <span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>)),</span>
-<span id="cb8-291"><a href="#cb8-291" aria-hidden="true" tabindex="-1"></a>      <span class="at">locations =</span> <span class="fu">cells_body</span>()) <span class="sc">|&gt;</span> </span>
-<span id="cb8-292"><a href="#cb8-292" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_options</span>(</span>
-<span id="cb8-293"><a href="#cb8-293" aria-hidden="true" tabindex="-1"></a>    <span class="at">quarto.disable_processing =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb8-294"><a href="#cb8-294" aria-hidden="true" tabindex="-1"></a>    <span class="at">table.width =</span> <span class="st">"100%"</span></span>
-<span id="cb8-295"><a href="#cb8-295" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb8-296"><a href="#cb8-296" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb8-297"><a href="#cb8-297" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-219"><a href="#cb8-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-222"><a href="#cb8-222" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb8-223"><a href="#cb8-223" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: rvu_new</span></span>
+<span id="cb8-224"><a href="#cb8-224" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb8-225"><a href="#cb8-225" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb8-226"><a href="#cb8-226" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb8-227"><a href="#cb8-227" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb8-228"><a href="#cb8-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-229"><a href="#cb8-229" aria-hidden="true" tabindex="-1"></a><span class="co"># mult = 0: "No adjustment. If procedure is reported on </span></span>
+<span id="cb8-230"><a href="#cb8-230" aria-hidden="true" tabindex="-1"></a><span class="co"># the same day as another procedure, base the payment on </span></span>
+<span id="cb8-231"><a href="#cb8-231" aria-hidden="true" tabindex="-1"></a><span class="co"># the lower of (a) the actual charge, or (b) the fee </span></span>
+<span id="cb8-232"><a href="#cb8-232" aria-hidden="true" tabindex="-1"></a><span class="co"># schedule amount for the procedure."</span></span>
+<span id="cb8-233"><a href="#cb8-233" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-234"><a href="#cb8-234" aria-hidden="true" tabindex="-1"></a><span class="co"># glob = ZZZ: "Code related to another service and is </span></span>
+<span id="cb8-235"><a href="#cb8-235" aria-hidden="true" tabindex="-1"></a><span class="co"># always included in Global period of other service."</span></span>
+<span id="cb8-236"><a href="#cb8-236" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-237"><a href="#cb8-237" aria-hidden="true" tabindex="-1"></a>pprrvu <span class="sc">|&gt;</span> </span>
+<span id="cb8-238"><a href="#cb8-238" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reframe</span>(</span>
+<span id="cb8-239"><a href="#cb8-239" aria-hidden="true" tabindex="-1"></a>    <span class="co"># dos, </span></span>
+<span id="cb8-240"><a href="#cb8-240" aria-hidden="true" tabindex="-1"></a>    <span class="at">yr =</span> data.table<span class="sc">::</span><span class="fu">year</span>(dos),</span>
+<span id="cb8-241"><a href="#cb8-241" aria-hidden="true" tabindex="-1"></a>    <span class="at">qtr =</span> data.table<span class="sc">::</span><span class="fu">quarter</span>(dos),</span>
+<span id="cb8-242"><a href="#cb8-242" aria-hidden="true" tabindex="-1"></a>    <span class="co"># mon = data.table::month(dos),</span></span>
+<span id="cb8-243"><a href="#cb8-243" aria-hidden="true" tabindex="-1"></a>    pos,</span>
+<span id="cb8-244"><a href="#cb8-244" aria-hidden="true" tabindex="-1"></a>    hcpcs, </span>
+<span id="cb8-245"><a href="#cb8-245" aria-hidden="true" tabindex="-1"></a>    <span class="co"># description, </span></span>
+<span id="cb8-246"><a href="#cb8-246" aria-hidden="true" tabindex="-1"></a>    <span class="co"># glob_days,</span></span>
+<span id="cb8-247"><a href="#cb8-247" aria-hidden="true" tabindex="-1"></a>    <span class="co"># mult_proc,</span></span>
+<span id="cb8-248"><a href="#cb8-248" aria-hidden="true" tabindex="-1"></a>    work_rvu, </span>
+<span id="cb8-249"><a href="#cb8-249" aria-hidden="true" tabindex="-1"></a>    pe_rvu, </span>
+<span id="cb8-250"><a href="#cb8-250" aria-hidden="true" tabindex="-1"></a>    mp_rvu, </span>
+<span id="cb8-251"><a href="#cb8-251" aria-hidden="true" tabindex="-1"></a>    <span class="at">tot_rvu =</span> rvu_total,</span>
+<span id="cb8-252"><a href="#cb8-252" aria-hidden="true" tabindex="-1"></a>    <span class="at">cf =</span> conv_factor,</span>
+<span id="cb8-253"><a href="#cb8-253" aria-hidden="true" tabindex="-1"></a>    <span class="at">allow_unadj =</span> tot_rvu <span class="sc">*</span> cf,</span>
+<span id="cb8-254"><a href="#cb8-254" aria-hidden="true" tabindex="-1"></a>    <span class="at">nonpar_unadj =</span> allow_unadj <span class="sc">*</span> <span class="fl">1.15</span>,</span>
+<span id="cb8-255"><a href="#cb8-255" aria-hidden="true" tabindex="-1"></a>    <span class="at">lim_unadj =</span> nonpar_unadj <span class="sc">*</span> <span class="fl">0.95</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb8-256"><a href="#cb8-256" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb8-257"><a href="#cb8-257" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(hcpcs, yr, qtr) <span class="sc">|&gt;</span></span>
+<span id="cb8-258"><a href="#cb8-258" aria-hidden="true" tabindex="-1"></a>  <span class="co"># head(n = 50) |&gt;</span></span>
+<span id="cb8-259"><a href="#cb8-259" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>(<span class="at">rowname_col =</span> <span class="st">"year"</span>, </span>
+<span id="cb8-260"><a href="#cb8-260" aria-hidden="true" tabindex="-1"></a>     <span class="at">groupname_col =</span> <span class="st">"hcpcs"</span>,</span>
+<span id="cb8-261"><a href="#cb8-261" aria-hidden="true" tabindex="-1"></a>     <span class="at">row_group_as_column =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb8-262"><a href="#cb8-262" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_table_font</span>(</span>
+<span id="cb8-263"><a href="#cb8-263" aria-hidden="true" tabindex="-1"></a>    <span class="at">font =</span> <span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Roboto Condensed"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb8-264"><a href="#cb8-264" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_currency</span>(</span>
+<span id="cb8-265"><a href="#cb8-265" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">"nonpar_unadj"</span>, </span>
+<span id="cb8-266"><a href="#cb8-266" aria-hidden="true" tabindex="-1"></a>                <span class="st">"allow_unadj"</span>, </span>
+<span id="cb8-267"><a href="#cb8-267" aria-hidden="true" tabindex="-1"></a>                <span class="st">"lim_unadj"</span>, </span>
+<span id="cb8-268"><a href="#cb8-268" aria-hidden="true" tabindex="-1"></a>                <span class="st">"cf"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb8-269"><a href="#cb8-269" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
+<span id="cb8-270"><a href="#cb8-270" aria-hidden="true" tabindex="-1"></a>    <span class="at">yr =</span> <span class="fu">md</span>(<span class="st">"**YR**"</span>),</span>
+<span id="cb8-271"><a href="#cb8-271" aria-hidden="true" tabindex="-1"></a>    <span class="at">qtr =</span> <span class="fu">md</span>(<span class="st">"**QTR**"</span>),</span>
+<span id="cb8-272"><a href="#cb8-272" aria-hidden="true" tabindex="-1"></a>    <span class="at">work_rvu =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;wk&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
+<span id="cb8-273"><a href="#cb8-273" aria-hidden="true" tabindex="-1"></a>    <span class="at">pe_rvu =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;pe&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
+<span id="cb8-274"><a href="#cb8-274" aria-hidden="true" tabindex="-1"></a>    <span class="at">mp_rvu =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;mp&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
+<span id="cb8-275"><a href="#cb8-275" aria-hidden="true" tabindex="-1"></a>    <span class="at">cf =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;Conversion&lt;br&gt;Factor&lt;/small&gt;&lt;/b&gt;"</span>),</span>
+<span id="cb8-276"><a href="#cb8-276" aria-hidden="true" tabindex="-1"></a>    <span class="at">tot_rvu =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;total&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
+<span id="cb8-277"><a href="#cb8-277" aria-hidden="true" tabindex="-1"></a>    <span class="at">allow_unadj =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;Allowed&lt;br&gt;Amount&lt;/small&gt;&lt;/b&gt;"</span>),</span>
+<span id="cb8-278"><a href="#cb8-278" aria-hidden="true" tabindex="-1"></a>    <span class="at">nonpar_unadj =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;Non-Participating&lt;br&gt;Amount&lt;/small&gt;&lt;/b&gt;"</span>),</span>
+<span id="cb8-279"><a href="#cb8-279" aria-hidden="true" tabindex="-1"></a>    <span class="at">lim_unadj =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;Limiting&lt;br&gt;Charge&lt;/small&gt;&lt;/b&gt;"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb8-280"><a href="#cb8-280" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_align</span>(<span class="at">align =</span> <span class="st">"right"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb8-281"><a href="#cb8-281" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_style</span>(</span>
+<span id="cb8-282"><a href="#cb8-282" aria-hidden="true" tabindex="-1"></a>      <span class="at">style =</span> <span class="fu">cell_text</span>(</span>
+<span id="cb8-283"><a href="#cb8-283" aria-hidden="true" tabindex="-1"></a>        <span class="at">align =</span> <span class="st">'center'</span>,</span>
+<span id="cb8-284"><a href="#cb8-284" aria-hidden="true" tabindex="-1"></a>        <span class="at">size =</span> <span class="fu">px</span>(<span class="dv">16</span>),</span>
+<span id="cb8-285"><a href="#cb8-285" aria-hidden="true" tabindex="-1"></a>        <span class="at">font =</span> <span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>),</span>
+<span id="cb8-286"><a href="#cb8-286" aria-hidden="true" tabindex="-1"></a>        <span class="at">weight =</span> <span class="st">"bold"</span>),</span>
+<span id="cb8-287"><a href="#cb8-287" aria-hidden="true" tabindex="-1"></a>      <span class="at">locations =</span> <span class="fu">cells_row_groups</span>()) <span class="sc">|&gt;</span> </span>
+<span id="cb8-288"><a href="#cb8-288" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_style</span>(</span>
+<span id="cb8-289"><a href="#cb8-289" aria-hidden="true" tabindex="-1"></a>      <span class="at">style =</span> <span class="fu">cell_text</span>(</span>
+<span id="cb8-290"><a href="#cb8-290" aria-hidden="true" tabindex="-1"></a>        <span class="at">align =</span> <span class="st">'right'</span>,</span>
+<span id="cb8-291"><a href="#cb8-291" aria-hidden="true" tabindex="-1"></a>        <span class="at">font =</span> <span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>)),</span>
+<span id="cb8-292"><a href="#cb8-292" aria-hidden="true" tabindex="-1"></a>      <span class="at">locations =</span> <span class="fu">cells_body</span>()) <span class="sc">|&gt;</span> </span>
+<span id="cb8-293"><a href="#cb8-293" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_options</span>(</span>
+<span id="cb8-294"><a href="#cb8-294" aria-hidden="true" tabindex="-1"></a>    <span class="at">quarto.disable_processing =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb8-295"><a href="#cb8-295" aria-hidden="true" tabindex="-1"></a>    <span class="at">table.width =</span> <span class="st">"100%"</span></span>
+<span id="cb8-296"><a href="#cb8-296" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb8-297"><a href="#cb8-297" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb8-298"><a href="#cb8-298" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-299"><a href="#cb8-299" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-302"><a href="#cb8-302" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb8-303"><a href="#cb8-303" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: rvu_summary</span></span>
-<span id="cb8-304"><a href="#cb8-304" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
-<span id="cb8-305"><a href="#cb8-305" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb8-306"><a href="#cb8-306" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb8-307"><a href="#cb8-307" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb8-308"><a href="#cb8-308" aria-hidden="true" tabindex="-1"></a>rvu_join <span class="ot">&lt;-</span> pprrvu <span class="sc">|&gt;</span> </span>
-<span id="cb8-309"><a href="#cb8-309" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reframe</span>(</span>
-<span id="cb8-310"><a href="#cb8-310" aria-hidden="true" tabindex="-1"></a>    dos,</span>
-<span id="cb8-311"><a href="#cb8-311" aria-hidden="true" tabindex="-1"></a>    pos,</span>
-<span id="cb8-312"><a href="#cb8-312" aria-hidden="true" tabindex="-1"></a>    hcpcs, </span>
-<span id="cb8-313"><a href="#cb8-313" aria-hidden="true" tabindex="-1"></a>    <span class="at">wrvu =</span> work_rvu, </span>
-<span id="cb8-314"><a href="#cb8-314" aria-hidden="true" tabindex="-1"></a>    <span class="at">prvu =</span> pe_rvu, </span>
-<span id="cb8-315"><a href="#cb8-315" aria-hidden="true" tabindex="-1"></a>    <span class="at">mrvu =</span> mp_rvu, </span>
-<span id="cb8-316"><a href="#cb8-316" aria-hidden="true" tabindex="-1"></a>    <span class="at">trvu =</span> rvu_total,</span>
-<span id="cb8-317"><a href="#cb8-317" aria-hidden="true" tabindex="-1"></a>    <span class="at">cf =</span> conv_factor,</span>
-<span id="cb8-318"><a href="#cb8-318" aria-hidden="true" tabindex="-1"></a>    <span class="at">all_un =</span> trvu <span class="sc">*</span> cf,</span>
-<span id="cb8-319"><a href="#cb8-319" aria-hidden="true" tabindex="-1"></a>    <span class="at">npar_un =</span> all_un <span class="sc">*</span> <span class="fl">1.15</span>,</span>
-<span id="cb8-320"><a href="#cb8-320" aria-hidden="true" tabindex="-1"></a>    <span class="at">lim_un =</span> npar_un <span class="sc">*</span> <span class="fl">0.95</span></span>
-<span id="cb8-321"><a href="#cb8-321" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb8-322"><a href="#cb8-322" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-323"><a href="#cb8-323" aria-hidden="true" tabindex="-1"></a>rvu_claims <span class="ot">&lt;-</span> claims <span class="sc">|&gt;</span> </span>
-<span id="cb8-324"><a href="#cb8-324" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
-<span id="cb8-325"><a href="#cb8-325" aria-hidden="true" tabindex="-1"></a>    dos, </span>
-<span id="cb8-326"><a href="#cb8-326" aria-hidden="true" tabindex="-1"></a>    id, </span>
-<span id="cb8-327"><a href="#cb8-327" aria-hidden="true" tabindex="-1"></a>    enc, </span>
-<span id="cb8-328"><a href="#cb8-328" aria-hidden="true" tabindex="-1"></a>    ren,</span>
-<span id="cb8-329"><a href="#cb8-329" aria-hidden="true" tabindex="-1"></a>    ins_class,</span>
-<span id="cb8-330"><a href="#cb8-330" aria-hidden="true" tabindex="-1"></a>    ins_prim, </span>
-<span id="cb8-331"><a href="#cb8-331" aria-hidden="true" tabindex="-1"></a>    ord,</span>
-<span id="cb8-332"><a href="#cb8-332" aria-hidden="true" tabindex="-1"></a>    hcpcs,</span>
-<span id="cb8-333"><a href="#cb8-333" aria-hidden="true" tabindex="-1"></a>    units,</span>
-<span id="cb8-334"><a href="#cb8-334" aria-hidden="true" tabindex="-1"></a>    <span class="at">pos =</span> pos_type,</span>
-<span id="cb8-335"><a href="#cb8-335" aria-hidden="true" tabindex="-1"></a>    charges, </span>
-<span id="cb8-336"><a href="#cb8-336" aria-hidden="true" tabindex="-1"></a>    allowed, </span>
-<span id="cb8-337"><a href="#cb8-337" aria-hidden="true" tabindex="-1"></a>    payments, </span>
-<span id="cb8-338"><a href="#cb8-338" aria-hidden="true" tabindex="-1"></a>    adjustments</span>
-<span id="cb8-339"><a href="#cb8-339" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span> </span>
-<span id="cb8-340"><a href="#cb8-340" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(</span>
-<span id="cb8-341"><a href="#cb8-341" aria-hidden="true" tabindex="-1"></a>    rvu_join, </span>
-<span id="cb8-342"><a href="#cb8-342" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="fu">join_by</span>(dos, hcpcs, pos)) <span class="sc">|&gt;</span> </span>
-<span id="cb8-343"><a href="#cb8-343" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
-<span id="cb8-344"><a href="#cb8-344" aria-hidden="true" tabindex="-1"></a>    ins_class <span class="sc">!=</span> <span class="st">"SELF"</span>, </span>
-<span id="cb8-345"><a href="#cb8-345" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(hcpcs),</span>
-<span id="cb8-346"><a href="#cb8-346" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(wrvu),</span>
-<span id="cb8-347"><a href="#cb8-347" aria-hidden="true" tabindex="-1"></a>    <span class="co"># !(wrvu == 0.0 &amp; prvu == 0.0 &amp; mrvu == 0.0),</span></span>
-<span id="cb8-348"><a href="#cb8-348" aria-hidden="true" tabindex="-1"></a>    charges <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb8-349"><a href="#cb8-349" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(dos, id, enc, ord) <span class="sc">|&gt;</span> </span>
-<span id="cb8-350"><a href="#cb8-350" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(all_un, npar_un, lim_un), <span class="sc">~</span> . <span class="sc">*</span> units))</span>
-<span id="cb8-351"><a href="#cb8-351" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-352"><a href="#cb8-352" aria-hidden="true" tabindex="-1"></a>rvu_claims <span class="sc">|&gt;</span></span>
-<span id="cb8-353"><a href="#cb8-353" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="at">n =</span> <span class="dv">10</span>) <span class="sc">|&gt;</span></span>
-<span id="cb8-354"><a href="#cb8-354" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb8-355"><a href="#cb8-355" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_all_caps</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb8-356"><a href="#cb8-356" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_table_font</span>(<span class="at">font =</span> <span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb8-357"><a href="#cb8-357" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_options</span>(<span class="at">table.width =</span> <span class="fu">pct</span>(<span class="dv">100</span>),</span>
-<span id="cb8-358"><a href="#cb8-358" aria-hidden="true" tabindex="-1"></a>              <span class="at">quarto.disable_processing =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb8-359"><a href="#cb8-359" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb8-360"><a href="#cb8-360" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-300"><a href="#cb8-300" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-303"><a href="#cb8-303" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb8-304"><a href="#cb8-304" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: rvu_summary</span></span>
+<span id="cb8-305"><a href="#cb8-305" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb8-306"><a href="#cb8-306" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb8-307"><a href="#cb8-307" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb8-308"><a href="#cb8-308" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb8-309"><a href="#cb8-309" aria-hidden="true" tabindex="-1"></a>rvu_join <span class="ot">&lt;-</span> pprrvu <span class="sc">|&gt;</span> </span>
+<span id="cb8-310"><a href="#cb8-310" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reframe</span>(</span>
+<span id="cb8-311"><a href="#cb8-311" aria-hidden="true" tabindex="-1"></a>    dos,</span>
+<span id="cb8-312"><a href="#cb8-312" aria-hidden="true" tabindex="-1"></a>    pos,</span>
+<span id="cb8-313"><a href="#cb8-313" aria-hidden="true" tabindex="-1"></a>    hcpcs, </span>
+<span id="cb8-314"><a href="#cb8-314" aria-hidden="true" tabindex="-1"></a>    <span class="at">wrvu =</span> work_rvu, </span>
+<span id="cb8-315"><a href="#cb8-315" aria-hidden="true" tabindex="-1"></a>    <span class="at">prvu =</span> pe_rvu, </span>
+<span id="cb8-316"><a href="#cb8-316" aria-hidden="true" tabindex="-1"></a>    <span class="at">mrvu =</span> mp_rvu, </span>
+<span id="cb8-317"><a href="#cb8-317" aria-hidden="true" tabindex="-1"></a>    <span class="at">trvu =</span> rvu_total,</span>
+<span id="cb8-318"><a href="#cb8-318" aria-hidden="true" tabindex="-1"></a>    <span class="at">cf =</span> conv_factor,</span>
+<span id="cb8-319"><a href="#cb8-319" aria-hidden="true" tabindex="-1"></a>    <span class="at">all_un =</span> trvu <span class="sc">*</span> cf,</span>
+<span id="cb8-320"><a href="#cb8-320" aria-hidden="true" tabindex="-1"></a>    <span class="at">npar_un =</span> all_un <span class="sc">*</span> <span class="fl">1.15</span>,</span>
+<span id="cb8-321"><a href="#cb8-321" aria-hidden="true" tabindex="-1"></a>    <span class="at">lim_un =</span> npar_un <span class="sc">*</span> <span class="fl">0.95</span></span>
+<span id="cb8-322"><a href="#cb8-322" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb8-323"><a href="#cb8-323" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-324"><a href="#cb8-324" aria-hidden="true" tabindex="-1"></a>rvu_claims <span class="ot">&lt;-</span> claims <span class="sc">|&gt;</span> </span>
+<span id="cb8-325"><a href="#cb8-325" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb8-326"><a href="#cb8-326" aria-hidden="true" tabindex="-1"></a>    dos, </span>
+<span id="cb8-327"><a href="#cb8-327" aria-hidden="true" tabindex="-1"></a>    id, </span>
+<span id="cb8-328"><a href="#cb8-328" aria-hidden="true" tabindex="-1"></a>    enc, </span>
+<span id="cb8-329"><a href="#cb8-329" aria-hidden="true" tabindex="-1"></a>    ren,</span>
+<span id="cb8-330"><a href="#cb8-330" aria-hidden="true" tabindex="-1"></a>    ins_class,</span>
+<span id="cb8-331"><a href="#cb8-331" aria-hidden="true" tabindex="-1"></a>    ins_prim, </span>
+<span id="cb8-332"><a href="#cb8-332" aria-hidden="true" tabindex="-1"></a>    ord,</span>
+<span id="cb8-333"><a href="#cb8-333" aria-hidden="true" tabindex="-1"></a>    hcpcs,</span>
+<span id="cb8-334"><a href="#cb8-334" aria-hidden="true" tabindex="-1"></a>    units,</span>
+<span id="cb8-335"><a href="#cb8-335" aria-hidden="true" tabindex="-1"></a>    <span class="at">pos =</span> pos_type,</span>
+<span id="cb8-336"><a href="#cb8-336" aria-hidden="true" tabindex="-1"></a>    charges, </span>
+<span id="cb8-337"><a href="#cb8-337" aria-hidden="true" tabindex="-1"></a>    allowed, </span>
+<span id="cb8-338"><a href="#cb8-338" aria-hidden="true" tabindex="-1"></a>    payments, </span>
+<span id="cb8-339"><a href="#cb8-339" aria-hidden="true" tabindex="-1"></a>    adjustments</span>
+<span id="cb8-340"><a href="#cb8-340" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span> </span>
+<span id="cb8-341"><a href="#cb8-341" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(</span>
+<span id="cb8-342"><a href="#cb8-342" aria-hidden="true" tabindex="-1"></a>    rvu_join, </span>
+<span id="cb8-343"><a href="#cb8-343" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="fu">join_by</span>(dos, hcpcs, pos)) <span class="sc">|&gt;</span> </span>
+<span id="cb8-344"><a href="#cb8-344" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb8-345"><a href="#cb8-345" aria-hidden="true" tabindex="-1"></a>    ins_class <span class="sc">!=</span> <span class="st">"SELF"</span>, </span>
+<span id="cb8-346"><a href="#cb8-346" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(hcpcs),</span>
+<span id="cb8-347"><a href="#cb8-347" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(wrvu),</span>
+<span id="cb8-348"><a href="#cb8-348" aria-hidden="true" tabindex="-1"></a>    <span class="co"># !(wrvu == 0.0 &amp; prvu == 0.0 &amp; mrvu == 0.0),</span></span>
+<span id="cb8-349"><a href="#cb8-349" aria-hidden="true" tabindex="-1"></a>    charges <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb8-350"><a href="#cb8-350" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(dos, id, enc, ord) <span class="sc">|&gt;</span> </span>
+<span id="cb8-351"><a href="#cb8-351" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(all_un, npar_un, lim_un), <span class="sc">~</span> . <span class="sc">*</span> units))</span>
+<span id="cb8-352"><a href="#cb8-352" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-353"><a href="#cb8-353" aria-hidden="true" tabindex="-1"></a>rvu_claims <span class="sc">|&gt;</span></span>
+<span id="cb8-354"><a href="#cb8-354" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="at">n =</span> <span class="dv">10</span>) <span class="sc">|&gt;</span></span>
+<span id="cb8-355"><a href="#cb8-355" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb8-356"><a href="#cb8-356" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_all_caps</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb8-357"><a href="#cb8-357" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_table_font</span>(<span class="at">font =</span> <span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb8-358"><a href="#cb8-358" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_options</span>(<span class="at">table.width =</span> <span class="fu">pct</span>(<span class="dv">100</span>),</span>
+<span id="cb8-359"><a href="#cb8-359" aria-hidden="true" tabindex="-1"></a>              <span class="at">quarto.disable_processing =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-360"><a href="#cb8-360" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb8-361"><a href="#cb8-361" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-364"><a href="#cb8-364" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb8-365"><a href="#cb8-365" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
-<span id="cb8-366"><a href="#cb8-366" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb8-367"><a href="#cb8-367" aria-hidden="true" tabindex="-1"></a>rvu_claims <span class="sc">|&gt;</span> </span>
-<span id="cb8-368"><a href="#cb8-368" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> data.table<span class="sc">::</span><span class="fu">year</span>(dos), <span class="at">.after =</span> dos) <span class="sc">|&gt;</span> </span>
-<span id="cb8-369"><a href="#cb8-369" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb8-370"><a href="#cb8-370" aria-hidden="true" tabindex="-1"></a>    <span class="at">procedures =</span> <span class="fu">n</span>(),</span>
-<span id="cb8-371"><a href="#cb8-371" aria-hidden="true" tabindex="-1"></a>    <span class="at">charges =</span> <span class="fu">sum</span>(charges, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-372"><a href="#cb8-372" aria-hidden="true" tabindex="-1"></a>    <span class="at">allowed =</span> <span class="fu">sum</span>(allowed, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-373"><a href="#cb8-373" aria-hidden="true" tabindex="-1"></a>    <span class="at">payments =</span> <span class="fu">sum</span>(payments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-374"><a href="#cb8-374" aria-hidden="true" tabindex="-1"></a>    <span class="at">adjustments =</span> <span class="fu">sum</span>(adjustments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-375"><a href="#cb8-375" aria-hidden="true" tabindex="-1"></a>    <span class="at">units =</span> <span class="fu">sum</span>(units, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-376"><a href="#cb8-376" aria-hidden="true" tabindex="-1"></a>    <span class="at">wrvu =</span> <span class="fu">sum</span>(wrvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-377"><a href="#cb8-377" aria-hidden="true" tabindex="-1"></a>    <span class="at">prvu =</span> <span class="fu">sum</span>(prvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-378"><a href="#cb8-378" aria-hidden="true" tabindex="-1"></a>    <span class="at">mrvu =</span> <span class="fu">sum</span>(mrvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-379"><a href="#cb8-379" aria-hidden="true" tabindex="-1"></a>    <span class="at">trvu =</span> <span class="fu">sum</span>(trvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-380"><a href="#cb8-380" aria-hidden="true" tabindex="-1"></a>    <span class="at">all_un =</span> <span class="fu">sum</span>(all_un, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-381"><a href="#cb8-381" aria-hidden="true" tabindex="-1"></a>    <span class="at">npar_un =</span> <span class="fu">sum</span>(npar_un, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-382"><a href="#cb8-382" aria-hidden="true" tabindex="-1"></a>    <span class="at">lim_un =</span> <span class="fu">sum</span>(lim_un, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-383"><a href="#cb8-383" aria-hidden="true" tabindex="-1"></a>    <span class="at">.by =</span> <span class="fu">c</span>(year, ins_prim))</span>
-<span id="cb8-384"><a href="#cb8-384" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb8-385"><a href="#cb8-385" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-362"><a href="#cb8-362" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-365"><a href="#cb8-365" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb8-366"><a href="#cb8-366" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb8-367"><a href="#cb8-367" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb8-368"><a href="#cb8-368" aria-hidden="true" tabindex="-1"></a>rvu_claims <span class="sc">|&gt;</span> </span>
+<span id="cb8-369"><a href="#cb8-369" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> data.table<span class="sc">::</span><span class="fu">year</span>(dos), <span class="at">.after =</span> dos) <span class="sc">|&gt;</span> </span>
+<span id="cb8-370"><a href="#cb8-370" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb8-371"><a href="#cb8-371" aria-hidden="true" tabindex="-1"></a>    <span class="at">procedures =</span> <span class="fu">n</span>(),</span>
+<span id="cb8-372"><a href="#cb8-372" aria-hidden="true" tabindex="-1"></a>    <span class="at">charges =</span> <span class="fu">sum</span>(charges, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-373"><a href="#cb8-373" aria-hidden="true" tabindex="-1"></a>    <span class="at">allowed =</span> <span class="fu">sum</span>(allowed, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-374"><a href="#cb8-374" aria-hidden="true" tabindex="-1"></a>    <span class="at">payments =</span> <span class="fu">sum</span>(payments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-375"><a href="#cb8-375" aria-hidden="true" tabindex="-1"></a>    <span class="at">adjustments =</span> <span class="fu">sum</span>(adjustments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-376"><a href="#cb8-376" aria-hidden="true" tabindex="-1"></a>    <span class="at">units =</span> <span class="fu">sum</span>(units, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-377"><a href="#cb8-377" aria-hidden="true" tabindex="-1"></a>    <span class="at">wrvu =</span> <span class="fu">sum</span>(wrvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-378"><a href="#cb8-378" aria-hidden="true" tabindex="-1"></a>    <span class="at">prvu =</span> <span class="fu">sum</span>(prvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-379"><a href="#cb8-379" aria-hidden="true" tabindex="-1"></a>    <span class="at">mrvu =</span> <span class="fu">sum</span>(mrvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-380"><a href="#cb8-380" aria-hidden="true" tabindex="-1"></a>    <span class="at">trvu =</span> <span class="fu">sum</span>(trvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-381"><a href="#cb8-381" aria-hidden="true" tabindex="-1"></a>    <span class="at">all_un =</span> <span class="fu">sum</span>(all_un, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-382"><a href="#cb8-382" aria-hidden="true" tabindex="-1"></a>    <span class="at">npar_un =</span> <span class="fu">sum</span>(npar_un, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-383"><a href="#cb8-383" aria-hidden="true" tabindex="-1"></a>    <span class="at">lim_un =</span> <span class="fu">sum</span>(lim_un, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-384"><a href="#cb8-384" aria-hidden="true" tabindex="-1"></a>    <span class="at">.by =</span> <span class="fu">c</span>(year, ins_prim))</span>
+<span id="cb8-385"><a href="#cb8-385" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb8-386"><a href="#cb8-386" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-389"><a href="#cb8-389" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb8-390"><a href="#cb8-390" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
-<span id="cb8-391"><a href="#cb8-391" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb8-392"><a href="#cb8-392" aria-hidden="true" tabindex="-1"></a>rvu_claims <span class="sc">|&gt;</span> <span class="fu">filter</span>(units <span class="sc">&gt;</span> <span class="dv">1</span>)</span>
-<span id="cb8-393"><a href="#cb8-393" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb8-394"><a href="#cb8-394" aria-hidden="true" tabindex="-1"></a>    <span class="at">year =</span> data.table<span class="sc">::</span><span class="fu">year</span>(dos),</span>
-<span id="cb8-395"><a href="#cb8-395" aria-hidden="true" tabindex="-1"></a>    <span class="at">qtr =</span> data.table<span class="sc">::</span><span class="fu">quarter</span>(dos),</span>
-<span id="cb8-396"><a href="#cb8-396" aria-hidden="true" tabindex="-1"></a>    <span class="at">mon =</span> data.table<span class="sc">::</span><span class="fu">month</span>(dos),</span>
-<span id="cb8-397"><a href="#cb8-397" aria-hidden="true" tabindex="-1"></a>    <span class="at">.after =</span> dos</span>
-<span id="cb8-398"><a href="#cb8-398" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb8-399"><a href="#cb8-399" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb8-400"><a href="#cb8-400" aria-hidden="true" tabindex="-1"></a>    <span class="at">procedures =</span> <span class="fu">n</span>(),</span>
-<span id="cb8-401"><a href="#cb8-401" aria-hidden="true" tabindex="-1"></a>    <span class="at">charges =</span> <span class="fu">sum</span>(charges, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-402"><a href="#cb8-402" aria-hidden="true" tabindex="-1"></a>    <span class="at">allowed =</span> <span class="fu">sum</span>(allowed, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-403"><a href="#cb8-403" aria-hidden="true" tabindex="-1"></a>    <span class="at">payments =</span> <span class="fu">sum</span>(payments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-404"><a href="#cb8-404" aria-hidden="true" tabindex="-1"></a>    <span class="at">adjustments =</span> <span class="fu">sum</span>(adjustments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-405"><a href="#cb8-405" aria-hidden="true" tabindex="-1"></a>    <span class="at">units =</span> <span class="fu">sum</span>(units, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-406"><a href="#cb8-406" aria-hidden="true" tabindex="-1"></a>    <span class="at">wrvu =</span> <span class="fu">sum</span>(wrvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-407"><a href="#cb8-407" aria-hidden="true" tabindex="-1"></a>    <span class="at">prvu =</span> <span class="fu">sum</span>(prvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-408"><a href="#cb8-408" aria-hidden="true" tabindex="-1"></a>    <span class="at">mrvu =</span> <span class="fu">sum</span>(mrvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-409"><a href="#cb8-409" aria-hidden="true" tabindex="-1"></a>    <span class="at">trvu =</span> <span class="fu">sum</span>(trvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-410"><a href="#cb8-410" aria-hidden="true" tabindex="-1"></a>    <span class="at">allow_un =</span> <span class="fu">sum</span>(allow_un, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-411"><a href="#cb8-411" aria-hidden="true" tabindex="-1"></a>    <span class="at">npar_un =</span> <span class="fu">sum</span>(npar_un, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-412"><a href="#cb8-412" aria-hidden="true" tabindex="-1"></a>    <span class="at">lim_un =</span> <span class="fu">sum</span>(lim_un, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-413"><a href="#cb8-413" aria-hidden="true" tabindex="-1"></a>    <span class="at">.by =</span> <span class="fu">c</span>(year, </span>
-<span id="cb8-414"><a href="#cb8-414" aria-hidden="true" tabindex="-1"></a>            qtr, </span>
-<span id="cb8-415"><a href="#cb8-415" aria-hidden="true" tabindex="-1"></a>            mon, </span>
-<span id="cb8-416"><a href="#cb8-416" aria-hidden="true" tabindex="-1"></a>            id, </span>
-<span id="cb8-417"><a href="#cb8-417" aria-hidden="true" tabindex="-1"></a>            enc, </span>
-<span id="cb8-418"><a href="#cb8-418" aria-hidden="true" tabindex="-1"></a>            ins_prim)) <span class="sc">|&gt;</span></span>
-<span id="cb8-419"><a href="#cb8-419" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb8-420"><a href="#cb8-420" aria-hidden="true" tabindex="-1"></a>    <span class="at">visits =</span> <span class="fu">n</span>(),</span>
-<span id="cb8-421"><a href="#cb8-421" aria-hidden="true" tabindex="-1"></a>    <span class="at">procedures =</span> <span class="fu">sum</span>(procedures, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-422"><a href="#cb8-422" aria-hidden="true" tabindex="-1"></a>    <span class="at">charges =</span> <span class="fu">sum</span>(charges, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-423"><a href="#cb8-423" aria-hidden="true" tabindex="-1"></a>    <span class="at">allowed =</span> <span class="fu">sum</span>(allowed, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-424"><a href="#cb8-424" aria-hidden="true" tabindex="-1"></a>    <span class="at">payments =</span> <span class="fu">sum</span>(payments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-425"><a href="#cb8-425" aria-hidden="true" tabindex="-1"></a>    <span class="at">adjustments =</span> <span class="fu">sum</span>(adjustments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-426"><a href="#cb8-426" aria-hidden="true" tabindex="-1"></a>    <span class="at">.by =</span> <span class="fu">c</span>(age)</span>
-<span id="cb8-427"><a href="#cb8-427" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb8-428"><a href="#cb8-428" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb8-429"><a href="#cb8-429" aria-hidden="true" tabindex="-1"></a>    <span class="co"># patients = n(),</span></span>
-<span id="cb8-430"><a href="#cb8-430" aria-hidden="true" tabindex="-1"></a>    <span class="at">avg_age =</span> <span class="fu">mean</span>(age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-431"><a href="#cb8-431" aria-hidden="true" tabindex="-1"></a>    <span class="at">procedures =</span> <span class="fu">sum</span>(procedures, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-432"><a href="#cb8-432" aria-hidden="true" tabindex="-1"></a>    <span class="at">visits =</span> <span class="fu">sum</span>(visits, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-433"><a href="#cb8-433" aria-hidden="true" tabindex="-1"></a>    <span class="at">charges =</span> <span class="fu">sum</span>(charges, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-434"><a href="#cb8-434" aria-hidden="true" tabindex="-1"></a>    <span class="at">allowed =</span> <span class="fu">sum</span>(allowed, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-435"><a href="#cb8-435" aria-hidden="true" tabindex="-1"></a>    <span class="at">revenue =</span> <span class="fu">sum</span>(payments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-436"><a href="#cb8-436" aria-hidden="true" tabindex="-1"></a>    <span class="at">adjustments =</span> <span class="fu">sum</span>(adjustments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb8-437"><a href="#cb8-437" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb8-438"><a href="#cb8-438" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-387"><a href="#cb8-387" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-390"><a href="#cb8-390" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb8-391"><a href="#cb8-391" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb8-392"><a href="#cb8-392" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb8-393"><a href="#cb8-393" aria-hidden="true" tabindex="-1"></a>rvu_claims <span class="sc">|&gt;</span> <span class="fu">filter</span>(units <span class="sc">&gt;</span> <span class="dv">1</span>)</span>
+<span id="cb8-394"><a href="#cb8-394" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb8-395"><a href="#cb8-395" aria-hidden="true" tabindex="-1"></a>    <span class="at">year =</span> data.table<span class="sc">::</span><span class="fu">year</span>(dos),</span>
+<span id="cb8-396"><a href="#cb8-396" aria-hidden="true" tabindex="-1"></a>    <span class="at">qtr =</span> data.table<span class="sc">::</span><span class="fu">quarter</span>(dos),</span>
+<span id="cb8-397"><a href="#cb8-397" aria-hidden="true" tabindex="-1"></a>    <span class="at">mon =</span> data.table<span class="sc">::</span><span class="fu">month</span>(dos),</span>
+<span id="cb8-398"><a href="#cb8-398" aria-hidden="true" tabindex="-1"></a>    <span class="at">.after =</span> dos</span>
+<span id="cb8-399"><a href="#cb8-399" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb8-400"><a href="#cb8-400" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb8-401"><a href="#cb8-401" aria-hidden="true" tabindex="-1"></a>    <span class="at">procedures =</span> <span class="fu">n</span>(),</span>
+<span id="cb8-402"><a href="#cb8-402" aria-hidden="true" tabindex="-1"></a>    <span class="at">charges =</span> <span class="fu">sum</span>(charges, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-403"><a href="#cb8-403" aria-hidden="true" tabindex="-1"></a>    <span class="at">allowed =</span> <span class="fu">sum</span>(allowed, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-404"><a href="#cb8-404" aria-hidden="true" tabindex="-1"></a>    <span class="at">payments =</span> <span class="fu">sum</span>(payments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-405"><a href="#cb8-405" aria-hidden="true" tabindex="-1"></a>    <span class="at">adjustments =</span> <span class="fu">sum</span>(adjustments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-406"><a href="#cb8-406" aria-hidden="true" tabindex="-1"></a>    <span class="at">units =</span> <span class="fu">sum</span>(units, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-407"><a href="#cb8-407" aria-hidden="true" tabindex="-1"></a>    <span class="at">wrvu =</span> <span class="fu">sum</span>(wrvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-408"><a href="#cb8-408" aria-hidden="true" tabindex="-1"></a>    <span class="at">prvu =</span> <span class="fu">sum</span>(prvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-409"><a href="#cb8-409" aria-hidden="true" tabindex="-1"></a>    <span class="at">mrvu =</span> <span class="fu">sum</span>(mrvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-410"><a href="#cb8-410" aria-hidden="true" tabindex="-1"></a>    <span class="at">trvu =</span> <span class="fu">sum</span>(trvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-411"><a href="#cb8-411" aria-hidden="true" tabindex="-1"></a>    <span class="at">allow_un =</span> <span class="fu">sum</span>(allow_un, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-412"><a href="#cb8-412" aria-hidden="true" tabindex="-1"></a>    <span class="at">npar_un =</span> <span class="fu">sum</span>(npar_un, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-413"><a href="#cb8-413" aria-hidden="true" tabindex="-1"></a>    <span class="at">lim_un =</span> <span class="fu">sum</span>(lim_un, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-414"><a href="#cb8-414" aria-hidden="true" tabindex="-1"></a>    <span class="at">.by =</span> <span class="fu">c</span>(year, </span>
+<span id="cb8-415"><a href="#cb8-415" aria-hidden="true" tabindex="-1"></a>            qtr, </span>
+<span id="cb8-416"><a href="#cb8-416" aria-hidden="true" tabindex="-1"></a>            mon, </span>
+<span id="cb8-417"><a href="#cb8-417" aria-hidden="true" tabindex="-1"></a>            id, </span>
+<span id="cb8-418"><a href="#cb8-418" aria-hidden="true" tabindex="-1"></a>            enc, </span>
+<span id="cb8-419"><a href="#cb8-419" aria-hidden="true" tabindex="-1"></a>            ins_prim)) <span class="sc">|&gt;</span></span>
+<span id="cb8-420"><a href="#cb8-420" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb8-421"><a href="#cb8-421" aria-hidden="true" tabindex="-1"></a>    <span class="at">visits =</span> <span class="fu">n</span>(),</span>
+<span id="cb8-422"><a href="#cb8-422" aria-hidden="true" tabindex="-1"></a>    <span class="at">procedures =</span> <span class="fu">sum</span>(procedures, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-423"><a href="#cb8-423" aria-hidden="true" tabindex="-1"></a>    <span class="at">charges =</span> <span class="fu">sum</span>(charges, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-424"><a href="#cb8-424" aria-hidden="true" tabindex="-1"></a>    <span class="at">allowed =</span> <span class="fu">sum</span>(allowed, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-425"><a href="#cb8-425" aria-hidden="true" tabindex="-1"></a>    <span class="at">payments =</span> <span class="fu">sum</span>(payments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-426"><a href="#cb8-426" aria-hidden="true" tabindex="-1"></a>    <span class="at">adjustments =</span> <span class="fu">sum</span>(adjustments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-427"><a href="#cb8-427" aria-hidden="true" tabindex="-1"></a>    <span class="at">.by =</span> <span class="fu">c</span>(age)</span>
+<span id="cb8-428"><a href="#cb8-428" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb8-429"><a href="#cb8-429" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb8-430"><a href="#cb8-430" aria-hidden="true" tabindex="-1"></a>    <span class="co"># patients = n(),</span></span>
+<span id="cb8-431"><a href="#cb8-431" aria-hidden="true" tabindex="-1"></a>    <span class="at">avg_age =</span> <span class="fu">mean</span>(age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-432"><a href="#cb8-432" aria-hidden="true" tabindex="-1"></a>    <span class="at">procedures =</span> <span class="fu">sum</span>(procedures, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-433"><a href="#cb8-433" aria-hidden="true" tabindex="-1"></a>    <span class="at">visits =</span> <span class="fu">sum</span>(visits, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-434"><a href="#cb8-434" aria-hidden="true" tabindex="-1"></a>    <span class="at">charges =</span> <span class="fu">sum</span>(charges, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-435"><a href="#cb8-435" aria-hidden="true" tabindex="-1"></a>    <span class="at">allowed =</span> <span class="fu">sum</span>(allowed, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-436"><a href="#cb8-436" aria-hidden="true" tabindex="-1"></a>    <span class="at">revenue =</span> <span class="fu">sum</span>(payments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-437"><a href="#cb8-437" aria-hidden="true" tabindex="-1"></a>    <span class="at">adjustments =</span> <span class="fu">sum</span>(adjustments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb8-438"><a href="#cb8-438" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb8-439"><a href="#cb8-439" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-440"><a href="#cb8-440" aria-hidden="true" tabindex="-1"></a>{{&lt; pagebreak &gt;}}</span>
-<span id="cb8-441"><a href="#cb8-441" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-440"><a href="#cb8-440" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-441"><a href="#cb8-441" aria-hidden="true" tabindex="-1"></a>{{&lt; pagebreak &gt;}}</span>
 <span id="cb8-442"><a href="#cb8-442" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-443"><a href="#cb8-443" aria-hidden="true" tabindex="-1"></a><span class="fu">## Session Information </span></span>
-<span id="cb8-444"><a href="#cb8-444" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-447"><a href="#cb8-447" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb8-448"><a href="#cb8-448" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
-<span id="cb8-449"><a href="#cb8-449" aria-hidden="true" tabindex="-1"></a>pander<span class="sc">::</span><span class="fu">pander</span>(<span class="fu">sessionInfo</span>())</span>
-<span id="cb8-450"><a href="#cb8-450" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-443"><a href="#cb8-443" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-444"><a href="#cb8-444" aria-hidden="true" tabindex="-1"></a><span class="fu">## Session Information </span></span>
+<span id="cb8-445"><a href="#cb8-445" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-448"><a href="#cb8-448" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb8-449"><a href="#cb8-449" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb8-450"><a href="#cb8-450" aria-hidden="true" tabindex="-1"></a>pander<span class="sc">::</span><span class="fu">pander</span>(<span class="fu">sessionInfo</span>())</span>
+<span id="cb8-451"><a href="#cb8-451" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
