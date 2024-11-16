@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
   dpi = 150,
   out.width = "100%",
   fig.width = 8,
-  fig.height = 7.5,
+  fig.height = 6.5,
   fig.align = "center",
   fig.show = "hold"
 )
@@ -31,7 +31,7 @@ library(fuimus)
 
 source(here("posts/claims/scripts", "load.R"))
 
-cclaims <- claims |> 
+claims <- claims |> 
   fuimus::combine(adj_codes, c("adj1", "adj2", "adj3"), sep = " | ") |>
   fuimus::combine(mods, c("mod1", "mod2"), sep = " = ") |>
   fuimus::combine(refer, c("ref", "ref_cred"), sep = " <|||") |>
@@ -76,39 +76,40 @@ Between the dates of **2022-06-14** and **2024-03-12** *(approx 637 days)*,
 # EDA
 
 ```{r}
-#| label: overview
-#| echo: true
-#| message: false
-#| warning: false
-cclaims |> cheapr::overview(hist = TRUE, digits = 2)
-```
-
-<br>
-
-```{r}
-cclaims |> 
+claims |> 
   select(dos, ptid) |> 
   distinct() |> 
-  dplyr::count(dos) |> 
-  ggplot() + 
-  geom_step(aes(dos, n), color = "#E87800", direction = "hv") +
-  fuimus::gg_theme()
+  mutate(year = lubridate::year(dos),
+         month = lubridate::month(dos, label = TRUE, abbr = TRUE),
+         ymon = yearmon(dos)) |>
+  dplyr::group_by(year) |>
+  dplyr::count(dos) |>
+  ggplot(aes(dos, n)) + 
+  geom_line(color = "grey70") +
+  geom_point(color = "#E87800") +
+  geom_rug(alpha = 1/3, color = "#E87800", outside = TRUE) +
+  coord_cartesian(clip = "off") +
+  gg_theme()
 ```
 
 
 ```{r}
-cclaims |> 
+claims |> 
   select(dos, ptid, pos_type, render) |> 
   distinct() |> 
-  dplyr::count(dos, pos_type) |> 
-  # mutate(n = cumsum(n), .by = c(pos_type, render)) |> 
-  ggplot() + 
-  geom_step(aes(dos, n, colour = pos_type), direction = "hv") +
-  fuimus::gg_theme() +
-  theme(legend.position = "bottom")
+  mutate(year = lubridate::year(dos),
+         month = lubridate::month(dos, label = TRUE, abbr = TRUE),
+         ymon = yearmon(dos)) |>
+  dplyr::group_by(year) |>
+  dplyr::count(dos) |> 
+  ggplot(aes(x = n, y = year, group = year)) + 
+  ggridges::geom_density_ridges(scale = 0.9, rel_min_height = 0.03) +
+  scale_x_continuous(limits = c(0, 160), expand = c(0, 0)) +
+  scale_y_reverse(breaks = c(2022, 2023, 2024),
+                  expand = c(0, 0)) +
+  coord_cartesian(clip = "off") +
+  gg_theme()
 ```
-
-
 
 ## Ratio Analysis
 
