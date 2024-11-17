@@ -46,7 +46,26 @@ library(usethis)
 ```{r}
 #| label: create-package
 #| eval: false
-create_package("C:/Path/To/Folder/<package-name>")
+usethis::create_package("C:/Path/To/Folder/<package-name>")
+
+usethis::create_package(
+  "C:/Users/Andrew/Desktop/Repositories/rvu",
+  fields = list(
+    Package = "rvu",
+    Title = "Tidy Revenue Integrity Tools",
+    "Authors@R" = utils::person(
+      "Andrew", 
+      "Bruce", 
+      , 
+      email = "andrewallenbruce@gmail.com", 
+      role = c("aut", "cre", "cph")
+      ),
+    Maintainer = "Andrew Bruce <andrewallenbruce@gmail.com>",
+    Description = "Revenue integrity tools.",
+    License = "MIT + file LICENSE",
+    URL = "https://github.com/andrewallenbruce/rvu",
+    BugReports = "https://github.com/andrewallenbruce/rvu/issues")
+  )
 ```
 
 Connect to Git
@@ -54,7 +73,7 @@ Connect to Git
 ```{r}
 #| label: connect-git
 #| eval: false
-use_git()
+usethis::use_git()
 ```
 
 _Will ask you to commit files to Git. Say yes._
@@ -64,7 +83,7 @@ Create Repository on GitHub
 ```{r}
 #| label: connect-github
 #| eval: false
-use_github()
+usethis::use_github()
 ```
 
 _Will ask you to commit files to GitHub. Say yes._
@@ -74,8 +93,8 @@ Add License & COC
 ```{r}
 #| label: add-license
 #| eval: false
-use_mit_license("Your Full Name")
-use_code_of_conduct("your@email.com")
+usethis::use_mit_license("Your Full Name")
+usethis::use_code_of_conduct("your@email.com")
 ```
 
 Add README, Package Document, and News
@@ -83,9 +102,9 @@ Add README, Package Document, and News
 ```{r}
 #| label: use-rmd
 #| eval: false
-use_readme_rmd()
-use_package_doc()
-use_news_md()
+usethis::use_readme_rmd()
+usethis::use_package_doc()
+usethis::use_news_md()
 ```
 
 Use `{roxyglobals}`
@@ -101,8 +120,8 @@ Use `{testthat}`
 ```{r}
 #| label: use-testthat
 #| eval: false
-use_testthat(parallel = TRUE)
-use_test("add-test")
+usethis::use_testthat(parallel = TRUE)
+usethis::use_test("add-test")
 ```
 
 Create `{pkgdown}` site
@@ -110,17 +129,100 @@ Create `{pkgdown}` site
 ```{r}
 #| label: use-pkgdown
 #| eval: false
-use_pkgdown_github_pages()
+usethis::use_pkgdown_github_pages()
 ```
+
+Use `_pkgdown.yml`
+
+```{yaml, filename="_pkgdown.yml"}
+#| label: pkgdown-yml
+#| eval: false
+url: https://andrewallenbruce.github.io/codex/
+
+template:
+  bootstrap: 5
+  light-switch: true
+  bslib:
+    base_font: {google: "Roboto"}
+    heading_font: {google: "Roboto Slab"}
+    code_font: {google: "Source Code Pro"}
+
+navbar:
+  structure:
+    left:
+    - intro
+    - reference
+    - articles
+    - tutorials
+    - news
+    right:
+    - search
+    - github
+    - lightswitch
+  components:
+    reference:
+      text: Reference
+      href: reference/index.html
+    search:
+      search: []
+    lightswitch:
+      icon: fa-sun
+      aria-label: Light switch
+      id: lightswitch
+      menu:
+      - text: Light
+        theme: light
+        icon: fa-sun
+      - text: Dark
+        theme: dark
+        icon: fa-moon
+      - text: Auto
+        theme: auto
+        icon: fa-adjust
+    news:
+      text: Changelog
+      href: news/index.html
+    github:
+      icon: fab fa-github fa-lg
+      href: https://github.com/andrewallenbruce/codex/
+      aria-label: GitHub
+```
+
+Example of Function Reference
+
+```{yaml}
+#| label: function-reference
+#| eval: false
+- title: Classifications
+  desc: >
+    Classification systems for added context and dimensionality reduction.
+  contents:
+  - betos
+  - ndc_lookup
+  - taxonomies
+  - taxonomy_codes
+  - taxonomy_crosswalk
+- title: Utilities
+  desc: >
+    Various helper functions.
+  contents:
+  - change
+  - geomean
+  - years_df
+  - duration_vec
+  - summary_stats
+  - add_counties
+```
+
 
 Run Before Committing
 
 ```{r}
 #| label: last-steps
 #| eval: false
-check()
-build_rmd("README.Rmd")
-use_tidy_description()
+devtools::check()
+devtools::build_rmd("README.Rmd")
+usethis::use_tidy_description()
 ```
 
 
@@ -136,8 +238,7 @@ Add `pins_internal.R` file to `data-raw` directory
 pin_update <- function(x, name, title, description) {
 
   board <- pins::board_folder(
-    here::here("inst/extdata/pins")
-    )
+    here::here("inst/extdata/pins"))
 
   board |>
     pins::pin_write(
@@ -145,21 +246,17 @@ pin_update <- function(x, name, title, description) {
       name        = name,
       title       = title,
       description = description,
-      type        = "qs"
-    )
+      type        = "qs")
 
   board |> pins::write_board_manifest()
-
 }
 
 delete_pins <- function(pin_names) {
 
   board <- pins::board_folder(
-    here::here("inst/extdata/pins")
-  )
+    here::here("inst/extdata/pins"))
 
   pins::pin_delete(board, names = pin_names)
-
 }
 ```
 
@@ -211,6 +308,10 @@ gh_raw <- function(x) {
 #' @returns `<pins_board_folder>` or `<pins_board_url>`
 #'
 #' @autoglobal
+#' 
+#' @importFrom pins board_folder board_url
+#' @importFrom fs path_package
+#' @importFrom glue glue
 #'
 #' @keywords internal
 #'
@@ -221,14 +322,16 @@ mount_board <- function(source = c("local", "remote"), package = "<package_name>
 
   switch(
     source,
-    local = pins::board_folder(
-      fs::path_package("extdata/pins", package = package)),
-    remote = pins::board_url(
+    local = board_folder(
+      path_package("extdata/pins", package = package)
+      ),
+    remote = board_url(
       gh_raw(
-        glue::glue("andrewallenbruce/{package}/master/inst/extdata/pins/")
-      )
+        glue("andrewallenbruce/{package}/master/inst/extdata/pins/")
+        )
+      ),
+    stop("Invalid source")
     )
-  )
 }
 
 #' Get a pinned dataset from a [pins][pins::pins-package] board
@@ -240,6 +343,8 @@ mount_board <- function(source = c("local", "remote"), package = "<package_name>
 #' @returns `<tibble>` or `<data.frame>`
 #'
 #' @autoglobal
+#' 
+#' @importFrom pins pin_read
 #'
 #' @keywords internal
 #'
@@ -248,10 +353,9 @@ get_pin <- function(pin, ...) {
 
   board <- mount_board(...)
 
-  pin <- rlang::arg_match0(pin, list_pins())
+  pin <- match.arg(pin, list_pins())
 
-  pins::pin_read(board, pin)
-
+  pin_read(board, pin)
 }
 
 #' List pins from a [pins][pins::pins-package] board
@@ -261,6 +365,8 @@ get_pin <- function(pin, ...) {
 #' @returns `<list>` of [pins][pins::pins-package]
 #'
 #' @autoglobal
+#' 
+#' @importFrom pins pin_list
 #'
 #' @keywords internal
 #'
@@ -269,8 +375,7 @@ list_pins <- function(...) {
 
   board <- mount_board(...)
 
-  pins::pin_list(board)
-
+  pin_list(board)
 }
 ```
 

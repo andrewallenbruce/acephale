@@ -17,6 +17,7 @@ format:
         href: https://stat.ethz.ch/R-manual/R-devel/library/base/html/regex.html
 editor_options: 
   chunk_output_type: console
+callout-appearance: simple
 ---
 
 ```{r}
@@ -64,7 +65,6 @@ library(codex)
 # library(tidyfast)
 # library(tidytable)
 
-
 # library(re2)
 # library(re2r)
 
@@ -81,23 +81,31 @@ source(here::here("posts/regex/scripts", "data.R"))
 
 {{< pagebreak >}}
 
-::: {#note-good .callout-note}
+::: {#note-good .callout-note collapse="true"}
 
 ### Good Examples
 
 ### Case 1
 
 ```{r}
+#| label: case_1
 list("L80", 
      c("L56", "L59"))
 
 length(sf_extract(hcpcs, "^L56|^L59|^L80"))
 length(sf_extract(hcpcs, "^L(5[69]|80)[0-9]{2}$"))
+
+bench::mark(
+  raw = sf_extract(hcpcs, "^L56|^L59|^L80"),
+  compact = sf_extract(hcpcs, "^L(5[69]|80)[0-9]{2}$"),
+  iterations = 10000) |> 
+  select(expression:total_time)
 ```
 
 ### Case 2
 
 ```{r}
+#| label: case_2
 list(c("021", "022", "026", "027"), 
      c("032", "033"), 
      c("042", "044"), 
@@ -146,9 +154,9 @@ list("0[2-5]",
 
 c4list
 
-"^02|^03|^04|^05|^15|^20|^22|^27|^30|^31|^32|^34|^35|^36|^50|^54|^55|^58|^61|^63|^64|^76|^92|^95|^C7|^C9|^E0|^G0|^S2" -> c4raw
+c4raw <- "^02|^03|^04|^05|^15|^20|^22|^27|^30|^31|^32|^34|^35|^36|^50|^54|^55|^58|^61|^63|^64|^76|^92|^95|^C7|^C9|^E0|^G0|^S2"
 
-paste0("^(", sf_collapse(list_c(c4list), collapse = "|"), ")[A-Z0-9]{3}$") -> c4compact
+c4compact <- paste0("^(", sf_collapse(list_c(c4list), collapse = "|"), ")[A-Z0-9]{3}$")
 
 length(sf_extract(hcpcs, c4raw))
 length(sf_extract(hcpcs, c4compact))
@@ -292,8 +300,6 @@ group_5 <- function(x) {
   if (empty(x)) 
     return(x)
   
-  # x <- x[[1]]
-  
   map(x, function(x) {
     
     idx <- data.table(
@@ -410,7 +416,7 @@ reduce_runs <- function(x) {
 
   test <- setNames(rep(0, 37), c(0:9, "&", LETTERS))
   
-  vec <- test[c(splits(x), "&")]
+  vec <- test[c(desplit(x), "&")]
   
   vec <- vec[not_na(vec)]
   
@@ -557,7 +563,7 @@ long_test2[sf_nchar(long_test2) == 2] |>
   process_groups() |>
   red2()
 
-paste0("A", c(0:5, LETTERS)) |> 
+x <- paste0("A", c(0:5, LETTERS)) |> 
   split_lengths() |>
   remove_redundant() |>
   split_first() |>
