@@ -452,11 +452,11 @@ reduce_runs <- function(x) {
   if (all(xgroups == smush(c(0:9, "&", LETTERS)))) 
     return("[A-Z0-9]")
   
-  replacements <- dplyr::left_join(
+  replacements <- join(
     dplyr::slice_min(groups, by = group, order_by = value) |> dplyr::rename(start = value),
     dplyr::slice_max(groups, by = group, order_by = value) |> dplyr::rename(end = value),
-    by = dplyr::join_by(group)) |>
-    glue::glue_data("{start}-{end}") |>
+    on = "group", verbose = 0) |>
+    stringr::str_glue_data("{start}-{end}") |>
     as.vector()
 
   bracket(replace_regex(x, xgroups, replacements))
@@ -563,7 +563,7 @@ long_test2[sf_nchar(long_test2) == 2] |>
   process_groups() |>
   red2()
 
-x <- paste0("A", c(0:5, LETTERS)) |> 
+paste0("A", c(0:5, LETTERS)) |> 
   split_lengths() |>
   remove_redundant() |>
   split_first() |>
