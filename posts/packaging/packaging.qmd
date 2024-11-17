@@ -1,20 +1,5 @@
 ---
 title: "R Packaging Workflow"
-format:
-  html:
-    reference-location: margin
-    other-links:
-      - text: Regex Cheatsheet
-        icon: bookmark-plus
-        href: https://github.com/raredd/regex
-      - text: RexEgg
-        icon: bookmark-plus
-        href: https://www.rexegg.com/
-      - text: Regex in R
-        icon: bookmark-plus
-        href: https://stat.ethz.ch/R-manual/R-devel/library/base/html/regex.html
-editor_options: 
-  chunk_output_type: console
 ---
 
 ```{r}
@@ -37,38 +22,36 @@ knitr::opts_chunk$set(
   fig.width = 8
 )
 options(scipen = 999, digits = 2)
-library(usethis)
 ```
 
 
-# Create A Package
+# Initial Steps
 
 ```{r}
 #| label: create-package
 #| eval: false
-usethis::create_package("C:/Path/To/Folder/<package-name>")
-
-usethis::create_package(
-  "C:/Users/Andrew/Desktop/Repositories/rvu",
+init_pkg <- \(pkgname) {
+  
+  local  <- "C:/Users/Andrew/Desktop/Repositories/"
+  github <- "https://github.com/andrewallenbruce/"
+  
+  usethis::create_package(
+  path = glue::glue("{local}{pkgname}"),
   fields = list(
-    Package = "rvu",
-    Title = "Tidy Revenue Integrity Tools",
+    Package = glue::glue("{pkgname}"),
     "Authors@R" = utils::person(
       "Andrew", 
-      "Bruce", 
-      , 
+      "Bruce", , 
       email = "andrewallenbruce@gmail.com", 
-      role = c("aut", "cre", "cph")
-      ),
+      role = c("aut", "cre", "cph")),
     Maintainer = "Andrew Bruce <andrewallenbruce@gmail.com>",
-    Description = "Revenue integrity tools.",
-    License = "MIT + file LICENSE",
-    URL = "https://github.com/andrewallenbruce/rvu",
-    BugReports = "https://github.com/andrewallenbruce/rvu/issues")
+    URL = glue::glue("{github}{pkgname}"),
+    BugReports = glue::glue("{github}{pkgname}/issues"))
   )
+}
 ```
 
-Connect to Git
+## Connect to Git
 
 ```{r}
 #| label: connect-git
@@ -76,9 +59,9 @@ Connect to Git
 usethis::use_git()
 ```
 
-_Will ask you to commit files to Git. Say yes._
+> _Will ask you to commit files to Git. Say yes._
 
-Create Repository on GitHub
+## Create Repository on GitHub
 
 ```{r}
 #| label: connect-github
@@ -86,28 +69,28 @@ Create Repository on GitHub
 usethis::use_github()
 ```
 
-_Will ask you to commit files to GitHub. Say yes._
+> _Will ask you to commit files to GitHub. Say yes._
 
-Add License & COC
+## Add License, COC, Package Document, and News
 
 ```{r}
-#| label: add-license
+#| label: add-license-coc-doc-news
 #| eval: false
-usethis::use_mit_license("Your Full Name")
-usethis::use_code_of_conduct("your@email.com")
+usethis::use_mit_license("Andrew Allen Bruce")
+usethis::use_code_of_conduct("andrewallenbruce@gmail.com")
+usethis::use_package_doc()
+usethis::use_news_md()
 ```
 
-Add README, Package Document, and News
+## Add README.Rmd
 
 ```{r}
 #| label: use-rmd
 #| eval: false
 usethis::use_readme_rmd()
-usethis::use_package_doc()
-usethis::use_news_md()
 ```
 
-Use `{roxyglobals}`
+## Use {roxyglobals}
 
 ```{r}
 #| label: use-roxy
@@ -115,7 +98,7 @@ Use `{roxyglobals}`
 roxyglobals::use_roxyglobals()
 ```
 
-Use `{testthat}`
+## Use {testthat}
 
 ```{r}
 #| label: use-testthat
@@ -124,7 +107,7 @@ usethis::use_testthat(parallel = TRUE)
 usethis::use_test("add-test")
 ```
 
-Create `{pkgdown}` site
+## Create {pkgdown} site
 
 ```{r}
 #| label: use-pkgdown
@@ -132,11 +115,9 @@ Create `{pkgdown}` site
 usethis::use_pkgdown_github_pages()
 ```
 
-Use `_pkgdown.yml`
+Copy and paste into `_pkgdown.yml` file:
 
-```{yaml, filename="_pkgdown.yml"}
-#| label: pkgdown-yml
-#| eval: false
+```yaml
 url: https://andrewallenbruce.github.io/codex/
 
 template:
@@ -188,11 +169,9 @@ navbar:
       aria-label: GitHub
 ```
 
-Example of Function Reference
+Function Reference Example:
 
-```{yaml}
-#| label: function-reference
-#| eval: false
+```yaml
 - title: Classifications
   desc: >
     Classification systems for added context and dimensionality reduction.
@@ -214,8 +193,7 @@ Example of Function Reference
   - add_counties
 ```
 
-
-Run Before Committing
+## Run, Commit and Push
 
 ```{r}
 #| label: last-steps
@@ -225,12 +203,19 @@ devtools::build_rmd("README.Rmd")
 usethis::use_tidy_description()
 ```
 
+{{< pagebreak >}}
 
-# Add a `{pin}`
+# Add a {pin}
 
-Call `usethis::use_data_raw("<dataset>")`
+Call:
 
-Add `pins_internal.R` file to `data-raw` directory
+```{r}
+#| label: use-data-raw
+#| eval: false
+usethis::use_data_raw("dataset")
+```
+
+Create `pins_internal.R` file in `data-raw` directory, the copy and paste into file:
 
 ```{r filename="pins_internal.R"}
 #| label: pins_internal
@@ -260,12 +245,14 @@ delete_pins <- function(pin_names) {
 }
 ```
 
-Create a new pin
+Create a new pin:
 
 ```{r filename="dataset.R"}
 #| label: data_raw
 #| eval: false
 source(here::here("data-raw", "pins_internal.R"))
+
+# -- Data wrangling code here -- #
 
 pin_update(
   dataset,
@@ -275,7 +262,15 @@ pin_update(
 )
 ```
 
-Add `pins.R` file to package
+Call:
+
+```{r}
+#| label: pins_r
+#| eval: false
+usethis::use_r("pins")
+```
+
+Copy and paste the following to `pins.R` file:
 
 ```{r filename="pins.R"}
 #| label: pins_functions
@@ -379,6 +374,7 @@ list_pins <- function(...) {
 }
 ```
 
+{{< pagebreak >}}
 
 ## Session Information 
 

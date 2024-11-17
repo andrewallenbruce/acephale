@@ -70,7 +70,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-78685edc3e9b3e4294fc5b83656d9b37.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-be3a695b3dfe75d6fc3ae491e9831353.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light"><script id="quarto-search-options" type="application/json">{
+<link href="../../site_libs/bootstrap/bootstrap-978ac13be59697ea27cef259b651f45a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light"><script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
   "collapse-after": 3,
@@ -243,20 +243,20 @@ window.Quarto = {
 </ul></section><section id="eda" class="level1" data-number="2"><h1 data-number="2">
 <span class="header-section-number">2</span> EDA</h1>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">claims</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu">select</span><span class="op">(</span><span class="va">dos</span>, <span class="va">ptid</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu">distinct</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu">mutate</span><span class="op">(</span>year <span class="op">=</span> <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/year.html">year</a></span><span class="op">(</span><span class="va">dos</span><span class="op">)</span>,</span>
-<span>         month <span class="op">=</span> <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/month.html">month</a></span><span class="op">(</span><span class="va">dos</span>, label <span class="op">=</span> <span class="cn">TRUE</span>, abbr <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>         ymon <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/IDateTime.html">yearmon</a></span><span class="op">(</span><span class="va">dos</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">year</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html">count</a></span><span class="op">(</span><span class="va">dos</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">ggplot</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span><span class="va">dos</span>, <span class="va">n</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu">geom_line</span><span class="op">(</span>color <span class="op">=</span> <span class="st">"grey70"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">geom_point</span><span class="op">(</span>color <span class="op">=</span> <span class="st">"#E87800"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">geom_rug</span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="fl">3</span>, color <span class="op">=</span> <span class="st">"#E87800"</span>, outside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">coord_cartesian</span><span class="op">(</span>clip <span class="op">=</span> <span class="st">"off"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">gg_theme</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>claims <span class="sc">|&gt;</span> </span>
+<span id="cb1-2"><a href="#cb1-2"></a>  <span class="fu">select</span>(dos, ptid) <span class="sc">|&gt;</span> </span>
+<span id="cb1-3"><a href="#cb1-3"></a>  <span class="fu">distinct</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb1-4"><a href="#cb1-4"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> lubridate<span class="sc">::</span><span class="fu">year</span>(dos),</span>
+<span id="cb1-5"><a href="#cb1-5"></a>         <span class="at">month =</span> lubridate<span class="sc">::</span><span class="fu">month</span>(dos, <span class="at">label =</span> <span class="cn">TRUE</span>, <span class="at">abbr =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb1-6"><a href="#cb1-6"></a>         <span class="at">ymon =</span> data.table<span class="sc">::</span><span class="fu">yearmon</span>(dos)) <span class="sc">|&gt;</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(year) <span class="sc">|&gt;</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a>  dplyr<span class="sc">::</span><span class="fu">count</span>(dos) <span class="sc">|&gt;</span></span>
+<span id="cb1-9"><a href="#cb1-9"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(dos, n)) <span class="sc">+</span> </span>
+<span id="cb1-10"><a href="#cb1-10"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"grey70"</span>) <span class="sc">+</span></span>
+<span id="cb1-11"><a href="#cb1-11"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"#E87800"</span>) <span class="sc">+</span></span>
+<span id="cb1-12"><a href="#cb1-12"></a>  <span class="fu">geom_rug</span>(<span class="at">alpha =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">3</span>, <span class="at">color =</span> <span class="st">"#E87800"</span>, <span class="at">outside =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb1-13"><a href="#cb1-13"></a>  <span class="fu">coord_cartesian</span>(<span class="at">clip =</span> <span class="st">"off"</span>) <span class="sc">+</span></span>
+<span id="cb1-14"><a href="#cb1-14"></a>  <span class="fu">gg_theme</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure"><p><img src="claims_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%"></p>
@@ -265,21 +265,21 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">claims</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu">select</span><span class="op">(</span><span class="va">dos</span>, <span class="va">ptid</span>, <span class="va">pos_type</span>, <span class="va">render</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu">distinct</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu">mutate</span><span class="op">(</span>year <span class="op">=</span> <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/year.html">year</a></span><span class="op">(</span><span class="va">dos</span><span class="op">)</span>,</span>
-<span>         month <span class="op">=</span> <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/month.html">month</a></span><span class="op">(</span><span class="va">dos</span>, label <span class="op">=</span> <span class="cn">TRUE</span>, abbr <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>         ymon <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/IDateTime.html">yearmon</a></span><span class="op">(</span><span class="va">dos</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">year</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html">count</a></span><span class="op">(</span><span class="va">dos</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu">ggplot</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">n</span>, y <span class="op">=</span> <span class="va">year</span>, group <span class="op">=</span> <span class="va">year</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu">ggridges</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/ggridges/reference/geom_density_ridges.html">geom_density_ridges</a></span><span class="op">(</span>scale <span class="op">=</span> <span class="fl">0.9</span>, rel_min_height <span class="op">=</span> <span class="fl">0.03</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">scale_x_continuous</span><span class="op">(</span>limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">160</span><span class="op">)</span>, expand <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">scale_y_reverse</span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">2022</span>, <span class="fl">2023</span>, <span class="fl">2024</span><span class="op">)</span>,</span>
-<span>                  expand <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">coord_cartesian</span><span class="op">(</span>clip <span class="op">=</span> <span class="st">"off"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">gg_theme</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>claims <span class="sc">|&gt;</span> </span>
+<span id="cb2-2"><a href="#cb2-2"></a>  <span class="fu">select</span>(dos, ptid, pos_type, render) <span class="sc">|&gt;</span> </span>
+<span id="cb2-3"><a href="#cb2-3"></a>  <span class="fu">distinct</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb2-4"><a href="#cb2-4"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> lubridate<span class="sc">::</span><span class="fu">year</span>(dos),</span>
+<span id="cb2-5"><a href="#cb2-5"></a>         <span class="at">month =</span> lubridate<span class="sc">::</span><span class="fu">month</span>(dos, <span class="at">label =</span> <span class="cn">TRUE</span>, <span class="at">abbr =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb2-6"><a href="#cb2-6"></a>         <span class="at">ymon =</span> data.table<span class="sc">::</span><span class="fu">yearmon</span>(dos)) <span class="sc">|&gt;</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(year) <span class="sc">|&gt;</span></span>
+<span id="cb2-8"><a href="#cb2-8"></a>  dplyr<span class="sc">::</span><span class="fu">count</span>(dos) <span class="sc">|&gt;</span> </span>
+<span id="cb2-9"><a href="#cb2-9"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> n, <span class="at">y =</span> year, <span class="at">group =</span> year)) <span class="sc">+</span> </span>
+<span id="cb2-10"><a href="#cb2-10"></a>  ggridges<span class="sc">::</span><span class="fu">geom_density_ridges</span>(<span class="at">scale =</span> <span class="fl">0.9</span>, <span class="at">rel_min_height =</span> <span class="fl">0.03</span>) <span class="sc">+</span></span>
+<span id="cb2-11"><a href="#cb2-11"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">160</span>), <span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)) <span class="sc">+</span></span>
+<span id="cb2-12"><a href="#cb2-12"></a>  <span class="fu">scale_y_reverse</span>(<span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">2022</span>, <span class="dv">2023</span>, <span class="dv">2024</span>),</span>
+<span id="cb2-13"><a href="#cb2-13"></a>                  <span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)) <span class="sc">+</span></span>
+<span id="cb2-14"><a href="#cb2-14"></a>  <span class="fu">coord_cartesian</span>(<span class="at">clip =</span> <span class="st">"off"</span>) <span class="sc">+</span></span>
+<span id="cb2-15"><a href="#cb2-15"></a>  <span class="fu">gg_theme</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Picking joint bandwidth of 13</code></pre>
 </div>
@@ -299,28 +299,28 @@ window.Quarto = {
 </dd>
 </dl>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">insurance_summary</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu">reframe</span><span class="op">(</span></span>
-<span>    <span class="va">ins_prim</span>,</span>
-<span>    pts <span class="op">=</span> <span class="va">patients</span>,</span>
-<span>    vpp <span class="op">=</span> <span class="va">visits</span> <span class="op">/</span> <span class="va">patients</span>,</span>
-<span>    ppp <span class="op">=</span> <span class="va">procedures</span> <span class="op">/</span> <span class="va">patients</span>,</span>
-<span>    rpp <span class="op">=</span> <span class="va">revenue</span> <span class="op">/</span> <span class="va">patients</span>,</span>
-<span>    ppv <span class="op">=</span> <span class="va">procedures</span> <span class="op">/</span> <span class="va">visits</span>,</span>
-<span>    rpv <span class="op">=</span> <span class="va">revenue</span> <span class="op">/</span> <span class="va">visits</span>,</span>
-<span>    rpp <span class="op">=</span> <span class="va">revenue</span> <span class="op">/</span> <span class="va">procedures</span></span>
-<span>  <span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu">arrange</span><span class="op">(</span><span class="fu">desc</span><span class="op">(</span><span class="va">pts</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">gt</span><span class="op">(</span>rowname_col <span class="op">=</span> <span class="st">"ins_prim"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu">opt_all_caps</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu">opt_table_font</span><span class="op">(</span>font <span class="op">=</span> <span class="fu">google_font</span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Fira Code"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu">tab_options</span><span class="op">(</span>table.width <span class="op">=</span> <span class="fu">pct</span><span class="op">(</span><span class="fl">100</span><span class="op">)</span>,</span>
-<span>              quarto.disable_processing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>insurance_summary <span class="sc">|&gt;</span> </span>
+<span id="cb4-2"><a href="#cb4-2"></a>  <span class="fu">reframe</span>(</span>
+<span id="cb4-3"><a href="#cb4-3"></a>    ins_prim,</span>
+<span id="cb4-4"><a href="#cb4-4"></a>    <span class="at">pts =</span> patients,</span>
+<span id="cb4-5"><a href="#cb4-5"></a>    <span class="at">vpp =</span> visits <span class="sc">/</span> patients,</span>
+<span id="cb4-6"><a href="#cb4-6"></a>    <span class="at">ppp =</span> procedures <span class="sc">/</span> patients,</span>
+<span id="cb4-7"><a href="#cb4-7"></a>    <span class="at">rpp =</span> revenue <span class="sc">/</span> patients,</span>
+<span id="cb4-8"><a href="#cb4-8"></a>    <span class="at">ppv =</span> procedures <span class="sc">/</span> visits,</span>
+<span id="cb4-9"><a href="#cb4-9"></a>    <span class="at">rpv =</span> revenue <span class="sc">/</span> visits,</span>
+<span id="cb4-10"><a href="#cb4-10"></a>    <span class="at">rpp =</span> revenue <span class="sc">/</span> procedures</span>
+<span id="cb4-11"><a href="#cb4-11"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb4-12"><a href="#cb4-12"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(pts)) <span class="sc">|&gt;</span></span>
+<span id="cb4-13"><a href="#cb4-13"></a>  <span class="fu">gt</span>(<span class="at">rowname_col =</span> <span class="st">"ins_prim"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb4-14"><a href="#cb4-14"></a>  <span class="fu">opt_all_caps</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb4-15"><a href="#cb4-15"></a>  <span class="fu">opt_table_font</span>(<span class="at">font =</span> <span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb4-16"><a href="#cb4-16"></a>  <span class="fu">tab_options</span>(<span class="at">table.width =</span> <span class="fu">pct</span>(<span class="dv">100</span>),</span>
+<span id="cb4-17"><a href="#cb4-17"></a>              <span class="at">quarto.disable_processing =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section></section><section id="reimbursement" class="level1" data-number="3"><h1 data-number="3">
 <span class="header-section-number">3</span> Reimbursement</h1>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">pprrvu</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>pprrvu</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 7,882 × 14
    date_start date_end   hcpcs description      work_rvu pe_rvu mp_rvu rvu_total
@@ -838,434 +838,434 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb7" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Post-Audit Development"</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">    reference-location: block</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="an">editor_options:</span><span class="co"> </span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">  chunk_output_type: console</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(</span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">dev =</span> <span class="st">"ragg_png"</span>,</span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">dpi =</span> <span class="dv">150</span>,</span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">out.width =</span> <span class="st">"100%"</span>,</span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.width =</span> <span class="dv">8</span>,</span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.height =</span> <span class="fl">6.5</span>,</span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.align =</span> <span class="st">"center"</span>,</span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.show =</span> <span class="st">"hold"</span></span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen =</span> <span class="dv">999</span>)</span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)</span>
-<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rbrvs)</span>
-<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(northstar)</span>
-<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fuimus)</span>
-<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="fu">here</span>(<span class="st">"posts/claims/scripts"</span>, <span class="st">"load.R"</span>))</span>
-<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>claims <span class="ot">&lt;-</span> claims <span class="sc">|&gt;</span> </span>
-<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>  fuimus<span class="sc">::</span><span class="fu">combine</span>(adj_codes, <span class="fu">c</span>(<span class="st">"adj1"</span>, <span class="st">"adj2"</span>, <span class="st">"adj3"</span>), <span class="at">sep =</span> <span class="st">" | "</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>  fuimus<span class="sc">::</span><span class="fu">combine</span>(mods, <span class="fu">c</span>(<span class="st">"mod1"</span>, <span class="st">"mod2"</span>), <span class="at">sep =</span> <span class="st">" = "</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>  fuimus<span class="sc">::</span><span class="fu">combine</span>(refer, <span class="fu">c</span>(<span class="st">"ref"</span>, <span class="st">"ref_cred"</span>), <span class="at">sep =</span> <span class="st">" &lt;|||"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>  fuimus<span class="sc">::</span><span class="fu">combine</span>(render, <span class="fu">c</span>(<span class="st">"ren"</span>, <span class="st">"ren_cred"</span>), <span class="at">sep =</span> <span class="st">" &lt;|||"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">reframe</span>(</span>
-<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">ptid =</span> id, </span>
-<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>    dos, </span>
-<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">ptdob =</span> dob, </span>
-<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">ptage =</span> age, </span>
-<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>    <span class="at">refer =</span> <span class="fu">as_factor</span>(<span class="fu">str_replace</span>(<span class="fu">str_to_upper</span>(refer), <span class="st">"PH D"</span>, <span class="st">"PHD"</span>)), </span>
-<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>    <span class="at">render =</span> <span class="fu">as_factor</span>(<span class="fu">str_to_upper</span>(render)), </span>
-<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>    <span class="at">.enc =</span> enc, </span>
-<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>    <span class="at">.ord =</span> ord, </span>
-<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>    <span class="at">icd10 =</span> <span class="fu">str_replace_all</span>(icd, <span class="st">","</span>, <span class="st">" -&gt; "</span>),</span>
-<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>    hcpcs, </span>
-<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>    desc, </span>
-<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>    units, </span>
-<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">mods =</span> <span class="fu">as_factor</span>(<span class="fu">str_to_upper</span>(mods)), </span>
-<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">pos =</span> <span class="fu">as_factor</span>(pos),</span>
-<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>    pos_type, </span>
-<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">location =</span> <span class="fu">as_factor</span>(<span class="fu">str_to_title</span>(loc)), </span>
-<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>    <span class="at">inclass =</span> ins_class,</span>
-<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>    <span class="at">inprim =</span> ins_prim, </span>
-<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>    <span class="at">insec =</span> ins_sec, </span>
-<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>    charges, </span>
-<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>    allowed, </span>
-<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>    payments, </span>
-<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a>    adjustments, </span>
-<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a>    <span class="at">adj_codes =</span> <span class="fu">str_replace</span>(adj_codes, <span class="st">" -45"</span>, <span class="st">" CO-45"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">arrange</span>(dos, .enc, .ord, ptid)</span>
-<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a><span class="fu"># Findings</span></span>
-<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a>Between the dates of **2022-06-14** and **2024-03-12** *(approx 637 days)*,</span>
-<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>512 Dates of Service were recorded</span>
-<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>7158 Unique Patients were seen</span>
-<span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Referred by 232 different Providers</span>
-<span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Seen by 66 different Rendering Providers</span>
-<span id="cb7-77"><a href="#cb7-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-78"><a href="#cb7-78" aria-hidden="true" tabindex="-1"></a><span class="fu"># EDA</span></span>
-<span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-82"><a href="#cb7-82" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb7-83"><a href="#cb7-83" aria-hidden="true" tabindex="-1"></a>claims <span class="sc">|&gt;</span> </span>
-<span id="cb7-84"><a href="#cb7-84" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(dos, ptid) <span class="sc">|&gt;</span> </span>
-<span id="cb7-85"><a href="#cb7-85" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb7-86"><a href="#cb7-86" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> lubridate<span class="sc">::</span><span class="fu">year</span>(dos),</span>
-<span id="cb7-87"><a href="#cb7-87" aria-hidden="true" tabindex="-1"></a>         <span class="at">month =</span> lubridate<span class="sc">::</span><span class="fu">month</span>(dos, <span class="at">label =</span> <span class="cn">TRUE</span>, <span class="at">abbr =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-88"><a href="#cb7-88" aria-hidden="true" tabindex="-1"></a>         <span class="at">ymon =</span> data.table<span class="sc">::</span><span class="fu">yearmon</span>(dos)) <span class="sc">|&gt;</span></span>
-<span id="cb7-89"><a href="#cb7-89" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(year) <span class="sc">|&gt;</span></span>
-<span id="cb7-90"><a href="#cb7-90" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">count</span>(dos) <span class="sc">|&gt;</span></span>
-<span id="cb7-91"><a href="#cb7-91" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(dos, n)) <span class="sc">+</span> </span>
-<span id="cb7-92"><a href="#cb7-92" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"grey70"</span>) <span class="sc">+</span></span>
-<span id="cb7-93"><a href="#cb7-93" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"#E87800"</span>) <span class="sc">+</span></span>
-<span id="cb7-94"><a href="#cb7-94" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_rug</span>(<span class="at">alpha =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">3</span>, <span class="at">color =</span> <span class="st">"#E87800"</span>, <span class="at">outside =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
-<span id="cb7-95"><a href="#cb7-95" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">clip =</span> <span class="st">"off"</span>) <span class="sc">+</span></span>
-<span id="cb7-96"><a href="#cb7-96" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gg_theme</span>()</span>
-<span id="cb7-97"><a href="#cb7-97" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-98"><a href="#cb7-98" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-99"><a href="#cb7-99" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-102"><a href="#cb7-102" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb7-103"><a href="#cb7-103" aria-hidden="true" tabindex="-1"></a>claims <span class="sc">|&gt;</span> </span>
-<span id="cb7-104"><a href="#cb7-104" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(dos, ptid, pos_type, render) <span class="sc">|&gt;</span> </span>
-<span id="cb7-105"><a href="#cb7-105" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb7-106"><a href="#cb7-106" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> lubridate<span class="sc">::</span><span class="fu">year</span>(dos),</span>
-<span id="cb7-107"><a href="#cb7-107" aria-hidden="true" tabindex="-1"></a>         <span class="at">month =</span> lubridate<span class="sc">::</span><span class="fu">month</span>(dos, <span class="at">label =</span> <span class="cn">TRUE</span>, <span class="at">abbr =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-108"><a href="#cb7-108" aria-hidden="true" tabindex="-1"></a>         <span class="at">ymon =</span> data.table<span class="sc">::</span><span class="fu">yearmon</span>(dos)) <span class="sc">|&gt;</span></span>
-<span id="cb7-109"><a href="#cb7-109" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(year) <span class="sc">|&gt;</span></span>
-<span id="cb7-110"><a href="#cb7-110" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">count</span>(dos) <span class="sc">|&gt;</span> </span>
-<span id="cb7-111"><a href="#cb7-111" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> n, <span class="at">y =</span> year, <span class="at">group =</span> year)) <span class="sc">+</span> </span>
-<span id="cb7-112"><a href="#cb7-112" aria-hidden="true" tabindex="-1"></a>  ggridges<span class="sc">::</span><span class="fu">geom_density_ridges</span>(<span class="at">scale =</span> <span class="fl">0.9</span>, <span class="at">rel_min_height =</span> <span class="fl">0.03</span>) <span class="sc">+</span></span>
-<span id="cb7-113"><a href="#cb7-113" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">160</span>), <span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)) <span class="sc">+</span></span>
-<span id="cb7-114"><a href="#cb7-114" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_reverse</span>(<span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">2022</span>, <span class="dv">2023</span>, <span class="dv">2024</span>),</span>
-<span id="cb7-115"><a href="#cb7-115" aria-hidden="true" tabindex="-1"></a>                  <span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)) <span class="sc">+</span></span>
-<span id="cb7-116"><a href="#cb7-116" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">clip =</span> <span class="st">"off"</span>) <span class="sc">+</span></span>
-<span id="cb7-117"><a href="#cb7-117" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gg_theme</span>()</span>
-<span id="cb7-118"><a href="#cb7-118" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-119"><a href="#cb7-119" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-120"><a href="#cb7-120" aria-hidden="true" tabindex="-1"></a><span class="fu">## Ratio Analysis</span></span>
-<span id="cb7-121"><a href="#cb7-121" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-122"><a href="#cb7-122" aria-hidden="true" tabindex="-1"></a>Revenue Per Visit</span>
-<span id="cb7-123"><a href="#cb7-123" aria-hidden="true" tabindex="-1"></a>: $RPV =$ Total Payments $\div$ Number of Patient Visits</span>
-<span id="cb7-124"><a href="#cb7-124" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-125"><a href="#cb7-125" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-128"><a href="#cb7-128" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb7-129"><a href="#cb7-129" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: claims_ratio</span></span>
-<span id="cb7-130"><a href="#cb7-130" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
-<span id="cb7-131"><a href="#cb7-131" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb7-132"><a href="#cb7-132" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb7-133"><a href="#cb7-133" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb7-134"><a href="#cb7-134" aria-hidden="true" tabindex="-1"></a>claims_summary <span class="sc">|&gt;</span></span>
-<span id="cb7-135"><a href="#cb7-135" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb7-136"><a href="#cb7-136" aria-hidden="true" tabindex="-1"></a>    <span class="at">revenue_adjustments =</span> revenue <span class="sc">+</span> adjustments, </span>
-<span id="cb7-137"><a href="#cb7-137" aria-hidden="true" tabindex="-1"></a>    <span class="at">.after =</span> charges) <span class="sc">|&gt;</span> </span>
-<span id="cb7-138"><a href="#cb7-138" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reframe</span>(</span>
-<span id="cb7-139"><a href="#cb7-139" aria-hidden="true" tabindex="-1"></a>    <span class="at">cpp =</span> charges <span class="sc">/</span> procedures,</span>
-<span id="cb7-140"><a href="#cb7-140" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpp =</span> allowed <span class="sc">/</span> procedures,</span>
-<span id="cb7-141"><a href="#cb7-141" aria-hidden="true" tabindex="-1"></a>    <span class="at">rpp =</span> revenue <span class="sc">/</span> procedures,</span>
-<span id="cb7-142"><a href="#cb7-142" aria-hidden="true" tabindex="-1"></a>    <span class="at">adpp =</span> adjustments <span class="sc">/</span> procedures,</span>
-<span id="cb7-143"><a href="#cb7-143" aria-hidden="true" tabindex="-1"></a>    <span class="at">ppv =</span> procedures <span class="sc">/</span> visits,</span>
-<span id="cb7-144"><a href="#cb7-144" aria-hidden="true" tabindex="-1"></a>    <span class="at">cpv =</span> charges <span class="sc">/</span> visits,</span>
-<span id="cb7-145"><a href="#cb7-145" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpv =</span> allowed <span class="sc">/</span> visits,</span>
-<span id="cb7-146"><a href="#cb7-146" aria-hidden="true" tabindex="-1"></a>    <span class="at">rpv =</span> revenue <span class="sc">/</span> visits,</span>
-<span id="cb7-147"><a href="#cb7-147" aria-hidden="true" tabindex="-1"></a>    <span class="at">adpv =</span> adjustments <span class="sc">/</span> visits,</span>
-<span id="cb7-148"><a href="#cb7-148" aria-hidden="true" tabindex="-1"></a>    <span class="at">cpr =</span> charges <span class="sc">/</span> revenue_adjustments,</span>
-<span id="cb7-149"><a href="#cb7-149" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpr =</span> allowed <span class="sc">/</span> revenue,</span>
-<span id="cb7-150"><a href="#cb7-150" aria-hidden="true" tabindex="-1"></a>    <span class="at">adpr =</span> adjustments <span class="sc">/</span> revenue,</span>
-<span id="cb7-151"><a href="#cb7-151" aria-hidden="true" tabindex="-1"></a>    <span class="at">net_collect =</span> revenue <span class="sc">/</span> (charges <span class="sc">-</span> adjustments),</span>
-<span id="cb7-152"><a href="#cb7-152" aria-hidden="true" tabindex="-1"></a>    <span class="at">net_allow =</span> revenue <span class="sc">/</span> allowed,</span>
-<span id="cb7-153"><a href="#cb7-153" aria-hidden="true" tabindex="-1"></a>    <span class="at">net_adjust =</span> revenue <span class="sc">/</span> adjustments,</span>
-<span id="cb7-154"><a href="#cb7-154" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span> </span>
-<span id="cb7-155"><a href="#cb7-155" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_names</span>(</span>
-<span id="cb7-156"><a href="#cb7-156" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(<span class="st">"Charge Per Procedure"</span>, </span>
-<span id="cb7-157"><a href="#cb7-157" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Allowed Per Procedure"</span>, </span>
-<span id="cb7-158"><a href="#cb7-158" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Payment Per Procedure"</span>, </span>
-<span id="cb7-159"><a href="#cb7-159" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Adjustment Per Procedure"</span>, </span>
-<span id="cb7-160"><a href="#cb7-160" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Procedures Per Visit"</span>, </span>
-<span id="cb7-161"><a href="#cb7-161" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Charge Per Visit"</span>, </span>
-<span id="cb7-162"><a href="#cb7-162" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Allowed Per Visit"</span>, </span>
-<span id="cb7-163"><a href="#cb7-163" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Payment Per Visit"</span>, </span>
-<span id="cb7-164"><a href="#cb7-164" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Adjustment Per Visit"</span>,</span>
-<span id="cb7-165"><a href="#cb7-165" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Charge To Payment + Adjustment"</span>,</span>
-<span id="cb7-166"><a href="#cb7-166" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Allowed Per Dollar"</span>, </span>
-<span id="cb7-167"><a href="#cb7-167" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Adjustment Per Dollar"</span>,</span>
-<span id="cb7-168"><a href="#cb7-168" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Net Collection Ratio"</span>,</span>
-<span id="cb7-169"><a href="#cb7-169" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Net Allowable Ratio"</span>,</span>
-<span id="cb7-170"><a href="#cb7-170" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Net Adjustment Ratio"</span></span>
-<span id="cb7-171"><a href="#cb7-171" aria-hidden="true" tabindex="-1"></a>      )) <span class="sc">|&gt;</span> </span>
-<span id="cb7-172"><a href="#cb7-172" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
-<span id="cb7-173"><a href="#cb7-173" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">everything</span>(), </span>
-<span id="cb7-174"><a href="#cb7-174" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"Metric"</span>, </span>
-<span id="cb7-175"><a href="#cb7-175" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"Value"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb7-176"><a href="#cb7-176" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb7-177"><a href="#cb7-177" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_table_font</span>(<span class="at">font =</span> <span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb7-178"><a href="#cb7-178" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_options</span>(<span class="at">table.width =</span> <span class="fu">pct</span>(<span class="dv">100</span>),</span>
-<span id="cb7-179"><a href="#cb7-179" aria-hidden="true" tabindex="-1"></a>              <span class="at">quarto.disable_processing =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb7-180"><a href="#cb7-180" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-181"><a href="#cb7-181" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-184"><a href="#cb7-184" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb7-185"><a href="#cb7-185" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: insurance_ratios</span></span>
-<span id="cb7-186"><a href="#cb7-186" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
-<span id="cb7-187"><a href="#cb7-187" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb7-188"><a href="#cb7-188" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb7-189"><a href="#cb7-189" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb7-190"><a href="#cb7-190" aria-hidden="true" tabindex="-1"></a>insurance_summary <span class="sc">|&gt;</span> </span>
-<span id="cb7-191"><a href="#cb7-191" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reframe</span>(</span>
-<span id="cb7-192"><a href="#cb7-192" aria-hidden="true" tabindex="-1"></a>    ins_prim,</span>
-<span id="cb7-193"><a href="#cb7-193" aria-hidden="true" tabindex="-1"></a>    <span class="at">pts =</span> patients,</span>
-<span id="cb7-194"><a href="#cb7-194" aria-hidden="true" tabindex="-1"></a>    <span class="at">vpp =</span> visits <span class="sc">/</span> patients,</span>
-<span id="cb7-195"><a href="#cb7-195" aria-hidden="true" tabindex="-1"></a>    <span class="at">ppp =</span> procedures <span class="sc">/</span> patients,</span>
-<span id="cb7-196"><a href="#cb7-196" aria-hidden="true" tabindex="-1"></a>    <span class="at">rpp =</span> revenue <span class="sc">/</span> patients,</span>
-<span id="cb7-197"><a href="#cb7-197" aria-hidden="true" tabindex="-1"></a>    <span class="at">ppv =</span> procedures <span class="sc">/</span> visits,</span>
-<span id="cb7-198"><a href="#cb7-198" aria-hidden="true" tabindex="-1"></a>    <span class="at">rpv =</span> revenue <span class="sc">/</span> visits,</span>
-<span id="cb7-199"><a href="#cb7-199" aria-hidden="true" tabindex="-1"></a>    <span class="at">rpp =</span> revenue <span class="sc">/</span> procedures</span>
-<span id="cb7-200"><a href="#cb7-200" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb7-201"><a href="#cb7-201" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(pts)) <span class="sc">|&gt;</span></span>
-<span id="cb7-202"><a href="#cb7-202" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>(<span class="at">rowname_col =</span> <span class="st">"ins_prim"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb7-203"><a href="#cb7-203" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_all_caps</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb7-204"><a href="#cb7-204" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_table_font</span>(<span class="at">font =</span> <span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb7-205"><a href="#cb7-205" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_options</span>(<span class="at">table.width =</span> <span class="fu">pct</span>(<span class="dv">100</span>),</span>
-<span id="cb7-206"><a href="#cb7-206" aria-hidden="true" tabindex="-1"></a>              <span class="at">quarto.disable_processing =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb7-207"><a href="#cb7-207" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-208"><a href="#cb7-208" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-209"><a href="#cb7-209" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-210"><a href="#cb7-210" aria-hidden="true" tabindex="-1"></a><span class="fu"># Reimbursement</span></span>
-<span id="cb7-211"><a href="#cb7-211" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-214"><a href="#cb7-214" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb7-215"><a href="#cb7-215" aria-hidden="true" tabindex="-1"></a>pprrvu</span>
-<span id="cb7-216"><a href="#cb7-216" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-217"><a href="#cb7-217" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-218"><a href="#cb7-218" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-221"><a href="#cb7-221" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb7-222"><a href="#cb7-222" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: rvu_new</span></span>
-<span id="cb7-223"><a href="#cb7-223" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
-<span id="cb7-224"><a href="#cb7-224" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb7-225"><a href="#cb7-225" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb7-226"><a href="#cb7-226" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb7-227"><a href="#cb7-227" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-228"><a href="#cb7-228" aria-hidden="true" tabindex="-1"></a><span class="co"># mult = 0: "No adjustment. If procedure is reported on </span></span>
-<span id="cb7-229"><a href="#cb7-229" aria-hidden="true" tabindex="-1"></a><span class="co"># the same day as another procedure, base the payment on </span></span>
-<span id="cb7-230"><a href="#cb7-230" aria-hidden="true" tabindex="-1"></a><span class="co"># the lower of (a) the actual charge, or (b) the fee </span></span>
-<span id="cb7-231"><a href="#cb7-231" aria-hidden="true" tabindex="-1"></a><span class="co"># schedule amount for the procedure."</span></span>
-<span id="cb7-232"><a href="#cb7-232" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-233"><a href="#cb7-233" aria-hidden="true" tabindex="-1"></a><span class="co"># glob = ZZZ: "Code related to another service and is </span></span>
-<span id="cb7-234"><a href="#cb7-234" aria-hidden="true" tabindex="-1"></a><span class="co"># always included in Global period of other service."</span></span>
-<span id="cb7-235"><a href="#cb7-235" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-236"><a href="#cb7-236" aria-hidden="true" tabindex="-1"></a>pprrvu <span class="sc">|&gt;</span> </span>
-<span id="cb7-237"><a href="#cb7-237" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reframe</span>(</span>
-<span id="cb7-238"><a href="#cb7-238" aria-hidden="true" tabindex="-1"></a>    <span class="co"># dos, </span></span>
-<span id="cb7-239"><a href="#cb7-239" aria-hidden="true" tabindex="-1"></a>    <span class="at">yr =</span> data.table<span class="sc">::</span><span class="fu">year</span>(dos),</span>
-<span id="cb7-240"><a href="#cb7-240" aria-hidden="true" tabindex="-1"></a>    <span class="at">qtr =</span> data.table<span class="sc">::</span><span class="fu">quarter</span>(dos),</span>
-<span id="cb7-241"><a href="#cb7-241" aria-hidden="true" tabindex="-1"></a>    <span class="co"># mon = data.table::month(dos),</span></span>
-<span id="cb7-242"><a href="#cb7-242" aria-hidden="true" tabindex="-1"></a>    pos,</span>
-<span id="cb7-243"><a href="#cb7-243" aria-hidden="true" tabindex="-1"></a>    hcpcs, </span>
-<span id="cb7-244"><a href="#cb7-244" aria-hidden="true" tabindex="-1"></a>    <span class="co"># description, </span></span>
-<span id="cb7-245"><a href="#cb7-245" aria-hidden="true" tabindex="-1"></a>    <span class="co"># glob_days,</span></span>
-<span id="cb7-246"><a href="#cb7-246" aria-hidden="true" tabindex="-1"></a>    <span class="co"># mult_proc,</span></span>
-<span id="cb7-247"><a href="#cb7-247" aria-hidden="true" tabindex="-1"></a>    work_rvu, </span>
-<span id="cb7-248"><a href="#cb7-248" aria-hidden="true" tabindex="-1"></a>    pe_rvu, </span>
-<span id="cb7-249"><a href="#cb7-249" aria-hidden="true" tabindex="-1"></a>    mp_rvu, </span>
-<span id="cb7-250"><a href="#cb7-250" aria-hidden="true" tabindex="-1"></a>    <span class="at">tot_rvu =</span> rvu_total,</span>
-<span id="cb7-251"><a href="#cb7-251" aria-hidden="true" tabindex="-1"></a>    <span class="at">cf =</span> conv_factor,</span>
-<span id="cb7-252"><a href="#cb7-252" aria-hidden="true" tabindex="-1"></a>    <span class="at">allow_unadj =</span> tot_rvu <span class="sc">*</span> cf,</span>
-<span id="cb7-253"><a href="#cb7-253" aria-hidden="true" tabindex="-1"></a>    <span class="at">nonpar_unadj =</span> allow_unadj <span class="sc">*</span> <span class="fl">1.15</span>,</span>
-<span id="cb7-254"><a href="#cb7-254" aria-hidden="true" tabindex="-1"></a>    <span class="at">lim_unadj =</span> nonpar_unadj <span class="sc">*</span> <span class="fl">0.95</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb7-255"><a href="#cb7-255" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb7-256"><a href="#cb7-256" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(hcpcs, yr, qtr) <span class="sc">|&gt;</span></span>
-<span id="cb7-257"><a href="#cb7-257" aria-hidden="true" tabindex="-1"></a>  <span class="co"># head(n = 50) |&gt;</span></span>
-<span id="cb7-258"><a href="#cb7-258" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>(<span class="at">rowname_col =</span> <span class="st">"year"</span>, </span>
-<span id="cb7-259"><a href="#cb7-259" aria-hidden="true" tabindex="-1"></a>     <span class="at">groupname_col =</span> <span class="st">"hcpcs"</span>,</span>
-<span id="cb7-260"><a href="#cb7-260" aria-hidden="true" tabindex="-1"></a>     <span class="at">row_group_as_column =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb7-261"><a href="#cb7-261" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_table_font</span>(</span>
-<span id="cb7-262"><a href="#cb7-262" aria-hidden="true" tabindex="-1"></a>    <span class="at">font =</span> <span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Roboto Condensed"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb7-263"><a href="#cb7-263" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_currency</span>(</span>
-<span id="cb7-264"><a href="#cb7-264" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">"nonpar_unadj"</span>, </span>
-<span id="cb7-265"><a href="#cb7-265" aria-hidden="true" tabindex="-1"></a>                <span class="st">"allow_unadj"</span>, </span>
-<span id="cb7-266"><a href="#cb7-266" aria-hidden="true" tabindex="-1"></a>                <span class="st">"lim_unadj"</span>, </span>
-<span id="cb7-267"><a href="#cb7-267" aria-hidden="true" tabindex="-1"></a>                <span class="st">"cf"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb7-268"><a href="#cb7-268" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
-<span id="cb7-269"><a href="#cb7-269" aria-hidden="true" tabindex="-1"></a>    <span class="at">yr =</span> <span class="fu">md</span>(<span class="st">"**YR**"</span>),</span>
-<span id="cb7-270"><a href="#cb7-270" aria-hidden="true" tabindex="-1"></a>    <span class="at">qtr =</span> <span class="fu">md</span>(<span class="st">"**QTR**"</span>),</span>
-<span id="cb7-271"><a href="#cb7-271" aria-hidden="true" tabindex="-1"></a>    <span class="at">work_rvu =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;wk&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
-<span id="cb7-272"><a href="#cb7-272" aria-hidden="true" tabindex="-1"></a>    <span class="at">pe_rvu =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;pe&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
-<span id="cb7-273"><a href="#cb7-273" aria-hidden="true" tabindex="-1"></a>    <span class="at">mp_rvu =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;mp&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
-<span id="cb7-274"><a href="#cb7-274" aria-hidden="true" tabindex="-1"></a>    <span class="at">cf =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;Conversion&lt;br&gt;Factor&lt;/small&gt;&lt;/b&gt;"</span>),</span>
-<span id="cb7-275"><a href="#cb7-275" aria-hidden="true" tabindex="-1"></a>    <span class="at">tot_rvu =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;total&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
-<span id="cb7-276"><a href="#cb7-276" aria-hidden="true" tabindex="-1"></a>    <span class="at">allow_unadj =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;Allowed&lt;br&gt;Amount&lt;/small&gt;&lt;/b&gt;"</span>),</span>
-<span id="cb7-277"><a href="#cb7-277" aria-hidden="true" tabindex="-1"></a>    <span class="at">nonpar_unadj =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;Non-Participating&lt;br&gt;Amount&lt;/small&gt;&lt;/b&gt;"</span>),</span>
-<span id="cb7-278"><a href="#cb7-278" aria-hidden="true" tabindex="-1"></a>    <span class="at">lim_unadj =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;Limiting&lt;br&gt;Charge&lt;/small&gt;&lt;/b&gt;"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb7-279"><a href="#cb7-279" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_align</span>(<span class="at">align =</span> <span class="st">"right"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-280"><a href="#cb7-280" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_style</span>(</span>
-<span id="cb7-281"><a href="#cb7-281" aria-hidden="true" tabindex="-1"></a>      <span class="at">style =</span> <span class="fu">cell_text</span>(</span>
-<span id="cb7-282"><a href="#cb7-282" aria-hidden="true" tabindex="-1"></a>        <span class="at">align =</span> <span class="st">'center'</span>,</span>
-<span id="cb7-283"><a href="#cb7-283" aria-hidden="true" tabindex="-1"></a>        <span class="at">size =</span> <span class="fu">px</span>(<span class="dv">16</span>),</span>
-<span id="cb7-284"><a href="#cb7-284" aria-hidden="true" tabindex="-1"></a>        <span class="at">font =</span> <span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>),</span>
-<span id="cb7-285"><a href="#cb7-285" aria-hidden="true" tabindex="-1"></a>        <span class="at">weight =</span> <span class="st">"bold"</span>),</span>
-<span id="cb7-286"><a href="#cb7-286" aria-hidden="true" tabindex="-1"></a>      <span class="at">locations =</span> <span class="fu">cells_row_groups</span>()) <span class="sc">|&gt;</span> </span>
-<span id="cb7-287"><a href="#cb7-287" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_style</span>(</span>
-<span id="cb7-288"><a href="#cb7-288" aria-hidden="true" tabindex="-1"></a>      <span class="at">style =</span> <span class="fu">cell_text</span>(</span>
-<span id="cb7-289"><a href="#cb7-289" aria-hidden="true" tabindex="-1"></a>        <span class="at">align =</span> <span class="st">'right'</span>,</span>
-<span id="cb7-290"><a href="#cb7-290" aria-hidden="true" tabindex="-1"></a>        <span class="at">font =</span> <span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>)),</span>
-<span id="cb7-291"><a href="#cb7-291" aria-hidden="true" tabindex="-1"></a>      <span class="at">locations =</span> <span class="fu">cells_body</span>()) <span class="sc">|&gt;</span> </span>
-<span id="cb7-292"><a href="#cb7-292" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_options</span>(</span>
-<span id="cb7-293"><a href="#cb7-293" aria-hidden="true" tabindex="-1"></a>    <span class="at">quarto.disable_processing =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb7-294"><a href="#cb7-294" aria-hidden="true" tabindex="-1"></a>    <span class="at">table.width =</span> <span class="st">"100%"</span></span>
-<span id="cb7-295"><a href="#cb7-295" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb7-296"><a href="#cb7-296" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-297"><a href="#cb7-297" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-298"><a href="#cb7-298" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-299"><a href="#cb7-299" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-302"><a href="#cb7-302" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb7-303"><a href="#cb7-303" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: rvu_summary</span></span>
-<span id="cb7-304"><a href="#cb7-304" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
-<span id="cb7-305"><a href="#cb7-305" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb7-306"><a href="#cb7-306" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb7-307"><a href="#cb7-307" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb7-308"><a href="#cb7-308" aria-hidden="true" tabindex="-1"></a>rvu_join <span class="ot">&lt;-</span> pprrvu <span class="sc">|&gt;</span> </span>
-<span id="cb7-309"><a href="#cb7-309" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reframe</span>(</span>
-<span id="cb7-310"><a href="#cb7-310" aria-hidden="true" tabindex="-1"></a>    dos,</span>
-<span id="cb7-311"><a href="#cb7-311" aria-hidden="true" tabindex="-1"></a>    pos,</span>
-<span id="cb7-312"><a href="#cb7-312" aria-hidden="true" tabindex="-1"></a>    hcpcs, </span>
-<span id="cb7-313"><a href="#cb7-313" aria-hidden="true" tabindex="-1"></a>    <span class="at">wrvu =</span> work_rvu, </span>
-<span id="cb7-314"><a href="#cb7-314" aria-hidden="true" tabindex="-1"></a>    <span class="at">prvu =</span> pe_rvu, </span>
-<span id="cb7-315"><a href="#cb7-315" aria-hidden="true" tabindex="-1"></a>    <span class="at">mrvu =</span> mp_rvu, </span>
-<span id="cb7-316"><a href="#cb7-316" aria-hidden="true" tabindex="-1"></a>    <span class="at">trvu =</span> rvu_total,</span>
-<span id="cb7-317"><a href="#cb7-317" aria-hidden="true" tabindex="-1"></a>    <span class="at">cf =</span> conv_factor,</span>
-<span id="cb7-318"><a href="#cb7-318" aria-hidden="true" tabindex="-1"></a>    <span class="at">all_un =</span> trvu <span class="sc">*</span> cf,</span>
-<span id="cb7-319"><a href="#cb7-319" aria-hidden="true" tabindex="-1"></a>    <span class="at">npar_un =</span> all_un <span class="sc">*</span> <span class="fl">1.15</span>,</span>
-<span id="cb7-320"><a href="#cb7-320" aria-hidden="true" tabindex="-1"></a>    <span class="at">lim_un =</span> npar_un <span class="sc">*</span> <span class="fl">0.95</span></span>
-<span id="cb7-321"><a href="#cb7-321" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb7-322"><a href="#cb7-322" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-323"><a href="#cb7-323" aria-hidden="true" tabindex="-1"></a>rvu_claims <span class="ot">&lt;-</span> claims <span class="sc">|&gt;</span> </span>
-<span id="cb7-324"><a href="#cb7-324" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
-<span id="cb7-325"><a href="#cb7-325" aria-hidden="true" tabindex="-1"></a>    dos, </span>
-<span id="cb7-326"><a href="#cb7-326" aria-hidden="true" tabindex="-1"></a>    id, </span>
-<span id="cb7-327"><a href="#cb7-327" aria-hidden="true" tabindex="-1"></a>    enc, </span>
-<span id="cb7-328"><a href="#cb7-328" aria-hidden="true" tabindex="-1"></a>    ren,</span>
-<span id="cb7-329"><a href="#cb7-329" aria-hidden="true" tabindex="-1"></a>    ins_class,</span>
-<span id="cb7-330"><a href="#cb7-330" aria-hidden="true" tabindex="-1"></a>    ins_prim, </span>
-<span id="cb7-331"><a href="#cb7-331" aria-hidden="true" tabindex="-1"></a>    ord,</span>
-<span id="cb7-332"><a href="#cb7-332" aria-hidden="true" tabindex="-1"></a>    hcpcs,</span>
-<span id="cb7-333"><a href="#cb7-333" aria-hidden="true" tabindex="-1"></a>    units,</span>
-<span id="cb7-334"><a href="#cb7-334" aria-hidden="true" tabindex="-1"></a>    <span class="at">pos =</span> pos_type,</span>
-<span id="cb7-335"><a href="#cb7-335" aria-hidden="true" tabindex="-1"></a>    charges, </span>
-<span id="cb7-336"><a href="#cb7-336" aria-hidden="true" tabindex="-1"></a>    allowed, </span>
-<span id="cb7-337"><a href="#cb7-337" aria-hidden="true" tabindex="-1"></a>    payments, </span>
-<span id="cb7-338"><a href="#cb7-338" aria-hidden="true" tabindex="-1"></a>    adjustments</span>
-<span id="cb7-339"><a href="#cb7-339" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span> </span>
-<span id="cb7-340"><a href="#cb7-340" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(</span>
-<span id="cb7-341"><a href="#cb7-341" aria-hidden="true" tabindex="-1"></a>    rvu_join, </span>
-<span id="cb7-342"><a href="#cb7-342" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="fu">join_by</span>(dos, hcpcs, pos)) <span class="sc">|&gt;</span> </span>
-<span id="cb7-343"><a href="#cb7-343" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
-<span id="cb7-344"><a href="#cb7-344" aria-hidden="true" tabindex="-1"></a>    ins_class <span class="sc">!=</span> <span class="st">"SELF"</span>, </span>
-<span id="cb7-345"><a href="#cb7-345" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(hcpcs),</span>
-<span id="cb7-346"><a href="#cb7-346" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(wrvu),</span>
-<span id="cb7-347"><a href="#cb7-347" aria-hidden="true" tabindex="-1"></a>    <span class="co"># !(wrvu == 0.0 &amp; prvu == 0.0 &amp; mrvu == 0.0),</span></span>
-<span id="cb7-348"><a href="#cb7-348" aria-hidden="true" tabindex="-1"></a>    charges <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb7-349"><a href="#cb7-349" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(dos, id, enc, ord) <span class="sc">|&gt;</span> </span>
-<span id="cb7-350"><a href="#cb7-350" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(all_un, npar_un, lim_un), <span class="sc">~</span> . <span class="sc">*</span> units))</span>
-<span id="cb7-351"><a href="#cb7-351" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-352"><a href="#cb7-352" aria-hidden="true" tabindex="-1"></a>rvu_claims <span class="sc">|&gt;</span></span>
-<span id="cb7-353"><a href="#cb7-353" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="at">n =</span> <span class="dv">10</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-354"><a href="#cb7-354" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb7-355"><a href="#cb7-355" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_all_caps</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb7-356"><a href="#cb7-356" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_table_font</span>(<span class="at">font =</span> <span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb7-357"><a href="#cb7-357" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_options</span>(<span class="at">table.width =</span> <span class="fu">pct</span>(<span class="dv">100</span>),</span>
-<span id="cb7-358"><a href="#cb7-358" aria-hidden="true" tabindex="-1"></a>              <span class="at">quarto.disable_processing =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb7-359"><a href="#cb7-359" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-360"><a href="#cb7-360" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-361"><a href="#cb7-361" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-364"><a href="#cb7-364" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb7-365"><a href="#cb7-365" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
-<span id="cb7-366"><a href="#cb7-366" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb7-367"><a href="#cb7-367" aria-hidden="true" tabindex="-1"></a>rvu_claims <span class="sc">|&gt;</span> </span>
-<span id="cb7-368"><a href="#cb7-368" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> data.table<span class="sc">::</span><span class="fu">year</span>(dos), <span class="at">.after =</span> dos) <span class="sc">|&gt;</span> </span>
-<span id="cb7-369"><a href="#cb7-369" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb7-370"><a href="#cb7-370" aria-hidden="true" tabindex="-1"></a>    <span class="at">procedures =</span> <span class="fu">n</span>(),</span>
-<span id="cb7-371"><a href="#cb7-371" aria-hidden="true" tabindex="-1"></a>    <span class="at">charges =</span> <span class="fu">sum</span>(charges, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-372"><a href="#cb7-372" aria-hidden="true" tabindex="-1"></a>    <span class="at">allowed =</span> <span class="fu">sum</span>(allowed, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-373"><a href="#cb7-373" aria-hidden="true" tabindex="-1"></a>    <span class="at">payments =</span> <span class="fu">sum</span>(payments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-374"><a href="#cb7-374" aria-hidden="true" tabindex="-1"></a>    <span class="at">adjustments =</span> <span class="fu">sum</span>(adjustments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-375"><a href="#cb7-375" aria-hidden="true" tabindex="-1"></a>    <span class="at">units =</span> <span class="fu">sum</span>(units, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-376"><a href="#cb7-376" aria-hidden="true" tabindex="-1"></a>    <span class="at">wrvu =</span> <span class="fu">sum</span>(wrvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-377"><a href="#cb7-377" aria-hidden="true" tabindex="-1"></a>    <span class="at">prvu =</span> <span class="fu">sum</span>(prvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-378"><a href="#cb7-378" aria-hidden="true" tabindex="-1"></a>    <span class="at">mrvu =</span> <span class="fu">sum</span>(mrvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-379"><a href="#cb7-379" aria-hidden="true" tabindex="-1"></a>    <span class="at">trvu =</span> <span class="fu">sum</span>(trvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-380"><a href="#cb7-380" aria-hidden="true" tabindex="-1"></a>    <span class="at">all_un =</span> <span class="fu">sum</span>(all_un, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-381"><a href="#cb7-381" aria-hidden="true" tabindex="-1"></a>    <span class="at">npar_un =</span> <span class="fu">sum</span>(npar_un, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-382"><a href="#cb7-382" aria-hidden="true" tabindex="-1"></a>    <span class="at">lim_un =</span> <span class="fu">sum</span>(lim_un, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-383"><a href="#cb7-383" aria-hidden="true" tabindex="-1"></a>    <span class="at">.by =</span> <span class="fu">c</span>(year, ins_prim))</span>
-<span id="cb7-384"><a href="#cb7-384" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-385"><a href="#cb7-385" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-386"><a href="#cb7-386" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-389"><a href="#cb7-389" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb7-390"><a href="#cb7-390" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
-<span id="cb7-391"><a href="#cb7-391" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb7-392"><a href="#cb7-392" aria-hidden="true" tabindex="-1"></a>rvu_claims <span class="sc">|&gt;</span> <span class="fu">filter</span>(units <span class="sc">&gt;</span> <span class="dv">1</span>)</span>
-<span id="cb7-393"><a href="#cb7-393" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb7-394"><a href="#cb7-394" aria-hidden="true" tabindex="-1"></a>    <span class="at">year =</span> data.table<span class="sc">::</span><span class="fu">year</span>(dos),</span>
-<span id="cb7-395"><a href="#cb7-395" aria-hidden="true" tabindex="-1"></a>    <span class="at">qtr =</span> data.table<span class="sc">::</span><span class="fu">quarter</span>(dos),</span>
-<span id="cb7-396"><a href="#cb7-396" aria-hidden="true" tabindex="-1"></a>    <span class="at">mon =</span> data.table<span class="sc">::</span><span class="fu">month</span>(dos),</span>
-<span id="cb7-397"><a href="#cb7-397" aria-hidden="true" tabindex="-1"></a>    <span class="at">.after =</span> dos</span>
-<span id="cb7-398"><a href="#cb7-398" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb7-399"><a href="#cb7-399" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb7-400"><a href="#cb7-400" aria-hidden="true" tabindex="-1"></a>    <span class="at">procedures =</span> <span class="fu">n</span>(),</span>
-<span id="cb7-401"><a href="#cb7-401" aria-hidden="true" tabindex="-1"></a>    <span class="at">charges =</span> <span class="fu">sum</span>(charges, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-402"><a href="#cb7-402" aria-hidden="true" tabindex="-1"></a>    <span class="at">allowed =</span> <span class="fu">sum</span>(allowed, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-403"><a href="#cb7-403" aria-hidden="true" tabindex="-1"></a>    <span class="at">payments =</span> <span class="fu">sum</span>(payments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-404"><a href="#cb7-404" aria-hidden="true" tabindex="-1"></a>    <span class="at">adjustments =</span> <span class="fu">sum</span>(adjustments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-405"><a href="#cb7-405" aria-hidden="true" tabindex="-1"></a>    <span class="at">units =</span> <span class="fu">sum</span>(units, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-406"><a href="#cb7-406" aria-hidden="true" tabindex="-1"></a>    <span class="at">wrvu =</span> <span class="fu">sum</span>(wrvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-407"><a href="#cb7-407" aria-hidden="true" tabindex="-1"></a>    <span class="at">prvu =</span> <span class="fu">sum</span>(prvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-408"><a href="#cb7-408" aria-hidden="true" tabindex="-1"></a>    <span class="at">mrvu =</span> <span class="fu">sum</span>(mrvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-409"><a href="#cb7-409" aria-hidden="true" tabindex="-1"></a>    <span class="at">trvu =</span> <span class="fu">sum</span>(trvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-410"><a href="#cb7-410" aria-hidden="true" tabindex="-1"></a>    <span class="at">allow_un =</span> <span class="fu">sum</span>(allow_un, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-411"><a href="#cb7-411" aria-hidden="true" tabindex="-1"></a>    <span class="at">npar_un =</span> <span class="fu">sum</span>(npar_un, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-412"><a href="#cb7-412" aria-hidden="true" tabindex="-1"></a>    <span class="at">lim_un =</span> <span class="fu">sum</span>(lim_un, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-413"><a href="#cb7-413" aria-hidden="true" tabindex="-1"></a>    <span class="at">.by =</span> <span class="fu">c</span>(year, </span>
-<span id="cb7-414"><a href="#cb7-414" aria-hidden="true" tabindex="-1"></a>            qtr, </span>
-<span id="cb7-415"><a href="#cb7-415" aria-hidden="true" tabindex="-1"></a>            mon, </span>
-<span id="cb7-416"><a href="#cb7-416" aria-hidden="true" tabindex="-1"></a>            id, </span>
-<span id="cb7-417"><a href="#cb7-417" aria-hidden="true" tabindex="-1"></a>            enc, </span>
-<span id="cb7-418"><a href="#cb7-418" aria-hidden="true" tabindex="-1"></a>            ins_prim)) <span class="sc">|&gt;</span></span>
-<span id="cb7-419"><a href="#cb7-419" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb7-420"><a href="#cb7-420" aria-hidden="true" tabindex="-1"></a>    <span class="at">visits =</span> <span class="fu">n</span>(),</span>
-<span id="cb7-421"><a href="#cb7-421" aria-hidden="true" tabindex="-1"></a>    <span class="at">procedures =</span> <span class="fu">sum</span>(procedures, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-422"><a href="#cb7-422" aria-hidden="true" tabindex="-1"></a>    <span class="at">charges =</span> <span class="fu">sum</span>(charges, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-423"><a href="#cb7-423" aria-hidden="true" tabindex="-1"></a>    <span class="at">allowed =</span> <span class="fu">sum</span>(allowed, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-424"><a href="#cb7-424" aria-hidden="true" tabindex="-1"></a>    <span class="at">payments =</span> <span class="fu">sum</span>(payments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-425"><a href="#cb7-425" aria-hidden="true" tabindex="-1"></a>    <span class="at">adjustments =</span> <span class="fu">sum</span>(adjustments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-426"><a href="#cb7-426" aria-hidden="true" tabindex="-1"></a>    <span class="at">.by =</span> <span class="fu">c</span>(age)</span>
-<span id="cb7-427"><a href="#cb7-427" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb7-428"><a href="#cb7-428" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb7-429"><a href="#cb7-429" aria-hidden="true" tabindex="-1"></a>    <span class="co"># patients = n(),</span></span>
-<span id="cb7-430"><a href="#cb7-430" aria-hidden="true" tabindex="-1"></a>    <span class="at">avg_age =</span> <span class="fu">mean</span>(age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-431"><a href="#cb7-431" aria-hidden="true" tabindex="-1"></a>    <span class="at">procedures =</span> <span class="fu">sum</span>(procedures, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-432"><a href="#cb7-432" aria-hidden="true" tabindex="-1"></a>    <span class="at">visits =</span> <span class="fu">sum</span>(visits, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-433"><a href="#cb7-433" aria-hidden="true" tabindex="-1"></a>    <span class="at">charges =</span> <span class="fu">sum</span>(charges, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-434"><a href="#cb7-434" aria-hidden="true" tabindex="-1"></a>    <span class="at">allowed =</span> <span class="fu">sum</span>(allowed, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-435"><a href="#cb7-435" aria-hidden="true" tabindex="-1"></a>    <span class="at">revenue =</span> <span class="fu">sum</span>(payments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb7-436"><a href="#cb7-436" aria-hidden="true" tabindex="-1"></a>    <span class="at">adjustments =</span> <span class="fu">sum</span>(adjustments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb7-437"><a href="#cb7-437" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-438"><a href="#cb7-438" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-439"><a href="#cb7-439" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-440"><a href="#cb7-440" aria-hidden="true" tabindex="-1"></a>{{&lt; pagebreak &gt;}}</span>
-<span id="cb7-441"><a href="#cb7-441" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-442"><a href="#cb7-442" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-443"><a href="#cb7-443" aria-hidden="true" tabindex="-1"></a><span class="fu">## Session Information </span></span>
-<span id="cb7-444"><a href="#cb7-444" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-447"><a href="#cb7-447" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb7-448"><a href="#cb7-448" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
-<span id="cb7-449"><a href="#cb7-449" aria-hidden="true" tabindex="-1"></a>pander<span class="sc">::</span><span class="fu">pander</span>(<span class="fu">sessionInfo</span>())</span>
-<span id="cb7-450"><a href="#cb7-450" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<div class="sourceCode" id="cb7" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb7-1"><a href="#cb7-1"></a><span class="co">---</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="an">title:</span><span class="co"> "Post-Audit Development"</span></span>
+<span id="cb7-3"><a href="#cb7-3"></a><span class="an">format:</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a><span class="co">  html:</span></span>
+<span id="cb7-5"><a href="#cb7-5"></a><span class="co">    reference-location: block</span></span>
+<span id="cb7-6"><a href="#cb7-6"></a><span class="an">editor_options:</span><span class="co"> </span></span>
+<span id="cb7-7"><a href="#cb7-7"></a><span class="co">  chunk_output_type: console</span></span>
+<span id="cb7-8"><a href="#cb7-8"></a><span class="co">---</span></span>
+<span id="cb7-9"><a href="#cb7-9"></a></span>
+<span id="cb7-12"><a href="#cb7-12"></a><span class="in">```{r}</span></span>
+<span id="cb7-13"><a href="#cb7-13"></a><span class="co">#| label: setup</span></span>
+<span id="cb7-14"><a href="#cb7-14"></a><span class="co">#| echo: false</span></span>
+<span id="cb7-15"><a href="#cb7-15"></a><span class="co">#| message: false</span></span>
+<span id="cb7-16"><a href="#cb7-16"></a><span class="co">#| warning: false</span></span>
+<span id="cb7-17"><a href="#cb7-17"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(</span>
+<span id="cb7-18"><a href="#cb7-18"></a>  <span class="at">dev =</span> <span class="st">"ragg_png"</span>,</span>
+<span id="cb7-19"><a href="#cb7-19"></a>  <span class="at">dpi =</span> <span class="dv">150</span>,</span>
+<span id="cb7-20"><a href="#cb7-20"></a>  <span class="at">out.width =</span> <span class="st">"100%"</span>,</span>
+<span id="cb7-21"><a href="#cb7-21"></a>  <span class="at">fig.width =</span> <span class="dv">8</span>,</span>
+<span id="cb7-22"><a href="#cb7-22"></a>  <span class="at">fig.height =</span> <span class="fl">6.5</span>,</span>
+<span id="cb7-23"><a href="#cb7-23"></a>  <span class="at">fig.align =</span> <span class="st">"center"</span>,</span>
+<span id="cb7-24"><a href="#cb7-24"></a>  <span class="at">fig.show =</span> <span class="st">"hold"</span></span>
+<span id="cb7-25"><a href="#cb7-25"></a>)</span>
+<span id="cb7-26"><a href="#cb7-26"></a><span class="fu">options</span>(<span class="at">scipen =</span> <span class="dv">999</span>)</span>
+<span id="cb7-27"><a href="#cb7-27"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb7-28"><a href="#cb7-28"></a><span class="fu">library</span>(here)</span>
+<span id="cb7-29"><a href="#cb7-29"></a><span class="fu">library</span>(gt)</span>
+<span id="cb7-30"><a href="#cb7-30"></a><span class="fu">library</span>(rbrvs)</span>
+<span id="cb7-31"><a href="#cb7-31"></a><span class="fu">library</span>(northstar)</span>
+<span id="cb7-32"><a href="#cb7-32"></a><span class="fu">library</span>(fuimus)</span>
+<span id="cb7-33"><a href="#cb7-33"></a></span>
+<span id="cb7-34"><a href="#cb7-34"></a><span class="fu">source</span>(<span class="fu">here</span>(<span class="st">"posts/claims/scripts"</span>, <span class="st">"load.R"</span>))</span>
+<span id="cb7-35"><a href="#cb7-35"></a></span>
+<span id="cb7-36"><a href="#cb7-36"></a>claims <span class="ot">&lt;-</span> claims <span class="sc">|&gt;</span> </span>
+<span id="cb7-37"><a href="#cb7-37"></a>  fuimus<span class="sc">::</span><span class="fu">combine</span>(adj_codes, <span class="fu">c</span>(<span class="st">"adj1"</span>, <span class="st">"adj2"</span>, <span class="st">"adj3"</span>), <span class="at">sep =</span> <span class="st">" | "</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-38"><a href="#cb7-38"></a>  fuimus<span class="sc">::</span><span class="fu">combine</span>(mods, <span class="fu">c</span>(<span class="st">"mod1"</span>, <span class="st">"mod2"</span>), <span class="at">sep =</span> <span class="st">" = "</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-39"><a href="#cb7-39"></a>  fuimus<span class="sc">::</span><span class="fu">combine</span>(refer, <span class="fu">c</span>(<span class="st">"ref"</span>, <span class="st">"ref_cred"</span>), <span class="at">sep =</span> <span class="st">" &lt;|||"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-40"><a href="#cb7-40"></a>  fuimus<span class="sc">::</span><span class="fu">combine</span>(render, <span class="fu">c</span>(<span class="st">"ren"</span>, <span class="st">"ren_cred"</span>), <span class="at">sep =</span> <span class="st">" &lt;|||"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-41"><a href="#cb7-41"></a>  dplyr<span class="sc">::</span><span class="fu">reframe</span>(</span>
+<span id="cb7-42"><a href="#cb7-42"></a>    <span class="at">ptid =</span> id, </span>
+<span id="cb7-43"><a href="#cb7-43"></a>    dos, </span>
+<span id="cb7-44"><a href="#cb7-44"></a>    <span class="at">ptdob =</span> dob, </span>
+<span id="cb7-45"><a href="#cb7-45"></a>    <span class="at">ptage =</span> age, </span>
+<span id="cb7-46"><a href="#cb7-46"></a>    <span class="at">refer =</span> <span class="fu">as_factor</span>(<span class="fu">str_replace</span>(<span class="fu">str_to_upper</span>(refer), <span class="st">"PH D"</span>, <span class="st">"PHD"</span>)), </span>
+<span id="cb7-47"><a href="#cb7-47"></a>    <span class="at">render =</span> <span class="fu">as_factor</span>(<span class="fu">str_to_upper</span>(render)), </span>
+<span id="cb7-48"><a href="#cb7-48"></a>    <span class="at">.enc =</span> enc, </span>
+<span id="cb7-49"><a href="#cb7-49"></a>    <span class="at">.ord =</span> ord, </span>
+<span id="cb7-50"><a href="#cb7-50"></a>    <span class="at">icd10 =</span> <span class="fu">str_replace_all</span>(icd, <span class="st">","</span>, <span class="st">" -&gt; "</span>),</span>
+<span id="cb7-51"><a href="#cb7-51"></a>    hcpcs, </span>
+<span id="cb7-52"><a href="#cb7-52"></a>    desc, </span>
+<span id="cb7-53"><a href="#cb7-53"></a>    units, </span>
+<span id="cb7-54"><a href="#cb7-54"></a>    <span class="at">mods =</span> <span class="fu">as_factor</span>(<span class="fu">str_to_upper</span>(mods)), </span>
+<span id="cb7-55"><a href="#cb7-55"></a>    <span class="at">pos =</span> <span class="fu">as_factor</span>(pos),</span>
+<span id="cb7-56"><a href="#cb7-56"></a>    pos_type, </span>
+<span id="cb7-57"><a href="#cb7-57"></a>    <span class="at">location =</span> <span class="fu">as_factor</span>(<span class="fu">str_to_title</span>(loc)), </span>
+<span id="cb7-58"><a href="#cb7-58"></a>    <span class="at">inclass =</span> ins_class,</span>
+<span id="cb7-59"><a href="#cb7-59"></a>    <span class="at">inprim =</span> ins_prim, </span>
+<span id="cb7-60"><a href="#cb7-60"></a>    <span class="at">insec =</span> ins_sec, </span>
+<span id="cb7-61"><a href="#cb7-61"></a>    charges, </span>
+<span id="cb7-62"><a href="#cb7-62"></a>    allowed, </span>
+<span id="cb7-63"><a href="#cb7-63"></a>    payments, </span>
+<span id="cb7-64"><a href="#cb7-64"></a>    adjustments, </span>
+<span id="cb7-65"><a href="#cb7-65"></a>    <span class="at">adj_codes =</span> <span class="fu">str_replace</span>(adj_codes, <span class="st">" -45"</span>, <span class="st">" CO-45"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb7-66"><a href="#cb7-66"></a>  dplyr<span class="sc">::</span><span class="fu">arrange</span>(dos, .enc, .ord, ptid)</span>
+<span id="cb7-67"><a href="#cb7-67"></a><span class="in">```</span></span>
+<span id="cb7-68"><a href="#cb7-68"></a></span>
+<span id="cb7-69"><a href="#cb7-69"></a><span class="fu"># Findings</span></span>
+<span id="cb7-70"><a href="#cb7-70"></a></span>
+<span id="cb7-71"><a href="#cb7-71"></a>Between the dates of **2022-06-14** and **2024-03-12** *(approx 637 days)*,</span>
+<span id="cb7-72"><a href="#cb7-72"></a></span>
+<span id="cb7-73"><a href="#cb7-73"></a><span class="ss">   - </span>512 Dates of Service were recorded</span>
+<span id="cb7-74"><a href="#cb7-74"></a><span class="ss">   - </span>7158 Unique Patients were seen</span>
+<span id="cb7-75"><a href="#cb7-75"></a><span class="ss">   - </span>Referred by 232 different Providers</span>
+<span id="cb7-76"><a href="#cb7-76"></a><span class="ss">   - </span>Seen by 66 different Rendering Providers</span>
+<span id="cb7-77"><a href="#cb7-77"></a></span>
+<span id="cb7-78"><a href="#cb7-78"></a><span class="fu"># EDA</span></span>
+<span id="cb7-79"><a href="#cb7-79"></a></span>
+<span id="cb7-82"><a href="#cb7-82"></a><span class="in">```{r}</span></span>
+<span id="cb7-83"><a href="#cb7-83"></a>claims <span class="sc">|&gt;</span> </span>
+<span id="cb7-84"><a href="#cb7-84"></a>  <span class="fu">select</span>(dos, ptid) <span class="sc">|&gt;</span> </span>
+<span id="cb7-85"><a href="#cb7-85"></a>  <span class="fu">distinct</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb7-86"><a href="#cb7-86"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> lubridate<span class="sc">::</span><span class="fu">year</span>(dos),</span>
+<span id="cb7-87"><a href="#cb7-87"></a>         <span class="at">month =</span> lubridate<span class="sc">::</span><span class="fu">month</span>(dos, <span class="at">label =</span> <span class="cn">TRUE</span>, <span class="at">abbr =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-88"><a href="#cb7-88"></a>         <span class="at">ymon =</span> data.table<span class="sc">::</span><span class="fu">yearmon</span>(dos)) <span class="sc">|&gt;</span></span>
+<span id="cb7-89"><a href="#cb7-89"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(year) <span class="sc">|&gt;</span></span>
+<span id="cb7-90"><a href="#cb7-90"></a>  dplyr<span class="sc">::</span><span class="fu">count</span>(dos) <span class="sc">|&gt;</span></span>
+<span id="cb7-91"><a href="#cb7-91"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(dos, n)) <span class="sc">+</span> </span>
+<span id="cb7-92"><a href="#cb7-92"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"grey70"</span>) <span class="sc">+</span></span>
+<span id="cb7-93"><a href="#cb7-93"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"#E87800"</span>) <span class="sc">+</span></span>
+<span id="cb7-94"><a href="#cb7-94"></a>  <span class="fu">geom_rug</span>(<span class="at">alpha =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">3</span>, <span class="at">color =</span> <span class="st">"#E87800"</span>, <span class="at">outside =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb7-95"><a href="#cb7-95"></a>  <span class="fu">coord_cartesian</span>(<span class="at">clip =</span> <span class="st">"off"</span>) <span class="sc">+</span></span>
+<span id="cb7-96"><a href="#cb7-96"></a>  <span class="fu">gg_theme</span>()</span>
+<span id="cb7-97"><a href="#cb7-97"></a><span class="in">```</span></span>
+<span id="cb7-98"><a href="#cb7-98"></a></span>
+<span id="cb7-99"><a href="#cb7-99"></a></span>
+<span id="cb7-102"><a href="#cb7-102"></a><span class="in">```{r}</span></span>
+<span id="cb7-103"><a href="#cb7-103"></a>claims <span class="sc">|&gt;</span> </span>
+<span id="cb7-104"><a href="#cb7-104"></a>  <span class="fu">select</span>(dos, ptid, pos_type, render) <span class="sc">|&gt;</span> </span>
+<span id="cb7-105"><a href="#cb7-105"></a>  <span class="fu">distinct</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb7-106"><a href="#cb7-106"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> lubridate<span class="sc">::</span><span class="fu">year</span>(dos),</span>
+<span id="cb7-107"><a href="#cb7-107"></a>         <span class="at">month =</span> lubridate<span class="sc">::</span><span class="fu">month</span>(dos, <span class="at">label =</span> <span class="cn">TRUE</span>, <span class="at">abbr =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-108"><a href="#cb7-108"></a>         <span class="at">ymon =</span> data.table<span class="sc">::</span><span class="fu">yearmon</span>(dos)) <span class="sc">|&gt;</span></span>
+<span id="cb7-109"><a href="#cb7-109"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(year) <span class="sc">|&gt;</span></span>
+<span id="cb7-110"><a href="#cb7-110"></a>  dplyr<span class="sc">::</span><span class="fu">count</span>(dos) <span class="sc">|&gt;</span> </span>
+<span id="cb7-111"><a href="#cb7-111"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> n, <span class="at">y =</span> year, <span class="at">group =</span> year)) <span class="sc">+</span> </span>
+<span id="cb7-112"><a href="#cb7-112"></a>  ggridges<span class="sc">::</span><span class="fu">geom_density_ridges</span>(<span class="at">scale =</span> <span class="fl">0.9</span>, <span class="at">rel_min_height =</span> <span class="fl">0.03</span>) <span class="sc">+</span></span>
+<span id="cb7-113"><a href="#cb7-113"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">160</span>), <span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)) <span class="sc">+</span></span>
+<span id="cb7-114"><a href="#cb7-114"></a>  <span class="fu">scale_y_reverse</span>(<span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">2022</span>, <span class="dv">2023</span>, <span class="dv">2024</span>),</span>
+<span id="cb7-115"><a href="#cb7-115"></a>                  <span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)) <span class="sc">+</span></span>
+<span id="cb7-116"><a href="#cb7-116"></a>  <span class="fu">coord_cartesian</span>(<span class="at">clip =</span> <span class="st">"off"</span>) <span class="sc">+</span></span>
+<span id="cb7-117"><a href="#cb7-117"></a>  <span class="fu">gg_theme</span>()</span>
+<span id="cb7-118"><a href="#cb7-118"></a><span class="in">```</span></span>
+<span id="cb7-119"><a href="#cb7-119"></a></span>
+<span id="cb7-120"><a href="#cb7-120"></a><span class="fu">## Ratio Analysis</span></span>
+<span id="cb7-121"><a href="#cb7-121"></a></span>
+<span id="cb7-122"><a href="#cb7-122"></a>Revenue Per Visit</span>
+<span id="cb7-123"><a href="#cb7-123"></a>: $RPV =$ Total Payments $\div$ Number of Patient Visits</span>
+<span id="cb7-124"><a href="#cb7-124"></a></span>
+<span id="cb7-125"><a href="#cb7-125"></a></span>
+<span id="cb7-128"><a href="#cb7-128"></a><span class="in">```{r}</span></span>
+<span id="cb7-129"><a href="#cb7-129"></a><span class="co">#| label: claims_ratio</span></span>
+<span id="cb7-130"><a href="#cb7-130"></a><span class="co">#| echo: false</span></span>
+<span id="cb7-131"><a href="#cb7-131"></a><span class="co">#| eval: false</span></span>
+<span id="cb7-132"><a href="#cb7-132"></a><span class="co">#| message: false</span></span>
+<span id="cb7-133"><a href="#cb7-133"></a><span class="co">#| warning: false</span></span>
+<span id="cb7-134"><a href="#cb7-134"></a>claims_summary <span class="sc">|&gt;</span></span>
+<span id="cb7-135"><a href="#cb7-135"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb7-136"><a href="#cb7-136"></a>    <span class="at">revenue_adjustments =</span> revenue <span class="sc">+</span> adjustments, </span>
+<span id="cb7-137"><a href="#cb7-137"></a>    <span class="at">.after =</span> charges) <span class="sc">|&gt;</span> </span>
+<span id="cb7-138"><a href="#cb7-138"></a>  <span class="fu">reframe</span>(</span>
+<span id="cb7-139"><a href="#cb7-139"></a>    <span class="at">cpp =</span> charges <span class="sc">/</span> procedures,</span>
+<span id="cb7-140"><a href="#cb7-140"></a>    <span class="at">alpp =</span> allowed <span class="sc">/</span> procedures,</span>
+<span id="cb7-141"><a href="#cb7-141"></a>    <span class="at">rpp =</span> revenue <span class="sc">/</span> procedures,</span>
+<span id="cb7-142"><a href="#cb7-142"></a>    <span class="at">adpp =</span> adjustments <span class="sc">/</span> procedures,</span>
+<span id="cb7-143"><a href="#cb7-143"></a>    <span class="at">ppv =</span> procedures <span class="sc">/</span> visits,</span>
+<span id="cb7-144"><a href="#cb7-144"></a>    <span class="at">cpv =</span> charges <span class="sc">/</span> visits,</span>
+<span id="cb7-145"><a href="#cb7-145"></a>    <span class="at">alpv =</span> allowed <span class="sc">/</span> visits,</span>
+<span id="cb7-146"><a href="#cb7-146"></a>    <span class="at">rpv =</span> revenue <span class="sc">/</span> visits,</span>
+<span id="cb7-147"><a href="#cb7-147"></a>    <span class="at">adpv =</span> adjustments <span class="sc">/</span> visits,</span>
+<span id="cb7-148"><a href="#cb7-148"></a>    <span class="at">cpr =</span> charges <span class="sc">/</span> revenue_adjustments,</span>
+<span id="cb7-149"><a href="#cb7-149"></a>    <span class="at">alpr =</span> allowed <span class="sc">/</span> revenue,</span>
+<span id="cb7-150"><a href="#cb7-150"></a>    <span class="at">adpr =</span> adjustments <span class="sc">/</span> revenue,</span>
+<span id="cb7-151"><a href="#cb7-151"></a>    <span class="at">net_collect =</span> revenue <span class="sc">/</span> (charges <span class="sc">-</span> adjustments),</span>
+<span id="cb7-152"><a href="#cb7-152"></a>    <span class="at">net_allow =</span> revenue <span class="sc">/</span> allowed,</span>
+<span id="cb7-153"><a href="#cb7-153"></a>    <span class="at">net_adjust =</span> revenue <span class="sc">/</span> adjustments,</span>
+<span id="cb7-154"><a href="#cb7-154"></a>    ) <span class="sc">|&gt;</span> </span>
+<span id="cb7-155"><a href="#cb7-155"></a>  <span class="fu">set_names</span>(</span>
+<span id="cb7-156"><a href="#cb7-156"></a>    <span class="fu">c</span>(<span class="st">"Charge Per Procedure"</span>, </span>
+<span id="cb7-157"><a href="#cb7-157"></a>      <span class="st">"Allowed Per Procedure"</span>, </span>
+<span id="cb7-158"><a href="#cb7-158"></a>      <span class="st">"Payment Per Procedure"</span>, </span>
+<span id="cb7-159"><a href="#cb7-159"></a>      <span class="st">"Adjustment Per Procedure"</span>, </span>
+<span id="cb7-160"><a href="#cb7-160"></a>      <span class="st">"Procedures Per Visit"</span>, </span>
+<span id="cb7-161"><a href="#cb7-161"></a>      <span class="st">"Charge Per Visit"</span>, </span>
+<span id="cb7-162"><a href="#cb7-162"></a>      <span class="st">"Allowed Per Visit"</span>, </span>
+<span id="cb7-163"><a href="#cb7-163"></a>      <span class="st">"Payment Per Visit"</span>, </span>
+<span id="cb7-164"><a href="#cb7-164"></a>      <span class="st">"Adjustment Per Visit"</span>,</span>
+<span id="cb7-165"><a href="#cb7-165"></a>      <span class="st">"Charge To Payment + Adjustment"</span>,</span>
+<span id="cb7-166"><a href="#cb7-166"></a>      <span class="st">"Allowed Per Dollar"</span>, </span>
+<span id="cb7-167"><a href="#cb7-167"></a>      <span class="st">"Adjustment Per Dollar"</span>,</span>
+<span id="cb7-168"><a href="#cb7-168"></a>      <span class="st">"Net Collection Ratio"</span>,</span>
+<span id="cb7-169"><a href="#cb7-169"></a>      <span class="st">"Net Allowable Ratio"</span>,</span>
+<span id="cb7-170"><a href="#cb7-170"></a>      <span class="st">"Net Adjustment Ratio"</span></span>
+<span id="cb7-171"><a href="#cb7-171"></a>      )) <span class="sc">|&gt;</span> </span>
+<span id="cb7-172"><a href="#cb7-172"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb7-173"><a href="#cb7-173"></a>    <span class="at">cols =</span> <span class="fu">everything</span>(), </span>
+<span id="cb7-174"><a href="#cb7-174"></a>    <span class="at">names_to =</span> <span class="st">"Metric"</span>, </span>
+<span id="cb7-175"><a href="#cb7-175"></a>    <span class="at">values_to =</span> <span class="st">"Value"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb7-176"><a href="#cb7-176"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb7-177"><a href="#cb7-177"></a>  <span class="fu">opt_table_font</span>(<span class="at">font =</span> <span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb7-178"><a href="#cb7-178"></a>  <span class="fu">tab_options</span>(<span class="at">table.width =</span> <span class="fu">pct</span>(<span class="dv">100</span>),</span>
+<span id="cb7-179"><a href="#cb7-179"></a>              <span class="at">quarto.disable_processing =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb7-180"><a href="#cb7-180"></a><span class="in">```</span></span>
+<span id="cb7-181"><a href="#cb7-181"></a></span>
+<span id="cb7-184"><a href="#cb7-184"></a><span class="in">```{r}</span></span>
+<span id="cb7-185"><a href="#cb7-185"></a><span class="co">#| label: insurance_ratios</span></span>
+<span id="cb7-186"><a href="#cb7-186"></a><span class="co">#| echo: true</span></span>
+<span id="cb7-187"><a href="#cb7-187"></a><span class="co">#| eval: false</span></span>
+<span id="cb7-188"><a href="#cb7-188"></a><span class="co">#| message: false</span></span>
+<span id="cb7-189"><a href="#cb7-189"></a><span class="co">#| warning: false</span></span>
+<span id="cb7-190"><a href="#cb7-190"></a>insurance_summary <span class="sc">|&gt;</span> </span>
+<span id="cb7-191"><a href="#cb7-191"></a>  <span class="fu">reframe</span>(</span>
+<span id="cb7-192"><a href="#cb7-192"></a>    ins_prim,</span>
+<span id="cb7-193"><a href="#cb7-193"></a>    <span class="at">pts =</span> patients,</span>
+<span id="cb7-194"><a href="#cb7-194"></a>    <span class="at">vpp =</span> visits <span class="sc">/</span> patients,</span>
+<span id="cb7-195"><a href="#cb7-195"></a>    <span class="at">ppp =</span> procedures <span class="sc">/</span> patients,</span>
+<span id="cb7-196"><a href="#cb7-196"></a>    <span class="at">rpp =</span> revenue <span class="sc">/</span> patients,</span>
+<span id="cb7-197"><a href="#cb7-197"></a>    <span class="at">ppv =</span> procedures <span class="sc">/</span> visits,</span>
+<span id="cb7-198"><a href="#cb7-198"></a>    <span class="at">rpv =</span> revenue <span class="sc">/</span> visits,</span>
+<span id="cb7-199"><a href="#cb7-199"></a>    <span class="at">rpp =</span> revenue <span class="sc">/</span> procedures</span>
+<span id="cb7-200"><a href="#cb7-200"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb7-201"><a href="#cb7-201"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(pts)) <span class="sc">|&gt;</span></span>
+<span id="cb7-202"><a href="#cb7-202"></a>  <span class="fu">gt</span>(<span class="at">rowname_col =</span> <span class="st">"ins_prim"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb7-203"><a href="#cb7-203"></a>  <span class="fu">opt_all_caps</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb7-204"><a href="#cb7-204"></a>  <span class="fu">opt_table_font</span>(<span class="at">font =</span> <span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb7-205"><a href="#cb7-205"></a>  <span class="fu">tab_options</span>(<span class="at">table.width =</span> <span class="fu">pct</span>(<span class="dv">100</span>),</span>
+<span id="cb7-206"><a href="#cb7-206"></a>              <span class="at">quarto.disable_processing =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb7-207"><a href="#cb7-207"></a><span class="in">```</span></span>
+<span id="cb7-208"><a href="#cb7-208"></a></span>
+<span id="cb7-209"><a href="#cb7-209"></a></span>
+<span id="cb7-210"><a href="#cb7-210"></a><span class="fu"># Reimbursement</span></span>
+<span id="cb7-211"><a href="#cb7-211"></a></span>
+<span id="cb7-214"><a href="#cb7-214"></a><span class="in">```{r}</span></span>
+<span id="cb7-215"><a href="#cb7-215"></a>pprrvu</span>
+<span id="cb7-216"><a href="#cb7-216"></a><span class="in">```</span></span>
+<span id="cb7-217"><a href="#cb7-217"></a></span>
+<span id="cb7-218"><a href="#cb7-218"></a></span>
+<span id="cb7-221"><a href="#cb7-221"></a><span class="in">```{r}</span></span>
+<span id="cb7-222"><a href="#cb7-222"></a><span class="co">#| label: rvu_new</span></span>
+<span id="cb7-223"><a href="#cb7-223"></a><span class="co">#| echo: false</span></span>
+<span id="cb7-224"><a href="#cb7-224"></a><span class="co">#| eval: false</span></span>
+<span id="cb7-225"><a href="#cb7-225"></a><span class="co">#| message: false</span></span>
+<span id="cb7-226"><a href="#cb7-226"></a><span class="co">#| warning: false</span></span>
+<span id="cb7-227"><a href="#cb7-227"></a></span>
+<span id="cb7-228"><a href="#cb7-228"></a><span class="co"># mult = 0: "No adjustment. If procedure is reported on </span></span>
+<span id="cb7-229"><a href="#cb7-229"></a><span class="co"># the same day as another procedure, base the payment on </span></span>
+<span id="cb7-230"><a href="#cb7-230"></a><span class="co"># the lower of (a) the actual charge, or (b) the fee </span></span>
+<span id="cb7-231"><a href="#cb7-231"></a><span class="co"># schedule amount for the procedure."</span></span>
+<span id="cb7-232"><a href="#cb7-232"></a></span>
+<span id="cb7-233"><a href="#cb7-233"></a><span class="co"># glob = ZZZ: "Code related to another service and is </span></span>
+<span id="cb7-234"><a href="#cb7-234"></a><span class="co"># always included in Global period of other service."</span></span>
+<span id="cb7-235"><a href="#cb7-235"></a></span>
+<span id="cb7-236"><a href="#cb7-236"></a>pprrvu <span class="sc">|&gt;</span> </span>
+<span id="cb7-237"><a href="#cb7-237"></a>  <span class="fu">reframe</span>(</span>
+<span id="cb7-238"><a href="#cb7-238"></a>    <span class="co"># dos, </span></span>
+<span id="cb7-239"><a href="#cb7-239"></a>    <span class="at">yr =</span> data.table<span class="sc">::</span><span class="fu">year</span>(dos),</span>
+<span id="cb7-240"><a href="#cb7-240"></a>    <span class="at">qtr =</span> data.table<span class="sc">::</span><span class="fu">quarter</span>(dos),</span>
+<span id="cb7-241"><a href="#cb7-241"></a>    <span class="co"># mon = data.table::month(dos),</span></span>
+<span id="cb7-242"><a href="#cb7-242"></a>    pos,</span>
+<span id="cb7-243"><a href="#cb7-243"></a>    hcpcs, </span>
+<span id="cb7-244"><a href="#cb7-244"></a>    <span class="co"># description, </span></span>
+<span id="cb7-245"><a href="#cb7-245"></a>    <span class="co"># glob_days,</span></span>
+<span id="cb7-246"><a href="#cb7-246"></a>    <span class="co"># mult_proc,</span></span>
+<span id="cb7-247"><a href="#cb7-247"></a>    work_rvu, </span>
+<span id="cb7-248"><a href="#cb7-248"></a>    pe_rvu, </span>
+<span id="cb7-249"><a href="#cb7-249"></a>    mp_rvu, </span>
+<span id="cb7-250"><a href="#cb7-250"></a>    <span class="at">tot_rvu =</span> rvu_total,</span>
+<span id="cb7-251"><a href="#cb7-251"></a>    <span class="at">cf =</span> conv_factor,</span>
+<span id="cb7-252"><a href="#cb7-252"></a>    <span class="at">allow_unadj =</span> tot_rvu <span class="sc">*</span> cf,</span>
+<span id="cb7-253"><a href="#cb7-253"></a>    <span class="at">nonpar_unadj =</span> allow_unadj <span class="sc">*</span> <span class="fl">1.15</span>,</span>
+<span id="cb7-254"><a href="#cb7-254"></a>    <span class="at">lim_unadj =</span> nonpar_unadj <span class="sc">*</span> <span class="fl">0.95</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb7-255"><a href="#cb7-255"></a>  <span class="fu">distinct</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb7-256"><a href="#cb7-256"></a>  <span class="fu">arrange</span>(hcpcs, yr, qtr) <span class="sc">|&gt;</span></span>
+<span id="cb7-257"><a href="#cb7-257"></a>  <span class="co"># head(n = 50) |&gt;</span></span>
+<span id="cb7-258"><a href="#cb7-258"></a>  <span class="fu">gt</span>(<span class="at">rowname_col =</span> <span class="st">"year"</span>, </span>
+<span id="cb7-259"><a href="#cb7-259"></a>     <span class="at">groupname_col =</span> <span class="st">"hcpcs"</span>,</span>
+<span id="cb7-260"><a href="#cb7-260"></a>     <span class="at">row_group_as_column =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb7-261"><a href="#cb7-261"></a>  <span class="fu">opt_table_font</span>(</span>
+<span id="cb7-262"><a href="#cb7-262"></a>    <span class="at">font =</span> <span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Roboto Condensed"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb7-263"><a href="#cb7-263"></a>  <span class="fu">fmt_currency</span>(</span>
+<span id="cb7-264"><a href="#cb7-264"></a>    <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">"nonpar_unadj"</span>, </span>
+<span id="cb7-265"><a href="#cb7-265"></a>                <span class="st">"allow_unadj"</span>, </span>
+<span id="cb7-266"><a href="#cb7-266"></a>                <span class="st">"lim_unadj"</span>, </span>
+<span id="cb7-267"><a href="#cb7-267"></a>                <span class="st">"cf"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb7-268"><a href="#cb7-268"></a>  <span class="fu">cols_label</span>(</span>
+<span id="cb7-269"><a href="#cb7-269"></a>    <span class="at">yr =</span> <span class="fu">md</span>(<span class="st">"**YR**"</span>),</span>
+<span id="cb7-270"><a href="#cb7-270"></a>    <span class="at">qtr =</span> <span class="fu">md</span>(<span class="st">"**QTR**"</span>),</span>
+<span id="cb7-271"><a href="#cb7-271"></a>    <span class="at">work_rvu =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;wk&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
+<span id="cb7-272"><a href="#cb7-272"></a>    <span class="at">pe_rvu =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;pe&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
+<span id="cb7-273"><a href="#cb7-273"></a>    <span class="at">mp_rvu =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;mp&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
+<span id="cb7-274"><a href="#cb7-274"></a>    <span class="at">cf =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;Conversion&lt;br&gt;Factor&lt;/small&gt;&lt;/b&gt;"</span>),</span>
+<span id="cb7-275"><a href="#cb7-275"></a>    <span class="at">tot_rvu =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;RVU&lt;/small&gt;&lt;/b&gt;&lt;i&gt;&lt;sub&gt;total&lt;/sub&gt;&lt;/i&gt;"</span>),</span>
+<span id="cb7-276"><a href="#cb7-276"></a>    <span class="at">allow_unadj =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;Allowed&lt;br&gt;Amount&lt;/small&gt;&lt;/b&gt;"</span>),</span>
+<span id="cb7-277"><a href="#cb7-277"></a>    <span class="at">nonpar_unadj =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;Non-Participating&lt;br&gt;Amount&lt;/small&gt;&lt;/b&gt;"</span>),</span>
+<span id="cb7-278"><a href="#cb7-278"></a>    <span class="at">lim_unadj =</span> <span class="fu">md</span>(<span class="st">"&lt;b&gt;&lt;small&gt;Limiting&lt;br&gt;Charge&lt;/small&gt;&lt;/b&gt;"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb7-279"><a href="#cb7-279"></a>  <span class="fu">cols_align</span>(<span class="at">align =</span> <span class="st">"right"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-280"><a href="#cb7-280"></a>  <span class="fu">tab_style</span>(</span>
+<span id="cb7-281"><a href="#cb7-281"></a>      <span class="at">style =</span> <span class="fu">cell_text</span>(</span>
+<span id="cb7-282"><a href="#cb7-282"></a>        <span class="at">align =</span> <span class="st">'center'</span>,</span>
+<span id="cb7-283"><a href="#cb7-283"></a>        <span class="at">size =</span> <span class="fu">px</span>(<span class="dv">16</span>),</span>
+<span id="cb7-284"><a href="#cb7-284"></a>        <span class="at">font =</span> <span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>),</span>
+<span id="cb7-285"><a href="#cb7-285"></a>        <span class="at">weight =</span> <span class="st">"bold"</span>),</span>
+<span id="cb7-286"><a href="#cb7-286"></a>      <span class="at">locations =</span> <span class="fu">cells_row_groups</span>()) <span class="sc">|&gt;</span> </span>
+<span id="cb7-287"><a href="#cb7-287"></a>  <span class="fu">tab_style</span>(</span>
+<span id="cb7-288"><a href="#cb7-288"></a>      <span class="at">style =</span> <span class="fu">cell_text</span>(</span>
+<span id="cb7-289"><a href="#cb7-289"></a>        <span class="at">align =</span> <span class="st">'right'</span>,</span>
+<span id="cb7-290"><a href="#cb7-290"></a>        <span class="at">font =</span> <span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>)),</span>
+<span id="cb7-291"><a href="#cb7-291"></a>      <span class="at">locations =</span> <span class="fu">cells_body</span>()) <span class="sc">|&gt;</span> </span>
+<span id="cb7-292"><a href="#cb7-292"></a>  <span class="fu">tab_options</span>(</span>
+<span id="cb7-293"><a href="#cb7-293"></a>    <span class="at">quarto.disable_processing =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb7-294"><a href="#cb7-294"></a>    <span class="at">table.width =</span> <span class="st">"100%"</span></span>
+<span id="cb7-295"><a href="#cb7-295"></a>  )</span>
+<span id="cb7-296"><a href="#cb7-296"></a><span class="in">```</span></span>
+<span id="cb7-297"><a href="#cb7-297"></a></span>
+<span id="cb7-298"><a href="#cb7-298"></a></span>
+<span id="cb7-299"><a href="#cb7-299"></a></span>
+<span id="cb7-302"><a href="#cb7-302"></a><span class="in">```{r}</span></span>
+<span id="cb7-303"><a href="#cb7-303"></a><span class="co">#| label: rvu_summary</span></span>
+<span id="cb7-304"><a href="#cb7-304"></a><span class="co">#| echo: false</span></span>
+<span id="cb7-305"><a href="#cb7-305"></a><span class="co">#| eval: false</span></span>
+<span id="cb7-306"><a href="#cb7-306"></a><span class="co">#| message: false</span></span>
+<span id="cb7-307"><a href="#cb7-307"></a><span class="co">#| warning: false</span></span>
+<span id="cb7-308"><a href="#cb7-308"></a>rvu_join <span class="ot">&lt;-</span> pprrvu <span class="sc">|&gt;</span> </span>
+<span id="cb7-309"><a href="#cb7-309"></a>  <span class="fu">reframe</span>(</span>
+<span id="cb7-310"><a href="#cb7-310"></a>    dos,</span>
+<span id="cb7-311"><a href="#cb7-311"></a>    pos,</span>
+<span id="cb7-312"><a href="#cb7-312"></a>    hcpcs, </span>
+<span id="cb7-313"><a href="#cb7-313"></a>    <span class="at">wrvu =</span> work_rvu, </span>
+<span id="cb7-314"><a href="#cb7-314"></a>    <span class="at">prvu =</span> pe_rvu, </span>
+<span id="cb7-315"><a href="#cb7-315"></a>    <span class="at">mrvu =</span> mp_rvu, </span>
+<span id="cb7-316"><a href="#cb7-316"></a>    <span class="at">trvu =</span> rvu_total,</span>
+<span id="cb7-317"><a href="#cb7-317"></a>    <span class="at">cf =</span> conv_factor,</span>
+<span id="cb7-318"><a href="#cb7-318"></a>    <span class="at">all_un =</span> trvu <span class="sc">*</span> cf,</span>
+<span id="cb7-319"><a href="#cb7-319"></a>    <span class="at">npar_un =</span> all_un <span class="sc">*</span> <span class="fl">1.15</span>,</span>
+<span id="cb7-320"><a href="#cb7-320"></a>    <span class="at">lim_un =</span> npar_un <span class="sc">*</span> <span class="fl">0.95</span></span>
+<span id="cb7-321"><a href="#cb7-321"></a>    )</span>
+<span id="cb7-322"><a href="#cb7-322"></a></span>
+<span id="cb7-323"><a href="#cb7-323"></a>rvu_claims <span class="ot">&lt;-</span> claims <span class="sc">|&gt;</span> </span>
+<span id="cb7-324"><a href="#cb7-324"></a>  <span class="fu">select</span>(</span>
+<span id="cb7-325"><a href="#cb7-325"></a>    dos, </span>
+<span id="cb7-326"><a href="#cb7-326"></a>    id, </span>
+<span id="cb7-327"><a href="#cb7-327"></a>    enc, </span>
+<span id="cb7-328"><a href="#cb7-328"></a>    ren,</span>
+<span id="cb7-329"><a href="#cb7-329"></a>    ins_class,</span>
+<span id="cb7-330"><a href="#cb7-330"></a>    ins_prim, </span>
+<span id="cb7-331"><a href="#cb7-331"></a>    ord,</span>
+<span id="cb7-332"><a href="#cb7-332"></a>    hcpcs,</span>
+<span id="cb7-333"><a href="#cb7-333"></a>    units,</span>
+<span id="cb7-334"><a href="#cb7-334"></a>    <span class="at">pos =</span> pos_type,</span>
+<span id="cb7-335"><a href="#cb7-335"></a>    charges, </span>
+<span id="cb7-336"><a href="#cb7-336"></a>    allowed, </span>
+<span id="cb7-337"><a href="#cb7-337"></a>    payments, </span>
+<span id="cb7-338"><a href="#cb7-338"></a>    adjustments</span>
+<span id="cb7-339"><a href="#cb7-339"></a>    ) <span class="sc">|&gt;</span> </span>
+<span id="cb7-340"><a href="#cb7-340"></a>  <span class="fu">left_join</span>(</span>
+<span id="cb7-341"><a href="#cb7-341"></a>    rvu_join, </span>
+<span id="cb7-342"><a href="#cb7-342"></a>    <span class="at">by =</span> <span class="fu">join_by</span>(dos, hcpcs, pos)) <span class="sc">|&gt;</span> </span>
+<span id="cb7-343"><a href="#cb7-343"></a>  <span class="fu">filter</span>(</span>
+<span id="cb7-344"><a href="#cb7-344"></a>    ins_class <span class="sc">!=</span> <span class="st">"SELF"</span>, </span>
+<span id="cb7-345"><a href="#cb7-345"></a>    <span class="sc">!</span><span class="fu">is.na</span>(hcpcs),</span>
+<span id="cb7-346"><a href="#cb7-346"></a>    <span class="sc">!</span><span class="fu">is.na</span>(wrvu),</span>
+<span id="cb7-347"><a href="#cb7-347"></a>    <span class="co"># !(wrvu == 0.0 &amp; prvu == 0.0 &amp; mrvu == 0.0),</span></span>
+<span id="cb7-348"><a href="#cb7-348"></a>    charges <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb7-349"><a href="#cb7-349"></a>  <span class="fu">arrange</span>(dos, id, enc, ord) <span class="sc">|&gt;</span> </span>
+<span id="cb7-350"><a href="#cb7-350"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(all_un, npar_un, lim_un), <span class="sc">~</span> . <span class="sc">*</span> units))</span>
+<span id="cb7-351"><a href="#cb7-351"></a></span>
+<span id="cb7-352"><a href="#cb7-352"></a>rvu_claims <span class="sc">|&gt;</span></span>
+<span id="cb7-353"><a href="#cb7-353"></a>  <span class="fu">head</span>(<span class="at">n =</span> <span class="dv">10</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-354"><a href="#cb7-354"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb7-355"><a href="#cb7-355"></a>  <span class="fu">opt_all_caps</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb7-356"><a href="#cb7-356"></a>  <span class="fu">opt_table_font</span>(<span class="at">font =</span> <span class="fu">google_font</span>(<span class="at">name =</span> <span class="st">"Fira Code"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb7-357"><a href="#cb7-357"></a>  <span class="fu">tab_options</span>(<span class="at">table.width =</span> <span class="fu">pct</span>(<span class="dv">100</span>),</span>
+<span id="cb7-358"><a href="#cb7-358"></a>              <span class="at">quarto.disable_processing =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb7-359"><a href="#cb7-359"></a><span class="in">```</span></span>
+<span id="cb7-360"><a href="#cb7-360"></a></span>
+<span id="cb7-361"><a href="#cb7-361"></a></span>
+<span id="cb7-364"><a href="#cb7-364"></a><span class="in">```{r}</span></span>
+<span id="cb7-365"><a href="#cb7-365"></a><span class="co">#| echo: false</span></span>
+<span id="cb7-366"><a href="#cb7-366"></a><span class="co">#| eval: false</span></span>
+<span id="cb7-367"><a href="#cb7-367"></a>rvu_claims <span class="sc">|&gt;</span> </span>
+<span id="cb7-368"><a href="#cb7-368"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> data.table<span class="sc">::</span><span class="fu">year</span>(dos), <span class="at">.after =</span> dos) <span class="sc">|&gt;</span> </span>
+<span id="cb7-369"><a href="#cb7-369"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb7-370"><a href="#cb7-370"></a>    <span class="at">procedures =</span> <span class="fu">n</span>(),</span>
+<span id="cb7-371"><a href="#cb7-371"></a>    <span class="at">charges =</span> <span class="fu">sum</span>(charges, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-372"><a href="#cb7-372"></a>    <span class="at">allowed =</span> <span class="fu">sum</span>(allowed, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-373"><a href="#cb7-373"></a>    <span class="at">payments =</span> <span class="fu">sum</span>(payments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-374"><a href="#cb7-374"></a>    <span class="at">adjustments =</span> <span class="fu">sum</span>(adjustments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-375"><a href="#cb7-375"></a>    <span class="at">units =</span> <span class="fu">sum</span>(units, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-376"><a href="#cb7-376"></a>    <span class="at">wrvu =</span> <span class="fu">sum</span>(wrvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-377"><a href="#cb7-377"></a>    <span class="at">prvu =</span> <span class="fu">sum</span>(prvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-378"><a href="#cb7-378"></a>    <span class="at">mrvu =</span> <span class="fu">sum</span>(mrvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-379"><a href="#cb7-379"></a>    <span class="at">trvu =</span> <span class="fu">sum</span>(trvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-380"><a href="#cb7-380"></a>    <span class="at">all_un =</span> <span class="fu">sum</span>(all_un, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-381"><a href="#cb7-381"></a>    <span class="at">npar_un =</span> <span class="fu">sum</span>(npar_un, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-382"><a href="#cb7-382"></a>    <span class="at">lim_un =</span> <span class="fu">sum</span>(lim_un, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-383"><a href="#cb7-383"></a>    <span class="at">.by =</span> <span class="fu">c</span>(year, ins_prim))</span>
+<span id="cb7-384"><a href="#cb7-384"></a><span class="in">```</span></span>
+<span id="cb7-385"><a href="#cb7-385"></a></span>
+<span id="cb7-386"><a href="#cb7-386"></a></span>
+<span id="cb7-389"><a href="#cb7-389"></a><span class="in">```{r}</span></span>
+<span id="cb7-390"><a href="#cb7-390"></a><span class="co">#| echo: false</span></span>
+<span id="cb7-391"><a href="#cb7-391"></a><span class="co">#| eval: false</span></span>
+<span id="cb7-392"><a href="#cb7-392"></a>rvu_claims <span class="sc">|&gt;</span> <span class="fu">filter</span>(units <span class="sc">&gt;</span> <span class="dv">1</span>)</span>
+<span id="cb7-393"><a href="#cb7-393"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb7-394"><a href="#cb7-394"></a>    <span class="at">year =</span> data.table<span class="sc">::</span><span class="fu">year</span>(dos),</span>
+<span id="cb7-395"><a href="#cb7-395"></a>    <span class="at">qtr =</span> data.table<span class="sc">::</span><span class="fu">quarter</span>(dos),</span>
+<span id="cb7-396"><a href="#cb7-396"></a>    <span class="at">mon =</span> data.table<span class="sc">::</span><span class="fu">month</span>(dos),</span>
+<span id="cb7-397"><a href="#cb7-397"></a>    <span class="at">.after =</span> dos</span>
+<span id="cb7-398"><a href="#cb7-398"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb7-399"><a href="#cb7-399"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb7-400"><a href="#cb7-400"></a>    <span class="at">procedures =</span> <span class="fu">n</span>(),</span>
+<span id="cb7-401"><a href="#cb7-401"></a>    <span class="at">charges =</span> <span class="fu">sum</span>(charges, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-402"><a href="#cb7-402"></a>    <span class="at">allowed =</span> <span class="fu">sum</span>(allowed, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-403"><a href="#cb7-403"></a>    <span class="at">payments =</span> <span class="fu">sum</span>(payments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-404"><a href="#cb7-404"></a>    <span class="at">adjustments =</span> <span class="fu">sum</span>(adjustments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-405"><a href="#cb7-405"></a>    <span class="at">units =</span> <span class="fu">sum</span>(units, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-406"><a href="#cb7-406"></a>    <span class="at">wrvu =</span> <span class="fu">sum</span>(wrvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-407"><a href="#cb7-407"></a>    <span class="at">prvu =</span> <span class="fu">sum</span>(prvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-408"><a href="#cb7-408"></a>    <span class="at">mrvu =</span> <span class="fu">sum</span>(mrvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-409"><a href="#cb7-409"></a>    <span class="at">trvu =</span> <span class="fu">sum</span>(trvu, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-410"><a href="#cb7-410"></a>    <span class="at">allow_un =</span> <span class="fu">sum</span>(allow_un, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-411"><a href="#cb7-411"></a>    <span class="at">npar_un =</span> <span class="fu">sum</span>(npar_un, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-412"><a href="#cb7-412"></a>    <span class="at">lim_un =</span> <span class="fu">sum</span>(lim_un, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-413"><a href="#cb7-413"></a>    <span class="at">.by =</span> <span class="fu">c</span>(year, </span>
+<span id="cb7-414"><a href="#cb7-414"></a>            qtr, </span>
+<span id="cb7-415"><a href="#cb7-415"></a>            mon, </span>
+<span id="cb7-416"><a href="#cb7-416"></a>            id, </span>
+<span id="cb7-417"><a href="#cb7-417"></a>            enc, </span>
+<span id="cb7-418"><a href="#cb7-418"></a>            ins_prim)) <span class="sc">|&gt;</span></span>
+<span id="cb7-419"><a href="#cb7-419"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb7-420"><a href="#cb7-420"></a>    <span class="at">visits =</span> <span class="fu">n</span>(),</span>
+<span id="cb7-421"><a href="#cb7-421"></a>    <span class="at">procedures =</span> <span class="fu">sum</span>(procedures, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-422"><a href="#cb7-422"></a>    <span class="at">charges =</span> <span class="fu">sum</span>(charges, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-423"><a href="#cb7-423"></a>    <span class="at">allowed =</span> <span class="fu">sum</span>(allowed, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-424"><a href="#cb7-424"></a>    <span class="at">payments =</span> <span class="fu">sum</span>(payments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-425"><a href="#cb7-425"></a>    <span class="at">adjustments =</span> <span class="fu">sum</span>(adjustments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-426"><a href="#cb7-426"></a>    <span class="at">.by =</span> <span class="fu">c</span>(age)</span>
+<span id="cb7-427"><a href="#cb7-427"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb7-428"><a href="#cb7-428"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb7-429"><a href="#cb7-429"></a>    <span class="co"># patients = n(),</span></span>
+<span id="cb7-430"><a href="#cb7-430"></a>    <span class="at">avg_age =</span> <span class="fu">mean</span>(age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-431"><a href="#cb7-431"></a>    <span class="at">procedures =</span> <span class="fu">sum</span>(procedures, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-432"><a href="#cb7-432"></a>    <span class="at">visits =</span> <span class="fu">sum</span>(visits, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-433"><a href="#cb7-433"></a>    <span class="at">charges =</span> <span class="fu">sum</span>(charges, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-434"><a href="#cb7-434"></a>    <span class="at">allowed =</span> <span class="fu">sum</span>(allowed, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-435"><a href="#cb7-435"></a>    <span class="at">revenue =</span> <span class="fu">sum</span>(payments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-436"><a href="#cb7-436"></a>    <span class="at">adjustments =</span> <span class="fu">sum</span>(adjustments, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb7-437"><a href="#cb7-437"></a><span class="in">```</span></span>
+<span id="cb7-438"><a href="#cb7-438"></a></span>
+<span id="cb7-439"><a href="#cb7-439"></a></span>
+<span id="cb7-440"><a href="#cb7-440"></a>{{&lt; pagebreak &gt;}}</span>
+<span id="cb7-441"><a href="#cb7-441"></a></span>
+<span id="cb7-442"><a href="#cb7-442"></a></span>
+<span id="cb7-443"><a href="#cb7-443"></a><span class="fu">## Session Information </span></span>
+<span id="cb7-444"><a href="#cb7-444"></a></span>
+<span id="cb7-447"><a href="#cb7-447"></a><span class="in">```{r}</span></span>
+<span id="cb7-448"><a href="#cb7-448"></a><span class="co">#| echo: false</span></span>
+<span id="cb7-449"><a href="#cb7-449"></a>pander<span class="sc">::</span><span class="fu">pander</span>(<span class="fu">sessionInfo</span>())</span>
+<span id="cb7-450"><a href="#cb7-450"></a><span class="in">```</span></span>
 </code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
