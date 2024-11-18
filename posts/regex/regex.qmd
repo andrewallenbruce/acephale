@@ -71,7 +71,7 @@ library(codex)
 source(here::here("posts/regex/scripts", "data.R"))
 ```
 
-# TODO
+# TODO {.unnumbered}
 
    * The *postfix* for a **wildcard** that begins with a **letter** is `[0-9]{n}`.
    * In `remove_redundant()`, try pmap for `rr()` step.
@@ -175,20 +175,43 @@ bench::mark(
 # Preprocess Steps
 
 ```{r}
+#| label: print_method
+view <- \(x) {
+  
+  idx  <- format(seq_along(x))
+  len  <- format(vlen(x), justify = "left")
+  tree <- format(unname(map_vec(x, paste0, collapse = " ")), justify = "none")
+  
+  msg <- glue::glue(
+      "{idx}: ",
+      "{len}|",
+      "--[{if (empty(tree)) NULL else tree}]"
+      )
+  
+  cli::cat_bullet(msg)
+  
+  return(invisible(x))
+}
+```
+
+```{r}
 #| label: preprocess
 x <- random_hcpcs()
 
 x |> 
-  split_lengths()
+  split_lengths() |> 
+  view()
 
 x |>
-  split_lengths() |>
-  remove_redundant()
+  split_lengths() |> 
+  remove_redundant() |>
+  view()
 
 x |>
   split_lengths() |>
   remove_redundant() |>
-  split_first()
+  split_first() |> 
+  view()
 ```
 
 {{< pagebreak >}}
@@ -222,14 +245,11 @@ random_hcpcs() |>
 
 ## Group 4
 
-```{r}
-#| label: group_4
-group_4 <- function(x) {
+### Starts with Number
 
-  x <- getelem(x, "x4")
-  
-  if (empty(x)) 
-    return(x)
+```{r}
+#| label: group_4_num
+group_4_num <- function(x) {
   
   map(x, function(x) {
     
@@ -269,25 +289,91 @@ group_4 <- function(x) {
         if (empty(rest)) NULL else gchop(rest[["code"]], rest[["grp2"]]))
     })
 }
+```
 
-c("C751", "C970", "G020", "G040") |> 
+### Starts with Character
+
+```{r}
+#| label: group_4_chr
+group_4_chr <- function(x) {
+  
+  map(x, function(x) {
+    
+    idx <- data.table(
+      code = x,
+      grp1 = sf_sub(x, 2, 3),
+      grp2 = sf_sub(x, 3, 4),
+      a1 = take_at(x),
+      a2 = take_at(x, 2),
+      a3 = take_at(x, 3),
+      a4 = take_at(x, 4),
+      i1 = groupid(take_at(x, 2))) |>
+      fgroup_by(a2) |>
+      fmutate(i2 = groupid(a3)) |>
+      fgroup_by(a2, a3) |>
+      fmutate(i3 = groupid(a4)) |> 
+      fungroup()
+    
+    lone <- fcount(idx, i1, add = TRUE) |>
+        fsubset((i2 + i3 + N) == 3)
+    
+    last <- fsubset(idx, code %!in% lone[["code"]])
+    
+    last <- join(
+        fcount(last, grp1, a3),
+        fcount(last, grp1, name = "G"), on = "grp1", verbose = 0) |>
+        fsubset(N == G) |>
+        join(last, on = c("grp1", "a3"), how = "right", verbose = 0) |>
+        fsubset(not_na(N))
+    
+      rest <- fsubset(idx, code %!in% c(lone[["code"]], last[["code"]]))
+      
+      c(if (empty(lone)) NULL else list(lone[["code"]]),
+        if (empty(last)) NULL else gchop(last[["code"]], last[["grp1"]]),
+        if (empty(rest)) NULL else gchop(rest[["code"]], rest[["grp2"]]))
+    })
+}
+```
+
+
+```{r}
+#| label: group_4
+group_4 <- function(x) {
+  
+  x <- getelem(x, "x4")
+  
+  if (empty(x)) return(x)
+  
+  x_chr <- map(x, \(x) sf_extract(x, "^[A-Z]")) |> compact()
+  
+  x_num <- map(x, \(x) sf_extract(x, "^[0-9]")) |> compact()
+  
+  c(
+    if (empty(x_chr)) NULL else group_4_chr(x_chr),
+    if (empty(x_num)) NULL else group_4_num(x_num)
+    )
+}
+
+sf_c(c("C751", "C970", "G020", "G040"), sf_sub(sf_extract(start_chr, "^[A]")[50:200], stop = 4)) |> 
   split_lengths() |> 
   remove_redundant() |>
   split_first() |>
   group_4()
 
-long_test2[nchar(long_test2) == 4] |> 
-  split_lengths() |> 
+long_test2[nchar(long_test2) == 4] |>
+  split_lengths() |>
   remove_redundant() |>
   split_first() |>
   group_4()
 
-random_hcpcs() |> 
+random_hcpcs(50) |> 
   split_lengths() |> 
   remove_redundant() |>
   split_first() |>
   group_4()
 ```
+
+
 
 ## Group 5
 
