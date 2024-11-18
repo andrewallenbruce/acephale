@@ -246,6 +246,8 @@ random_hcpcs(50) |>
   view()
 ```
 
+<hr>
+
 {{< pagebreak >}}
 
 # Process Groups
@@ -570,6 +572,7 @@ random_hcpcs(50) |>
 
 ::: 
 
+<hr>
 
 {{< pagebreak >}}
 
@@ -641,7 +644,7 @@ reduce_runs <- function(x) {
 #| label: red1
 red1 <- function(x) {
   
-  x <- getelem(x, "g1")[[1]]
+  x <- getelem(x, "g1")
   
   if (empty(x)) 
     return(character(0))
@@ -685,10 +688,10 @@ c(LETTERS[1:5], 0:9) |>
   red1()
 
 
-list(g1 = list(c(0:9, LETTERS))) |> 
+list(g1 = c(0:9, LETTERS)) |> 
   red1()
 
-list(g1 = list(c(LETTERS[1:5], 0:9))) |> 
+list(g1 = c(LETTERS[1:5], 0:9)) |> 
   red1()
 ```
 
@@ -714,14 +717,11 @@ red2 <- function(x) {
 
   multi <- sf_nchar(parts) > 1
   nobrk <- sf_ndetect(parts[multi], "\\[|\\]")
-  
-  parts[multi] <- if (any(nobrk)) map_chr(parts[multi], bracket) else parts[multi]
 
-  # if (any(nobrk)) {
-  #   parts[multi] <- map_chr(parts[multi], bracket)
-  # }
+  if (any(nobrk)) parts[multi] <- map_chr(parts[multi], bracket)
   
   smush(parts)
+  
   })
 }
 
@@ -762,7 +762,7 @@ red3 <- function(x) {
         delist()
       
       multi <- sf_nchar(parts) > 1
-      nobrk <- !sf_detect(parts[multi], "\\[|\\]")
+      nobrk <- sf_ndetect(parts[multi], "\\[|\\]")
       
       if (any(nobrk)) parts[multi] <- map_chr(parts[multi], bracket)
       
@@ -802,13 +802,12 @@ red4 <- function(x) {
         delist()
       
       multi <- sf_nchar(parts) > 1
-      nobrk <- !sf_detect(parts[multi], "\\[|\\]")
+      nobrk <- sf_ndetect(parts[multi], "\\[|\\]")
       
-      if (any(nobrk)) {
-        parts[multi] <- map_chr(parts[multi], bracket)
-      }
+      if (any(nobrk)) parts[multi] <- map_chr(parts[multi], bracket)
       
       smush(parts)
+      
     })
   })
 }
@@ -846,9 +845,8 @@ red5 <- function(x) {
       multi <- sf_nchar(parts) > 1
       nobrk <- sf_ndetect(parts[multi], "\\[|\\]")
       
-      if (any(nobrk)) {
-        parts[multi] <- map_chr(parts[multi], bracket)
-      }
+      if (any(nobrk)) parts[multi] <- map_chr(parts[multi], bracket)
+      
       smush(parts)
     })
   })
@@ -886,6 +884,8 @@ long_test2 |>
 ```
 
 ::: 
+
+<hr>
 
 {{< pagebreak >}}
 
@@ -985,24 +985,18 @@ recombine4 <- function(x) {
     return(character(0))
   
   c(
-    if (empty(x[vlen(x) == 1])) 
-      character(0) 
-    else 
-      sf_convert(str_glue("{list_c(x[vlen(x) == 1])}")),
+    if (empty(x[vlen(x) == 1])) character(0) else sf_convert(str_glue("{list_c(x[vlen(x) == 1])}")),
     
-    if (empty(x[vlen(x) > 1])) 
-      character(0) 
-    else 
-      map(
-        x[vlen(x) > 1], function(x) {
+    if (empty(x[vlen(x) > 1])) character(0) else map(x[vlen(x) > 1], function(x) {
           
           front <- uniq(sf_sub(delist(x), start = 1, stop = 1))
+          
           back  <- sf_collapse(sf_remove(delist(x), str_glue("^[{front}]{{1}}")), collapse = "|")
+          
           sf_convert(str_glue("{front}({back})"))
-          }
-        )
+          })
     )
-  }
+}
 
 long_test2[sf_nchar(long_test2) == 4] |>
   split_lengths() |>
@@ -1033,24 +1027,19 @@ recombine5 <- function(x) {
     return(character(0))
   
   c(
-    if (empty(x[vlen(x) == 1])) 
-      character(0) 
-    else 
-      sf_convert(str_glue("{list_c(x[vlen(x) == 1])}")),
+    if (empty(x[vlen(x) == 1])) character(0) else sf_convert(str_glue("{list_c(x[vlen(x) == 1])}")),
     
-    if (empty(x[vlen(x) > 1])) 
-      character(0) 
-    else 
-      map(
-        x[vlen(x) > 1], function(x) {
+    if (empty(x[vlen(x) > 1])) character(0) else map(x[vlen(x) > 1], function(x) {
           
           front <- uniq(sf_sub(delist(x), start = 1, stop = 1))
+          
           back  <- sf_collapse(sf_remove(delist(x), str_glue("^[{front}]{{1}}")), collapse = "|")
+          
           sf_convert(str_glue("{front}({back})"))
-          }
-        )
+          
+          })
     )
-  }
+}
 
 long_test2[sf_nchar(long_test2) == 5] |>
   split_lengths() |>
@@ -1102,9 +1091,9 @@ random_hcpcs(50) |>
   recombine_groups()
 ```
 
-
 ::: 
 
+<hr>
 
 {{< pagebreak >}}
 
@@ -1178,6 +1167,7 @@ vctrs::vec_slice(
   )
 ```
 
+<hr>
 
 {{< pagebreak >}}
 
@@ -1203,6 +1193,7 @@ x <- hcpcs(input = random_hcpcs(50))
 x
 ```
 
+<hr>
 
 {{< pagebreak >}}
 
