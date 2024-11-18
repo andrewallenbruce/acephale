@@ -40,6 +40,9 @@ To build a composable, portable, and extensible healthcare claims rules engine. 
 
    - [queryBuilder](https://github.com/r-world-devs/queryBuilder)
    - [healthdb](https://github.com/KevinHzq/healthdb)
+   - [interface](https://github.com/dereckmezquita/interface)
+   - [dataverifyr](https://github.com/DavZim/dataverifyr)
+   - [cohortBuilder](https://github.com/r-world-devs/cohortBuilder)
 
 # Anatomy of a **Rule**
 
@@ -49,9 +52,8 @@ To build a composable, portable, and extensible healthcare claims rules engine. 
 #| eval: true
 #| message: false
 #| warning: false
-#| results: asis
 
-data.frame(
+data.table::data.table(
   Field = c(
     "@index", 
     "@identifier", 
@@ -69,10 +71,7 @@ data.frame(
     "Reason for Implementation", 
     "URLs, References, or Documentation", 
     "A <list> of Steps to Evaluate"
-  )) |> 
-  emphatic::hl(
-    'gray30', cols = Field) |>
-  knit_print.emphatic()
+  ))
 ```
 
 ```{r}
@@ -123,9 +122,8 @@ tab_options(column_labels.hidden = TRUE,
 #| eval: true
 #| message: false
 #| warning: false
-#| results: asis
 
-data.frame(
+data.table::data.table(
   Field = c(
     "@type", 
     "@order", 
@@ -158,9 +156,7 @@ data.frame(
     "Functional R code to call based on @operation selected", 
     
     "Message to report if final @terminator step is not met"
-  )) |> 
-  emphatic::hl('gray30', cols = Field) |>
-  knit_print.emphatic()
+  ))
 ```
 
 ```{r}

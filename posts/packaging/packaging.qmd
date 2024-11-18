@@ -121,12 +121,23 @@ usethis::use_testthat(parallel = TRUE)
 usethis::use_test("add-test")
 ```
 
+## Use {covr}
+
+```{r}
+#| label: use-covr
+#| eval: false
+usethis::use_coverage("codecov")
+usethis::use_github_action("test-coverage")
+```
+
+
 ## Create {pkgdown} site
 
 ```{r}
 #| label: use-pkgdown
 #| eval: false
 usethis::use_pkgdown_github_pages()
+usethis::use_vignette("getting-started", "Getting Started")
 ```
 
 Copy and paste into `_pkgdown.yml` file:
@@ -387,6 +398,20 @@ list_pins <- function(...) {
   pin_list(board)
 }
 ```
+
+{{< pagebreak >}}
+
+# Bump Package Version
+
+Run after committing changes:
+
+```{r}
+#| label: bump-version
+#| eval: false
+# <major>.<minor>.<patch>.<dev>
+usethis::use_version("patch")
+```
+
 
 {{< pagebreak >}}
 

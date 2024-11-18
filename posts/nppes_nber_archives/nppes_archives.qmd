@@ -26,6 +26,8 @@ knitr::opts_chunk$set(
 options(scipen = 999)
 
 library(tidyverse)
+library(data.table)
+library(collapse)
 library(fuimus)
 library(codex)
 library(nppez)
@@ -37,22 +39,60 @@ wk_2024_02_05 <- nppez:::get_pin("wk_20240205")
 
 # Week of January 1, 2024
 
+```{r}
+#| label: wk_2024_01_01
+wk_2024_01_01_base <- wk_2024_01_01$basic |> 
+  as.data.table() |> 
+  reframe(
+    npi,
+    entity = case_match(entity, "Ind" ~ "I", "Org" ~ "O", .default = entity),
+    prefix = str_remove_all(prefix, "\\."),
+    first_name = str_remove_all(first, "\\."),
+    middle_name = str_remove_all(middle, "\\."),
+    last_name = str_remove_all(last, "\\."),
+    suffix = str_remove_all(suffix, "\\."),
+    credential = str_remove_all(credential, "\\."),
+    gender,
+    last_update = updated,
+    cert_date = certified,
+    enum_date,
+    deact_date,
+    react_date,
+    sole_prop,
+    org_subpart = org_sub,
+    parent_org_lbn = str_remove_all(parent_org_lbn, "\\.|,"),
+    prov_org_lbn = str_remove_all(prov_org_lbn, "\\.|,"))
+```
+
+
 ## Deactivated
 
 Remove deactivated NPIs with no reactivation date
 
 ```{r}
 #| label: wk_2024_01_01_deact
-wk_2024_01_01_deact <- wk_2024_01_01$basic |> 
-  filter(!is.na(deact_date), is.na(react_date)) |> 
+wk_2024_01_01_deact <- wk_2024_01_01_base |> 
+  filter(not_na(deact_date), 
+         !not_na(react_date)) |> 
   remove_quiet()
 
 wk_2024_01_01_deact_npi <- sf_convert(uniq_narm(wk_2024_01_01_deact$npi))
 
 length(wk_2024_01_01_deact_npi)
 
-wk_2024_01_01_deact |> count(deact_date)
+wk_2024_01_01_deact |> fcount(deact_date)
 ```
+
+Deactivated NPIs with Reactivation date
+
+```{r}
+wk_2024_01_01_base |> 
+  as.data.table() |> 
+  filter(not_na(deact_date), 
+         not_na(react_date)) |> 
+  arrange(desc(deact_date))
+```
+
 
 ## Base
 
@@ -60,10 +100,18 @@ wk_2024_01_01_deact |> count(deact_date)
    - Split into **Individual** and **Organization**
 
 ```{r}
-#| label: wk_2024_01_01_basic
-wk_2024_01_01_basic <- filter(wk_2024_01_01$basic, !npi %in% wk_2024_01_01_deact_npi)
-wk_2024_01_01_ind <- filter(wk_2024_01_01_basic, entity == "Ind") |> remove_quiet()
-wk_2024_01_01_org <- filter(wk_2024_01_01_basic, entity == "Org") |> remove_quiet()
+#| label: wk_2024_01_01_ind_org
+wk_2024_01_01_ind <- wk_2024_01_01_base |> 
+  as.data.table() |> 
+  fsubset(npi %!in% wk_2024_01_01_deact_npi) |> 
+  fsubset(entity %in% "I") |> 
+  remove_quiet()
+
+wk_2024_01_01_org <- wk_2024_01_01_base |> 
+  as.data.table() |> 
+  fsubset(npi %!in% wk_2024_01_01_deact_npi) |> 
+  fsubset(entity %in% "O") |> 
+  remove_quiet()
 
 wk_2024_01_01_ind
 wk_2024_01_01_org
@@ -76,7 +124,8 @@ Filter out deactivated NPIs
 ```{r}
 #| label: wk_2024_01_01_address
 wk_2024_01_01_address <- wk_2024_01_01$address |> 
-  filter(!npi %in% wk_2024_01_01_deact_npi) |> 
+  as.data.table() |> 
+  fsubset(!npi %in% wk_2024_01_01_deact_npi) |> 
   select(
     npi,
     ends_with("address"),
@@ -103,8 +152,8 @@ exact <- wk_2024_01_01_address |>
     mail_fax == prac_fax
     ) |> 
   select(-starts_with("prac_")) |> 
-  mutate(type = "Both") |>
-  reframe(
+  fmutate(type = "Both") |>
+  fselect(
     npi,
     type,
     address = mail_address,
@@ -122,15 +171,15 @@ Match on all fields except fax
 #| label: wk_2024_01_01_address_fax
 fax <- wk_2024_01_01_address |>             
   filter(
-    !npi %in% exact$npi,        
-         mail_address == prac_address, 
-         mail_city == prac_city,
-         mail_state == prac_state,
-         mail_country == prac_country,
-         mail_zip == prac_zip,
-         mail_phone == prac_phone) |> 
-  reframe(
-    npi,
+    npi %!in% exact$npi,        
+    mail_address == prac_address, 
+    mail_city == prac_city,
+    mail_state == prac_state,
+    mail_country == prac_country,
+    mail_zip == prac_zip,
+    mail_phone == prac_phone) |> 
+  fcompute(
+    npi = npi,
     type = "Both",
     address = mail_address,
     city = mail_city,
@@ -139,10 +188,10 @@ fax <- wk_2024_01_01_address |>
     country = mail_country,
     phone = mail_phone,
     fax = case_when(
-      !is.na(mail_fax) & !is.na(prac_fax) & mail_fax == prac_fax ~ str_glue("M: {mail_fax}"),
-      !is.na(mail_fax) & !is.na(prac_fax) & mail_fax != prac_fax ~ str_glue("M: {mail_fax} | P: {prac_fax}"),
-      !is.na(mail_fax) & is.na(prac_fax) ~ str_glue("M: {mail_fax}"),
-      is.na(mail_fax) & !is.na(prac_fax) ~ str_glue("P: {prac_fax}"),
+      not_na(mail_fax) & not_na(prac_fax) & mail_fax == prac_fax ~ str_glue("M: {mail_fax}"),
+      not_na(mail_fax) & not_na(prac_fax) & mail_fax != prac_fax ~ str_glue("M: {mail_fax} | P: {prac_fax}"),
+      not_na(mail_fax) & !not_na(prac_fax) ~ str_glue("M: {mail_fax}"),
+      !not_na(mail_fax) & not_na(prac_fax) ~ str_glue("P: {prac_fax}"),
       .default = NA_character_))
 ```
 
@@ -151,35 +200,36 @@ Match on all fields except zip, phone, and fax
 ```{r}
 #| label: wk_2024_01_01_address_zipphonefax
 zipphonefax <- wk_2024_01_01_address |>             
-  filter(!npi %in% c(exact$npi, fax$npi),        
-         mail_address == prac_address,
-         mail_city == prac_city,
-         mail_state == prac_state,
-         mail_country == prac_country) |>
-  reframe(
-    npi,
+  filter(
+    npi %!in% c(exact$npi, fax$npi),        
+    mail_address == prac_address,
+    mail_city == prac_city,
+    mail_state == prac_state,
+    mail_country == prac_country) |>
+  fcompute(
+    npi = npi,
     type = "Both",
     address = mail_address,
     city = mail_city,
     state = mail_state,
     country = mail_country,
     zip = case_when(
-      !is.na(mail_zip) & !is.na(prac_zip) & mail_zip == prac_zip ~ str_glue("M: {mail_zip}"),
-      !is.na(mail_zip) & !is.na(prac_zip) & mail_zip != prac_zip ~ str_glue("M: {mail_zip} | P: {prac_zip}"),
-      !is.na(mail_zip) & is.na(prac_zip) ~ str_glue("M: {mail_zip}"),
-      is.na(mail_zip) & !is.na(prac_zip) ~ str_glue("P: {prac_zip}"),
+      not_na(mail_zip) & not_na(prac_zip) & mail_zip == prac_zip ~ str_glue("M: {mail_zip}"),
+      not_na(mail_zip) & not_na(prac_zip) & mail_zip != prac_zip ~ str_glue("M: {mail_zip} | P: {prac_zip}"),
+      not_na(mail_zip) & is.na(prac_zip) ~ str_glue("M: {mail_zip}"),
+      is.na(mail_zip) & not_na(prac_zip) ~ str_glue("P: {prac_zip}"),
       .default = NA_character_),
     phone = case_when(
-      !is.na(mail_phone) & !is.na(prac_phone) & mail_phone == prac_phone ~ str_glue("M: {mail_phone}"),
-      !is.na(mail_phone) & !is.na(prac_phone) & mail_phone != prac_phone ~ str_glue("M: {mail_phone} | P: {prac_phone}"),
-      !is.na(mail_phone) & is.na(prac_phone) ~ str_glue("M: {mail_phone}"),
-      is.na(mail_phone) & !is.na(prac_phone) ~ str_glue("P: {prac_phone}"),
+      not_na(mail_phone) & not_na(prac_phone) & mail_phone == prac_phone ~ str_glue("M: {mail_phone}"),
+      not_na(mail_phone) & not_na(prac_phone) & mail_phone != prac_phone ~ str_glue("M: {mail_phone} | P: {prac_phone}"),
+      not_na(mail_phone) & is.na(prac_phone) ~ str_glue("M: {mail_phone}"),
+      is.na(mail_phone) & not_na(prac_phone) ~ str_glue("P: {prac_phone}"),
       .default = NA_character_),
     fax = case_when(
-      !is.na(mail_fax) & !is.na(prac_fax) & mail_fax == prac_fax ~ str_glue("M: {mail_fax}"),
-      !is.na(mail_fax) & !is.na(prac_fax) & mail_fax != prac_fax ~ str_glue("M: {mail_fax} | P: {prac_fax}"),
-      !is.na(mail_fax) & is.na(prac_fax) ~ str_glue("M: {mail_fax}"),
-      is.na(mail_fax) & !is.na(prac_fax) ~ str_glue("P: {prac_fax}"),
+      not_na(mail_fax) & not_na(prac_fax) & mail_fax == prac_fax ~ str_glue("M: {mail_fax}"),
+      not_na(mail_fax) & not_na(prac_fax) & mail_fax != prac_fax ~ str_glue("M: {mail_fax} | P: {prac_fax}"),
+      not_na(mail_fax) & is.na(prac_fax) ~ str_glue("M: {mail_fax}"),
+      is.na(mail_fax) & not_na(prac_fax) ~ str_glue("P: {prac_fax}"),
       .default = NA_character_)
     )
 ```
@@ -189,7 +239,7 @@ Pivot remaining addresses
 ```{r}
 #| label: wk_2024_01_01_address_pivot
 pivot <- wk_2024_01_01_address |> 
-  filter(!npi %in% c(exact$npi, fax$npi, zipphonefax$npi)) |> 
+  filter(npi %!in% c(exact$npi, fax$npi, zipphonefax$npi)) |> 
   pivot_longer(
     -npi, 
     names_to = "type_part", 
@@ -199,22 +249,19 @@ pivot <- wk_2024_01_01_address |>
     type_part, 
     delim = "_", 
     names = c("type", "part")) |> 
-  pivot_wider(names_from = part, values_from = value)
+  pivot_wider(names_from = part, values_from = value) |> 
+  as.data.table()
 ```
 
 Combine all address matches
 
 ```{r}
 #| label: wk_2024_01_01_address_clean
-wk_2024_01_01_address_clean <- vctrs::vec_rbind(
-  exact, 
-  fax, 
-  zipphonefax, 
-  pivot) |> 
-  left_join(wk_2024_01_01_basic[c("npi", "entity")], by = join_by(npi))
+wk_2024_01_01_address_clean <- rbindlist(list(exact, fax, zipphonefax, pivot), use.names = TRUE, ignore.attr=TRUE) |> 
+  join(wk_2024_01_01_base[.c(npi, entity)], on = "npi")
 
-wk_2024_01_01_address_clean |> filter(entity == "Ind")
-wk_2024_01_01_address_clean |> filter(entity == "Org")
+wk_2024_01_01_address_clean |> fsubset(entity == "I")
+wk_2024_01_01_address_clean |> fsubset(entity == "O")
 ```
 
 ## Taxonomy
@@ -313,6 +360,11 @@ length(wk_2024_01_22_deact_npi)
 
 wk_2024_01_22_deact |> count(deact_date)
 ```
+
+```{r}
+wk_2024_01_01_basic |> filter(npi %in% wk_2024_01_22_deact_npi)
+```
+
 
 ## Base
 
