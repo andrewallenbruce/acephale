@@ -245,14 +245,16 @@ random_hcpcs() |>
 
 ## Group 4
 
-### Starts with Number
-
 ```{r}
-#| label: group_4_num
-group_4_num <- function(x) {
-  
+#| label: group_4_old
+#| message: true
+old_group_4 <- function(x) {
+  x <- getelem(x, "x4")
+
+  if (empty(x))
+    return(x)
+
   map(x, function(x) {
-    
     idx <- data.table(
       code = x,
       grp1 = sf_sub(x, 1, 2),
@@ -261,130 +263,98 @@ group_4_num <- function(x) {
       a2 = take_at(x, 2),
       a3 = take_at(x, 3),
       a4 = take_at(x, 4),
-      i1 = groupid(take_at(x))) |>
+      i1 = groupid(take_at(x))
+    )
+    
+    message("Initial data frame")
+    print(idx)
+    
+    idx <- idx |>
       fgroup_by(a1) |>
       fmutate(i2 = groupid(a2)) |>
       fgroup_by(a1, a2) |>
-      fmutate(i3 = groupid(a3)) |> 
+      fmutate(i3 = groupid(a3)) |>
       fgroup_by(a1, a2, a3) |>
-      fmutate(i4 = groupid(a4)) |> 
+      fmutate(i4 = groupid(a4)) |>
       fungroup()
     
+    message("Grouped data frame")
+    print(idx)
+
     lone <- fcount(idx, i1, add = TRUE) |>
-        fsubset((i2 + i3 + i4 + N) == 4)
+      fmutate(`i2 + i3 + i4 + N` = i2 + i3 + i4 + N)
     
+    message("Lone Counted")
+    print(lone)
+    
+    lone <- lone |>
+      fsubset((i2 + i3 + i4 + N) == 4)
+    
+    message("Lone i2 + i3 + i4 + N == 4")
+    print(lone)
+
     last <- fsubset(idx, code %!in% lone[["code"]])
     
+    message("Last Filtered")
+    print(last)
+
     last <- join(
-        fcount(last, grp1, a3),
-        fcount(last, grp1, name = "G"), on = "grp1", verbose = 0) |>
-        fsubset(N == G) |>
-        join(last, on = c("grp1", "a3"), how = "right", verbose = 0) |>
-        fsubset(not_na(N))
+      fcount(last, grp1, a3),
+      fcount(last, grp1, name = "G"),
+      on = "grp1",
+      verbose = 0
+    ) |>
+      fsubset(N == G) |>
+      join(
+        last,
+        on = c("grp1", "a3"),
+        how = "right",
+        verbose = 0
+      )
     
-      rest <- fsubset(idx, code %!in% c(lone[["code"]], last[["code"]]))
-      
-      c(if (empty(lone)) NULL else list(lone[["code"]]),
-        if (empty(last)) NULL else gchop(last[["code"]], last[["grp1"]]),
-        if (empty(rest)) NULL else gchop(rest[["code"]], rest[["grp2"]]))
-    })
-}
-```
+    message("Last Joined")
+    print(last)
+    
+    last <- last |>
+      fsubset(not_na(N))
+    
+    message("Last Filtered")
+    print(last)
 
-### Starts with Character
+    rest <- fsubset(idx, code %!in% c(lone[["code"]], last[["code"]]))
+    
+    message("Rest Filtered")
+    print(rest)
 
-```{r}
-#| label: group_4_chr
-group_4_chr <- function(x) {
-  
-  map(x, function(x) {
-    
-    idx <- data.table(
-      code = x,
-      grp1 = sf_sub(x, 2, 3),
-      grp2 = sf_sub(x, 3, 4),
-      a1 = take_at(x),
-      a2 = take_at(x, 2),
-      a3 = take_at(x, 3),
-      a4 = take_at(x, 4),
-      i1 = groupid(take_at(x, 2))) |>
-      fgroup_by(a2) |>
-      fmutate(i2 = groupid(a3)) |>
-      fgroup_by(a2, a3) |>
-      fmutate(i3 = groupid(a4)) |> 
-      fungroup()
-    
-    lone <- fcount(idx, i1, add = TRUE) |>
-        fsubset((i2 + i3 + N) == 3)
-    
-    last <- fsubset(idx, code %!in% lone[["code"]])
-    
-    last <- join(
-        fcount(last, grp1, a3),
-        fcount(last, grp1, name = "G"), on = "grp1", verbose = 0) |>
-        fsubset(N == G) |>
-        join(last, on = c("grp1", "a3"), how = "right", verbose = 0) |>
-        fsubset(not_na(N))
-    
-      rest <- fsubset(idx, code %!in% c(lone[["code"]], last[["code"]]))
-      
-      c(if (empty(lone)) NULL else list(lone[["code"]]),
-        if (empty(last)) NULL else gchop(last[["code"]], last[["grp1"]]),
-        if (empty(rest)) NULL else gchop(rest[["code"]], rest[["grp2"]]))
-    })
-}
-```
-
-
-```{r}
-#| label: group_4
-group_4 <- function(x) {
-  
-  x <- getelem(x, "x4")
-  
-  if (empty(x)) return(x)
-  
-  x_chr <- map(x, \(x) sf_extract(x, "^[A-Z]")) |> compact()
-  
-  x_num <- map(x, \(x) sf_extract(x, "^[0-9]")) |> compact()
-  
-  c(
-    if (empty(x_chr)) NULL else group_4_chr(x_chr),
-    if (empty(x_num)) NULL else group_4_num(x_num)
+    c(
+      if (empty(lone))
+        NULL
+      else
+        list(lone[["code"]]),
+      if (empty(last))
+        NULL
+      else
+        gchop(last[["code"]], last[["grp1"]]),
+      if (empty(rest))
+        NULL
+      else
+        gchop(rest[["code"]], rest[["grp2"]])
     )
+  })
 }
 
-sf_c(c("C751", "C970", "G020", "G040"), sf_sub(sf_extract(start_chr, "^[A]")[50:200], stop = 4)) |> 
+c("C751", "C752", "C970", "G020", "G021", "G040") |> 
   split_lengths() |> 
   remove_redundant() |>
   split_first() |>
-  group_4()
-
-long_test2[nchar(long_test2) == 4] |>
-  split_lengths() |>
-  remove_redundant() |>
-  split_first() |>
-  group_4()
-
-random_hcpcs(50) |> 
-  split_lengths() |> 
-  remove_redundant() |>
-  split_first() |>
-  group_4()
+  old_group_4()
 ```
-
-
 
 ## Group 5
 
 ```{r}
-#| label: group_5
-group_5 <- function(x) {
-
-  x <- getelem(x, "x5")
-  
-  if (empty(x)) 
-    return(x)
+#| label: group_5_num
+group_5_num <- function(x) {
   
   map(x, function(x) {
     
@@ -428,6 +398,90 @@ group_5 <- function(x) {
         if (empty(rest)) NULL else gchop(rest[["code"]], rest[["grp3"]]))
     })
 }
+```
+
+```{r}
+#| label: group_5_chr
+group_5_chr <- function(x) {
+  
+  original <- x
+  
+  reversed <- map(original, \(x) paste0(take_at(x, 5), sf_remove(x, "[A-Z]$")))
+
+  map2(reversed, original, function(x, y) {
+    
+    idx <- data.table(
+      orig = y,
+      code = x,
+      grp1 = sf_sub(x, 1, 2),
+      grp2 = sf_sub(x, 1, 3),
+      grp3 = sf_sub(x, 1, 4),
+      a1 = take_at(x),
+      a2 = take_at(x, 2),
+      a3 = take_at(x, 3),
+      a4 = take_at(x, 4),
+      a5 = take_at(x, 5),
+      i1 = groupid(take_at(x))) |>
+      fgroup_by(a1) |> 
+      fmutate(i2 = groupid(a2)) |>
+      fgroup_by(a1, a2) |> 
+      fmutate(i3 = groupid(a3)) |>
+      fgroup_by(a1, a2, a3) |> 
+      fmutate(i4 = groupid(a4)) |>
+      fgroup_by(a1, a2, a3, a4) |> 
+      fmutate(i5 = groupid(a5)) |> 
+      fungroup()
+
+      lone <- fcount(idx, i1, add = TRUE) |> 
+        fsubset((i2 + i3 + i4 + i5 + N) == 5)
+      
+      last <- fsubset(idx, code %!in% lone[["code"]])
+      
+      last <- join(
+        fcount(last, grp2, a4),
+        fcount(last, grp2, name = "G"), on = "grp2", verbose = 0) |>
+        fsubset(N == G) |>
+        join(last, on = c("grp2", "a4"), how = "right", verbose = 0) |> 
+        fsubset(not_na(N))
+      
+      rest <- fsubset(idx, code %!in% c(lone[["code"]], last[["code"]]))
+
+    c(
+      if (empty(lone))
+        NULL
+      else
+        list(lone[["orig"]]),
+      if (empty(last))
+        NULL
+      else
+        gchop(last[["orig"]], last[["grp1"]]),
+      if (empty(rest))
+        NULL
+      else
+        gchop(rest[["orig"]], rest[["grp2"]])
+    )
+  })
+}
+```
+
+
+```{r}
+#| label: group_5
+group_5 <- function(x) {
+
+  x <- getelem(x, "x5")
+
+  if (empty(x)) return(x)
+  
+  chr <- map(x, \(x) sf_extract(x, "[A-Z]$")) |> compact()
+  num <- map(x, \(x) sf_extract(x, "[0-9]$")) |> compact()
+
+  c(
+    if (empty(chr)) NULL else group_5_chr(chr),
+    if (empty(num)) NULL else group_5_num(num)
+  )
+}
+
 
 c("C7510", "C9701", "G0200", "G0400") |> 
   split_lengths() |> 
@@ -475,7 +529,7 @@ long_test2 |>
   split_first() |> 
   process_groups()
 
-random_hcpcs() |> 
+random_hcpcs(50) |> 
   split_lengths() |> 
   remove_redundant() |>
   split_first() |>
@@ -564,21 +618,17 @@ red1 <- function(x) {
     reduce_runs()
   
   if (re == "[A-Z0-9]") 
-    return(paste0("^", re, "{5}$"))
+    return(str_glue("^{re}{{5}}"))
   
   post <- iif_else(
     sf_detect(
       re, 
       "\\[?[0-9]{1}"), 
     "[A-Z0-9]", 
-    "[0-9]"
-    )
+    "[0-9]")
   
-  paste0("^", re, post, "{4}")
+  str_glue("^{re}{post}{{4}}")
 }
-
-# return(glue::glue("^{re}{{5}}$"))
-# glue::glue("^{re}{post}{{4}}$")
 
 long_test2 |>
   split_lengths() |> 
@@ -631,12 +681,13 @@ red2 <- function(x) {
     delist()
 
   multi <- sf_nchar(parts) > 1
-  nobrk <- !sf_detect(parts[multi], "\\[|\\]")
+  nobrk <- sf_ndetect(parts[multi], "\\[|\\]")
   
-  parts[multi] <- iif_else(
-    any(nobrk), 
-    map_chr(parts[multi], bracket), 
-    parts[multi])
+  parts[multi] <- if (any(nobrk)) map_chr(parts[multi], bracket) else parts[multi]
+
+  # if (any(nobrk)) {
+  #   parts[multi] <- map_chr(parts[multi], bracket)
+  # }
   
   smush(parts)
   })
@@ -681,7 +732,8 @@ red3 <- function(x) {
       multi <- sf_nchar(parts) > 1
       nobrk <- !sf_detect(parts[multi], "\\[|\\]")
       
-      parts[multi] <- iif_else(any(nobrk), map_chr(parts[multi], bracket), parts[multi])
+      if (any(nobrk)) parts[multi] <- map_chr(parts[multi], bracket)
+      
       smush(parts)
     })
   })
@@ -720,7 +772,10 @@ red4 <- function(x) {
       multi <- sf_nchar(parts) > 1
       nobrk <- !sf_detect(parts[multi], "\\[|\\]")
       
-      parts[multi] <- iif_else(any(nobrk), map_chr(parts[multi], bracket), parts[multi])
+      if (any(nobrk)) {
+        parts[multi] <- map_chr(parts[multi], bracket)
+      }
+      
       smush(parts)
     })
   })
@@ -757,9 +812,11 @@ red5 <- function(x) {
         delist()
       
       multi <- sf_nchar(parts) > 1
-      nobrk <- !sf_detect(parts[multi], "\\[|\\]")
+      nobrk <- sf_ndetect(parts[multi], "\\[|\\]")
       
-      parts[multi] <- iif_else(any(nobrk), map_chr(parts[multi], bracket), parts[multi])
+      if (any(nobrk)) {
+        parts[multi] <- map_chr(parts[multi], bracket)
+      }
       smush(parts)
     })
   })
@@ -776,6 +833,7 @@ long_test2[sf_nchar(long_test2) == 5] |>
 ## reduce_groups
 
 ```{r}
+#| label: reduce_groups
 reduce_groups <- \(x) {
   
   list(
@@ -815,9 +873,9 @@ recombine2 <- function(x) {
   if (empty(x)) 
     return(character(0))
   
-  sf_convert(str_glue("^({sf_collapse(list_c(x), collapse = '|')})[A-Z0-9]{{3}}$"))
+  x <- sf_collapse(list_c(x), collapse = '|')
   
-  # paste0("^(", sf_collapse(list_c(x), collapse = "|"), ")[A-Z0-9]{3}$")
+  str_glue("^({x})[A-Z0-9]{{3}}$")
 }
 
 long_test2[sf_nchar(long_test2) == 2] |>
@@ -849,10 +907,7 @@ recombine3 <- function(x) {
     return(character(0))
   
   c(
-    if (empty(x[vlen(x) == 1])) 
-      character(0) 
-    else 
-      sf_convert(str_glue("{list_c(x[vlen(x) == 1])}")),
+    if (empty(x[vlen(x) == 1])) character(0) else str_glue("{list_c(x[vlen(x) == 1])}"),
     
     if (empty(x[vlen(x) > 1])) 
       character(0) 
@@ -861,12 +916,13 @@ recombine3 <- function(x) {
         x[vlen(x) > 1], function(x) {
           
           front <- uniq(sf_sub(delist(x), start = 1, stop = 1))
+          
           back  <- sf_collapse(sf_remove(delist(x), str_glue("^[{front}]{{1}}")), collapse = "|")
-          sf_convert(str_glue("{front}({back})"))
-          }
-        )
+          
+          str_glue("{front}({back})")
+          })
     )
-  }
+}
 
 long_test2[sf_nchar(long_test2) == 3] |>
   split_lengths() |>
