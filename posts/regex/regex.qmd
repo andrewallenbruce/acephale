@@ -89,6 +89,7 @@ source(here::here("posts/regex/scripts", "data.R"))
 
 ```{r}
 #| label: case_1
+#| eval: false
 list("L80", 
      c("L56", "L59"))
 
@@ -106,6 +107,7 @@ bench::mark(
 
 ```{r}
 #| label: case_2
+#| eval: false
 list(c("021", "022", "026", "027"), 
      c("032", "033"), 
      c("042", "044"), 
@@ -121,6 +123,8 @@ bench::mark(
 ### Case 3
 
 ```{r}
+#| label: case_3
+#| eval: false
 list(c("C75", "C97"),
      c("G02", "G04"))
 
@@ -139,6 +143,8 @@ bench::mark(
 ### Case 4
 
 ```{r}
+#| label: case_4
+#| eval: false
 list("0[2-5]", 
      "15", 
      "2[027]", 
@@ -175,17 +181,37 @@ bench::mark(
 # Preprocess Steps
 
 ```{r}
+#| label: split_first_new
+split_first <- function (x) {
+  
+  .c(x1, x2, x3, x4, x5) %=% x
+  
+  list(x1 = x1, 
+       x2 = split_1(x2), 
+       x3 = split_1(x3), 
+       x4 = split_1(x4), 
+       x5 = split_end(x5))
+}
+```
+
+
+```{r}
 #| label: print_method
 view <- \(x) {
   
-  idx  <- format(seq_along(x))
-  len  <- format(vlen(x), justify = "left")
-  tree <- format(unname(map_vec(x, paste0, collapse = " ")), justify = "none")
+  grp_name    <- format(seq_along(x))
+  grp_size    <- format(vlen(x), justify = "left")
+  
+  grp_mems <- modify_if(x, len_gt_one, function(x) {
+    paste0("[", map_chr(x, \(x) paste0(x, collapse = "-")), "]")
+  })
+  
+  grp_mems <- format(unname(map_vec(grp_mems, paste0, collapse = " ")), justify = "none")
   
   msg <- glue::glue(
-      "{idx}: ",
-      "{len}|",
-      "--[{if (empty(tree)) NULL else tree}]"
+      "{grp_name}: ",
+      "{grp_size}|",
+      "--{if (empty(grp_mems)) NULL else grp_mems}"
       )
   
   cli::cat_bullet(msg)
@@ -207,10 +233,16 @@ x |>
   remove_redundant() |>
   view()
 
-x |>
+x <- x |>
   split_lengths() |>
   remove_redundant() |>
   split_first() |> 
+  view()
+
+random_hcpcs(50) |> 
+  split_lengths() |> 
+  remove_redundant() |>
+  split_first() |>
   view()
 ```
 
