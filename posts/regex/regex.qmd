@@ -199,8 +199,8 @@ split_first <- function (x) {
 #| label: print_method
 view <- \(x) {
   
-  grp_name    <- format(seq_along(x))
-  grp_size    <- format(vlen(x), justify = "left")
+  grp_name <- format(seq_along(x))
+  grp_size <- format(vlen(x), justify = "left")
   
   grp_mems <- modify_if(x, len_gt_one, function(x) {
     paste0("[", map_chr(x, \(x) paste0(x, collapse = "-")), "]")
@@ -440,7 +440,13 @@ group_5_chr <- function(x) {
   
   original <- x
   
-  reversed <- map(original, \(x) paste0(take_at(x, 5), sf_remove(x, "[A-Z]$")))
+  reversed <- map(
+    original, 
+    \(x) paste0(
+      take_at(x, 5), 
+      sf_remove(x, "[A-Z]$")
+      )
+    )
 
   map2(reversed, original, function(x, y) {
     
@@ -515,7 +521,6 @@ group_5 <- function(x) {
     if (empty(num)) NULL else group_5_num(num)
   )
 }
-
 
 c("C7510", "C9701", "G0200", "G0400") |> 
   split_lengths() |> 
@@ -624,8 +629,7 @@ reduce_runs <- function(x) {
     map(smush) |>
     list_c()
   
-  if (all(xgroups == smush(c(0:9, "&", LETTERS)))) 
-    return("[A-Z0-9]")
+  if (all(xgroups == smush(c(0:9, "&", LETTERS)))) return("[A-Z0-9]")
   
   replacements <- join(
     dplyr::slice_min(groups, by = group, order_by = value) |> dplyr::rename(start = value),
@@ -716,9 +720,9 @@ red2 <- function(x) {
     delist()
 
   multi <- sf_nchar(parts) > 1
-  nobrk <- sf_ndetect(parts[multi], "\\[|\\]")
-
-  if (any(nobrk)) parts[multi] <- map_chr(parts[multi], bracket)
+  nobrk <- sf_ndetect(parts, "\\[|\\]")
+  
+  if (any(multi[nobrk])) parts[multi[nobrk]] <- map_chr(parts[multi[nobrk]], bracket)
   
   smush(parts)
   
@@ -762,9 +766,9 @@ red3 <- function(x) {
         delist()
       
       multi <- sf_nchar(parts) > 1
-      nobrk <- sf_ndetect(parts[multi], "\\[|\\]")
+      nobrk <- sf_ndetect(parts, "\\[|\\]")
       
-      if (any(nobrk)) parts[multi] <- map_chr(parts[multi], bracket)
+      if (any(multi[nobrk])) parts[multi[nobrk]] <- map_chr(parts[multi[nobrk]], bracket)
       
       smush(parts)
     })
@@ -787,8 +791,7 @@ red4 <- function(x) {
   
   x <- getelem(x, "g4")
   
-  if (empty(x)) 
-    return(character(0))
+  if (empty(x)) return(character(0))
   
   map(x, function(x) {
     
@@ -802,9 +805,9 @@ red4 <- function(x) {
         delist()
       
       multi <- sf_nchar(parts) > 1
-      nobrk <- sf_ndetect(parts[multi], "\\[|\\]")
+      nobrk <- sf_ndetect(parts, "\\[|\\]")
       
-      if (any(nobrk)) parts[multi] <- map_chr(parts[multi], bracket)
+      if (any(multi[nobrk])) parts[multi[nobrk]] <- map_chr(parts[multi[nobrk]], bracket)
       
       smush(parts)
       
@@ -828,8 +831,7 @@ red5 <- function(x) {
   
   x <- getelem(x, "g5")
   
-  if (empty(x)) 
-    return(character(0))
+  if (empty(x)) return(character(0))
   
   map(x, function(x) {
     
@@ -843,9 +845,9 @@ red5 <- function(x) {
         delist()
       
       multi <- sf_nchar(parts) > 1
-      nobrk <- sf_ndetect(parts[multi], "\\[|\\]")
+      nobrk <- sf_ndetect(parts, "\\[|\\]")
       
-      if (any(nobrk)) parts[multi] <- map_chr(parts[multi], bracket)
+      if (any(multi[nobrk])) parts[multi[nobrk]] <- map_chr(parts[multi[nobrk]], bracket)
       
       smush(parts)
     })
@@ -902,8 +904,7 @@ recombine2 <- function(x) {
   
   x <- getelem(x, "g2")
   
-  if (empty(x)) 
-    return(character(0))
+  if (empty(x)) return(character(0))
   
   x <- sf_collapse(list_c(x), collapse = '|')
   
@@ -935,17 +936,12 @@ recombine3 <- function(x) {
   
   x <- getelem(x, "g3")
   
-  if (empty(x)) 
-    return(character(0))
+  if (empty(x)) return(character(0))
   
   c(
-    if (empty(x[vlen(x) == 1])) character(0) else str_glue("{list_c(x[vlen(x) == 1])}"),
+    if (empty(x[vlen(x) == 1])) NULL else str_glue("{list_c(x[vlen(x) == 1])}"),
     
-    if (empty(x[vlen(x) > 1])) 
-      character(0) 
-    else 
-      map(
-        x[vlen(x) > 1], function(x) {
+    if (empty(x[vlen(x) > 1])) NULL else map(x[vlen(x) > 1], function(x) {
           
           front <- uniq(sf_sub(delist(x), start = 1, stop = 1))
           
@@ -981,19 +977,18 @@ recombine4 <- function(x) {
   
   x <- getelem(x, "g4")
   
-  if (empty(x)) 
-    return(character(0))
+  if (empty(x)) return(character(0))
   
   c(
-    if (empty(x[vlen(x) == 1])) character(0) else sf_convert(str_glue("{list_c(x[vlen(x) == 1])}")),
+    if (empty(x[vlen(x) == 1])) NULL else str_glue("{list_c(x[vlen(x) == 1])}"),
     
-    if (empty(x[vlen(x) > 1])) character(0) else map(x[vlen(x) > 1], function(x) {
+    if (empty(x[vlen(x) > 1])) NULL else map(x[vlen(x) > 1], function(x) {
           
           front <- uniq(sf_sub(delist(x), start = 1, stop = 1))
           
           back  <- sf_collapse(sf_remove(delist(x), str_glue("^[{front}]{{1}}")), collapse = "|")
           
-          sf_convert(str_glue("{front}({back})"))
+          str_glue("{front}({back})")
           })
     )
 }
@@ -1023,19 +1018,18 @@ recombine5 <- function(x) {
   
   x <- getelem(x, "g5")
   
-  if (empty(x)) 
-    return(character(0))
+  if (empty(x)) return(character(0))
   
   c(
-    if (empty(x[vlen(x) == 1])) character(0) else sf_convert(str_glue("{list_c(x[vlen(x) == 1])}")),
+    if (empty(x[vlen(x) == 1])) NULL else str_glue("{list_c(x[vlen(x) == 1])}"),
     
-    if (empty(x[vlen(x) > 1])) character(0) else map(x[vlen(x) > 1], function(x) {
+    if (empty(x[vlen(x) > 1])) NULL else map(x[vlen(x) > 1], function(x) {
           
           front <- uniq(sf_sub(delist(x), start = 1, stop = 1))
           
           back  <- sf_collapse(sf_remove(delist(x), str_glue("^[{front}]{{1}}")), collapse = "|")
           
-          sf_convert(str_glue("{front}({back})"))
+          str_glue("{front}({back})")
           
           })
     )
