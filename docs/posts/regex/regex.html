@@ -340,22 +340,22 @@ Good Examples
 <span>  <span class="fu">split_lengths</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">view</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>• 1:  2|--[5] [G]
-• 2:  9|--[28] [29] [31] [43] [51] [60] [A7] [E1] [J1]
-• 3: 10|--[033] [278] [310] [441] [874] [903] [905] [D23] [J15] [J76]
-• 4: 10|--[2802] [3325] [7353] [7883] [8833] [8836] [A750] [C913] [L541] [M133]
-• 5: 10|--[0465T] [15757] [63101] [82820] [87076] [93247] [G0461] [H0008] [Q4244] [T2046]</code></pre>
+<pre><code>• 1:  3|--[6] [E] [H]
+• 2:  9|--[03] [29] [42] [43] [69] [81] [92] [G9] [J0]
+• 3: 10|--[116] [206] [253] [432] [813] [869] [970] [G03] [K07] [L43]
+• 4: 10|--[1008] [2761] [3879] [5411] [7219] [9058] [C753] [G044] [J198] [L690]
+• 5: 10|--[44110] [51840] [78268] [80081] [C1898] [E0900] [E1580] [G9194] [J1741] [K0043]</code></pre>
 </div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">x</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">split_lengths</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">remove_redundant</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">view</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>• 1: 2|--[5] [G]
-• 2: 8|--[28] [29] [31] [43] [60] [A7] [E1] [J1]
-• 3: 8|--[033] [278] [441] [874] [903] [905] [D23] [J76]
-• 4: 8|--[3325] [7353] [7883] [8833] [8836] [C913] [L541] [M133]
-• 5: 9|--[0465T] [15757] [63101] [82820] [87076] [93247] [H0008] [Q4244] [T2046]</code></pre>
+<pre><code>• 1:  3|--[6] [E] [H]
+• 2:  8|--[03] [29] [42] [43] [81] [92] [G9] [J0]
+• 3:  8|--[116] [206] [253] [869] [970] [G03] [K07] [L43]
+• 4: 10|--[1008] [2761] [3879] [5411] [7219] [9058] [C753] [G044] [J198] [L690]
+• 5:  7|--[44110] [51840] [78268] [80081] [C1898] [J1741] [K0043]</code></pre>
 </div>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">x</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">split_lengths</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -363,11 +363,11 @@ Good Examples
 <span>  <span class="fu">split_first</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">view</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>• 1: 2|--[5] [G]
-• 2: 7|--[28-29] [31] [43] [60] [A7] [E1] [J1]
-• 3: 7|--[033] [278] [441] [874] [903-905] [D23] [J76]
-• 4: 6|--[3325] [7353-7883] [8833-8836] [C913] [L541] [M133]
-• 5: 8|--[15757] [63101] [82820-87076] [93247] [H0008] [Q4244] [T2046] [0465T]</code></pre>
+<pre><code>• 1:  3|--[6] [E] [H]
+• 2:  7|--[03] [29] [42-43] [81] [92] [G9] [J0]
+• 3:  7|--[116] [206-253] [869] [970] [G03] [K07] [L43]
+• 4: 10|--[1008] [2761] [3879] [5411] [7219] [9058] [C753] [G044] [J198] [L690]
+• 5:  7|--[44110] [51840] [78268] [80081] [C1898] [J1741] [K0043]</code></pre>
 </div>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">random_hcpcs</span><span class="op">(</span><span class="fl">50</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">split_lengths</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -375,11 +375,11 @@ Good Examples
 <span>  <span class="fu">split_first</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">view</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>• 1:  3|--[1] [F] [P]
-• 2: 18|--[01-02-05-07] [23-26] [30-33-35] [41] [54] [63-64-67] [78] [92-96-99] [A0-A4-A6] [C9] [E0-E1] [G8-G9] [J1-J2-J7-J9] [L1] [M1] [Q9] [S0-S8] [V5]
-• 3: 15|--[049-084] [229-250-273-274-284-286] [310-315-328-385] [438-449-473-495] [508-526] [615] [768] [902-957-975] [A70] [C17-C26] [G04-G21-G40] [J08-J35] [L86] [Q40] [S90]
-• 4: 12|--[0404-0640] [2536-2902-2987] [3250-3723] [4287-4331-4755-4815-4855] [5172-5663] [6052-6226-6942] [7733] [8121-8273-8408-8634-8641-8707-8824] [9502] [G601] [L578] [S934]
-• 5: 15|--[00848] [24346-27027] [31825-34842-36838] [50393-58120-58553] [81330-81407-81551-86022-86645] [90952-95863-95911] [A7507] [G0320] [H0007-H0027] [J0208] [L2020-L6650] [T2039] [V2320] [4051F] [0659T]</code></pre>
+<pre><code>• 1:  1|--2
+• 2: 16|--[00-01-04-06] [31-33-35-36] [43] [50-52] [63] [76-77] [81-82-83] [95-96-97] [A2-A7-A9] [C1-C9] [E0] [G0-G9] [J0-J7-J9] [M1] [P9] [S4-S8-S9]
+• 3: 14|--[031-071] [424-462-475] [515-571-589] [610] [802-869-874] [925-926-932-944] [G22-G86-G89] [H20] [J24-J32] [K00] [L04-L06-L20-L59-L66-L70] [P20] [Q40-Q41] [S20-S51]
+• 4: 13|--[0550-0882] [3296] [4954] [5470-5985] [6476-6790-6972] [7054-7320-7448] [8533-8817] [9201] [A439-A625] [E126] [J106-J130] [L841] [T100]
+• 5: 15|--[19330] [37243] [42650] [57452] [61552-66711-68135-69620] [74175] [91132-92235-94726] [A4222-A6208] [G4005-G8866] [M0100] [Q4293] [S3854] [3051F-3056F-3060F] [0555T-0585T] [0230U]</code></pre>
 </div>
 </div>
 <hr>
@@ -538,47 +538,30 @@ Good Examples
 <div class="cell-output cell-output-stdout">
 <pre><code>[[1]]
 [[1]][[1]]
-[1] "013"
+[1] "770"
 
 
 [[2]]
 [[2]][[1]]
-[1] "284"
+[1] "841"
+
+[[2]][[2]]
+[1] "883"
 
 
 [[3]]
 [[3]][[1]]
-[1] "357"
+[1] "A55"
 
 
 [[4]]
 [[4]][[1]]
-[1] "586"
+[1] "E26"
 
 
 [[5]]
 [[5]][[1]]
-[1] "644"
-
-
-[[6]]
-[[6]][[1]]
-[1] "A20"
-
-
-[[7]]
-[[7]][[1]]
-[1] "E10"
-
-
-[[8]]
-[[8]][[1]]
-[1] "G94"
-
-
-[[9]]
-[[9]][[1]]
-[1] "V52"</code></pre>
+[1] "S10"</code></pre>
 </div>
 </div>
 </div>
@@ -1027,202 +1010,10 @@ Good Examples
 <span>  <span class="fu">split_lengths</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">remove_redundant</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">split_first</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">group_5</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[[1]]
-[[1]][[1]]
-[1] "0506T" "0507T"
-
-[[1]][[2]]
- [1] "0214T" "0215T" "0217T" "0218T" "0219T" "0220T" "0221T" "0222T" "0263T"
-[10] "0265T" "0266T" "0269T" "0274T" "0275T"
-
-[[1]][[3]]
-[1] "0329T" "0330T"
-
-[[1]][[4]]
-[1] "0422T" "0444T" "0445T"
-
-
-[[2]]
-[[2]][[1]]
-[1] "15777"
-
-
-[[3]]
-[[3]][[1]]
-[1] "20939"
-
-[[3]][[2]]
-[1] "27197" "27198"
-
-[[3]][[3]]
-[1] "22510" "22511" "22512" "22513" "22514" "22515"
-
-[[3]][[4]]
-[1] "22526" "22527"
-
-
-[[4]]
-[[4]][[1]]
-[1] "30801" "30802"
-
-[[4]][[2]]
-[1] "31231"
-
-[[4]][[3]]
-[1] "32673"
-
-[[4]][[4]]
-[1] "34713" "34714" "34715" "34716" "34717"
-
-[[4]][[5]]
-[1] "35572"
-
-[[4]][[6]]
-[1] "36221"
-
-[[4]][[7]]
-[1] "34812"
-
-[[4]][[8]]
-[1] "34820"
-
-[[4]][[9]]
-[1] "34833" "34834"
-
-
-[[5]]
-[[5]][[1]]
-[1] "50300"
-
-[[5]][[2]]
-[1] "50540"
-
-[[5]][[3]]
-[1] "55300"
-
-[[5]][[4]]
-[1] "58575"
-
-[[5]][[5]]
-[1] "58600" "58605"
-
-[[5]][[6]]
-[1] "58800" "58805"
-
-[[5]][[7]]
-[1] "54420"
-
-[[5]][[8]]
-[1] "54430"
-
-[[5]][[9]]
-[1] "55200"
-
-[[5]][[10]]
-[1] "55250"
-
-[[5]][[11]]
-[1] "58700"
-
-[[5]][[12]]
-[1] "58720"
-
-[[5]][[13]]
-[1] "58900"
-
-[[5]][[14]]
-[1] "58920" "58925"
-
-[[5]][[15]]
-[1] "58940" "58943"
-
-
-[[6]]
-[[6]][[1]]
-[1] "61000" "61001"
-
-[[6]][[2]]
-[1] "61253"
-
-[[6]][[3]]
-[1] "64634" "64636"
-
-[[6]][[4]]
-[1] "63035"
-
-[[6]][[5]]
-[1] "63043" "63044" "63045" "63046" "63047" "63048"
-
-[[6]][[6]]
-[1] "64421"
-
-[[6]][[7]]
-[1] "64480" "64484"
-
-[[6]][[8]]
-[1] "64491" "64492" "64494" "64495"
-
-
-[[7]]
-[[7]][[1]]
-[1] "76514"
-
-
-[[8]]
-[[8]][[1]]
-[1] "95870"
-
-[[8]][[2]]
-[1] "92025"
-
-[[8]][[3]]
-[1] "92081" "92082" "92083"
-
-[[8]][[4]]
-[1] "92132" "92133" "92134"
-
-[[8]][[5]]
-[1] "92145"
-
-[[8]][[6]]
-[1] "92201" "92202"
-
-[[8]][[7]]
-[1] "92227" "92228" "92229"
-
-[[8]][[8]]
-[1] "92235"
-
-[[8]][[9]]
-[1] "92240" "92242"
-
-
-[[9]]
-[[9]][[1]]
-[1] "C7501" "C7502" "C7504" "C7505"
-
-[[9]][[2]]
-[1] "C9771"
-
-
-[[10]]
-[[10]][[1]]
-[1] "E0675"
-
-
-[[11]]
-[[11]][[1]]
-[1] "G0279"
-
-[[11]][[2]]
-[1] "G0412" "G0413" "G0414" "G0415"
-
-
-[[12]]
-[[12]][[1]]
-[1] "S2342"</code></pre>
+<span>  <span class="fu">group_5</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">nametree</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in nametree(group_5(split_first(remove_redundant(split_lengths(long_test2[nchar(long_test2) == : could not find function "nametree"</code></pre>
 </div>
 <div class="sourceCode" id="cb61"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">random_hcpcs</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">split_lengths</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -1232,43 +1023,43 @@ Good Examples
 <div class="cell-output cell-output-stdout">
 <pre><code>[[1]]
 [[1]][[1]]
-[1] "27475"
+[1] "30124"
 
 
 [[2]]
 [[2]][[1]]
-[1] "63250"
+[1] "41105"
 
 
 [[3]]
 [[3]][[1]]
-[1] "75982"
+[1] "54522"
 
 
 [[4]]
 [[4]][[1]]
-[1] "92002"
+[1] "E0691"
+
+[[4]][[2]]
+[1] "E2226"
 
 
 [[5]]
 [[5]][[1]]
-[1] "G0306"
+[1] "L8047"
 
 [[5]][[2]]
-[1] "G9150"
-
-[[5]][[3]]
-[1] "G9780"
+[1] "L8507"
 
 
 [[6]]
 [[6]][[1]]
-[1] "J8700"
+[1] "M1241"
 
 
 [[7]]
 [[7]][[1]]
-[1] "L3001"</code></pre>
+[1] "Q4238"</code></pre>
 </div>
 </div>
 </div>
@@ -1281,8 +1072,7 @@ Good Examples
 <span>    g2 <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">x2</span>,</span>
 <span>    g3 <span class="op">=</span> <span class="fu">group_3</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>,</span>
 <span>    g4 <span class="op">=</span> <span class="fu">group_4</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>,</span>
-<span>    g5 <span class="op">=</span> <span class="fu">group_5</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
+<span>    g5 <span class="op">=</span> <span class="fu">group_5</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="va">hcpcs_tests</span> <span class="op">|&gt;</span></span>
@@ -1342,367 +1132,344 @@ list()</code></pre>
 <span>  <span class="fu">process_groups</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>$g1
-[1] "0" "4" "8" "B"
+[1] "0" "E" "M" "Q" "R"
 
 $g2
 $g2[[1]]
-[1] "21" "27" "28"
+[1] "10" "11" "12" "15"
 
 $g2[[2]]
-[1] "34" "36"
+[1] "21" "25" "26" "28"
 
 $g2[[3]]
-[1] "50" "53"
+[1] "35"
 
 $g2[[4]]
-[1] "60" "61" "63" "68" "69"
+[1] "42" "43"
 
 $g2[[5]]
-[1] "70" "75" "78"
+[1] "61" "63" "64"
 
 $g2[[6]]
-[1] "95"
+[1] "81" "86"
 
 $g2[[7]]
-[1] "A4" "A9"
+[1] "92" "93" "99"
 
 $g2[[8]]
-[1] "C1"
+[1] "A6" "A9"
 
 $g2[[9]]
-[1] "E1" "E2"
+[1] "C9"
 
 $g2[[10]]
-[1] "G0" "G9"
+[1] "G2" "G9"
 
 $g2[[11]]
-[1] "J1" "J7"
+[1] "J2" "J7" "J9"
 
 $g2[[12]]
-[1] "L2" "L4" "L6"
+[1] "K0"
 
 $g2[[13]]
-[1] "Q4"
+[1] "L0" "L1" "L3" "L6"
 
 $g2[[14]]
 [1] "S0"
+
+$g2[[15]]
+[1] "T2"
 
 
 $g3
 $g3[[1]]
 $g3[[1]][[1]]
-[1] "156"
+[1] "209"
 
 
 $g3[[2]]
 $g3[[2]][[1]]
-[1] "228"
+[1] "305"
 
 $g3[[2]][[2]]
-[1] "263"
+[1] "336"
 
 $g3[[2]][[3]]
-[1] "297"
+[1] "362"
+
+$g3[[2]][[4]]
+[1] "387"
 
 
 $g3[[3]]
 $g3[[3]][[1]]
-[1] "333"
-
-$g3[[3]][[2]]
-[1] "372"
+[1] "405"
 
 
 $g3[[4]]
 $g3[[4]][[1]]
-[1] "573" "574"
+[1] "543"
+
+$g3[[4]][[2]]
+[1] "556" "558"
 
 
 $g3[[5]]
 $g3[[5]][[1]]
-[1] "644"
-
-$g3[[5]][[2]]
-[1] "658"
+[1] "652"
 
 
 $g3[[6]]
 $g3[[6]][[1]]
-[1] "774"
+[1] "721"
 
 
 $g3[[7]]
 $g3[[7]][[1]]
-[1] "923"
+[1] "800"
 
 $g3[[7]][[2]]
-[1] "969"
+[1] "821" "824"
+
+$g3[[7]][[3]]
+[1] "852"
 
 
 $g3[[8]]
 $g3[[8]][[1]]
-[1] "A65"
+[1] "906" "909"
+
+$g3[[8]][[2]]
+[1] "969"
 
 
 $g3[[9]]
 $g3[[9]][[1]]
-[1] "C91"
+[1] "G81" "G86"
 
 
 $g3[[10]]
 $g3[[10]][[1]]
-[1] "G21"
-
-$g3[[10]][[2]]
-[1] "G40"
-
-$g3[[10]][[3]]
-[1] "G60"
-
-$g3[[10]][[4]]
-[1] "G85" "G88"
+[1] "J07"
 
 
 $g3[[11]]
 $g3[[11]][[1]]
-[1] "J08"
-
-$g3[[11]][[2]]
-[1] "J93"
+[1] "S93"
 
 
 $g3[[12]]
 $g3[[12]][[1]]
-[1] "L17"
-
-$g3[[12]][[2]]
-[1] "L33"
+[1] "T10"
 
 
 $g3[[13]]
 $g3[[13]][[1]]
-[1] "M10" "M13"
-
-
-$g3[[14]]
-$g3[[14]][[1]]
-[1] "P90"
-
-
-$g3[[15]]
-$g3[[15]][[1]]
-[1] "S94"
-
-
-$g3[[16]]
-$g3[[16]][[1]]
-[1] "T10"
-
-
-$g3[[17]]
-$g3[[17]][[1]]
-[1] "V23"
+[1] "V25"
 
 
 
 $g4
 $g4[[1]]
 $g4[[1]][[1]]
-[1] "1130"
+[1] "2437"
 
 $g4[[1]][[2]]
-[1] "1587"
+[1] "2700"
 
 
 $g4[[2]]
 $g4[[2]][[1]]
-[1] "2220"
+[1] "3265"
 
 $g4[[2]][[2]]
-[1] "2656"
+[1] "3340"
+
+$g4[[2]][[3]]
+[1] "3471"
+
+$g4[[2]][[4]]
+[1] "3719"
+
+$g4[[2]][[5]]
+[1] "3920"
 
 
 $g4[[3]]
 $g4[[3]][[1]]
-[1] "3163"
+[1] "4620"
+
+$g4[[3]][[2]]
+[1] "4510"
+
+$g4[[3]][[3]]
+[1] "4530"
 
 
 $g4[[4]]
 $g4[[4]][[1]]
-[1] "5234"
-
-$g4[[4]][[2]]
-[1] "5680"
-
-$g4[[4]][[3]]
-[1] "5710"
+[1] "5344"
 
 
 $g4[[5]]
 $g4[[5]][[1]]
-[1] "6214"
-
-$g4[[5]][[2]]
-[1] "6477"
+[1] "6790"
 
 
 $g4[[6]]
 $g4[[6]][[1]]
-[1] "7214"
-
-$g4[[6]][[2]]
-[1] "7440"
-
-$g4[[6]][[3]]
-[1] "7698"
+[1] "7707"
 
 
 $g4[[7]]
 $g4[[7]][[1]]
-[1] "9130"
+[1] "8033"
 
 $g4[[7]][[2]]
-[1] "9610"
+[1] "8554"
+
+$g4[[7]][[3]]
+[1] "8561"
 
 
 $g4[[8]]
 $g4[[8]][[1]]
-[1] "D728"
+[1] "9086"
+
+$g4[[8]][[2]]
+[1] "9637"
 
 
 $g4[[9]]
 $g4[[9]][[1]]
-[1] "E049"
-
-$g4[[9]][[2]]
-[1] "E060"
-
-$g4[[9]][[3]]
-[1] "E073"
+[1] "A200"
 
 
 $g4[[10]]
 $g4[[10]][[1]]
-[1] "G100" "G101"
+[1] "J160"
 
 
 $g4[[11]]
 $g4[[11]][[1]]
-[1] "L127"
+[1] "S103"
 
+$g4[[11]][[2]]
+[1] "S220"
 
-$g4[[12]]
-$g4[[12]][[1]]
-[1] "M030"
-
-
-$g4[[13]]
-$g4[[13]][[1]]
-[1] "S516"
+$g4[[11]][[3]]
+[1] "S512"
 
 
 
 $g5
 $g5[[1]]
 $g5[[1]][[1]]
-[1] "3551F"
+[1] "27394"
 
 
 $g5[[2]]
 $g5[[2]][[1]]
-[1] "15572"
+[1] "33277"
 
 $g5[[2]][[2]]
-[1] "19367"
+[1] "37184"
 
 
 $g5[[3]]
 $g5[[3]][[1]]
-[1] "20560"
+[1] "41870"
 
 $g5[[3]][[2]]
-[1] "22522"
-
-$g5[[3]][[3]]
-[1] "22552"
+[1] "49521"
 
 
 $g5[[4]]
 $g5[[4]][[1]]
-[1] "33249"
-
-$g5[[4]][[2]]
-[1] "38794"
+[1] "53410"
 
 
 $g5[[5]]
 $g5[[5]][[1]]
-[1] "55000"
+[1] "65760"
+
+$g5[[5]][[2]]
+[1] "68745"
 
 
 $g5[[6]]
 $g5[[6]][[1]]
-[1] "64788"
+[1] "71130"
 
 $g5[[6]][[2]]
-[1] "65125"
+[1] "73530"
 
 $g5[[6]][[3]]
-[1] "66150"
+[1] "73615"
 
 
 $g5[[7]]
 $g5[[7]][[1]]
-[1] "92562"
+[1] "80100"
 
 $g5[[7]][[2]]
-[1] "93588"
+[1] "82370"
 
 $g5[[7]][[3]]
-[1] "93656"
+[1] "87641"
+
+$g5[[7]][[4]]
+[1] "88173"
 
 
 $g5[[8]]
 $g5[[8]][[1]]
-[1] "A6261"
+[1] "A0190"
+
+$g5[[8]][[2]]
+[1] "A4433"
+
+$g5[[8]][[3]]
+[1] "A7520"
 
 
 $g5[[9]]
 $g5[[9]][[1]]
-[1] "E0485"
-
-$g5[[9]][[2]]
-[1] "E0681"
+[1] "B4178"
 
 
 $g5[[10]]
 $g5[[10]][[1]]
-[1] "G2201"
-
-$g5[[10]][[2]]
-[1] "G8491"
-
-$g5[[10]][[3]]
-[1] "G2014"
-
-$g5[[10]][[4]]
-[1] "G2081"
+[1] "G0317"
 
 
 $g5[[11]]
 $g5[[11]][[1]]
-[1] "K0744"
-
-$g5[[11]][[2]]
-[1] "K0877"
+[1] "H0025"
 
 
 $g5[[12]]
 $g5[[12]][[1]]
-[1] "L5628"
+[1] "J0887"
 
 $g5[[12]][[2]]
-[1] "L8046"</code></pre>
+[1] "J1428"
+
+
+$g5[[13]]
+$g5[[13]][[1]]
+[1] "K1034"
+
+
+$g5[[14]]
+$g5[[14]][[1]]
+[1] "L5650"
+
+$g5[[14]][[2]]
+[1] "L5845"
+
+$g5[[14]][[3]]
+[1] "L5855"</code></pre>
 </div>
 </div>
 </div>
@@ -3065,7 +2832,8 @@ $g5[[12]][[1]]
 <span>  </span>
 <span>  <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">sf_collapse</span><span class="op">(</span><span class="fu">list_c</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, collapse <span class="op">=</span> <span class="st">'|'</span><span class="op">)</span></span>
 <span>  </span>
-<span>  <span class="fu">str_glue</span><span class="op">(</span><span class="st">"^({x})[A-Z0-9]{{3}}$"</span><span class="op">)</span></span>
+<span>  <span class="co"># str_glue("^({x})[A-Z0-9]{{3}}$")</span></span>
+<span>  <span class="fu">str_glue</span><span class="op">(</span><span class="st">"({x})"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="va">long_test2</span><span class="op">[</span><span class="fu">sf_nchar</span><span class="op">(</span><span class="va">long_test2</span><span class="op">)</span> <span class="op">==</span> <span class="fl">2</span><span class="op">]</span> <span class="op">|&gt;</span></span>
@@ -3076,7 +2844,7 @@ $g5[[12]][[1]]
 <span>  <span class="fu">reduce_groups</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">recombine2</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>^(0[2-5]|15|2[027]|3[0-24-6]|5[0458]|6[134]|76|9[25]|C[79]|E0|G0|S2)[A-Z0-9]{3}$</code></pre>
+<pre><code>(0[2-5]|15|2[027]|3[0-24-6]|5[0458]|6[134]|76|9[25]|C[79]|E0|G0|S2)</code></pre>
 </div>
 <div class="sourceCode" id="cb94"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">random_hcpcs</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">split_lengths</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -3086,7 +2854,7 @@ $g5[[12]][[1]]
 <span>  <span class="fu">reduce_groups</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">recombine2</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>^(09|3[37]|84|A4|C9|G0|J2)[A-Z0-9]{3}$</code></pre>
+<pre><code>(00|2[79]|3[256]|77|83|A6)</code></pre>
 </div>
 </div>
 </div>
@@ -3098,18 +2866,28 @@ $g5[[12]][[1]]
 <span>  </span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="fu">empty</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
 <span>  </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span></span>
-<span>    <span class="kw">if</span> <span class="op">(</span><span class="fu">empty</span><span class="op">(</span><span class="va">x</span><span class="op">[</span><span class="fu">vlen</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">==</span> <span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="cn">NULL</span> <span class="kw">else</span> <span class="fu">str_glue</span><span class="op">(</span><span class="st">"{list_c(x[vlen(x) == 1])}"</span><span class="op">)</span>,</span>
-<span>    </span>
-<span>    <span class="kw">if</span> <span class="op">(</span><span class="fu">empty</span><span class="op">(</span><span class="va">x</span><span class="op">[</span><span class="fu">vlen</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="cn">NULL</span> <span class="kw">else</span> <span class="fu">map</span><span class="op">(</span><span class="va">x</span><span class="op">[</span><span class="fu">vlen</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">]</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="fu">empty</span><span class="op">(</span><span class="va">x</span><span class="op">[</span><span class="fu">vlen</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">==</span> <span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> </span>
+<span>      <span class="cn">NULL</span> </span>
+<span>    <span class="kw">else</span> </span>
+<span>      <span class="fu">parentheses</span><span class="op">(</span></span>
+<span>        <span class="fu">sf_collapse</span><span class="op">(</span></span>
+<span>          <span class="fu">delist</span><span class="op">(</span><span class="va">x</span><span class="op">[</span><span class="fu">vlen</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">==</span> <span class="fl">1</span><span class="op">]</span><span class="op">)</span>, collapse <span class="op">=</span> <span class="st">"|"</span><span class="op">)</span></span>
+<span>        <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>      <span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://glue.tidyverse.org/reference/as_glue.html">as_glue</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="fu">empty</span><span class="op">(</span><span class="va">x</span><span class="op">[</span><span class="fu">vlen</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> </span>
+<span>      <span class="cn">NULL</span> </span>
+<span>    <span class="kw">else</span> </span>
+<span>      <span class="fu">map</span><span class="op">(</span><span class="va">x</span><span class="op">[</span><span class="fu">vlen</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">]</span>, </span>
+<span>          <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
 <span>          </span>
-<span>          <span class="va">front</span> <span class="op">&lt;-</span> <span class="fu">uniq</span><span class="op">(</span><span class="fu">sf_sub</span><span class="op">(</span><span class="fu">delist</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, start <span class="op">=</span> <span class="fl">1</span>, stop <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span>            <span class="va">front</span> <span class="op">&lt;-</span> <span class="fu">uniq</span><span class="op">(</span><span class="fu">sf_sub</span><span class="op">(</span><span class="fu">delist</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, start <span class="op">=</span> <span class="fl">1</span>, stop <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span>          </span>
-<span>          <span class="va">back</span>  <span class="op">&lt;-</span> <span class="fu">sf_collapse</span><span class="op">(</span><span class="fu">sf_remove</span><span class="op">(</span><span class="fu">delist</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="fu">str_glue</span><span class="op">(</span><span class="st">"^[{front}]{{1}}"</span><span class="op">)</span><span class="op">)</span>, collapse <span class="op">=</span> <span class="st">"|"</span><span class="op">)</span></span>
+<span>            <span class="va">back</span>  <span class="op">&lt;-</span> <span class="fu">sf_collapse</span><span class="op">(</span><span class="fu">sf_remove</span><span class="op">(</span><span class="fu">delist</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="fu">str_glue</span><span class="op">(</span><span class="st">"^[{front}]{{1}}"</span><span class="op">)</span><span class="op">)</span>, collapse <span class="op">=</span> <span class="st">"|"</span><span class="op">)</span></span>
 <span>          </span>
-<span>          <span class="fu">str_glue</span><span class="op">(</span><span class="st">"{front}({back})"</span><span class="op">)</span></span>
-<span>          <span class="op">}</span><span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
+<span>            <span class="fu">str_glue</span><span class="op">(</span><span class="st">"{front}({back})"</span><span class="op">)</span></span>
+<span>          </span>
+<span>            <span class="op">}</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">list_flatten</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="va">long_test2</span><span class="op">[</span><span class="fu">sf_nchar</span><span class="op">(</span><span class="va">long_test2</span><span class="op">)</span> <span class="op">==</span> <span class="fl">3</span><span class="op">]</span> <span class="op">|&gt;</span></span>
@@ -3121,39 +2899,27 @@ $g5[[12]][[1]]
 <span>  <span class="fu">recombine3</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[[1]]
-[1] "157"
+(157|765|E06|G0[24]|S23)
 
 [[2]]
-[1] "765"
-
-[[3]]
-[1] "E06"
-
-[[4]]
-[1] "G0[24]"
-
-[[5]]
-[1] "S23"
-
-[[6]]
 0(2[1267]|3[23]|4[24]|50)
 
-[[7]]
+[[3]]
 2(09|25|71)
 
-[[8]]
+[[4]]
 3(08|12|26|4[78]|55|62)
 
-[[9]]
+[[5]]
 5(0[35]|44|5[23]|8[5-9])
 
-[[10]]
+[[6]]
 6(1[02]|30|4[46])
 
-[[11]]
+[[7]]
 9(2[0-2]|58)
 
-[[12]]
+[[8]]
 C(75|97)</code></pre>
 </div>
 <div class="sourceCode" id="cb98"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">random_hcpcs</span><span class="op">(</span><span class="fl">50</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -3165,37 +2931,28 @@ C(75|97)</code></pre>
 <span>  <span class="fu">recombine3</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[[1]]
-[1] "721"
+(115|408|510|69[09]|A46|V20)
 
 [[2]]
-[1] "A4[26]"
+0(01|16|2[35]|52)
 
 [[3]]
-[1] "C26"
+3(71|83)
 
 [[4]]
-[1] "G20"
+8(44|54)
 
 [[5]]
-[1] "J29"
+9(09|3[25]|65)
 
 [[6]]
-[1] "L58"
+C(18|9[37])
 
 [[7]]
-[1] "P90"
+J(1[47]|76)
 
 [[8]]
-2(44|50|97)
-
-[[9]]
-3(45|76|85)
-
-[[10]]
-4(32|77)
-
-[[11]]
-6(36|9[79])</code></pre>
+L(06|41|50)</code></pre>
 </div>
 </div>
 </div>
@@ -3207,18 +2964,28 @@ C(75|97)</code></pre>
 <span>  </span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="fu">empty</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
 <span>  </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span></span>
-<span>    <span class="kw">if</span> <span class="op">(</span><span class="fu">empty</span><span class="op">(</span><span class="va">x</span><span class="op">[</span><span class="fu">vlen</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">==</span> <span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="cn">NULL</span> <span class="kw">else</span> <span class="fu">str_glue</span><span class="op">(</span><span class="st">"{list_c(x[vlen(x) == 1])}"</span><span class="op">)</span>,</span>
-<span>    </span>
-<span>    <span class="kw">if</span> <span class="op">(</span><span class="fu">empty</span><span class="op">(</span><span class="va">x</span><span class="op">[</span><span class="fu">vlen</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="cn">NULL</span> <span class="kw">else</span> <span class="fu">map</span><span class="op">(</span><span class="va">x</span><span class="op">[</span><span class="fu">vlen</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">]</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="fu">empty</span><span class="op">(</span><span class="va">x</span><span class="op">[</span><span class="fu">vlen</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">==</span> <span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> </span>
+<span>      <span class="cn">NULL</span> </span>
+<span>    <span class="kw">else</span> </span>
+<span>      <span class="fu">parentheses</span><span class="op">(</span></span>
+<span>        <span class="fu">sf_collapse</span><span class="op">(</span></span>
+<span>          <span class="fu">delist</span><span class="op">(</span><span class="va">x</span><span class="op">[</span><span class="fu">vlen</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">==</span> <span class="fl">1</span><span class="op">]</span><span class="op">)</span>, collapse <span class="op">=</span> <span class="st">"|"</span><span class="op">)</span></span>
+<span>        <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>      <span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://glue.tidyverse.org/reference/as_glue.html">as_glue</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="fu">empty</span><span class="op">(</span><span class="va">x</span><span class="op">[</span><span class="fu">vlen</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> </span>
+<span>      <span class="cn">NULL</span> </span>
+<span>    <span class="kw">else</span> </span>
+<span>      <span class="fu">map</span><span class="op">(</span><span class="va">x</span><span class="op">[</span><span class="fu">vlen</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">]</span>, </span>
+<span>          <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
 <span>          </span>
-<span>          <span class="va">front</span> <span class="op">&lt;-</span> <span class="fu">uniq</span><span class="op">(</span><span class="fu">sf_sub</span><span class="op">(</span><span class="fu">delist</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, start <span class="op">=</span> <span class="fl">1</span>, stop <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span>            <span class="va">front</span> <span class="op">&lt;-</span> <span class="fu">uniq</span><span class="op">(</span><span class="fu">sf_sub</span><span class="op">(</span><span class="fu">delist</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, start <span class="op">=</span> <span class="fl">1</span>, stop <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span>          </span>
-<span>          <span class="va">back</span>  <span class="op">&lt;-</span> <span class="fu">sf_collapse</span><span class="op">(</span><span class="fu">sf_remove</span><span class="op">(</span><span class="fu">delist</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="fu">str_glue</span><span class="op">(</span><span class="st">"^[{front}]{{1}}"</span><span class="op">)</span><span class="op">)</span>, collapse <span class="op">=</span> <span class="st">"|"</span><span class="op">)</span></span>
+<span>            <span class="va">back</span>  <span class="op">&lt;-</span> <span class="fu">sf_collapse</span><span class="op">(</span><span class="fu">sf_remove</span><span class="op">(</span><span class="fu">delist</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="fu">str_glue</span><span class="op">(</span><span class="st">"^[{front}]{{1}}"</span><span class="op">)</span><span class="op">)</span>, collapse <span class="op">=</span> <span class="st">"|"</span><span class="op">)</span></span>
 <span>          </span>
-<span>          <span class="fu">str_glue</span><span class="op">(</span><span class="st">"{front}({back})"</span><span class="op">)</span></span>
-<span>          <span class="op">}</span><span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
+<span>            <span class="fu">str_glue</span><span class="op">(</span><span class="st">"{front}({back})"</span><span class="op">)</span></span>
+<span>          </span>
+<span>            <span class="op">}</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">list_flatten</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="va">long_test2</span><span class="op">[</span><span class="fu">sf_nchar</span><span class="op">(</span><span class="va">long_test2</span><span class="op">)</span> <span class="op">==</span> <span class="fl">4</span><span class="op">]</span> <span class="op">|&gt;</span></span>
@@ -3230,39 +2997,30 @@ C(75|97)</code></pre>
 <span>  <span class="fu">recombine4</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[[1]]
-[1] "1577"
+(1577|7651|E067|S234)
 
 [[2]]
-[1] "7651"
-
-[[3]]
-[1] "E067"
-
-[[4]]
-[1] "S234"
-
-[[5]]
 0(50[67]|21[457-9]|22[0-2]|26[3569]|27[45]|329|330|422|44[45])
 
-[[6]]
+[[3]]
 2(093|25[12]|719)
 
-[[7]]
+[[4]]
 3(080|123|267|557|622|471|48[1-3])
 
-[[8]]
+[[5]]
 5(44[23]|030|054|52[05]|530|857|860|87[02]|880|89[024])
 
-[[9]]
+[[6]]
 6(30[34]|100|125|44[289]|463)
 
-[[10]]
+[[7]]
 9(587|20[28]|21[34]|22[02-4])
 
-[[11]]
+[[8]]
 C(750|977)
 
-[[12]]
+[[9]]
 G(027|041)</code></pre>
 </div>
 <div class="sourceCode" id="cb102"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">random_hcpcs</span><span class="op">(</span><span class="fl">50</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -3274,40 +3032,31 @@ G(027|041)</code></pre>
 <span>  <span class="fu">recombine4</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[[1]]
-[1] "3453"
+(8752|C752|D426|E236|M022|P960|Q999)
 
 [[2]]
-[1] "4330"
+0(505|745|378|393)
 
 [[3]]
-[1] "5900"
+2(650|875)
 
 [[4]]
-[1] "7810"
+5(589|828)
 
 [[5]]
-[1] "9479"
+7(356|649|729|776)
 
 [[6]]
-[1] "G101"
+9(260|328)
 
 [[7]]
-[1] "H001"
+A(042|658|435|458)
 
 [[8]]
-[1] "J921"
+G(208|005|039)
 
 [[9]]
-[1] "L04[58]"
-
-[[10]]
-2(512|735|648|650)
-
-[[11]]
-6(112|319|734|459|489)
-
-[[12]]
-8(133|308|692)</code></pre>
+L(236|572)</code></pre>
 </div>
 </div>
 </div>
@@ -3319,19 +3068,28 @@ G(027|041)</code></pre>
 <span>  </span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="fu">empty</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
 <span>  </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span></span>
-<span>    <span class="kw">if</span> <span class="op">(</span><span class="fu">empty</span><span class="op">(</span><span class="va">x</span><span class="op">[</span><span class="fu">vlen</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">==</span> <span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="cn">NULL</span> <span class="kw">else</span> <span class="fu">str_glue</span><span class="op">(</span><span class="st">"{list_c(x[vlen(x) == 1])}"</span><span class="op">)</span>,</span>
-<span>    </span>
-<span>    <span class="kw">if</span> <span class="op">(</span><span class="fu">empty</span><span class="op">(</span><span class="va">x</span><span class="op">[</span><span class="fu">vlen</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="cn">NULL</span> <span class="kw">else</span> <span class="fu">map</span><span class="op">(</span><span class="va">x</span><span class="op">[</span><span class="fu">vlen</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">]</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="fu">empty</span><span class="op">(</span><span class="va">x</span><span class="op">[</span><span class="fu">vlen</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">==</span> <span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> </span>
+<span>      <span class="cn">NULL</span> </span>
+<span>    <span class="kw">else</span> </span>
+<span>      <span class="fu">parentheses</span><span class="op">(</span></span>
+<span>        <span class="fu">sf_collapse</span><span class="op">(</span></span>
+<span>          <span class="fu">delist</span><span class="op">(</span><span class="va">x</span><span class="op">[</span><span class="fu">vlen</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">==</span> <span class="fl">1</span><span class="op">]</span><span class="op">)</span>, collapse <span class="op">=</span> <span class="st">"|"</span><span class="op">)</span></span>
+<span>        <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>      <span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://glue.tidyverse.org/reference/as_glue.html">as_glue</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="fu">empty</span><span class="op">(</span><span class="va">x</span><span class="op">[</span><span class="fu">vlen</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> </span>
+<span>      <span class="cn">NULL</span> </span>
+<span>    <span class="kw">else</span> </span>
+<span>      <span class="fu">map</span><span class="op">(</span><span class="va">x</span><span class="op">[</span><span class="fu">vlen</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">]</span>, </span>
+<span>          <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
 <span>          </span>
-<span>          <span class="va">front</span> <span class="op">&lt;-</span> <span class="fu">uniq</span><span class="op">(</span><span class="fu">sf_sub</span><span class="op">(</span><span class="fu">delist</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, start <span class="op">=</span> <span class="fl">1</span>, stop <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span>            <span class="va">front</span> <span class="op">&lt;-</span> <span class="fu">uniq</span><span class="op">(</span><span class="fu">sf_sub</span><span class="op">(</span><span class="fu">delist</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, start <span class="op">=</span> <span class="fl">1</span>, stop <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span>          </span>
-<span>          <span class="va">back</span>  <span class="op">&lt;-</span> <span class="fu">sf_collapse</span><span class="op">(</span><span class="fu">sf_remove</span><span class="op">(</span><span class="fu">delist</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="fu">str_glue</span><span class="op">(</span><span class="st">"^[{front}]{{1}}"</span><span class="op">)</span><span class="op">)</span>, collapse <span class="op">=</span> <span class="st">"|"</span><span class="op">)</span></span>
+<span>            <span class="va">back</span>  <span class="op">&lt;-</span> <span class="fu">sf_collapse</span><span class="op">(</span><span class="fu">sf_remove</span><span class="op">(</span><span class="fu">delist</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="fu">str_glue</span><span class="op">(</span><span class="st">"^[{front}]{{1}}"</span><span class="op">)</span><span class="op">)</span>, collapse <span class="op">=</span> <span class="st">"|"</span><span class="op">)</span></span>
 <span>          </span>
-<span>          <span class="fu">str_glue</span><span class="op">(</span><span class="st">"{front}({back})"</span><span class="op">)</span></span>
+<span>            <span class="fu">str_glue</span><span class="op">(</span><span class="st">"{front}({back})"</span><span class="op">)</span></span>
 <span>          </span>
-<span>          <span class="op">}</span><span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
+<span>            <span class="op">}</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">list_flatten</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="va">long_test2</span><span class="op">[</span><span class="fu">sf_nchar</span><span class="op">(</span><span class="va">long_test2</span><span class="op">)</span> <span class="op">==</span> <span class="fl">5</span><span class="op">]</span> <span class="op">|&gt;</span></span>
@@ -3343,39 +3101,30 @@ G(027|041)</code></pre>
 <span>  <span class="fu">recombine5</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[[1]]
-[1] "15777"
+(15777|76514|E0675|S2342)
 
 [[2]]
-[1] "76514"
-
-[[3]]
-[1] "E0675"
-
-[[4]]
-[1] "S2342"
-
-[[5]]
 0(50[67]T|2[1267][0-9]T|3[23][09]T|4[24][245]T)
 
-[[6]]
+[[3]]
 2(0939|719[78]|251[0-5]|252[67])
 
-[[7]]
+[[4]]
 3(080[12]|1231|2673|471[3-7]|5572|6221|4812|4820|483[34])
 
-[[8]]
+[[5]]
 5(0300|0540|5300|8575|860[05]|880[05]|4420|4430|5200|5250|8700|8720|8900|892[05]|894[03])
 
-[[9]]
+[[6]]
 6(100[01]|1253|463[46]|3035|304[3-8]|4421|448[04]|449[1245])
 
-[[10]]
+[[7]]
 9(5870|2025|208[1-3]|213[2-4]|2145|220[12]|222[7-9]|2235|224[02])
 
-[[11]]
+[[8]]
 C(750[1245]|9771)
 
-[[12]]
+[[9]]
 G(0279|041[2-5])</code></pre>
 </div>
 <div class="sourceCode" id="cb106"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">random_hcpcs</span><span class="op">(</span><span class="fl">50</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -3387,49 +3136,25 @@ G(0279|041[2-5])</code></pre>
 <span>  <span class="fu">recombine5</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[[1]]
-[1] "0519F"
+(0395U|01830|19101|24640|52260|74175|86409|D6055|G2095|Q5133|S4005|V2202)
 
 [[2]]
-[1] "4267F"
+3(5201|8211)
 
 [[3]]
-[1] "00474"
+4(3760|5335)
 
 [[4]]
-[1] "92260"
+6(1531|4421)
 
 [[5]]
-[1] "H0042"
+9(3644|5199)
 
 [[6]]
-[1] "J3243"
+J(0218|0740|1120|7626)
 
 [[7]]
-[1] "M1259"
-
-[[8]]
-[1] "Q4179"
-
-[[9]]
-1(2005|5131)
-
-[[10]]
-2(0979|3472)
-
-[[11]]
-3(2652|7238)
-
-[[12]]
-5(4437|5866)
-
-[[13]]
-6(2311|7961)
-
-[[14]]
-7(1555|7318)
-
-[[15]]
-8(1235|6008|6911|8108|8349|1003|1099)</code></pre>
+L(2035|8678|6629|6665)</code></pre>
 </div>
 </div>
 </div>
@@ -3478,147 +3203,78 @@ character(0)</code></pre>
 <span>  <span class="fu">recombine_groups</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>$v1
-^L[0-9]{4}
+^U49[A-Z0-9]{4}
 
 $v2
-^(0[13-6]|10|2[57]|3[346]|4[13]|54|6[3-57]|7[36]|8[47]|9[02359]|A[046]|C7|E2|G[09]|K0|Q4|S0|V2)[A-Z0-9]{3}$
+(0[0-245]|11|2[1358]|3[35]|54|6[24]|76|8[568]|A4|C[17]|D4|E2|G[09]|H2|J[02]|L8|M1|Q[45]|S[0159])
 
 $v3
 $v3[[1]]
-[1] "15[18]"
+(190|260|586|774|C97|G85|J16|K00|L12|S40)
 
 $v3[[2]]
-[1] "811"
+3(04|2[48])
 
 $v3[[3]]
-[1] "C9[37]"
+6(0[46]|30)
 
 $v3[[4]]
-[1] "G87"
+8(02|20|41|74|9[23])
 
 $v3[[5]]
-[1] "M10"
-
-$v3[[6]]
-2(33|61|82)
-
-$v3[[7]]
-3(04|15|77)
-
-$v3[[8]]
-4(25|94)
-
-$v3[[9]]
-5(06|58|73|89)
-
-$v3[[10]]
-6(13|69|99)
-
-$v3[[11]]
-7(10|75)
-
-$v3[[12]]
-9(40|71)
-
-$v3[[13]]
-J(0[12]|90)
-
-$v3[[14]]
-S(10|82)
+A(65|75)
 
 
 $v4
 $v4[[1]]
-[1] "0837"
+(3771|5068|D795|L253|T200|V221)
 
 $v4[[2]]
-[1] "4423"
+0(354|729)
 
 $v4[[3]]
-[1] "5752"
+2(252|434)
 
 $v4[[4]]
-[1] "7762"
+6(327|577|964)
 
 $v4[[5]]
-[1] "9104"
+8(017|127|262)
 
 $v4[[6]]
-[1] "D399"
+A(506|927|953)
 
 $v4[[7]]
-[1] "E095"
+E(029|057|073)
 
 $v4[[8]]
-[1] "G854"
+G(202|600)
 
 $v4[[9]]
-[1] "J088"
-
-$v4[[10]]
-[1] "S206"
-
-$v4[[11]]
-1(200|315)
-
-$v4[[12]]
-2(093|284|103|136|840|854)
-
-$v4[[13]]
-3(089|162|509)
-
-$v4[[14]]
-8(014|690)
-
-$v4[[15]]
-M(117|129)
+J(903|119|156)
 
 
 $v5
 $v5[[1]]
-[1] "4248F"
+(0349U|15860|31755|E1240|H0027|L5722|Q0518)
 
 $v5[[2]]
-[1] "0[08][59][38]T"
+2(6357|7501)
 
 $v5[[3]]
-[1] "00322"
+5(0957|6637|8353)
 
 $v5[[4]]
-[1] "31780"
+7(5557|7263)
 
 $v5[[5]]
-[1] "77600"
+8(1283|1381|1400|3008|3887|4238|7077)
 
 $v5[[6]]
-[1] "P9032"
+G(2061|8842)
 
 $v5[[7]]
-[1] "Q5127"
-
-$v5[[8]]
-[1] "T2025"
-
-$v5[[9]]
-4(2961|626[12])
-
-$v5[[10]]
-6(0240|9105)
-
-$v5[[11]]
-8(0154|0333|1541|2595|3050|3550|6382|6671|6711|6891)
-
-$v5[[12]]
-E(1160|1221)
-
-$v5[[13]]
-G(6007|8917)
-
-$v5[[14]]
-J(2597|9201)
-
-$v5[[15]]
-S(3005|4988|9124)</code></pre>
+J(1720|7050|7501|9300)</code></pre>
 </div>
 </div>
 </div>
@@ -3680,414 +3336,423 @@ S(3005|4988|9124)</code></pre>
 <span><span class="va">x</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;hcpcs&gt;
- @ input           : chr [1:201] "4" "97" "29" "G9" "M1" "27" "84" "10" "G9" "64" "84" ...
+ @ input           : chr [1:201] "C" "01" "J0" "S8" "L5" "G4" "B4" "J0" "99" "Q9" "87" ...
  @ split_length    :List of 5
- .. $ x1: chr "4"
- .. $ x2: chr [1:39] "03" "06" "10" "11" ...
- .. $ x3: chr [1:47] "007" "026" "063" "084" ...
- .. $ x4: chr [1:49] "0389" "1019" "1144" "2095" ...
- .. $ x5: chr [1:50] "0167U" "0216T" "0238U" "0366U" ...
+ .. $ x1: chr "C"
+ .. $ x2: chr [1:36] "00" "01" "05" "08" ...
+ .. $ x3: chr [1:49] "001" "036" "039" "158" ...
+ .. $ x4: chr [1:50] "0072" "0084" "0240" "0330" ...
+ .. $ x5: chr [1:50] "0014U" "00560" "0063U" "0068U" ...
  @ remove_redundant:List of 5
- .. $ x1: chr "4"
- .. $ x2: chr [1:38] "03" "06" "10" "11" ...
- .. $ x3: chr [1:31] "007" "026" "084" "086" ...
- .. $ x4: chr [1:21] "2563" "2806" "2851" "3054" ...
- .. $ x5: chr [1:30] "0167U" "0216T" "0238U" "0427U" ...
+ .. $ x1: chr "C"
+ .. $ x2: chr [1:34] "00" "01" "05" "08" ...
+ .. $ x3: chr [1:32] "036" "039" "212" "233" ...
+ .. $ x4: chr [1:31] "0240" "0330" "1172" "2317" ...
+ .. $ x5: chr [1:26] "0248U" "11311" "19368" "25825" ...
  @ split_first     :List of 5
- .. $ x1: chr "4"
- .. $ x2:List of 19
- ..  ..$ : chr [1:2] "03" "06"
- ..  ..$ : chr [1:2] "10" "11"
- ..  ..$ : chr [1:5] "20" "21" "23" "27" ...
- ..  ..$ : chr "31"
- ..  ..$ : chr "50"
- ..  ..$ : chr "64"
- ..  ..$ : chr [1:2] "72" "78"
- ..  ..$ : chr [1:5] "80" "84" "86" "87" ...
- ..  ..$ : chr [1:5] "92" "93" "95" "97" ...
- ..  ..$ : chr "A9"
- ..  ..$ : chr "C9"
- ..  ..$ : chr "D6"
- ..  ..$ : chr "E0"
- ..  ..$ : chr [1:3] "G0" "G8" "G9"
- ..  ..$ : chr [1:2] "J7" "J9"
- ..  ..$ : chr "K0"
- ..  ..$ : chr [1:2] "L1" "L5"
+ .. $ x1: chr "C"
+ .. $ x2:List of 18
+ ..  ..$ : chr [1:4] "00" "01" "05" "08"
+ ..  ..$ : chr "15"
+ ..  ..$ : chr [1:2] "24" "29"
+ ..  ..$ : chr "32"
+ ..  ..$ : chr "40"
+ ..  ..$ : chr [1:2] "66" "67"
+ ..  ..$ : chr "77"
+ ..  ..$ : chr [1:3] "80" "83" "87"
+ ..  ..$ : chr [1:3] "92" "93" "99"
+ ..  ..$ : chr "A0"
+ ..  ..$ : chr "B4"
+ ..  ..$ : chr [1:5] "G2" "G4" "G6" "G8" ...
+ ..  ..$ : chr [1:3] "J0" "J7" "J9"
+ ..  ..$ : chr "L5"
  ..  ..$ : chr "M1"
- ..  ..$ : chr "Q4"
- .. $ x3:List of 15
- ..  ..$ : chr [1:4] "007" "026" "084" "086"
- ..  ..$ : chr "157"
- ..  ..$ : chr [1:2] "325" "382"
- ..  ..$ : chr [1:2] "544" "582"
- ..  ..$ : chr [1:4] "602" "613" "616" "658"
- ..  ..$ : chr "758"
- ..  ..$ : chr [1:2] "813" "814"
- ..  ..$ : chr "909"
- ..  ..$ : chr "E26"
- ..  ..$ : chr "G40"
- ..  ..$ : chr [1:2] "J27" "J86"
- ..  ..$ : chr "L86"
- ..  ..$ : chr [1:2] "Q04" "Q51"
- ..  ..$ : chr [1:5] "S10" "S24" "S38" "S40" ...
+ ..  ..$ : chr [1:2] "Q4" "Q9"
+ ..  ..$ : chr "S8"
+ ..  ..$ : chr "V2"
+ .. $ x3:List of 13
+ ..  ..$ : chr [1:2] "036" "039"
+ ..  ..$ : chr [1:4] "212" "233" "271" "277"
+ ..  ..$ : chr [1:4] "334" "350" "364" "382"
+ ..  ..$ : chr [1:3] "432" "458" "494"
+ ..  ..$ : chr [1:4] "615" "648" "657" "693"
+ ..  ..$ : chr [1:2] "703" "722"
+ ..  ..$ : chr "867"
+ ..  ..$ : chr [1:3] "909" "913" "961"
+ ..  ..$ : chr "E25"
+ ..  ..$ : chr [1:2] "G00" "G04"
+ ..  ..$ : chr [1:3] "L01" "L18" "L86"
+ ..  ..$ : chr "Q01"
  ..  ..$ : chr [1:2] "T20" "T45"
- .. $ x4:List of 11
- ..  ..$ : chr [1:3] "2563" "2806" "2851"
- ..  ..$ : chr [1:3] "3054" "3332" "3651"
- ..  ..$ : chr [1:2] "5264" "5894"
- ..  ..$ : chr "6994"
- ..  ..$ : chr [1:2] "8116" "8573"
- ..  ..$ : chr [1:2] "9038" "9637"
- ..  ..$ : chr [1:2] "A012" "A655"
- ..  ..$ : chr "C188"
- ..  ..$ : chr [1:3] "J017" "J194" "J295"
- ..  ..$ : chr "L063"
- ..  ..$ : chr "V521"
- .. $ x5:List of 15
- ..  ..$ : chr "25025"
- ..  ..$ : chr [1:3] "33020" "36470" "38308"
- ..  ..$ : chr "60520"
- ..  ..$ : chr [1:3] "70240" "70546" "75774"
- ..  ..$ : chr "85013"
- ..  ..$ : chr "A6209"
- ..  ..$ : chr "D0180"
- ..  ..$ : chr "G6042"
- ..  ..$ : chr [1:2] "H2015" "H2034"
- ..  ..$ : chr [1:3] "J0151" "J0571" "J0898"
- ..  ..$ : chr [1:3] "L2335" "L3675" "L6025"
- ..  ..$ : chr [1:2] "S5550" "S9213"
- ..  ..$ : chr "1500F"
- ..  ..$ : chr [1:4] "0216T" "0510T" "0516T" "0570T"
- ..  ..$ : chr [1:3] "0167U" "0238U" "0427U"
+ .. $ x4:List of 15
+ ..  ..$ : chr [1:2] "0240" "0330"
+ ..  ..$ : chr "1172"
+ ..  ..$ : chr [1:4] "2317" "2349" "2704" "2840"
+ ..  ..$ : chr [1:3] "3301" "3357" "3719"
+ ..  ..$ : chr [1:2] "4159" "4200"
+ ..  ..$ : chr [1:2] "5235" "5345"
+ ..  ..$ : chr "6362"
+ ..  ..$ : chr [1:4] "8127" "8147" "8235" "8250"
+ ..  ..$ : chr [1:2] "9501" "9654"
+ ..  ..$ : chr [1:3] "E073" "E098" "E262"
+ ..  ..$ : chr [1:2] "G052" "G100"
+ ..  ..$ : chr [1:2] "J218" "J254"
+ ..  ..$ : chr "P902"
+ ..  ..$ : chr "Q510"
+ ..  ..$ : chr "S404"
+ .. $ x5:List of 14
+ ..  ..$ : chr [1:2] "11311" "19368"
+ ..  ..$ : chr [1:4] "25825" "26070" "26841" "28043"
+ ..  ..$ : chr [1:2] "33365" "36600"
+ ..  ..$ : chr "43499"
+ ..  ..$ : chr [1:3] "52327" "53260" "54235"
+ ..  ..$ : chr "88016"
+ ..  ..$ : chr [1:3] "90632" "90736" "97810"
+ ..  ..$ : chr [1:2] "A6588" "A6590"
+ ..  ..$ : chr [1:3] "E0439" "E0880" "E2633"
+ ..  ..$ : chr "L2510"
+ ..  ..$ : chr "S5498"
+ ..  ..$ : chr "3118F"
+ ..  ..$ : chr "4134F"
+ ..  ..$ : chr "0248U"
  @ process_groups  :List of 5
- .. $ g1: chr "4"
- .. $ g2:List of 19
- ..  ..$ : chr [1:2] "03" "06"
- ..  ..$ : chr [1:2] "10" "11"
- ..  ..$ : chr [1:5] "20" "21" "23" "27" ...
- ..  ..$ : chr "31"
- ..  ..$ : chr "50"
- ..  ..$ : chr "64"
- ..  ..$ : chr [1:2] "72" "78"
- ..  ..$ : chr [1:5] "80" "84" "86" "87" ...
- ..  ..$ : chr [1:5] "92" "93" "95" "97" ...
- ..  ..$ : chr "A9"
- ..  ..$ : chr "C9"
- ..  ..$ : chr "D6"
- ..  ..$ : chr "E0"
- ..  ..$ : chr [1:3] "G0" "G8" "G9"
- ..  ..$ : chr [1:2] "J7" "J9"
- ..  ..$ : chr "K0"
- ..  ..$ : chr [1:2] "L1" "L5"
+ .. $ g1: chr "C"
+ .. $ g2:List of 18
+ ..  ..$ : chr [1:4] "00" "01" "05" "08"
+ ..  ..$ : chr "15"
+ ..  ..$ : chr [1:2] "24" "29"
+ ..  ..$ : chr "32"
+ ..  ..$ : chr "40"
+ ..  ..$ : chr [1:2] "66" "67"
+ ..  ..$ : chr "77"
+ ..  ..$ : chr [1:3] "80" "83" "87"
+ ..  ..$ : chr [1:3] "92" "93" "99"
+ ..  ..$ : chr "A0"
+ ..  ..$ : chr "B4"
+ ..  ..$ : chr [1:5] "G2" "G4" "G6" "G8" ...
+ ..  ..$ : chr [1:3] "J0" "J7" "J9"
+ ..  ..$ : chr "L5"
  ..  ..$ : chr "M1"
- ..  ..$ : chr "Q4"
- .. $ g3:List of 15
- ..  ..$ :List of 3
- ..  .. ..$ : chr "007"
- ..  .. ..$ : chr "026"
- ..  .. ..$ : chr [1:2] "084" "086"
+ ..  ..$ : chr [1:2] "Q4" "Q9"
+ ..  ..$ : chr "S8"
+ ..  ..$ : chr "V2"
+ .. $ g3:List of 13
  ..  ..$ :List of 1
- ..  .. ..$ : chr "157"
- ..  ..$ :List of 2
- ..  .. ..$ : chr "325"
+ ..  .. ..$ : chr [1:2] "036" "039"
+ ..  ..$ :List of 3
+ ..  .. ..$ : chr "212"
+ ..  .. ..$ : chr "233"
+ ..  .. ..$ : chr [1:2] "271" "277"
+ ..  ..$ :List of 4
+ ..  .. ..$ : chr "334"
+ ..  .. ..$ : chr "350"
+ ..  .. ..$ : chr "364"
  ..  .. ..$ : chr "382"
- ..  ..$ :List of 2
- ..  .. ..$ : chr "544"
- ..  .. ..$ : chr "582"
  ..  ..$ :List of 3
- ..  .. ..$ : chr "602"
- ..  .. ..$ : chr [1:2] "613" "616"
- ..  .. ..$ : chr "658"
+ ..  .. ..$ : chr "432"
+ ..  .. ..$ : chr "458"
+ ..  .. ..$ : chr "494"
+ ..  ..$ :List of 4
+ ..  .. ..$ : chr "615"
+ ..  .. ..$ : chr "648"
+ ..  .. ..$ : chr "657"
+ ..  .. ..$ : chr "693"
+ ..  ..$ :List of 2
+ ..  .. ..$ : chr "703"
+ ..  .. ..$ : chr "722"
  ..  ..$ :List of 1
- ..  .. ..$ : chr "758"
- ..  ..$ :List of 1
- ..  .. ..$ : chr [1:2] "813" "814"
- ..  ..$ :List of 1
+ ..  .. ..$ : chr "867"
+ ..  ..$ :List of 3
  ..  .. ..$ : chr "909"
+ ..  .. ..$ : chr "913"
+ ..  .. ..$ : chr "961"
  ..  ..$ :List of 1
- ..  .. ..$ : chr "E26"
+ ..  .. ..$ : chr "E25"
  ..  ..$ :List of 1
- ..  .. ..$ : chr "G40"
- ..  ..$ :List of 2
- ..  .. ..$ : chr "J27"
- ..  .. ..$ : chr "J86"
- ..  ..$ :List of 1
+ ..  .. ..$ : chr [1:2] "G00" "G04"
+ ..  ..$ :List of 3
+ ..  .. ..$ : chr "L01"
+ ..  .. ..$ : chr "L18"
  ..  .. ..$ : chr "L86"
- ..  ..$ :List of 2
- ..  .. ..$ : chr "Q04"
- ..  .. ..$ : chr "Q51"
- ..  ..$ :List of 5
- ..  .. ..$ : chr "S10"
- ..  .. ..$ : chr "S24"
- ..  .. ..$ : chr "S38"
- ..  .. ..$ : chr "S40"
- ..  .. ..$ : chr "S93"
+ ..  ..$ :List of 1
+ ..  .. ..$ : chr "Q01"
  ..  ..$ :List of 2
  ..  .. ..$ : chr "T20"
  ..  .. ..$ : chr "T45"
- .. $ g4:List of 11
- ..  ..$ :List of 3
- ..  .. ..$ : chr "2563"
- ..  .. ..$ : chr "2806"
- ..  .. ..$ : chr "2851"
- ..  ..$ :List of 3
- ..  .. ..$ : chr "3054"
- ..  .. ..$ : chr "3332"
- ..  .. ..$ : chr "3651"
+ .. $ g4:List of 15
  ..  ..$ :List of 2
- ..  .. ..$ : chr "5264"
- ..  .. ..$ : chr "5894"
+ ..  .. ..$ : chr "0240"
+ ..  .. ..$ : chr "0330"
  ..  ..$ :List of 1
- ..  .. ..$ : chr "6994"
- ..  ..$ :List of 2
- ..  .. ..$ : chr "8116"
- ..  .. ..$ : chr "8573"
- ..  ..$ :List of 2
- ..  .. ..$ : chr "9038"
- ..  .. ..$ : chr "9637"
- ..  ..$ :List of 2
- ..  .. ..$ : chr "A012"
- ..  .. ..$ : chr "A655"
- ..  ..$ :List of 1
- ..  .. ..$ : chr "C188"
+ ..  .. ..$ : chr "1172"
+ ..  ..$ :List of 4
+ ..  .. ..$ : chr "2704"
+ ..  .. ..$ : chr "2840"
+ ..  .. ..$ : chr "2317"
+ ..  .. ..$ : chr "2349"
  ..  ..$ :List of 3
- ..  .. ..$ : chr "J017"
- ..  .. ..$ : chr "J194"
- ..  .. ..$ : chr "J295"
- ..  ..$ :List of 1
- ..  .. ..$ : chr "L063"
- ..  ..$ :List of 1
- ..  .. ..$ : chr "V521"
- .. $ g5:List of 15
- ..  ..$ :List of 1
- ..  .. ..$ : chr "1500F"
+ ..  .. ..$ : chr "3719"
+ ..  .. ..$ : chr "3301"
+ ..  .. ..$ : chr "3357"
  ..  ..$ :List of 2
- ..  .. ..$ : chr "0216T"
- ..  .. ..$ : chr [1:3] "0510T" "0516T" "0570T"
- ..  ..$ :List of 1
- ..  .. ..$ : chr [1:3] "0167U" "0238U" "0427U"
- ..  ..$ :List of 1
- ..  .. ..$ : chr "25025"
- ..  ..$ :List of 3
- ..  .. ..$ : chr "33020"
- ..  .. ..$ : chr "36470"
- ..  .. ..$ : chr "38308"
- ..  ..$ :List of 1
- ..  .. ..$ : chr "60520"
- ..  ..$ :List of 3
- ..  .. ..$ : chr "70240"
- ..  .. ..$ : chr "70546"
- ..  .. ..$ : chr "75774"
- ..  ..$ :List of 1
- ..  .. ..$ : chr "85013"
- ..  ..$ :List of 1
- ..  .. ..$ : chr "A6209"
- ..  ..$ :List of 1
- ..  .. ..$ : chr "D0180"
- ..  ..$ :List of 1
- ..  .. ..$ : chr "G6042"
+ ..  .. ..$ : chr "4159"
+ ..  .. ..$ : chr "4200"
  ..  ..$ :List of 2
- ..  .. ..$ : chr "H2015"
- ..  .. ..$ : chr "H2034"
- ..  ..$ :List of 3
- ..  .. ..$ : chr "J0151"
- ..  .. ..$ : chr "J0571"
- ..  .. ..$ : chr "J0898"
- ..  ..$ :List of 3
- ..  .. ..$ : chr "L2335"
- ..  .. ..$ : chr "L3675"
- ..  .. ..$ : chr "L6025"
+ ..  .. ..$ : chr "5235"
+ ..  .. ..$ : chr "5345"
+ ..  ..$ :List of 1
+ ..  .. ..$ : chr "6362"
+ ..  ..$ :List of 4
+ ..  .. ..$ : chr "8127"
+ ..  .. ..$ : chr "8147"
+ ..  .. ..$ : chr "8235"
+ ..  .. ..$ : chr "8250"
  ..  ..$ :List of 2
- ..  .. ..$ : chr "S5550"
- ..  .. ..$ : chr "S9213"
+ ..  .. ..$ : chr "9501"
+ ..  .. ..$ : chr "9654"
+ ..  ..$ :List of 3
+ ..  .. ..$ : chr "E262"
+ ..  .. ..$ : chr "E073"
+ ..  .. ..$ : chr "E098"
+ ..  ..$ :List of 2
+ ..  .. ..$ : chr "G052"
+ ..  .. ..$ : chr "G100"
+ ..  ..$ :List of 2
+ ..  .. ..$ : chr "J218"
+ ..  .. ..$ : chr "J254"
+ ..  ..$ :List of 1
+ ..  .. ..$ : chr "P902"
+ ..  ..$ :List of 1
+ ..  .. ..$ : chr "Q510"
+ ..  ..$ :List of 1
+ ..  .. ..$ : chr "S404"
+ .. $ g5:List of 14
+ ..  ..$ :List of 1
+ ..  .. ..$ : chr "3118F"
+ ..  ..$ :List of 1
+ ..  .. ..$ : chr "4134F"
+ ..  ..$ :List of 1
+ ..  .. ..$ : chr "0248U"
+ ..  ..$ :List of 2
+ ..  .. ..$ : chr "11311"
+ ..  .. ..$ : chr "19368"
+ ..  ..$ :List of 4
+ ..  .. ..$ : chr "25825"
+ ..  .. ..$ : chr "26070"
+ ..  .. ..$ : chr "26841"
+ ..  .. ..$ : chr "28043"
+ ..  ..$ :List of 2
+ ..  .. ..$ : chr "33365"
+ ..  .. ..$ : chr "36600"
+ ..  ..$ :List of 1
+ ..  .. ..$ : chr "43499"
+ ..  ..$ :List of 3
+ ..  .. ..$ : chr "52327"
+ ..  .. ..$ : chr "53260"
+ ..  .. ..$ : chr "54235"
+ ..  ..$ :List of 1
+ ..  .. ..$ : chr "88016"
+ ..  ..$ :List of 3
+ ..  .. ..$ : chr "90632"
+ ..  .. ..$ : chr "90736"
+ ..  .. ..$ : chr "97810"
+ ..  ..$ :List of 2
+ ..  .. ..$ : chr "A6588"
+ ..  .. ..$ : chr "A6590"
+ ..  ..$ :List of 3
+ ..  .. ..$ : chr "E0439"
+ ..  .. ..$ : chr "E0880"
+ ..  .. ..$ : chr "E2633"
+ ..  ..$ :List of 1
+ ..  .. ..$ : chr "L2510"
+ ..  ..$ :List of 1
+ ..  .. ..$ : chr "S5498"
  @ reduce_groups   :List of 5
- .. $ g1: 'glue' chr "^4[A-Z0-9]{4}"
- .. $ g2:List of 19
- ..  ..$ : chr "0[36]"
- ..  ..$ : chr "1[01]"
- ..  ..$ : chr "2[01379]"
- ..  ..$ : chr "31"
- ..  ..$ : chr "50"
- ..  ..$ : chr "64"
- ..  ..$ : chr "7[28]"
- ..  ..$ : chr "8[04679]"
- ..  ..$ : chr "9[23579]"
- ..  ..$ : chr "A9"
- ..  ..$ : chr "C9"
- ..  ..$ : chr "D6"
- ..  ..$ : chr "E0"
- ..  ..$ : chr "G[089]"
- ..  ..$ : chr "J[79]"
- ..  ..$ : chr "K0"
- ..  ..$ : chr "L[15]"
+ .. $ g1: 'glue' chr "^C[0-9]{4}"
+ .. $ g2:List of 18
+ ..  ..$ : chr "0[0158]"
+ ..  ..$ : chr "15"
+ ..  ..$ : chr "2[49]"
+ ..  ..$ : chr "32"
+ ..  ..$ : chr "40"
+ ..  ..$ : chr "6[67]"
+ ..  ..$ : chr "77"
+ ..  ..$ : chr "8[037]"
+ ..  ..$ : chr "9[239]"
+ ..  ..$ : chr "A0"
+ ..  ..$ : chr "B4"
+ ..  ..$ : chr "G[24689]"
+ ..  ..$ : chr "J[079]"
+ ..  ..$ : chr "L5"
  ..  ..$ : chr "M1"
- ..  ..$ : chr "Q4"
- .. $ g3:List of 15
- ..  ..$ :List of 3
- ..  .. ..$ : chr "007"
- ..  .. ..$ : chr "026"
- ..  .. ..$ : chr "08[46]"
+ ..  ..$ : chr "Q[49]"
+ ..  ..$ : chr "S8"
+ ..  ..$ : chr "V2"
+ .. $ g3:List of 13
  ..  ..$ :List of 1
- ..  .. ..$ : chr "157"
- ..  ..$ :List of 2
- ..  .. ..$ : chr "325"
+ ..  .. ..$ : chr "03[69]"
+ ..  ..$ :List of 3
+ ..  .. ..$ : chr "212"
+ ..  .. ..$ : chr "233"
+ ..  .. ..$ : chr "27[17]"
+ ..  ..$ :List of 4
+ ..  .. ..$ : chr "334"
+ ..  .. ..$ : chr "350"
+ ..  .. ..$ : chr "364"
  ..  .. ..$ : chr "382"
- ..  ..$ :List of 2
- ..  .. ..$ : chr "544"
- ..  .. ..$ : chr "582"
  ..  ..$ :List of 3
- ..  .. ..$ : chr "602"
- ..  .. ..$ : chr "61[36]"
- ..  .. ..$ : chr "658"
+ ..  .. ..$ : chr "432"
+ ..  .. ..$ : chr "458"
+ ..  .. ..$ : chr "494"
+ ..  ..$ :List of 4
+ ..  .. ..$ : chr "615"
+ ..  .. ..$ : chr "648"
+ ..  .. ..$ : chr "657"
+ ..  .. ..$ : chr "693"
+ ..  ..$ :List of 2
+ ..  .. ..$ : chr "703"
+ ..  .. ..$ : chr "722"
  ..  ..$ :List of 1
- ..  .. ..$ : chr "758"
- ..  ..$ :List of 1
- ..  .. ..$ : chr "81[34]"
- ..  ..$ :List of 1
+ ..  .. ..$ : chr "867"
+ ..  ..$ :List of 3
  ..  .. ..$ : chr "909"
+ ..  .. ..$ : chr "913"
+ ..  .. ..$ : chr "961"
  ..  ..$ :List of 1
- ..  .. ..$ : chr "E26"
+ ..  .. ..$ : chr "E25"
  ..  ..$ :List of 1
- ..  .. ..$ : chr "G40"
- ..  ..$ :List of 2
- ..  .. ..$ : chr "J27"
- ..  .. ..$ : chr "J86"
- ..  ..$ :List of 1
+ ..  .. ..$ : chr "G0[04]"
+ ..  ..$ :List of 3
+ ..  .. ..$ : chr "L01"
+ ..  .. ..$ : chr "L18"
  ..  .. ..$ : chr "L86"
- ..  ..$ :List of 2
- ..  .. ..$ : chr "Q04"
- ..  .. ..$ : chr "Q51"
- ..  ..$ :List of 5
- ..  .. ..$ : chr "S10"
- ..  .. ..$ : chr "S24"
- ..  .. ..$ : chr "S38"
- ..  .. ..$ : chr "S40"
- ..  .. ..$ : chr "S93"
+ ..  ..$ :List of 1
+ ..  .. ..$ : chr "Q01"
  ..  ..$ :List of 2
  ..  .. ..$ : chr "T20"
  ..  .. ..$ : chr "T45"
- .. $ g4:List of 11
- ..  ..$ :List of 3
- ..  .. ..$ : chr "2563"
- ..  .. ..$ : chr "2806"
- ..  .. ..$ : chr "2851"
- ..  ..$ :List of 3
- ..  .. ..$ : chr "3054"
- ..  .. ..$ : chr "3332"
- ..  .. ..$ : chr "3651"
+ .. $ g4:List of 15
  ..  ..$ :List of 2
- ..  .. ..$ : chr "5264"
- ..  .. ..$ : chr "5894"
+ ..  .. ..$ : chr "0240"
+ ..  .. ..$ : chr "0330"
  ..  ..$ :List of 1
- ..  .. ..$ : chr "6994"
- ..  ..$ :List of 2
- ..  .. ..$ : chr "8116"
- ..  .. ..$ : chr "8573"
- ..  ..$ :List of 2
- ..  .. ..$ : chr "9038"
- ..  .. ..$ : chr "9637"
- ..  ..$ :List of 2
- ..  .. ..$ : chr "A012"
- ..  .. ..$ : chr "A655"
- ..  ..$ :List of 1
- ..  .. ..$ : chr "C188"
+ ..  .. ..$ : chr "1172"
+ ..  ..$ :List of 4
+ ..  .. ..$ : chr "2704"
+ ..  .. ..$ : chr "2840"
+ ..  .. ..$ : chr "2317"
+ ..  .. ..$ : chr "2349"
  ..  ..$ :List of 3
- ..  .. ..$ : chr "J017"
- ..  .. ..$ : chr "J194"
- ..  .. ..$ : chr "J295"
- ..  ..$ :List of 1
- ..  .. ..$ : chr "L063"
- ..  ..$ :List of 1
- ..  .. ..$ : chr "V521"
- .. $ g5:List of 15
- ..  ..$ :List of 1
- ..  .. ..$ : chr "1500F"
+ ..  .. ..$ : chr "3719"
+ ..  .. ..$ : chr "3301"
+ ..  .. ..$ : chr "3357"
  ..  ..$ :List of 2
- ..  .. ..$ : chr "0216T"
- ..  .. ..$ : chr "05[17][06]T"
- ..  ..$ :List of 1
- ..  .. ..$ : chr "0[124][236][78]U"
- ..  ..$ :List of 1
- ..  .. ..$ : chr "25025"
- ..  ..$ :List of 3
- ..  .. ..$ : chr "33020"
- ..  .. ..$ : chr "36470"
- ..  .. ..$ : chr "38308"
- ..  ..$ :List of 1
- ..  .. ..$ : chr "60520"
- ..  ..$ :List of 3
- ..  .. ..$ : chr "70240"
- ..  .. ..$ : chr "70546"
- ..  .. ..$ : chr "75774"
- ..  ..$ :List of 1
- ..  .. ..$ : chr "85013"
- ..  ..$ :List of 1
- ..  .. ..$ : chr "A6209"
- ..  ..$ :List of 1
- ..  .. ..$ : chr "D0180"
- ..  ..$ :List of 1
- ..  .. ..$ : chr "G6042"
+ ..  .. ..$ : chr "4159"
+ ..  .. ..$ : chr "4200"
  ..  ..$ :List of 2
- ..  .. ..$ : chr "H2015"
- ..  .. ..$ : chr "H2034"
- ..  ..$ :List of 3
- ..  .. ..$ : chr "J0151"
- ..  .. ..$ : chr "J0571"
- ..  .. ..$ : chr "J0898"
- ..  ..$ :List of 3
- ..  .. ..$ : chr "L2335"
- ..  .. ..$ : chr "L3675"
- ..  .. ..$ : chr "L6025"
+ ..  .. ..$ : chr "5235"
+ ..  .. ..$ : chr "5345"
+ ..  ..$ :List of 1
+ ..  .. ..$ : chr "6362"
+ ..  ..$ :List of 4
+ ..  .. ..$ : chr "8127"
+ ..  .. ..$ : chr "8147"
+ ..  .. ..$ : chr "8235"
+ ..  .. ..$ : chr "8250"
  ..  ..$ :List of 2
- ..  .. ..$ : chr "S5550"
- ..  .. ..$ : chr "S9213"
+ ..  .. ..$ : chr "9501"
+ ..  .. ..$ : chr "9654"
+ ..  ..$ :List of 3
+ ..  .. ..$ : chr "E262"
+ ..  .. ..$ : chr "E073"
+ ..  .. ..$ : chr "E098"
+ ..  ..$ :List of 2
+ ..  .. ..$ : chr "G052"
+ ..  .. ..$ : chr "G100"
+ ..  ..$ :List of 2
+ ..  .. ..$ : chr "J218"
+ ..  .. ..$ : chr "J254"
+ ..  ..$ :List of 1
+ ..  .. ..$ : chr "P902"
+ ..  ..$ :List of 1
+ ..  .. ..$ : chr "Q510"
+ ..  ..$ :List of 1
+ ..  .. ..$ : chr "S404"
+ .. $ g5:List of 14
+ ..  ..$ :List of 1
+ ..  .. ..$ : chr "3118F"
+ ..  ..$ :List of 1
+ ..  .. ..$ : chr "4134F"
+ ..  ..$ :List of 1
+ ..  .. ..$ : chr "0248U"
+ ..  ..$ :List of 2
+ ..  .. ..$ : chr "11311"
+ ..  .. ..$ : chr "19368"
+ ..  ..$ :List of 4
+ ..  .. ..$ : chr "25825"
+ ..  .. ..$ : chr "26070"
+ ..  .. ..$ : chr "26841"
+ ..  .. ..$ : chr "28043"
+ ..  ..$ :List of 2
+ ..  .. ..$ : chr "33365"
+ ..  .. ..$ : chr "36600"
+ ..  ..$ :List of 1
+ ..  .. ..$ : chr "43499"
+ ..  ..$ :List of 3
+ ..  .. ..$ : chr "52327"
+ ..  .. ..$ : chr "53260"
+ ..  .. ..$ : chr "54235"
+ ..  ..$ :List of 1
+ ..  .. ..$ : chr "88016"
+ ..  ..$ :List of 3
+ ..  .. ..$ : chr "90632"
+ ..  .. ..$ : chr "90736"
+ ..  .. ..$ : chr "97810"
+ ..  ..$ :List of 2
+ ..  .. ..$ : chr "A6588"
+ ..  .. ..$ : chr "A6590"
+ ..  ..$ :List of 3
+ ..  .. ..$ : chr "E0439"
+ ..  .. ..$ : chr "E0880"
+ ..  .. ..$ : chr "E2633"
+ ..  ..$ :List of 1
+ ..  .. ..$ : chr "L2510"
+ ..  ..$ :List of 1
+ ..  .. ..$ : chr "S5498"
  @ recombine_groups:List of 5
- .. $ v1: 'glue' chr "^4[A-Z0-9]{4}"
- .. $ v2: 'glue' chr "^(0[36]|1[01]|2[01379]|31|50|64|7[28]|8[04679]|9[23579]|A9|C9|D6|E0|G[089]|J[79]|K0|L[15]|M1|Q4)[A-Z0-9]{3}$"
- .. $ v3:List of 15
- ..  ..$ : chr "157"
- ..  ..$ : chr "758"
- ..  ..$ : chr "81[34]"
- ..  ..$ : chr "909"
- ..  ..$ : chr "E26"
- ..  ..$ : chr "G40"
- ..  ..$ : chr "L86"
- ..  ..$ : 'glue' chr "0(07|26|8[46])"
- ..  ..$ : 'glue' chr "3(25|82)"
- ..  ..$ : 'glue' chr "5(44|82)"
- ..  ..$ : 'glue' chr "6(02|1[36]|58)"
- ..  ..$ : 'glue' chr "J(27|86)"
- ..  ..$ : 'glue' chr "Q(04|51)"
- ..  ..$ : 'glue' chr "S(10|24|38|40|93)"
+ .. $ v1: 'glue' chr "^C[0-9]{4}"
+ .. $ v2: 'glue' chr "(0[0158]|15|2[49]|32|40|6[67]|77|8[037]|9[239]|A0|B4|G[24689]|J[079]|L5|M1|Q[49]|S8|V2)"
+ .. $ v3:List of 9
+ ..  ..$ : 'glue' chr "(03[69]|867|E25|G0[04]|Q01)"
+ ..  ..$ : 'glue' chr "2(12|33|7[17])"
+ ..  ..$ : 'glue' chr "3(34|50|64|82)"
+ ..  ..$ : 'glue' chr "4(32|58|94)"
+ ..  ..$ : 'glue' chr "6(15|48|57|93)"
+ ..  ..$ : 'glue' chr "7(03|22)"
+ ..  ..$ : 'glue' chr "9(09|13|61)"
+ ..  ..$ : 'glue' chr "L(01|18|86)"
  ..  ..$ : 'glue' chr "T(20|45)"
  .. $ v4:List of 11
- ..  ..$ : chr "6994"
- ..  ..$ : chr "C188"
- ..  ..$ : chr "L063"
- ..  ..$ : chr "V521"
- ..  ..$ : 'glue' chr "2(563|806|851)"
- ..  ..$ : 'glue' chr "3(054|332|651)"
- ..  ..$ : 'glue' chr "5(264|894)"
- ..  ..$ : 'glue' chr "8(116|573)"
- ..  ..$ : 'glue' chr "9(038|637)"
- ..  ..$ : 'glue' chr "A(012|655)"
- ..  ..$ : 'glue' chr "J(017|194|295)"
- .. $ v5:List of 15
- ..  ..$ : chr "1500F"
- ..  ..$ : chr "0[124][236][78]U"
- ..  ..$ : chr "25025"
- ..  ..$ : chr "60520"
- ..  ..$ : chr "85013"
- ..  ..$ : chr "A6209"
- ..  ..$ : chr "D0180"
- ..  ..$ : chr "G6042"
- ..  ..$ : 'glue' chr "0(216T|5[17][06]T)"
- ..  ..$ : 'glue' chr "3(3020|6470|8308)"
- ..  ..$ : 'glue' chr "7(0240|0546|5774)"
- ..  ..$ : 'glue' chr "H(2015|2034)"
- ..  ..$ : 'glue' chr "J(0151|0571|0898)"
- ..  ..$ : 'glue' chr "L(2335|3675|6025)"
- ..  ..$ : 'glue' chr "S(5550|9213)"</code></pre>
+ ..  ..$ : 'glue' chr "(1172|6362|P902|Q510|S404)"
+ ..  ..$ : 'glue' chr "0(240|330)"
+ ..  ..$ : 'glue' chr "2(704|840|317|349)"
+ ..  ..$ : 'glue' chr "3(719|301|357)"
+ ..  ..$ : 'glue' chr "4(159|200)"
+ ..  ..$ : 'glue' chr "5(235|345)"
+ ..  ..$ : 'glue' chr "8(127|147|235|250)"
+ ..  ..$ : 'glue' chr "9(501|654)"
+ ..  ..$ : 'glue' chr "E(262|073|098)"
+ ..  ..$ : 'glue' chr "G(052|100)"
+ ..  ..$ : 'glue' chr "J(218|254)"
+ .. $ v5:List of 8
+ ..  ..$ : 'glue' chr "(3118F|4134F|0248U|43499|88016|L2510|S5498)"
+ ..  ..$ : 'glue' chr "1(1311|9368)"
+ ..  ..$ : 'glue' chr "2(5825|6070|6841|8043)"
+ ..  ..$ : 'glue' chr "3(3365|6600)"
+ ..  ..$ : 'glue' chr "5(2327|3260|4235)"
+ ..  ..$ : 'glue' chr "9(0632|0736|7810)"
+ ..  ..$ : 'glue' chr "A(6588|6590)"
+ ..  ..$ : 'glue' chr "E(0439|0880|2633)"</code></pre>
 </div>
 </div>
 <hr>
@@ -4150,7 +3815,7 @@ Tip&nbsp;1: Links
 <p><strong>Platform:</strong> x86_64-w64-mingw32/x64</p>
 <p><strong>locale:</strong> <em>LC_COLLATE=English_United States.utf8</em>, <em>LC_CTYPE=English_United States.utf8</em>, <em>LC_MONETARY=English_United States.utf8</em>, <em>LC_NUMERIC=C</em> and <em>LC_TIME=English_United States.utf8</em></p>
 <p><strong>attached base packages:</strong> <em>compiler</em>, <em>stats</em>, <em>graphics</em>, <em>grDevices</em>, <em>utils</em>, <em>datasets</em>, <em>methods</em> and <em>base</em></p>
-<p><strong>other attached packages:</strong> <em>codex(v.0.0.0.9000)</em>, <em>kit(v.0.0.19)</em>, <em>collapse(v.2.0.17)</em>, <em>data.table(v.1.16.99)</em>, <em>stringfish(v.0.16.0)</em>, <em>S7(v.0.2.0)</em>, <em>vctrs(v.0.6.5)</em>, <em>cli(v.3.6.3)</em>, <em>rlang(v.1.1.4)</em>, <em>stringr(v.1.5.1)</em>, <em>purrr(v.1.0.2)</em>, <em>dplyr(v.1.1.4)</em> and <em>fuimus(v.0.0.2)</em></p>
+<p><strong>other attached packages:</strong> <em>codex(v.0.0.1)</em>, <em>kit(v.0.0.19)</em>, <em>collapse(v.2.0.17)</em>, <em>data.table(v.1.16.99)</em>, <em>stringfish(v.0.16.0)</em>, <em>S7(v.0.2.0)</em>, <em>vctrs(v.0.6.5)</em>, <em>cli(v.3.6.3)</em>, <em>rlang(v.1.1.4)</em>, <em>stringr(v.1.5.1)</em>, <em>purrr(v.1.0.2)</em>, <em>dplyr(v.1.1.4)</em> and <em>fuimus(v.0.0.2)</em></p>
 <p><strong>loaded via a namespace (and not attached):</strong> <em>rappdirs(v.0.3.3)</em>, <em>utf8(v.1.2.4)</em>, <em>generics(v.0.1.3)</em>, <em>stringi(v.1.8.4)</em>, <em>digest(v.0.6.37)</em>, <em>magrittr(v.2.0.3)</em>, <em>evaluate(v.1.0.1)</em>, <em>fastmap(v.1.2.0)</em>, <em>rprojroot(v.2.0.4)</em>, <em>jsonlite(v.1.8.9)</em>, <em>pins(v.1.4.0)</em>, <em>pander(v.0.6.5)</em>, <em>fansi(v.1.0.6)</em>, <em>northstar(v.0.0.7)</em>, <em>textshaping(v.0.4.0)</em>, <em>RApiSerialize(v.0.1.4)</em>, <em>crayon(v.1.5.3)</em>, <em>withr(v.3.0.2)</em>, <em>yaml(v.2.3.10)</em>, <em>tools(v.4.4.2)</em>, <em>qs(v.0.27.2)</em>, <em>parallel(v.4.4.2)</em>, <em>here(v.1.0.1)</em>, <em>R6(v.2.5.1)</em>, <em>lifecycle(v.1.0.4)</em>, <em>cheapr(v.0.9.91)</em>, <em>fs(v.1.6.5)</em>, <em>htmlwidgets(v.1.6.4)</em>, <em>ragg(v.1.3.3)</em>, <em>pkgconfig(v.2.0.3)</em>, <em>RcppParallel(v.5.1.9)</em>, <em>pillar(v.1.9.0)</em>, <em>glue(v.1.8.0)</em>, <em>Rcpp(v.1.0.13-1)</em>, <em>systemfonts(v.1.1.0)</em>, <em>xfun(v.0.49)</em>, <em>tibble(v.3.2.1)</em>, <em>tidyselect(v.1.2.1)</em>, <em>rstudioapi(v.0.17.1)</em>, <em>knitr(v.1.49)</em>, <em>htmltools(v.0.5.8.1)</em> and <em>rmarkdown(v.2.29)</em></p>
 </div>
 </div>
@@ -5173,28 +4838,28 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb115-558"><a href="#cb115-558" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_lengths</span>() <span class="sc">|&gt;</span> </span>
 <span id="cb115-559"><a href="#cb115-559" aria-hidden="true" tabindex="-1"></a>  <span class="fu">remove_redundant</span>() <span class="sc">|&gt;</span></span>
 <span id="cb115-560"><a href="#cb115-560" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_first</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-561"><a href="#cb115-561" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_5</span>()</span>
-<span id="cb115-562"><a href="#cb115-562" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-563"><a href="#cb115-563" aria-hidden="true" tabindex="-1"></a><span class="fu">random_hcpcs</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb115-564"><a href="#cb115-564" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_lengths</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb115-565"><a href="#cb115-565" aria-hidden="true" tabindex="-1"></a>  <span class="fu">remove_redundant</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-566"><a href="#cb115-566" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_first</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-567"><a href="#cb115-567" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_5</span>()</span>
-<span id="cb115-568"><a href="#cb115-568" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb115-569"><a href="#cb115-569" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-570"><a href="#cb115-570" aria-hidden="true" tabindex="-1"></a><span class="fu">## process_groups</span></span>
-<span id="cb115-571"><a href="#cb115-571" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-574"><a href="#cb115-574" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb115-575"><a href="#cb115-575" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: process_groups</span></span>
-<span id="cb115-576"><a href="#cb115-576" aria-hidden="true" tabindex="-1"></a>process_groups <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
-<span id="cb115-577"><a href="#cb115-577" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb115-578"><a href="#cb115-578" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(</span>
-<span id="cb115-579"><a href="#cb115-579" aria-hidden="true" tabindex="-1"></a>    <span class="at">g1 =</span> x<span class="sc">$</span>x1,</span>
-<span id="cb115-580"><a href="#cb115-580" aria-hidden="true" tabindex="-1"></a>    <span class="at">g2 =</span> x<span class="sc">$</span>x2,</span>
-<span id="cb115-581"><a href="#cb115-581" aria-hidden="true" tabindex="-1"></a>    <span class="at">g3 =</span> <span class="fu">group_3</span>(x),</span>
-<span id="cb115-582"><a href="#cb115-582" aria-hidden="true" tabindex="-1"></a>    <span class="at">g4 =</span> <span class="fu">group_4</span>(x),</span>
-<span id="cb115-583"><a href="#cb115-583" aria-hidden="true" tabindex="-1"></a>    <span class="at">g5 =</span> <span class="fu">group_5</span>(x)</span>
-<span id="cb115-584"><a href="#cb115-584" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb115-561"><a href="#cb115-561" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_5</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb115-562"><a href="#cb115-562" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nametree</span>()</span>
+<span id="cb115-563"><a href="#cb115-563" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-564"><a href="#cb115-564" aria-hidden="true" tabindex="-1"></a><span class="fu">random_hcpcs</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb115-565"><a href="#cb115-565" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_lengths</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb115-566"><a href="#cb115-566" aria-hidden="true" tabindex="-1"></a>  <span class="fu">remove_redundant</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-567"><a href="#cb115-567" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_first</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-568"><a href="#cb115-568" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_5</span>()</span>
+<span id="cb115-569"><a href="#cb115-569" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb115-570"><a href="#cb115-570" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-571"><a href="#cb115-571" aria-hidden="true" tabindex="-1"></a><span class="fu">## process_groups</span></span>
+<span id="cb115-572"><a href="#cb115-572" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-575"><a href="#cb115-575" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb115-576"><a href="#cb115-576" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: process_groups</span></span>
+<span id="cb115-577"><a href="#cb115-577" aria-hidden="true" tabindex="-1"></a>process_groups <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb115-578"><a href="#cb115-578" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb115-579"><a href="#cb115-579" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(</span>
+<span id="cb115-580"><a href="#cb115-580" aria-hidden="true" tabindex="-1"></a>    <span class="at">g1 =</span> x<span class="sc">$</span>x1,</span>
+<span id="cb115-581"><a href="#cb115-581" aria-hidden="true" tabindex="-1"></a>    <span class="at">g2 =</span> x<span class="sc">$</span>x2,</span>
+<span id="cb115-582"><a href="#cb115-582" aria-hidden="true" tabindex="-1"></a>    <span class="at">g3 =</span> <span class="fu">group_3</span>(x),</span>
+<span id="cb115-583"><a href="#cb115-583" aria-hidden="true" tabindex="-1"></a>    <span class="at">g4 =</span> <span class="fu">group_4</span>(x),</span>
+<span id="cb115-584"><a href="#cb115-584" aria-hidden="true" tabindex="-1"></a>    <span class="at">g5 =</span> <span class="fu">group_5</span>(x))</span>
 <span id="cb115-585"><a href="#cb115-585" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb115-586"><a href="#cb115-586" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb115-587"><a href="#cb115-587" aria-hidden="true" tabindex="-1"></a>hcpcs_tests <span class="sc">|&gt;</span></span>
@@ -5549,338 +5214,368 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb115-952"><a href="#cb115-952" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb115-953"><a href="#cb115-953" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">sf_collapse</span>(<span class="fu">list_c</span>(x), <span class="at">collapse =</span> <span class="st">'|'</span>)</span>
 <span id="cb115-954"><a href="#cb115-954" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb115-955"><a href="#cb115-955" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_glue</span>(<span class="st">"^({x})[A-Z0-9]{{3}}$"</span>)</span>
-<span id="cb115-956"><a href="#cb115-956" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb115-957"><a href="#cb115-957" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-958"><a href="#cb115-958" aria-hidden="true" tabindex="-1"></a>long_test2[<span class="fu">sf_nchar</span>(long_test2) <span class="sc">==</span> <span class="dv">2</span>] <span class="sc">|&gt;</span></span>
-<span id="cb115-959"><a href="#cb115-959" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_lengths</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-960"><a href="#cb115-960" aria-hidden="true" tabindex="-1"></a>  <span class="fu">remove_redundant</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-961"><a href="#cb115-961" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_first</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-962"><a href="#cb115-962" aria-hidden="true" tabindex="-1"></a>  <span class="fu">process_groups</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-963"><a href="#cb115-963" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reduce_groups</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb115-964"><a href="#cb115-964" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recombine2</span>()</span>
-<span id="cb115-965"><a href="#cb115-965" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-966"><a href="#cb115-966" aria-hidden="true" tabindex="-1"></a><span class="fu">random_hcpcs</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-967"><a href="#cb115-967" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_lengths</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-968"><a href="#cb115-968" aria-hidden="true" tabindex="-1"></a>  <span class="fu">remove_redundant</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-969"><a href="#cb115-969" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_first</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-970"><a href="#cb115-970" aria-hidden="true" tabindex="-1"></a>  <span class="fu">process_groups</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-971"><a href="#cb115-971" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reduce_groups</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb115-972"><a href="#cb115-972" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recombine2</span>()</span>
-<span id="cb115-973"><a href="#cb115-973" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb115-974"><a href="#cb115-974" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-975"><a href="#cb115-975" aria-hidden="true" tabindex="-1"></a><span class="fu">## recombine3</span></span>
-<span id="cb115-976"><a href="#cb115-976" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-979"><a href="#cb115-979" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb115-980"><a href="#cb115-980" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: recombine3</span></span>
-<span id="cb115-981"><a href="#cb115-981" aria-hidden="true" tabindex="-1"></a>recombine3 <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
-<span id="cb115-982"><a href="#cb115-982" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb115-983"><a href="#cb115-983" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">getelem</span>(x, <span class="st">"g3"</span>)</span>
-<span id="cb115-984"><a href="#cb115-984" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb115-985"><a href="#cb115-985" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">empty</span>(x)) <span class="fu">return</span>(<span class="fu">character</span>(<span class="dv">0</span>))</span>
-<span id="cb115-986"><a href="#cb115-986" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb115-987"><a href="#cb115-987" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(</span>
-<span id="cb115-988"><a href="#cb115-988" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">empty</span>(x[<span class="fu">vlen</span>(x) <span class="sc">==</span> <span class="dv">1</span>])) <span class="cn">NULL</span> <span class="cf">else</span> <span class="fu">str_glue</span>(<span class="st">"{list_c(x[vlen(x) == 1])}"</span>),</span>
-<span id="cb115-989"><a href="#cb115-989" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb115-990"><a href="#cb115-990" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">empty</span>(x[<span class="fu">vlen</span>(x) <span class="sc">&gt;</span> <span class="dv">1</span>])) <span class="cn">NULL</span> <span class="cf">else</span> <span class="fu">map</span>(x[<span class="fu">vlen</span>(x) <span class="sc">&gt;</span> <span class="dv">1</span>], <span class="cf">function</span>(x) {</span>
-<span id="cb115-991"><a href="#cb115-991" aria-hidden="true" tabindex="-1"></a>          </span>
-<span id="cb115-992"><a href="#cb115-992" aria-hidden="true" tabindex="-1"></a>          front <span class="ot">&lt;-</span> <span class="fu">uniq</span>(<span class="fu">sf_sub</span>(<span class="fu">delist</span>(x), <span class="at">start =</span> <span class="dv">1</span>, <span class="at">stop =</span> <span class="dv">1</span>))</span>
-<span id="cb115-993"><a href="#cb115-993" aria-hidden="true" tabindex="-1"></a>          </span>
-<span id="cb115-994"><a href="#cb115-994" aria-hidden="true" tabindex="-1"></a>          back  <span class="ot">&lt;-</span> <span class="fu">sf_collapse</span>(<span class="fu">sf_remove</span>(<span class="fu">delist</span>(x), <span class="fu">str_glue</span>(<span class="st">"^[{front}]{{1}}"</span>)), <span class="at">collapse =</span> <span class="st">"|"</span>)</span>
-<span id="cb115-995"><a href="#cb115-995" aria-hidden="true" tabindex="-1"></a>          </span>
-<span id="cb115-996"><a href="#cb115-996" aria-hidden="true" tabindex="-1"></a>          <span class="fu">str_glue</span>(<span class="st">"{front}({back})"</span>)</span>
-<span id="cb115-997"><a href="#cb115-997" aria-hidden="true" tabindex="-1"></a>          })</span>
-<span id="cb115-998"><a href="#cb115-998" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb115-999"><a href="#cb115-999" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb115-1000"><a href="#cb115-1000" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1001"><a href="#cb115-1001" aria-hidden="true" tabindex="-1"></a>long_test2[<span class="fu">sf_nchar</span>(long_test2) <span class="sc">==</span> <span class="dv">3</span>] <span class="sc">|&gt;</span></span>
-<span id="cb115-1002"><a href="#cb115-1002" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_lengths</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1003"><a href="#cb115-1003" aria-hidden="true" tabindex="-1"></a>  <span class="fu">remove_redundant</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1004"><a href="#cb115-1004" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_first</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1005"><a href="#cb115-1005" aria-hidden="true" tabindex="-1"></a>  <span class="fu">process_groups</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb115-1006"><a href="#cb115-1006" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reduce_groups</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb115-1007"><a href="#cb115-1007" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recombine3</span>()</span>
-<span id="cb115-1008"><a href="#cb115-1008" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1009"><a href="#cb115-1009" aria-hidden="true" tabindex="-1"></a><span class="fu">random_hcpcs</span>(<span class="dv">50</span>) <span class="sc">|&gt;</span></span>
-<span id="cb115-1010"><a href="#cb115-1010" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_lengths</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1011"><a href="#cb115-1011" aria-hidden="true" tabindex="-1"></a>  <span class="fu">remove_redundant</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1012"><a href="#cb115-1012" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_first</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1013"><a href="#cb115-1013" aria-hidden="true" tabindex="-1"></a>  <span class="fu">process_groups</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1014"><a href="#cb115-1014" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reduce_groups</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb115-1015"><a href="#cb115-1015" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recombine3</span>()</span>
-<span id="cb115-1016"><a href="#cb115-1016" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb115-1017"><a href="#cb115-1017" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1018"><a href="#cb115-1018" aria-hidden="true" tabindex="-1"></a><span class="fu">## recombine4</span></span>
+<span id="cb115-955"><a href="#cb115-955" aria-hidden="true" tabindex="-1"></a>  <span class="co"># str_glue("^({x})[A-Z0-9]{{3}}$")</span></span>
+<span id="cb115-956"><a href="#cb115-956" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_glue</span>(<span class="st">"({x})"</span>)</span>
+<span id="cb115-957"><a href="#cb115-957" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb115-958"><a href="#cb115-958" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-959"><a href="#cb115-959" aria-hidden="true" tabindex="-1"></a>long_test2[<span class="fu">sf_nchar</span>(long_test2) <span class="sc">==</span> <span class="dv">2</span>] <span class="sc">|&gt;</span></span>
+<span id="cb115-960"><a href="#cb115-960" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_lengths</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-961"><a href="#cb115-961" aria-hidden="true" tabindex="-1"></a>  <span class="fu">remove_redundant</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-962"><a href="#cb115-962" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_first</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-963"><a href="#cb115-963" aria-hidden="true" tabindex="-1"></a>  <span class="fu">process_groups</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-964"><a href="#cb115-964" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reduce_groups</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb115-965"><a href="#cb115-965" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recombine2</span>()</span>
+<span id="cb115-966"><a href="#cb115-966" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-967"><a href="#cb115-967" aria-hidden="true" tabindex="-1"></a><span class="fu">random_hcpcs</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-968"><a href="#cb115-968" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_lengths</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-969"><a href="#cb115-969" aria-hidden="true" tabindex="-1"></a>  <span class="fu">remove_redundant</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-970"><a href="#cb115-970" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_first</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-971"><a href="#cb115-971" aria-hidden="true" tabindex="-1"></a>  <span class="fu">process_groups</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-972"><a href="#cb115-972" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reduce_groups</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb115-973"><a href="#cb115-973" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recombine2</span>()</span>
+<span id="cb115-974"><a href="#cb115-974" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb115-975"><a href="#cb115-975" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-976"><a href="#cb115-976" aria-hidden="true" tabindex="-1"></a><span class="fu">## recombine3</span></span>
+<span id="cb115-977"><a href="#cb115-977" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-980"><a href="#cb115-980" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb115-981"><a href="#cb115-981" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: recombine3</span></span>
+<span id="cb115-982"><a href="#cb115-982" aria-hidden="true" tabindex="-1"></a>recombine3 <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb115-983"><a href="#cb115-983" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb115-984"><a href="#cb115-984" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">getelem</span>(x, <span class="st">"g3"</span>)</span>
+<span id="cb115-985"><a href="#cb115-985" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb115-986"><a href="#cb115-986" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">empty</span>(x)) <span class="fu">return</span>(<span class="fu">character</span>(<span class="dv">0</span>))</span>
+<span id="cb115-987"><a href="#cb115-987" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb115-988"><a href="#cb115-988" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(</span>
+<span id="cb115-989"><a href="#cb115-989" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">empty</span>(x[<span class="fu">vlen</span>(x) <span class="sc">==</span> <span class="dv">1</span>])) </span>
+<span id="cb115-990"><a href="#cb115-990" aria-hidden="true" tabindex="-1"></a>      <span class="cn">NULL</span> </span>
+<span id="cb115-991"><a href="#cb115-991" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span> </span>
+<span id="cb115-992"><a href="#cb115-992" aria-hidden="true" tabindex="-1"></a>      <span class="fu">parentheses</span>(</span>
+<span id="cb115-993"><a href="#cb115-993" aria-hidden="true" tabindex="-1"></a>        <span class="fu">sf_collapse</span>(</span>
+<span id="cb115-994"><a href="#cb115-994" aria-hidden="true" tabindex="-1"></a>          <span class="fu">delist</span>(x[<span class="fu">vlen</span>(x) <span class="sc">==</span> <span class="dv">1</span>]), <span class="at">collapse =</span> <span class="st">"|"</span>)</span>
+<span id="cb115-995"><a href="#cb115-995" aria-hidden="true" tabindex="-1"></a>        ) <span class="sc">|&gt;</span></span>
+<span id="cb115-996"><a href="#cb115-996" aria-hidden="true" tabindex="-1"></a>      glue<span class="sc">::</span><span class="fu">as_glue</span>(),</span>
+<span id="cb115-997"><a href="#cb115-997" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">empty</span>(x[<span class="fu">vlen</span>(x) <span class="sc">&gt;</span> <span class="dv">1</span>])) </span>
+<span id="cb115-998"><a href="#cb115-998" aria-hidden="true" tabindex="-1"></a>      <span class="cn">NULL</span> </span>
+<span id="cb115-999"><a href="#cb115-999" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span> </span>
+<span id="cb115-1000"><a href="#cb115-1000" aria-hidden="true" tabindex="-1"></a>      <span class="fu">map</span>(x[<span class="fu">vlen</span>(x) <span class="sc">&gt;</span> <span class="dv">1</span>], </span>
+<span id="cb115-1001"><a href="#cb115-1001" aria-hidden="true" tabindex="-1"></a>          <span class="cf">function</span>(x) {</span>
+<span id="cb115-1002"><a href="#cb115-1002" aria-hidden="true" tabindex="-1"></a>          </span>
+<span id="cb115-1003"><a href="#cb115-1003" aria-hidden="true" tabindex="-1"></a>            front <span class="ot">&lt;-</span> <span class="fu">uniq</span>(<span class="fu">sf_sub</span>(<span class="fu">delist</span>(x), <span class="at">start =</span> <span class="dv">1</span>, <span class="at">stop =</span> <span class="dv">1</span>))</span>
+<span id="cb115-1004"><a href="#cb115-1004" aria-hidden="true" tabindex="-1"></a>          </span>
+<span id="cb115-1005"><a href="#cb115-1005" aria-hidden="true" tabindex="-1"></a>            back  <span class="ot">&lt;-</span> <span class="fu">sf_collapse</span>(<span class="fu">sf_remove</span>(<span class="fu">delist</span>(x), <span class="fu">str_glue</span>(<span class="st">"^[{front}]{{1}}"</span>)), <span class="at">collapse =</span> <span class="st">"|"</span>)</span>
+<span id="cb115-1006"><a href="#cb115-1006" aria-hidden="true" tabindex="-1"></a>          </span>
+<span id="cb115-1007"><a href="#cb115-1007" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_glue</span>(<span class="st">"{front}({back})"</span>)</span>
+<span id="cb115-1008"><a href="#cb115-1008" aria-hidden="true" tabindex="-1"></a>          </span>
+<span id="cb115-1009"><a href="#cb115-1009" aria-hidden="true" tabindex="-1"></a>            })) <span class="sc">|&gt;</span> <span class="fu">list_flatten</span>()</span>
+<span id="cb115-1010"><a href="#cb115-1010" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb115-1011"><a href="#cb115-1011" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1012"><a href="#cb115-1012" aria-hidden="true" tabindex="-1"></a>long_test2[<span class="fu">sf_nchar</span>(long_test2) <span class="sc">==</span> <span class="dv">3</span>] <span class="sc">|&gt;</span></span>
+<span id="cb115-1013"><a href="#cb115-1013" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_lengths</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1014"><a href="#cb115-1014" aria-hidden="true" tabindex="-1"></a>  <span class="fu">remove_redundant</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1015"><a href="#cb115-1015" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_first</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1016"><a href="#cb115-1016" aria-hidden="true" tabindex="-1"></a>  <span class="fu">process_groups</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb115-1017"><a href="#cb115-1017" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reduce_groups</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb115-1018"><a href="#cb115-1018" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recombine3</span>()</span>
 <span id="cb115-1019"><a href="#cb115-1019" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1022"><a href="#cb115-1022" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb115-1023"><a href="#cb115-1023" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: recombine4</span></span>
-<span id="cb115-1024"><a href="#cb115-1024" aria-hidden="true" tabindex="-1"></a>recombine4 <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
-<span id="cb115-1025"><a href="#cb115-1025" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb115-1026"><a href="#cb115-1026" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">getelem</span>(x, <span class="st">"g4"</span>)</span>
-<span id="cb115-1027"><a href="#cb115-1027" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb115-1028"><a href="#cb115-1028" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">empty</span>(x)) <span class="fu">return</span>(<span class="fu">character</span>(<span class="dv">0</span>))</span>
-<span id="cb115-1029"><a href="#cb115-1029" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb115-1030"><a href="#cb115-1030" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(</span>
-<span id="cb115-1031"><a href="#cb115-1031" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">empty</span>(x[<span class="fu">vlen</span>(x) <span class="sc">==</span> <span class="dv">1</span>])) <span class="cn">NULL</span> <span class="cf">else</span> <span class="fu">str_glue</span>(<span class="st">"{list_c(x[vlen(x) == 1])}"</span>),</span>
-<span id="cb115-1032"><a href="#cb115-1032" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb115-1033"><a href="#cb115-1033" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">empty</span>(x[<span class="fu">vlen</span>(x) <span class="sc">&gt;</span> <span class="dv">1</span>])) <span class="cn">NULL</span> <span class="cf">else</span> <span class="fu">map</span>(x[<span class="fu">vlen</span>(x) <span class="sc">&gt;</span> <span class="dv">1</span>], <span class="cf">function</span>(x) {</span>
-<span id="cb115-1034"><a href="#cb115-1034" aria-hidden="true" tabindex="-1"></a>          </span>
-<span id="cb115-1035"><a href="#cb115-1035" aria-hidden="true" tabindex="-1"></a>          front <span class="ot">&lt;-</span> <span class="fu">uniq</span>(<span class="fu">sf_sub</span>(<span class="fu">delist</span>(x), <span class="at">start =</span> <span class="dv">1</span>, <span class="at">stop =</span> <span class="dv">1</span>))</span>
-<span id="cb115-1036"><a href="#cb115-1036" aria-hidden="true" tabindex="-1"></a>          </span>
-<span id="cb115-1037"><a href="#cb115-1037" aria-hidden="true" tabindex="-1"></a>          back  <span class="ot">&lt;-</span> <span class="fu">sf_collapse</span>(<span class="fu">sf_remove</span>(<span class="fu">delist</span>(x), <span class="fu">str_glue</span>(<span class="st">"^[{front}]{{1}}"</span>)), <span class="at">collapse =</span> <span class="st">"|"</span>)</span>
-<span id="cb115-1038"><a href="#cb115-1038" aria-hidden="true" tabindex="-1"></a>          </span>
-<span id="cb115-1039"><a href="#cb115-1039" aria-hidden="true" tabindex="-1"></a>          <span class="fu">str_glue</span>(<span class="st">"{front}({back})"</span>)</span>
-<span id="cb115-1040"><a href="#cb115-1040" aria-hidden="true" tabindex="-1"></a>          })</span>
-<span id="cb115-1041"><a href="#cb115-1041" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb115-1042"><a href="#cb115-1042" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb115-1043"><a href="#cb115-1043" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1044"><a href="#cb115-1044" aria-hidden="true" tabindex="-1"></a>long_test2[<span class="fu">sf_nchar</span>(long_test2) <span class="sc">==</span> <span class="dv">4</span>] <span class="sc">|&gt;</span></span>
-<span id="cb115-1045"><a href="#cb115-1045" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_lengths</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1046"><a href="#cb115-1046" aria-hidden="true" tabindex="-1"></a>  <span class="fu">remove_redundant</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1047"><a href="#cb115-1047" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_first</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1048"><a href="#cb115-1048" aria-hidden="true" tabindex="-1"></a>  <span class="fu">process_groups</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb115-1049"><a href="#cb115-1049" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reduce_groups</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb115-1050"><a href="#cb115-1050" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recombine4</span>()</span>
-<span id="cb115-1051"><a href="#cb115-1051" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1052"><a href="#cb115-1052" aria-hidden="true" tabindex="-1"></a><span class="fu">random_hcpcs</span>(<span class="dv">50</span>) <span class="sc">|&gt;</span></span>
-<span id="cb115-1053"><a href="#cb115-1053" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_lengths</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1054"><a href="#cb115-1054" aria-hidden="true" tabindex="-1"></a>  <span class="fu">remove_redundant</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1055"><a href="#cb115-1055" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_first</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1056"><a href="#cb115-1056" aria-hidden="true" tabindex="-1"></a>  <span class="fu">process_groups</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1057"><a href="#cb115-1057" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reduce_groups</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb115-1058"><a href="#cb115-1058" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recombine4</span>()</span>
-<span id="cb115-1059"><a href="#cb115-1059" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb115-1060"><a href="#cb115-1060" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1061"><a href="#cb115-1061" aria-hidden="true" tabindex="-1"></a><span class="fu">## recombine5</span></span>
-<span id="cb115-1062"><a href="#cb115-1062" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1065"><a href="#cb115-1065" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb115-1066"><a href="#cb115-1066" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: recombine5</span></span>
-<span id="cb115-1067"><a href="#cb115-1067" aria-hidden="true" tabindex="-1"></a>recombine5 <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
-<span id="cb115-1068"><a href="#cb115-1068" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb115-1069"><a href="#cb115-1069" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">getelem</span>(x, <span class="st">"g5"</span>)</span>
-<span id="cb115-1070"><a href="#cb115-1070" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb115-1071"><a href="#cb115-1071" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">empty</span>(x)) <span class="fu">return</span>(<span class="fu">character</span>(<span class="dv">0</span>))</span>
-<span id="cb115-1072"><a href="#cb115-1072" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb115-1073"><a href="#cb115-1073" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(</span>
-<span id="cb115-1074"><a href="#cb115-1074" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">empty</span>(x[<span class="fu">vlen</span>(x) <span class="sc">==</span> <span class="dv">1</span>])) <span class="cn">NULL</span> <span class="cf">else</span> <span class="fu">str_glue</span>(<span class="st">"{list_c(x[vlen(x) == 1])}"</span>),</span>
-<span id="cb115-1075"><a href="#cb115-1075" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb115-1076"><a href="#cb115-1076" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">empty</span>(x[<span class="fu">vlen</span>(x) <span class="sc">&gt;</span> <span class="dv">1</span>])) <span class="cn">NULL</span> <span class="cf">else</span> <span class="fu">map</span>(x[<span class="fu">vlen</span>(x) <span class="sc">&gt;</span> <span class="dv">1</span>], <span class="cf">function</span>(x) {</span>
-<span id="cb115-1077"><a href="#cb115-1077" aria-hidden="true" tabindex="-1"></a>          </span>
-<span id="cb115-1078"><a href="#cb115-1078" aria-hidden="true" tabindex="-1"></a>          front <span class="ot">&lt;-</span> <span class="fu">uniq</span>(<span class="fu">sf_sub</span>(<span class="fu">delist</span>(x), <span class="at">start =</span> <span class="dv">1</span>, <span class="at">stop =</span> <span class="dv">1</span>))</span>
-<span id="cb115-1079"><a href="#cb115-1079" aria-hidden="true" tabindex="-1"></a>          </span>
-<span id="cb115-1080"><a href="#cb115-1080" aria-hidden="true" tabindex="-1"></a>          back  <span class="ot">&lt;-</span> <span class="fu">sf_collapse</span>(<span class="fu">sf_remove</span>(<span class="fu">delist</span>(x), <span class="fu">str_glue</span>(<span class="st">"^[{front}]{{1}}"</span>)), <span class="at">collapse =</span> <span class="st">"|"</span>)</span>
-<span id="cb115-1081"><a href="#cb115-1081" aria-hidden="true" tabindex="-1"></a>          </span>
-<span id="cb115-1082"><a href="#cb115-1082" aria-hidden="true" tabindex="-1"></a>          <span class="fu">str_glue</span>(<span class="st">"{front}({back})"</span>)</span>
-<span id="cb115-1083"><a href="#cb115-1083" aria-hidden="true" tabindex="-1"></a>          </span>
-<span id="cb115-1084"><a href="#cb115-1084" aria-hidden="true" tabindex="-1"></a>          })</span>
-<span id="cb115-1085"><a href="#cb115-1085" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb115-1086"><a href="#cb115-1086" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb115-1087"><a href="#cb115-1087" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1088"><a href="#cb115-1088" aria-hidden="true" tabindex="-1"></a>long_test2[<span class="fu">sf_nchar</span>(long_test2) <span class="sc">==</span> <span class="dv">5</span>] <span class="sc">|&gt;</span></span>
-<span id="cb115-1089"><a href="#cb115-1089" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_lengths</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1090"><a href="#cb115-1090" aria-hidden="true" tabindex="-1"></a>  <span class="fu">remove_redundant</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1091"><a href="#cb115-1091" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_first</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1092"><a href="#cb115-1092" aria-hidden="true" tabindex="-1"></a>  <span class="fu">process_groups</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb115-1093"><a href="#cb115-1093" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reduce_groups</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb115-1094"><a href="#cb115-1094" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recombine5</span>()</span>
-<span id="cb115-1095"><a href="#cb115-1095" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1096"><a href="#cb115-1096" aria-hidden="true" tabindex="-1"></a><span class="fu">random_hcpcs</span>(<span class="dv">50</span>) <span class="sc">|&gt;</span></span>
-<span id="cb115-1097"><a href="#cb115-1097" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_lengths</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1098"><a href="#cb115-1098" aria-hidden="true" tabindex="-1"></a>  <span class="fu">remove_redundant</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1099"><a href="#cb115-1099" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_first</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1100"><a href="#cb115-1100" aria-hidden="true" tabindex="-1"></a>  <span class="fu">process_groups</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1101"><a href="#cb115-1101" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reduce_groups</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb115-1102"><a href="#cb115-1102" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recombine5</span>()</span>
-<span id="cb115-1103"><a href="#cb115-1103" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb115-1104"><a href="#cb115-1104" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1105"><a href="#cb115-1105" aria-hidden="true" tabindex="-1"></a><span class="fu">## recombine_groups</span></span>
-<span id="cb115-1106"><a href="#cb115-1106" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1109"><a href="#cb115-1109" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb115-1110"><a href="#cb115-1110" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: recombine_groups</span></span>
-<span id="cb115-1111"><a href="#cb115-1111" aria-hidden="true" tabindex="-1"></a>recombine_groups <span class="ot">&lt;-</span> \(x) {</span>
-<span id="cb115-1112"><a href="#cb115-1112" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb115-1113"><a href="#cb115-1113" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(</span>
-<span id="cb115-1114"><a href="#cb115-1114" aria-hidden="true" tabindex="-1"></a>    <span class="at">v1 =</span> x<span class="sc">$</span>g1,</span>
-<span id="cb115-1115"><a href="#cb115-1115" aria-hidden="true" tabindex="-1"></a>    <span class="at">v2 =</span> <span class="fu">recombine2</span>(x),</span>
-<span id="cb115-1116"><a href="#cb115-1116" aria-hidden="true" tabindex="-1"></a>    <span class="at">v3 =</span> <span class="fu">recombine3</span>(x),</span>
-<span id="cb115-1117"><a href="#cb115-1117" aria-hidden="true" tabindex="-1"></a>    <span class="at">v4 =</span> <span class="fu">recombine4</span>(x),</span>
-<span id="cb115-1118"><a href="#cb115-1118" aria-hidden="true" tabindex="-1"></a>    <span class="at">v5 =</span> <span class="fu">recombine5</span>(x)</span>
-<span id="cb115-1119"><a href="#cb115-1119" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb115-1120"><a href="#cb115-1120" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb115-1121"><a href="#cb115-1121" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1122"><a href="#cb115-1122" aria-hidden="true" tabindex="-1"></a>long_test2 <span class="sc">|&gt;</span></span>
-<span id="cb115-1123"><a href="#cb115-1123" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_lengths</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1124"><a href="#cb115-1124" aria-hidden="true" tabindex="-1"></a>  <span class="fu">remove_redundant</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1125"><a href="#cb115-1125" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_first</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1126"><a href="#cb115-1126" aria-hidden="true" tabindex="-1"></a>  <span class="fu">process_groups</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb115-1127"><a href="#cb115-1127" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reduce_groups</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb115-1128"><a href="#cb115-1128" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recombine_groups</span>()</span>
-<span id="cb115-1129"><a href="#cb115-1129" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1130"><a href="#cb115-1130" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1131"><a href="#cb115-1131" aria-hidden="true" tabindex="-1"></a><span class="fu">random_hcpcs</span>(<span class="dv">50</span>) <span class="sc">|&gt;</span></span>
-<span id="cb115-1132"><a href="#cb115-1132" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_lengths</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1133"><a href="#cb115-1133" aria-hidden="true" tabindex="-1"></a>  <span class="fu">remove_redundant</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1134"><a href="#cb115-1134" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_first</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1135"><a href="#cb115-1135" aria-hidden="true" tabindex="-1"></a>  <span class="fu">process_groups</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1136"><a href="#cb115-1136" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reduce_groups</span>() <span class="sc">|&gt;</span></span>
-<span id="cb115-1137"><a href="#cb115-1137" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recombine_groups</span>()</span>
-<span id="cb115-1138"><a href="#cb115-1138" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb115-1139"><a href="#cb115-1139" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1140"><a href="#cb115-1140" aria-hidden="true" tabindex="-1"></a>::: </span>
-<span id="cb115-1141"><a href="#cb115-1141" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1142"><a href="#cb115-1142" aria-hidden="true" tabindex="-1"></a>&lt;hr&gt;</span>
-<span id="cb115-1143"><a href="#cb115-1143" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1144"><a href="#cb115-1144" aria-hidden="true" tabindex="-1"></a>{{&lt; pagebreak &gt;}}</span>
-<span id="cb115-1145"><a href="#cb115-1145" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1146"><a href="#cb115-1146" aria-hidden="true" tabindex="-1"></a><span class="fu"># Collapse Regex</span></span>
-<span id="cb115-1147"><a href="#cb115-1147" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1150"><a href="#cb115-1150" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb115-1151"><a href="#cb115-1151" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: collapse_regex</span></span>
-<span id="cb115-1152"><a href="#cb115-1152" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb115-1153"><a href="#cb115-1153" aria-hidden="true" tabindex="-1"></a><span class="co">#| error: true</span></span>
-<span id="cb115-1154"><a href="#cb115-1154" aria-hidden="true" tabindex="-1"></a>vec_to_regex <span class="ot">&lt;-</span> vrg <span class="ot">&lt;-</span> \(x, n) {</span>
-<span id="cb115-1155"><a href="#cb115-1155" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb115-1156"><a href="#cb115-1156" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">empty</span>(x)) </span>
-<span id="cb115-1157"><a href="#cb115-1157" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">character</span>(<span class="dv">0</span>))</span>
-<span id="cb115-1158"><a href="#cb115-1158" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb115-1159"><a href="#cb115-1159" aria-hidden="true" tabindex="-1"></a>  post <span class="ot">&lt;-</span> <span class="fu">iif_else</span>(<span class="fu">sf_detect</span>(x, <span class="st">"^</span><span class="sc">\\</span><span class="st">[?[A-Z]</span><span class="sc">\\</span><span class="st">-?"</span>), <span class="st">"[0-9]"</span>, <span class="st">"[A-Z0-9]"</span>)</span>
-<span id="cb115-1160"><a href="#cb115-1160" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb115-1161"><a href="#cb115-1161" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">fcase</span>(</span>
-<span id="cb115-1162"><a href="#cb115-1162" aria-hidden="true" tabindex="-1"></a>    n <span class="sc">==</span> <span class="dv">0</span>, glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"^{x}$"</span>),                </span>
-<span id="cb115-1163"><a href="#cb115-1163" aria-hidden="true" tabindex="-1"></a>    n <span class="sc">==</span> <span class="dv">1</span>, glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"^{x}{post}$"</span>),</span>
-<span id="cb115-1164"><a href="#cb115-1164" aria-hidden="true" tabindex="-1"></a>    n <span class="sc">==</span> <span class="dv">2</span>, glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"^{x}{post}{{2}}$"</span>),</span>
-<span id="cb115-1165"><a href="#cb115-1165" aria-hidden="true" tabindex="-1"></a>    n <span class="sc">==</span> <span class="dv">3</span>, glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"^{x}{post}{{3}}$"</span>)</span>
-<span id="cb115-1166"><a href="#cb115-1166" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb115-1167"><a href="#cb115-1167" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb115-1168"><a href="#cb115-1168" aria-hidden="true" tabindex="-1"></a>  glue<span class="sc">::</span><span class="fu">glue_collapse</span>(x)</span>
-<span id="cb115-1169"><a href="#cb115-1169" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb115-1170"><a href="#cb115-1170" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1171"><a href="#cb115-1171" aria-hidden="true" tabindex="-1"></a>collapse_regex <span class="ot">&lt;-</span> \(x) {</span>
-<span id="cb115-1172"><a href="#cb115-1172" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb115-1173"><a href="#cb115-1173" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(</span>
-<span id="cb115-1174"><a href="#cb115-1174" aria-hidden="true" tabindex="-1"></a>    <span class="at">g1 =</span> <span class="fu">red1</span>(x),</span>
-<span id="cb115-1175"><a href="#cb115-1175" aria-hidden="true" tabindex="-1"></a>    <span class="at">g2 =</span> <span class="fu">map_chr</span>(x<span class="sc">$</span>g2, red2) <span class="sc">|&gt;</span> <span class="fu">map_chr</span>(vrg, <span class="at">n =</span> <span class="dv">3</span>) <span class="sc">|&gt;</span> glue<span class="sc">::</span><span class="fu">as_glue</span>(),</span>
-<span id="cb115-1176"><a href="#cb115-1176" aria-hidden="true" tabindex="-1"></a>    <span class="at">g3 =</span> <span class="fu">map_chr</span>(x<span class="sc">$</span>g3, red3) <span class="sc">|&gt;</span> <span class="fu">map_chr</span>(vrg, <span class="at">n =</span> <span class="dv">2</span>) <span class="sc">|&gt;</span> glue<span class="sc">::</span><span class="fu">as_glue</span>(),</span>
-<span id="cb115-1177"><a href="#cb115-1177" aria-hidden="true" tabindex="-1"></a>    <span class="at">g4 =</span> <span class="fu">map_chr</span>(x<span class="sc">$</span>g4, red4) <span class="sc">|&gt;</span> <span class="fu">map_chr</span>(vrg, <span class="at">n =</span> <span class="dv">1</span>) <span class="sc">|&gt;</span> glue<span class="sc">::</span><span class="fu">as_glue</span>(),</span>
-<span id="cb115-1178"><a href="#cb115-1178" aria-hidden="true" tabindex="-1"></a>    <span class="at">g5 =</span> <span class="fu">map_chr</span>(x<span class="sc">$</span>g5, red5) <span class="sc">|&gt;</span> <span class="fu">map_chr</span>(vrg, <span class="at">n =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> glue<span class="sc">::</span><span class="fu">as_glue</span>()</span>
-<span id="cb115-1179"><a href="#cb115-1179" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb115-1180"><a href="#cb115-1180" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb115-1181"><a href="#cb115-1181" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb115-1182"><a href="#cb115-1182" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1183"><a href="#cb115-1183" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1186"><a href="#cb115-1186" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb115-1187"><a href="#cb115-1187" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: final_output</span></span>
-<span id="cb115-1188"><a href="#cb115-1188" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb115-1189"><a href="#cb115-1189" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
-<span id="cb115-1190"><a href="#cb115-1190" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb115-1191"><a href="#cb115-1191" aria-hidden="true" tabindex="-1"></a><span class="co">#| error: true</span></span>
-<span id="cb115-1192"><a href="#cb115-1192" aria-hidden="true" tabindex="-1"></a>medrex <span class="ot">&lt;-</span> <span class="cf">function</span>(x, <span class="at">verbose =</span> <span class="cn">TRUE</span>) {</span>
-<span id="cb115-1193"><a href="#cb115-1193" aria-hidden="true" tabindex="-1"></a>  x <span class="sc">|&gt;</span> </span>
-<span id="cb115-1194"><a href="#cb115-1194" aria-hidden="true" tabindex="-1"></a>    <span class="fu">split_lengths</span>(<span class="at">verbose =</span> verbose) <span class="sc">|&gt;</span> </span>
-<span id="cb115-1195"><a href="#cb115-1195" aria-hidden="true" tabindex="-1"></a>    <span class="fu">remove_redundant</span>(<span class="at">verbose =</span> verbose) <span class="sc">|&gt;</span> </span>
-<span id="cb115-1196"><a href="#cb115-1196" aria-hidden="true" tabindex="-1"></a>    <span class="fu">process_groups</span>(<span class="at">verbose =</span> verbose) <span class="sc">|&gt;</span> </span>
-<span id="cb115-1197"><a href="#cb115-1197" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reduce_groups</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb115-1198"><a href="#cb115-1198" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unlist</span>(<span class="at">use.names =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb115-1199"><a href="#cb115-1199" aria-hidden="true" tabindex="-1"></a>    glue<span class="sc">::</span><span class="fu">glue_collapse</span>(<span class="at">sep =</span> <span class="st">"|"</span>)</span>
-<span id="cb115-1200"><a href="#cb115-1200" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb115-1201"><a href="#cb115-1201" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1202"><a href="#cb115-1202" aria-hidden="true" tabindex="-1"></a>long_test2[<span class="fu">nchar</span>(long_test2) <span class="sc">&gt;</span> <span class="dv">4</span>]</span>
-<span id="cb115-1203"><a href="#cb115-1203" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1204"><a href="#cb115-1204" aria-hidden="true" tabindex="-1"></a><span class="co"># REMOVE {1} FROM EXPRS WITH 5 CHARS</span></span>
-<span id="cb115-1205"><a href="#cb115-1205" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1206"><a href="#cb115-1206" aria-hidden="true" tabindex="-1"></a><span class="fu">medrex</span>(long_test2[<span class="fu">nchar</span>(long_test2) <span class="sc">&gt;</span> <span class="dv">4</span>])</span>
-<span id="cb115-1207"><a href="#cb115-1207" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1208"><a href="#cb115-1208" aria-hidden="true" tabindex="-1"></a>vctrs<span class="sc">::</span><span class="fu">vec_slice</span>(</span>
-<span id="cb115-1209"><a href="#cb115-1209" aria-hidden="true" tabindex="-1"></a>  hcpcs, </span>
-<span id="cb115-1210"><a href="#cb115-1210" aria-hidden="true" tabindex="-1"></a>  stringfish<span class="sc">::</span><span class="fu">sf_grepl</span>(</span>
-<span id="cb115-1211"><a href="#cb115-1211" aria-hidden="true" tabindex="-1"></a>    hcpcs, </span>
-<span id="cb115-1212"><a href="#cb115-1212" aria-hidden="true" tabindex="-1"></a>    <span class="fu">medrex</span>(</span>
-<span id="cb115-1213"><a href="#cb115-1213" aria-hidden="true" tabindex="-1"></a>      long_test2[<span class="fu">nchar</span>(long_test2) <span class="sc">&gt;</span> <span class="dv">4</span>],</span>
-<span id="cb115-1214"><a href="#cb115-1214" aria-hidden="true" tabindex="-1"></a>      <span class="at">verbose =</span> <span class="cn">FALSE</span></span>
-<span id="cb115-1215"><a href="#cb115-1215" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb115-1216"><a href="#cb115-1216" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb115-1217"><a href="#cb115-1217" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb115-1218"><a href="#cb115-1218" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb115-1219"><a href="#cb115-1219" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1220"><a href="#cb115-1220" aria-hidden="true" tabindex="-1"></a>&lt;hr&gt;</span>
-<span id="cb115-1221"><a href="#cb115-1221" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1222"><a href="#cb115-1222" aria-hidden="true" tabindex="-1"></a>{{&lt; pagebreak &gt;}}</span>
-<span id="cb115-1223"><a href="#cb115-1223" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1224"><a href="#cb115-1224" aria-hidden="true" tabindex="-1"></a><span class="fu"># S7 Class</span></span>
-<span id="cb115-1225"><a href="#cb115-1225" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1228"><a href="#cb115-1228" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb115-1229"><a href="#cb115-1229" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: s7_class</span></span>
-<span id="cb115-1230"><a href="#cb115-1230" aria-hidden="true" tabindex="-1"></a>hcpcs <span class="ot">&lt;-</span> <span class="fu">new_class</span>(</span>
-<span id="cb115-1231"><a href="#cb115-1231" aria-hidden="true" tabindex="-1"></a>  <span class="at">name =</span> <span class="st">"hcpcs"</span>,</span>
-<span id="cb115-1232"><a href="#cb115-1232" aria-hidden="true" tabindex="-1"></a>  <span class="at">properties =</span> <span class="fu">list</span>(</span>
-<span id="cb115-1233"><a href="#cb115-1233" aria-hidden="true" tabindex="-1"></a>    <span class="at">input =</span> class_vector,</span>
-<span id="cb115-1234"><a href="#cb115-1234" aria-hidden="true" tabindex="-1"></a>    <span class="at">split_length     =</span> <span class="fu">new_property</span>(<span class="at">class =</span> class_list, <span class="at">getter =</span> \(self) <span class="fu">split_lengths</span>(self<span class="sc">@</span>input)),</span>
-<span id="cb115-1235"><a href="#cb115-1235" aria-hidden="true" tabindex="-1"></a>    <span class="at">remove_redundant =</span> <span class="fu">new_property</span>(<span class="at">class =</span> class_list, <span class="at">getter =</span> \(self) <span class="fu">remove_redundant</span>(self<span class="sc">@</span>split_length)),</span>
-<span id="cb115-1236"><a href="#cb115-1236" aria-hidden="true" tabindex="-1"></a>    <span class="at">split_first      =</span> <span class="fu">new_property</span>(<span class="at">class =</span> class_list, <span class="at">getter =</span> \(self) <span class="fu">split_first</span>(self<span class="sc">@</span>remove_redundant)),</span>
-<span id="cb115-1237"><a href="#cb115-1237" aria-hidden="true" tabindex="-1"></a>    <span class="at">process_groups   =</span> <span class="fu">new_property</span>(<span class="at">class =</span> class_list, <span class="at">getter =</span> \(self) <span class="fu">process_groups</span>(self<span class="sc">@</span>split_first)),</span>
-<span id="cb115-1238"><a href="#cb115-1238" aria-hidden="true" tabindex="-1"></a>    <span class="at">reduce_groups    =</span> <span class="fu">new_property</span>(<span class="at">class =</span> class_list, <span class="at">getter =</span> \(self) <span class="fu">reduce_groups</span>(self<span class="sc">@</span>process_groups)),</span>
-<span id="cb115-1239"><a href="#cb115-1239" aria-hidden="true" tabindex="-1"></a>    <span class="at">recombine_groups =</span> <span class="fu">new_property</span>(<span class="at">class =</span> class_list, <span class="at">getter =</span> \(self) <span class="fu">recombine_groups</span>(self<span class="sc">@</span>reduce_groups))</span>
-<span id="cb115-1240"><a href="#cb115-1240" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb115-1241"><a href="#cb115-1241" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb115-1242"><a href="#cb115-1242" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1243"><a href="#cb115-1243" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">hcpcs</span>(<span class="at">input =</span> <span class="fu">random_hcpcs</span>(<span class="dv">50</span>))</span>
-<span id="cb115-1244"><a href="#cb115-1244" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1245"><a href="#cb115-1245" aria-hidden="true" tabindex="-1"></a>x</span>
-<span id="cb115-1246"><a href="#cb115-1246" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb115-1247"><a href="#cb115-1247" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1248"><a href="#cb115-1248" aria-hidden="true" tabindex="-1"></a>&lt;hr&gt;</span>
+<span id="cb115-1020"><a href="#cb115-1020" aria-hidden="true" tabindex="-1"></a><span class="fu">random_hcpcs</span>(<span class="dv">50</span>) <span class="sc">|&gt;</span></span>
+<span id="cb115-1021"><a href="#cb115-1021" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_lengths</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1022"><a href="#cb115-1022" aria-hidden="true" tabindex="-1"></a>  <span class="fu">remove_redundant</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1023"><a href="#cb115-1023" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_first</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1024"><a href="#cb115-1024" aria-hidden="true" tabindex="-1"></a>  <span class="fu">process_groups</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1025"><a href="#cb115-1025" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reduce_groups</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb115-1026"><a href="#cb115-1026" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recombine3</span>()</span>
+<span id="cb115-1027"><a href="#cb115-1027" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb115-1028"><a href="#cb115-1028" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1029"><a href="#cb115-1029" aria-hidden="true" tabindex="-1"></a><span class="fu">## recombine4</span></span>
+<span id="cb115-1030"><a href="#cb115-1030" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1033"><a href="#cb115-1033" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb115-1034"><a href="#cb115-1034" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: recombine4</span></span>
+<span id="cb115-1035"><a href="#cb115-1035" aria-hidden="true" tabindex="-1"></a>recombine4 <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb115-1036"><a href="#cb115-1036" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb115-1037"><a href="#cb115-1037" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">getelem</span>(x, <span class="st">"g4"</span>)</span>
+<span id="cb115-1038"><a href="#cb115-1038" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb115-1039"><a href="#cb115-1039" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">empty</span>(x)) <span class="fu">return</span>(<span class="fu">character</span>(<span class="dv">0</span>))</span>
+<span id="cb115-1040"><a href="#cb115-1040" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb115-1041"><a href="#cb115-1041" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(</span>
+<span id="cb115-1042"><a href="#cb115-1042" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">empty</span>(x[<span class="fu">vlen</span>(x) <span class="sc">==</span> <span class="dv">1</span>])) </span>
+<span id="cb115-1043"><a href="#cb115-1043" aria-hidden="true" tabindex="-1"></a>      <span class="cn">NULL</span> </span>
+<span id="cb115-1044"><a href="#cb115-1044" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span> </span>
+<span id="cb115-1045"><a href="#cb115-1045" aria-hidden="true" tabindex="-1"></a>      <span class="fu">parentheses</span>(</span>
+<span id="cb115-1046"><a href="#cb115-1046" aria-hidden="true" tabindex="-1"></a>        <span class="fu">sf_collapse</span>(</span>
+<span id="cb115-1047"><a href="#cb115-1047" aria-hidden="true" tabindex="-1"></a>          <span class="fu">delist</span>(x[<span class="fu">vlen</span>(x) <span class="sc">==</span> <span class="dv">1</span>]), <span class="at">collapse =</span> <span class="st">"|"</span>)</span>
+<span id="cb115-1048"><a href="#cb115-1048" aria-hidden="true" tabindex="-1"></a>        ) <span class="sc">|&gt;</span></span>
+<span id="cb115-1049"><a href="#cb115-1049" aria-hidden="true" tabindex="-1"></a>      glue<span class="sc">::</span><span class="fu">as_glue</span>(),</span>
+<span id="cb115-1050"><a href="#cb115-1050" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">empty</span>(x[<span class="fu">vlen</span>(x) <span class="sc">&gt;</span> <span class="dv">1</span>])) </span>
+<span id="cb115-1051"><a href="#cb115-1051" aria-hidden="true" tabindex="-1"></a>      <span class="cn">NULL</span> </span>
+<span id="cb115-1052"><a href="#cb115-1052" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span> </span>
+<span id="cb115-1053"><a href="#cb115-1053" aria-hidden="true" tabindex="-1"></a>      <span class="fu">map</span>(x[<span class="fu">vlen</span>(x) <span class="sc">&gt;</span> <span class="dv">1</span>], </span>
+<span id="cb115-1054"><a href="#cb115-1054" aria-hidden="true" tabindex="-1"></a>          <span class="cf">function</span>(x) {</span>
+<span id="cb115-1055"><a href="#cb115-1055" aria-hidden="true" tabindex="-1"></a>          </span>
+<span id="cb115-1056"><a href="#cb115-1056" aria-hidden="true" tabindex="-1"></a>            front <span class="ot">&lt;-</span> <span class="fu">uniq</span>(<span class="fu">sf_sub</span>(<span class="fu">delist</span>(x), <span class="at">start =</span> <span class="dv">1</span>, <span class="at">stop =</span> <span class="dv">1</span>))</span>
+<span id="cb115-1057"><a href="#cb115-1057" aria-hidden="true" tabindex="-1"></a>          </span>
+<span id="cb115-1058"><a href="#cb115-1058" aria-hidden="true" tabindex="-1"></a>            back  <span class="ot">&lt;-</span> <span class="fu">sf_collapse</span>(<span class="fu">sf_remove</span>(<span class="fu">delist</span>(x), <span class="fu">str_glue</span>(<span class="st">"^[{front}]{{1}}"</span>)), <span class="at">collapse =</span> <span class="st">"|"</span>)</span>
+<span id="cb115-1059"><a href="#cb115-1059" aria-hidden="true" tabindex="-1"></a>          </span>
+<span id="cb115-1060"><a href="#cb115-1060" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_glue</span>(<span class="st">"{front}({back})"</span>)</span>
+<span id="cb115-1061"><a href="#cb115-1061" aria-hidden="true" tabindex="-1"></a>          </span>
+<span id="cb115-1062"><a href="#cb115-1062" aria-hidden="true" tabindex="-1"></a>            })) <span class="sc">|&gt;</span> <span class="fu">list_flatten</span>()</span>
+<span id="cb115-1063"><a href="#cb115-1063" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb115-1064"><a href="#cb115-1064" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1065"><a href="#cb115-1065" aria-hidden="true" tabindex="-1"></a>long_test2[<span class="fu">sf_nchar</span>(long_test2) <span class="sc">==</span> <span class="dv">4</span>] <span class="sc">|&gt;</span></span>
+<span id="cb115-1066"><a href="#cb115-1066" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_lengths</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1067"><a href="#cb115-1067" aria-hidden="true" tabindex="-1"></a>  <span class="fu">remove_redundant</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1068"><a href="#cb115-1068" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_first</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1069"><a href="#cb115-1069" aria-hidden="true" tabindex="-1"></a>  <span class="fu">process_groups</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb115-1070"><a href="#cb115-1070" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reduce_groups</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb115-1071"><a href="#cb115-1071" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recombine4</span>()</span>
+<span id="cb115-1072"><a href="#cb115-1072" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1073"><a href="#cb115-1073" aria-hidden="true" tabindex="-1"></a><span class="fu">random_hcpcs</span>(<span class="dv">50</span>) <span class="sc">|&gt;</span></span>
+<span id="cb115-1074"><a href="#cb115-1074" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_lengths</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1075"><a href="#cb115-1075" aria-hidden="true" tabindex="-1"></a>  <span class="fu">remove_redundant</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1076"><a href="#cb115-1076" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_first</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1077"><a href="#cb115-1077" aria-hidden="true" tabindex="-1"></a>  <span class="fu">process_groups</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1078"><a href="#cb115-1078" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reduce_groups</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb115-1079"><a href="#cb115-1079" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recombine4</span>()</span>
+<span id="cb115-1080"><a href="#cb115-1080" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb115-1081"><a href="#cb115-1081" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1082"><a href="#cb115-1082" aria-hidden="true" tabindex="-1"></a><span class="fu">## recombine5</span></span>
+<span id="cb115-1083"><a href="#cb115-1083" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1086"><a href="#cb115-1086" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb115-1087"><a href="#cb115-1087" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: recombine5</span></span>
+<span id="cb115-1088"><a href="#cb115-1088" aria-hidden="true" tabindex="-1"></a>recombine5 <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb115-1089"><a href="#cb115-1089" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb115-1090"><a href="#cb115-1090" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">getelem</span>(x, <span class="st">"g5"</span>)</span>
+<span id="cb115-1091"><a href="#cb115-1091" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb115-1092"><a href="#cb115-1092" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">empty</span>(x)) <span class="fu">return</span>(<span class="fu">character</span>(<span class="dv">0</span>))</span>
+<span id="cb115-1093"><a href="#cb115-1093" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb115-1094"><a href="#cb115-1094" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(</span>
+<span id="cb115-1095"><a href="#cb115-1095" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">empty</span>(x[<span class="fu">vlen</span>(x) <span class="sc">==</span> <span class="dv">1</span>])) </span>
+<span id="cb115-1096"><a href="#cb115-1096" aria-hidden="true" tabindex="-1"></a>      <span class="cn">NULL</span> </span>
+<span id="cb115-1097"><a href="#cb115-1097" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span> </span>
+<span id="cb115-1098"><a href="#cb115-1098" aria-hidden="true" tabindex="-1"></a>      <span class="fu">parentheses</span>(</span>
+<span id="cb115-1099"><a href="#cb115-1099" aria-hidden="true" tabindex="-1"></a>        <span class="fu">sf_collapse</span>(</span>
+<span id="cb115-1100"><a href="#cb115-1100" aria-hidden="true" tabindex="-1"></a>          <span class="fu">delist</span>(x[<span class="fu">vlen</span>(x) <span class="sc">==</span> <span class="dv">1</span>]), <span class="at">collapse =</span> <span class="st">"|"</span>)</span>
+<span id="cb115-1101"><a href="#cb115-1101" aria-hidden="true" tabindex="-1"></a>        ) <span class="sc">|&gt;</span></span>
+<span id="cb115-1102"><a href="#cb115-1102" aria-hidden="true" tabindex="-1"></a>      glue<span class="sc">::</span><span class="fu">as_glue</span>(),</span>
+<span id="cb115-1103"><a href="#cb115-1103" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">empty</span>(x[<span class="fu">vlen</span>(x) <span class="sc">&gt;</span> <span class="dv">1</span>])) </span>
+<span id="cb115-1104"><a href="#cb115-1104" aria-hidden="true" tabindex="-1"></a>      <span class="cn">NULL</span> </span>
+<span id="cb115-1105"><a href="#cb115-1105" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span> </span>
+<span id="cb115-1106"><a href="#cb115-1106" aria-hidden="true" tabindex="-1"></a>      <span class="fu">map</span>(x[<span class="fu">vlen</span>(x) <span class="sc">&gt;</span> <span class="dv">1</span>], </span>
+<span id="cb115-1107"><a href="#cb115-1107" aria-hidden="true" tabindex="-1"></a>          <span class="cf">function</span>(x) {</span>
+<span id="cb115-1108"><a href="#cb115-1108" aria-hidden="true" tabindex="-1"></a>          </span>
+<span id="cb115-1109"><a href="#cb115-1109" aria-hidden="true" tabindex="-1"></a>            front <span class="ot">&lt;-</span> <span class="fu">uniq</span>(<span class="fu">sf_sub</span>(<span class="fu">delist</span>(x), <span class="at">start =</span> <span class="dv">1</span>, <span class="at">stop =</span> <span class="dv">1</span>))</span>
+<span id="cb115-1110"><a href="#cb115-1110" aria-hidden="true" tabindex="-1"></a>          </span>
+<span id="cb115-1111"><a href="#cb115-1111" aria-hidden="true" tabindex="-1"></a>            back  <span class="ot">&lt;-</span> <span class="fu">sf_collapse</span>(<span class="fu">sf_remove</span>(<span class="fu">delist</span>(x), <span class="fu">str_glue</span>(<span class="st">"^[{front}]{{1}}"</span>)), <span class="at">collapse =</span> <span class="st">"|"</span>)</span>
+<span id="cb115-1112"><a href="#cb115-1112" aria-hidden="true" tabindex="-1"></a>          </span>
+<span id="cb115-1113"><a href="#cb115-1113" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_glue</span>(<span class="st">"{front}({back})"</span>)</span>
+<span id="cb115-1114"><a href="#cb115-1114" aria-hidden="true" tabindex="-1"></a>          </span>
+<span id="cb115-1115"><a href="#cb115-1115" aria-hidden="true" tabindex="-1"></a>            })) <span class="sc">|&gt;</span> <span class="fu">list_flatten</span>()</span>
+<span id="cb115-1116"><a href="#cb115-1116" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb115-1117"><a href="#cb115-1117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1118"><a href="#cb115-1118" aria-hidden="true" tabindex="-1"></a>long_test2[<span class="fu">sf_nchar</span>(long_test2) <span class="sc">==</span> <span class="dv">5</span>] <span class="sc">|&gt;</span></span>
+<span id="cb115-1119"><a href="#cb115-1119" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_lengths</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1120"><a href="#cb115-1120" aria-hidden="true" tabindex="-1"></a>  <span class="fu">remove_redundant</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1121"><a href="#cb115-1121" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_first</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1122"><a href="#cb115-1122" aria-hidden="true" tabindex="-1"></a>  <span class="fu">process_groups</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb115-1123"><a href="#cb115-1123" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reduce_groups</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb115-1124"><a href="#cb115-1124" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recombine5</span>()</span>
+<span id="cb115-1125"><a href="#cb115-1125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1126"><a href="#cb115-1126" aria-hidden="true" tabindex="-1"></a><span class="fu">random_hcpcs</span>(<span class="dv">50</span>) <span class="sc">|&gt;</span></span>
+<span id="cb115-1127"><a href="#cb115-1127" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_lengths</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1128"><a href="#cb115-1128" aria-hidden="true" tabindex="-1"></a>  <span class="fu">remove_redundant</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1129"><a href="#cb115-1129" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_first</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1130"><a href="#cb115-1130" aria-hidden="true" tabindex="-1"></a>  <span class="fu">process_groups</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1131"><a href="#cb115-1131" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reduce_groups</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb115-1132"><a href="#cb115-1132" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recombine5</span>()</span>
+<span id="cb115-1133"><a href="#cb115-1133" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb115-1134"><a href="#cb115-1134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1135"><a href="#cb115-1135" aria-hidden="true" tabindex="-1"></a><span class="fu">## recombine_groups</span></span>
+<span id="cb115-1136"><a href="#cb115-1136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1139"><a href="#cb115-1139" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb115-1140"><a href="#cb115-1140" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: recombine_groups</span></span>
+<span id="cb115-1141"><a href="#cb115-1141" aria-hidden="true" tabindex="-1"></a>recombine_groups <span class="ot">&lt;-</span> \(x) {</span>
+<span id="cb115-1142"><a href="#cb115-1142" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb115-1143"><a href="#cb115-1143" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(</span>
+<span id="cb115-1144"><a href="#cb115-1144" aria-hidden="true" tabindex="-1"></a>    <span class="at">v1 =</span> x<span class="sc">$</span>g1,</span>
+<span id="cb115-1145"><a href="#cb115-1145" aria-hidden="true" tabindex="-1"></a>    <span class="at">v2 =</span> <span class="fu">recombine2</span>(x),</span>
+<span id="cb115-1146"><a href="#cb115-1146" aria-hidden="true" tabindex="-1"></a>    <span class="at">v3 =</span> <span class="fu">recombine3</span>(x),</span>
+<span id="cb115-1147"><a href="#cb115-1147" aria-hidden="true" tabindex="-1"></a>    <span class="at">v4 =</span> <span class="fu">recombine4</span>(x),</span>
+<span id="cb115-1148"><a href="#cb115-1148" aria-hidden="true" tabindex="-1"></a>    <span class="at">v5 =</span> <span class="fu">recombine5</span>(x)</span>
+<span id="cb115-1149"><a href="#cb115-1149" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb115-1150"><a href="#cb115-1150" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb115-1151"><a href="#cb115-1151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1152"><a href="#cb115-1152" aria-hidden="true" tabindex="-1"></a>long_test2 <span class="sc">|&gt;</span></span>
+<span id="cb115-1153"><a href="#cb115-1153" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_lengths</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1154"><a href="#cb115-1154" aria-hidden="true" tabindex="-1"></a>  <span class="fu">remove_redundant</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1155"><a href="#cb115-1155" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_first</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1156"><a href="#cb115-1156" aria-hidden="true" tabindex="-1"></a>  <span class="fu">process_groups</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb115-1157"><a href="#cb115-1157" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reduce_groups</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb115-1158"><a href="#cb115-1158" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recombine_groups</span>()</span>
+<span id="cb115-1159"><a href="#cb115-1159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1160"><a href="#cb115-1160" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1161"><a href="#cb115-1161" aria-hidden="true" tabindex="-1"></a><span class="fu">random_hcpcs</span>(<span class="dv">50</span>) <span class="sc">|&gt;</span></span>
+<span id="cb115-1162"><a href="#cb115-1162" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_lengths</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1163"><a href="#cb115-1163" aria-hidden="true" tabindex="-1"></a>  <span class="fu">remove_redundant</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1164"><a href="#cb115-1164" aria-hidden="true" tabindex="-1"></a>  <span class="fu">split_first</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1165"><a href="#cb115-1165" aria-hidden="true" tabindex="-1"></a>  <span class="fu">process_groups</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1166"><a href="#cb115-1166" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reduce_groups</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-1167"><a href="#cb115-1167" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recombine_groups</span>()</span>
+<span id="cb115-1168"><a href="#cb115-1168" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb115-1169"><a href="#cb115-1169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1170"><a href="#cb115-1170" aria-hidden="true" tabindex="-1"></a>::: </span>
+<span id="cb115-1171"><a href="#cb115-1171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1172"><a href="#cb115-1172" aria-hidden="true" tabindex="-1"></a>&lt;hr&gt;</span>
+<span id="cb115-1173"><a href="#cb115-1173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1174"><a href="#cb115-1174" aria-hidden="true" tabindex="-1"></a>{{&lt; pagebreak &gt;}}</span>
+<span id="cb115-1175"><a href="#cb115-1175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1176"><a href="#cb115-1176" aria-hidden="true" tabindex="-1"></a><span class="fu"># Collapse Regex</span></span>
+<span id="cb115-1177"><a href="#cb115-1177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1180"><a href="#cb115-1180" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb115-1181"><a href="#cb115-1181" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: collapse_regex</span></span>
+<span id="cb115-1182"><a href="#cb115-1182" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb115-1183"><a href="#cb115-1183" aria-hidden="true" tabindex="-1"></a><span class="co">#| error: true</span></span>
+<span id="cb115-1184"><a href="#cb115-1184" aria-hidden="true" tabindex="-1"></a>vec_to_regex <span class="ot">&lt;-</span> vrg <span class="ot">&lt;-</span> \(x, n) {</span>
+<span id="cb115-1185"><a href="#cb115-1185" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb115-1186"><a href="#cb115-1186" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">empty</span>(x)) </span>
+<span id="cb115-1187"><a href="#cb115-1187" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">character</span>(<span class="dv">0</span>))</span>
+<span id="cb115-1188"><a href="#cb115-1188" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb115-1189"><a href="#cb115-1189" aria-hidden="true" tabindex="-1"></a>  post <span class="ot">&lt;-</span> <span class="fu">iif_else</span>(<span class="fu">sf_detect</span>(x, <span class="st">"^</span><span class="sc">\\</span><span class="st">[?[A-Z]</span><span class="sc">\\</span><span class="st">-?"</span>), <span class="st">"[0-9]"</span>, <span class="st">"[A-Z0-9]"</span>)</span>
+<span id="cb115-1190"><a href="#cb115-1190" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb115-1191"><a href="#cb115-1191" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">fcase</span>(</span>
+<span id="cb115-1192"><a href="#cb115-1192" aria-hidden="true" tabindex="-1"></a>    n <span class="sc">==</span> <span class="dv">0</span>, glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"^{x}$"</span>),                </span>
+<span id="cb115-1193"><a href="#cb115-1193" aria-hidden="true" tabindex="-1"></a>    n <span class="sc">==</span> <span class="dv">1</span>, glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"^{x}{post}$"</span>),</span>
+<span id="cb115-1194"><a href="#cb115-1194" aria-hidden="true" tabindex="-1"></a>    n <span class="sc">==</span> <span class="dv">2</span>, glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"^{x}{post}{{2}}$"</span>),</span>
+<span id="cb115-1195"><a href="#cb115-1195" aria-hidden="true" tabindex="-1"></a>    n <span class="sc">==</span> <span class="dv">3</span>, glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"^{x}{post}{{3}}$"</span>)</span>
+<span id="cb115-1196"><a href="#cb115-1196" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb115-1197"><a href="#cb115-1197" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb115-1198"><a href="#cb115-1198" aria-hidden="true" tabindex="-1"></a>  glue<span class="sc">::</span><span class="fu">glue_collapse</span>(x)</span>
+<span id="cb115-1199"><a href="#cb115-1199" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb115-1200"><a href="#cb115-1200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1201"><a href="#cb115-1201" aria-hidden="true" tabindex="-1"></a>collapse_regex <span class="ot">&lt;-</span> \(x) {</span>
+<span id="cb115-1202"><a href="#cb115-1202" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb115-1203"><a href="#cb115-1203" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(</span>
+<span id="cb115-1204"><a href="#cb115-1204" aria-hidden="true" tabindex="-1"></a>    <span class="at">g1 =</span> <span class="fu">red1</span>(x),</span>
+<span id="cb115-1205"><a href="#cb115-1205" aria-hidden="true" tabindex="-1"></a>    <span class="at">g2 =</span> <span class="fu">map_chr</span>(x<span class="sc">$</span>g2, red2) <span class="sc">|&gt;</span> <span class="fu">map_chr</span>(vrg, <span class="at">n =</span> <span class="dv">3</span>) <span class="sc">|&gt;</span> glue<span class="sc">::</span><span class="fu">as_glue</span>(),</span>
+<span id="cb115-1206"><a href="#cb115-1206" aria-hidden="true" tabindex="-1"></a>    <span class="at">g3 =</span> <span class="fu">map_chr</span>(x<span class="sc">$</span>g3, red3) <span class="sc">|&gt;</span> <span class="fu">map_chr</span>(vrg, <span class="at">n =</span> <span class="dv">2</span>) <span class="sc">|&gt;</span> glue<span class="sc">::</span><span class="fu">as_glue</span>(),</span>
+<span id="cb115-1207"><a href="#cb115-1207" aria-hidden="true" tabindex="-1"></a>    <span class="at">g4 =</span> <span class="fu">map_chr</span>(x<span class="sc">$</span>g4, red4) <span class="sc">|&gt;</span> <span class="fu">map_chr</span>(vrg, <span class="at">n =</span> <span class="dv">1</span>) <span class="sc">|&gt;</span> glue<span class="sc">::</span><span class="fu">as_glue</span>(),</span>
+<span id="cb115-1208"><a href="#cb115-1208" aria-hidden="true" tabindex="-1"></a>    <span class="at">g5 =</span> <span class="fu">map_chr</span>(x<span class="sc">$</span>g5, red5) <span class="sc">|&gt;</span> <span class="fu">map_chr</span>(vrg, <span class="at">n =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> glue<span class="sc">::</span><span class="fu">as_glue</span>()</span>
+<span id="cb115-1209"><a href="#cb115-1209" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb115-1210"><a href="#cb115-1210" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb115-1211"><a href="#cb115-1211" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb115-1212"><a href="#cb115-1212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1213"><a href="#cb115-1213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1216"><a href="#cb115-1216" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb115-1217"><a href="#cb115-1217" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: final_output</span></span>
+<span id="cb115-1218"><a href="#cb115-1218" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb115-1219"><a href="#cb115-1219" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb115-1220"><a href="#cb115-1220" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb115-1221"><a href="#cb115-1221" aria-hidden="true" tabindex="-1"></a><span class="co">#| error: true</span></span>
+<span id="cb115-1222"><a href="#cb115-1222" aria-hidden="true" tabindex="-1"></a>medrex <span class="ot">&lt;-</span> <span class="cf">function</span>(x, <span class="at">verbose =</span> <span class="cn">TRUE</span>) {</span>
+<span id="cb115-1223"><a href="#cb115-1223" aria-hidden="true" tabindex="-1"></a>  x <span class="sc">|&gt;</span> </span>
+<span id="cb115-1224"><a href="#cb115-1224" aria-hidden="true" tabindex="-1"></a>    <span class="fu">split_lengths</span>(<span class="at">verbose =</span> verbose) <span class="sc">|&gt;</span> </span>
+<span id="cb115-1225"><a href="#cb115-1225" aria-hidden="true" tabindex="-1"></a>    <span class="fu">remove_redundant</span>(<span class="at">verbose =</span> verbose) <span class="sc">|&gt;</span> </span>
+<span id="cb115-1226"><a href="#cb115-1226" aria-hidden="true" tabindex="-1"></a>    <span class="fu">process_groups</span>(<span class="at">verbose =</span> verbose) <span class="sc">|&gt;</span> </span>
+<span id="cb115-1227"><a href="#cb115-1227" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reduce_groups</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb115-1228"><a href="#cb115-1228" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unlist</span>(<span class="at">use.names =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb115-1229"><a href="#cb115-1229" aria-hidden="true" tabindex="-1"></a>    glue<span class="sc">::</span><span class="fu">glue_collapse</span>(<span class="at">sep =</span> <span class="st">"|"</span>)</span>
+<span id="cb115-1230"><a href="#cb115-1230" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb115-1231"><a href="#cb115-1231" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1232"><a href="#cb115-1232" aria-hidden="true" tabindex="-1"></a>long_test2[<span class="fu">nchar</span>(long_test2) <span class="sc">&gt;</span> <span class="dv">4</span>]</span>
+<span id="cb115-1233"><a href="#cb115-1233" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1234"><a href="#cb115-1234" aria-hidden="true" tabindex="-1"></a><span class="co"># REMOVE {1} FROM EXPRS WITH 5 CHARS</span></span>
+<span id="cb115-1235"><a href="#cb115-1235" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1236"><a href="#cb115-1236" aria-hidden="true" tabindex="-1"></a><span class="fu">medrex</span>(long_test2[<span class="fu">nchar</span>(long_test2) <span class="sc">&gt;</span> <span class="dv">4</span>])</span>
+<span id="cb115-1237"><a href="#cb115-1237" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1238"><a href="#cb115-1238" aria-hidden="true" tabindex="-1"></a>vctrs<span class="sc">::</span><span class="fu">vec_slice</span>(</span>
+<span id="cb115-1239"><a href="#cb115-1239" aria-hidden="true" tabindex="-1"></a>  hcpcs, </span>
+<span id="cb115-1240"><a href="#cb115-1240" aria-hidden="true" tabindex="-1"></a>  stringfish<span class="sc">::</span><span class="fu">sf_grepl</span>(</span>
+<span id="cb115-1241"><a href="#cb115-1241" aria-hidden="true" tabindex="-1"></a>    hcpcs, </span>
+<span id="cb115-1242"><a href="#cb115-1242" aria-hidden="true" tabindex="-1"></a>    <span class="fu">medrex</span>(</span>
+<span id="cb115-1243"><a href="#cb115-1243" aria-hidden="true" tabindex="-1"></a>      long_test2[<span class="fu">nchar</span>(long_test2) <span class="sc">&gt;</span> <span class="dv">4</span>],</span>
+<span id="cb115-1244"><a href="#cb115-1244" aria-hidden="true" tabindex="-1"></a>      <span class="at">verbose =</span> <span class="cn">FALSE</span></span>
+<span id="cb115-1245"><a href="#cb115-1245" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb115-1246"><a href="#cb115-1246" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb115-1247"><a href="#cb115-1247" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb115-1248"><a href="#cb115-1248" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb115-1249"><a href="#cb115-1249" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1250"><a href="#cb115-1250" aria-hidden="true" tabindex="-1"></a>{{&lt; pagebreak &gt;}}</span>
+<span id="cb115-1250"><a href="#cb115-1250" aria-hidden="true" tabindex="-1"></a>&lt;hr&gt;</span>
 <span id="cb115-1251"><a href="#cb115-1251" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1252"><a href="#cb115-1252" aria-hidden="true" tabindex="-1"></a>::: {#nte-references .callout-tip collapse="true"}</span>
+<span id="cb115-1252"><a href="#cb115-1252" aria-hidden="true" tabindex="-1"></a>{{&lt; pagebreak &gt;}}</span>
 <span id="cb115-1253"><a href="#cb115-1253" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1254"><a href="#cb115-1254" aria-hidden="true" tabindex="-1"></a><span class="fu">## Links</span></span>
-<span id="cb115-1255"><a href="#cb115-1255" aria-hidden="true" tabindex="-1"></a><span class="fu">### Reference</span></span>
-<span id="cb115-1256"><a href="#cb115-1256" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1257"><a href="#cb115-1257" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">Regex Cheatsheet</span><span class="co">](https://github.com/raredd/regex)</span></span>
-<span id="cb115-1258"><a href="#cb115-1258" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">Learn Regex</span><span class="co">](https://github.com/ziishaned/learn-regex)</span></span>
-<span id="cb115-1259"><a href="#cb115-1259" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">Evaluating strings as code</span><span class="co">](https://josiahparry.com/posts/2024-06-13-eval-strings)</span></span>
-<span id="cb115-1260"><a href="#cb115-1260" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">Building rules from code operands</span><span class="co">](https://github.com/Permian-Global-Research/rsi)</span></span>
-<span id="cb115-1261"><a href="#cb115-1261" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">Filter logic</span><span class="co">](https://github.com/atorus-research/ardis/blob/main/R/denom.R)</span></span>
-<span id="cb115-1262"><a href="#cb115-1262" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">Regular-Expression.info</span><span class="co">](https://www.regular-expressions.info/tutorial.html)</span></span>
-<span id="cb115-1263"><a href="#cb115-1263" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">RexEgg</span><span class="co">](https://www.rexegg.com/)</span></span>
-<span id="cb115-1264"><a href="#cb115-1264" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">Regular Expressions as used in R</span><span class="co">](https://stat.ethz.ch/R-manual/R-devel/library/base/html/regex.html)</span></span>
-<span id="cb115-1265"><a href="#cb115-1265" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">Debuggex</span><span class="co">](https://www.debuggex.com/)</span></span>
-<span id="cb115-1266"><a href="#cb115-1266" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1267"><a href="#cb115-1267" aria-hidden="true" tabindex="-1"></a><span class="fu">### Packages</span></span>
-<span id="cb115-1268"><a href="#cb115-1268" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1269"><a href="#cb115-1269" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**textshape**</span><span class="co">](https://github.com/trinker/textshape)</span></span>
-<span id="cb115-1270"><a href="#cb115-1270" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**stringr.plus**</span><span class="co">](https://github.com/johncassil/stringr.plus)</span></span>
-<span id="cb115-1271"><a href="#cb115-1271" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**regexmagic**</span><span class="co">](https://github.com/jonocarroll/regexmagic)</span></span>
-<span id="cb115-1272"><a href="#cb115-1272" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**makeunique**</span><span class="co">](https://github.com/selkamand/makeunique)</span></span>
-<span id="cb115-1273"><a href="#cb115-1273" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**similiars**</span><span class="co">](https://github.com/davidsjoberg/similiars)</span></span>
-<span id="cb115-1274"><a href="#cb115-1274" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**strex**</span><span class="co">](https://github.com/rorynolan/strex/)</span></span>
-<span id="cb115-1275"><a href="#cb115-1275" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**stringfish**</span><span class="co">](https://github.com/traversc/stringfish)</span></span>
-<span id="cb115-1276"><a href="#cb115-1276" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**collapse**</span><span class="co">](https://sebkrantz.github.io/collapse/)</span></span>
-<span id="cb115-1277"><a href="#cb115-1277" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**kit**</span><span class="co">](https://github.com/2005m/kit)</span></span>
-<span id="cb115-1278"><a href="#cb115-1278" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**cheapr**</span><span class="co">](https://github.com/NicChr/cheapr)</span></span>
-<span id="cb115-1279"><a href="#cb115-1279" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**fastplyr**</span><span class="co">](https://github.com/NicChr/fastplyr)</span></span>
-<span id="cb115-1280"><a href="#cb115-1280" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**stringi**</span><span class="co">](https://stringi.gagolewski.com/)</span></span>
-<span id="cb115-1281"><a href="#cb115-1281" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**qdapRegex**</span><span class="co">](https://github.com/trinker/qdapRegex)</span></span>
-<span id="cb115-1282"><a href="#cb115-1282" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**charcuterie**</span><span class="co">](https://github.com/jonocarroll/charcuterie)</span></span>
+<span id="cb115-1254"><a href="#cb115-1254" aria-hidden="true" tabindex="-1"></a><span class="fu"># S7 Class</span></span>
+<span id="cb115-1255"><a href="#cb115-1255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1258"><a href="#cb115-1258" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb115-1259"><a href="#cb115-1259" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: s7_class</span></span>
+<span id="cb115-1260"><a href="#cb115-1260" aria-hidden="true" tabindex="-1"></a>hcpcs <span class="ot">&lt;-</span> <span class="fu">new_class</span>(</span>
+<span id="cb115-1261"><a href="#cb115-1261" aria-hidden="true" tabindex="-1"></a>  <span class="at">name =</span> <span class="st">"hcpcs"</span>,</span>
+<span id="cb115-1262"><a href="#cb115-1262" aria-hidden="true" tabindex="-1"></a>  <span class="at">properties =</span> <span class="fu">list</span>(</span>
+<span id="cb115-1263"><a href="#cb115-1263" aria-hidden="true" tabindex="-1"></a>    <span class="at">input =</span> class_vector,</span>
+<span id="cb115-1264"><a href="#cb115-1264" aria-hidden="true" tabindex="-1"></a>    <span class="at">split_length     =</span> <span class="fu">new_property</span>(<span class="at">class =</span> class_list, <span class="at">getter =</span> \(self) <span class="fu">split_lengths</span>(self<span class="sc">@</span>input)),</span>
+<span id="cb115-1265"><a href="#cb115-1265" aria-hidden="true" tabindex="-1"></a>    <span class="at">remove_redundant =</span> <span class="fu">new_property</span>(<span class="at">class =</span> class_list, <span class="at">getter =</span> \(self) <span class="fu">remove_redundant</span>(self<span class="sc">@</span>split_length)),</span>
+<span id="cb115-1266"><a href="#cb115-1266" aria-hidden="true" tabindex="-1"></a>    <span class="at">split_first      =</span> <span class="fu">new_property</span>(<span class="at">class =</span> class_list, <span class="at">getter =</span> \(self) <span class="fu">split_first</span>(self<span class="sc">@</span>remove_redundant)),</span>
+<span id="cb115-1267"><a href="#cb115-1267" aria-hidden="true" tabindex="-1"></a>    <span class="at">process_groups   =</span> <span class="fu">new_property</span>(<span class="at">class =</span> class_list, <span class="at">getter =</span> \(self) <span class="fu">process_groups</span>(self<span class="sc">@</span>split_first)),</span>
+<span id="cb115-1268"><a href="#cb115-1268" aria-hidden="true" tabindex="-1"></a>    <span class="at">reduce_groups    =</span> <span class="fu">new_property</span>(<span class="at">class =</span> class_list, <span class="at">getter =</span> \(self) <span class="fu">reduce_groups</span>(self<span class="sc">@</span>process_groups)),</span>
+<span id="cb115-1269"><a href="#cb115-1269" aria-hidden="true" tabindex="-1"></a>    <span class="at">recombine_groups =</span> <span class="fu">new_property</span>(<span class="at">class =</span> class_list, <span class="at">getter =</span> \(self) <span class="fu">recombine_groups</span>(self<span class="sc">@</span>reduce_groups))</span>
+<span id="cb115-1270"><a href="#cb115-1270" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb115-1271"><a href="#cb115-1271" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb115-1272"><a href="#cb115-1272" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1273"><a href="#cb115-1273" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">hcpcs</span>(<span class="at">input =</span> <span class="fu">random_hcpcs</span>(<span class="dv">50</span>))</span>
+<span id="cb115-1274"><a href="#cb115-1274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1275"><a href="#cb115-1275" aria-hidden="true" tabindex="-1"></a>x</span>
+<span id="cb115-1276"><a href="#cb115-1276" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb115-1277"><a href="#cb115-1277" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1278"><a href="#cb115-1278" aria-hidden="true" tabindex="-1"></a>&lt;hr&gt;</span>
+<span id="cb115-1279"><a href="#cb115-1279" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1280"><a href="#cb115-1280" aria-hidden="true" tabindex="-1"></a>{{&lt; pagebreak &gt;}}</span>
+<span id="cb115-1281"><a href="#cb115-1281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1282"><a href="#cb115-1282" aria-hidden="true" tabindex="-1"></a>::: {#nte-references .callout-tip collapse="true"}</span>
 <span id="cb115-1283"><a href="#cb115-1283" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1284"><a href="#cb115-1284" aria-hidden="true" tabindex="-1"></a><span class="fu">### Functions</span></span>
-<span id="cb115-1285"><a href="#cb115-1285" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1286"><a href="#cb115-1286" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">mark::globbing</span><span class="co">](https://github.com/jmbarbone/mark/blob/main/R/glob.R)</span></span>
-<span id="cb115-1287"><a href="#cb115-1287" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">RUtil::make_unique_comb</span><span class="co">](https://github.com/raivokolde/RUtil/blob/master/Source/R/make_unique_comb.r)</span></span>
-<span id="cb115-1288"><a href="#cb115-1288" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">mirmisc::longest_common_substring</span><span class="co">](https://github.com/mirvie/mirmisc/blob/main/R/utils.R)</span></span>
-<span id="cb115-1289"><a href="#cb115-1289" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">hutils::longest prefix/suffix</span><span class="co">](https://github.com/HughParsonage/hutils/blob/master/R/longest_affix.R)</span></span>
-<span id="cb115-1290"><a href="#cb115-1290" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">tidyext::combn_2_col</span><span class="co">](https://github.com/m-clark/tidyext/blob/master/R/combn_2_col.R)</span></span>
-<span id="cb115-1291"><a href="#cb115-1291" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1292"><a href="#cb115-1292" aria-hidden="true" tabindex="-1"></a>::: </span>
-<span id="cb115-1293"><a href="#cb115-1293" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1294"><a href="#cb115-1294" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1295"><a href="#cb115-1295" aria-hidden="true" tabindex="-1"></a><span class="fu">## Session Information </span></span>
+<span id="cb115-1284"><a href="#cb115-1284" aria-hidden="true" tabindex="-1"></a><span class="fu">## Links</span></span>
+<span id="cb115-1285"><a href="#cb115-1285" aria-hidden="true" tabindex="-1"></a><span class="fu">### Reference</span></span>
+<span id="cb115-1286"><a href="#cb115-1286" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1287"><a href="#cb115-1287" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">Regex Cheatsheet</span><span class="co">](https://github.com/raredd/regex)</span></span>
+<span id="cb115-1288"><a href="#cb115-1288" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">Learn Regex</span><span class="co">](https://github.com/ziishaned/learn-regex)</span></span>
+<span id="cb115-1289"><a href="#cb115-1289" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">Evaluating strings as code</span><span class="co">](https://josiahparry.com/posts/2024-06-13-eval-strings)</span></span>
+<span id="cb115-1290"><a href="#cb115-1290" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">Building rules from code operands</span><span class="co">](https://github.com/Permian-Global-Research/rsi)</span></span>
+<span id="cb115-1291"><a href="#cb115-1291" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">Filter logic</span><span class="co">](https://github.com/atorus-research/ardis/blob/main/R/denom.R)</span></span>
+<span id="cb115-1292"><a href="#cb115-1292" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">Regular-Expression.info</span><span class="co">](https://www.regular-expressions.info/tutorial.html)</span></span>
+<span id="cb115-1293"><a href="#cb115-1293" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">RexEgg</span><span class="co">](https://www.rexegg.com/)</span></span>
+<span id="cb115-1294"><a href="#cb115-1294" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">Regular Expressions as used in R</span><span class="co">](https://stat.ethz.ch/R-manual/R-devel/library/base/html/regex.html)</span></span>
+<span id="cb115-1295"><a href="#cb115-1295" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">Debuggex</span><span class="co">](https://www.debuggex.com/)</span></span>
 <span id="cb115-1296"><a href="#cb115-1296" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb115-1299"><a href="#cb115-1299" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb115-1300"><a href="#cb115-1300" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
-<span id="cb115-1301"><a href="#cb115-1301" aria-hidden="true" tabindex="-1"></a>pander<span class="sc">::</span><span class="fu">pander</span>(<span class="fu">sessionInfo</span>())</span>
-<span id="cb115-1302"><a href="#cb115-1302" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb115-1297"><a href="#cb115-1297" aria-hidden="true" tabindex="-1"></a><span class="fu">### Packages</span></span>
+<span id="cb115-1298"><a href="#cb115-1298" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1299"><a href="#cb115-1299" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**textshape**</span><span class="co">](https://github.com/trinker/textshape)</span></span>
+<span id="cb115-1300"><a href="#cb115-1300" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**stringr.plus**</span><span class="co">](https://github.com/johncassil/stringr.plus)</span></span>
+<span id="cb115-1301"><a href="#cb115-1301" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**regexmagic**</span><span class="co">](https://github.com/jonocarroll/regexmagic)</span></span>
+<span id="cb115-1302"><a href="#cb115-1302" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**makeunique**</span><span class="co">](https://github.com/selkamand/makeunique)</span></span>
+<span id="cb115-1303"><a href="#cb115-1303" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**similiars**</span><span class="co">](https://github.com/davidsjoberg/similiars)</span></span>
+<span id="cb115-1304"><a href="#cb115-1304" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**strex**</span><span class="co">](https://github.com/rorynolan/strex/)</span></span>
+<span id="cb115-1305"><a href="#cb115-1305" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**stringfish**</span><span class="co">](https://github.com/traversc/stringfish)</span></span>
+<span id="cb115-1306"><a href="#cb115-1306" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**collapse**</span><span class="co">](https://sebkrantz.github.io/collapse/)</span></span>
+<span id="cb115-1307"><a href="#cb115-1307" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**kit**</span><span class="co">](https://github.com/2005m/kit)</span></span>
+<span id="cb115-1308"><a href="#cb115-1308" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**cheapr**</span><span class="co">](https://github.com/NicChr/cheapr)</span></span>
+<span id="cb115-1309"><a href="#cb115-1309" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**fastplyr**</span><span class="co">](https://github.com/NicChr/fastplyr)</span></span>
+<span id="cb115-1310"><a href="#cb115-1310" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**stringi**</span><span class="co">](https://stringi.gagolewski.com/)</span></span>
+<span id="cb115-1311"><a href="#cb115-1311" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**qdapRegex**</span><span class="co">](https://github.com/trinker/qdapRegex)</span></span>
+<span id="cb115-1312"><a href="#cb115-1312" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">**charcuterie**</span><span class="co">](https://github.com/jonocarroll/charcuterie)</span></span>
+<span id="cb115-1313"><a href="#cb115-1313" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1314"><a href="#cb115-1314" aria-hidden="true" tabindex="-1"></a><span class="fu">### Functions</span></span>
+<span id="cb115-1315"><a href="#cb115-1315" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1316"><a href="#cb115-1316" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">mark::globbing</span><span class="co">](https://github.com/jmbarbone/mark/blob/main/R/glob.R)</span></span>
+<span id="cb115-1317"><a href="#cb115-1317" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">RUtil::make_unique_comb</span><span class="co">](https://github.com/raivokolde/RUtil/blob/master/Source/R/make_unique_comb.r)</span></span>
+<span id="cb115-1318"><a href="#cb115-1318" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">mirmisc::longest_common_substring</span><span class="co">](https://github.com/mirvie/mirmisc/blob/main/R/utils.R)</span></span>
+<span id="cb115-1319"><a href="#cb115-1319" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">hutils::longest prefix/suffix</span><span class="co">](https://github.com/HughParsonage/hutils/blob/master/R/longest_affix.R)</span></span>
+<span id="cb115-1320"><a href="#cb115-1320" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">tidyext::combn_2_col</span><span class="co">](https://github.com/m-clark/tidyext/blob/master/R/combn_2_col.R)</span></span>
+<span id="cb115-1321"><a href="#cb115-1321" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1322"><a href="#cb115-1322" aria-hidden="true" tabindex="-1"></a>::: </span>
+<span id="cb115-1323"><a href="#cb115-1323" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1324"><a href="#cb115-1324" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1325"><a href="#cb115-1325" aria-hidden="true" tabindex="-1"></a><span class="fu">## Session Information </span></span>
+<span id="cb115-1326"><a href="#cb115-1326" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-1329"><a href="#cb115-1329" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb115-1330"><a href="#cb115-1330" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb115-1331"><a href="#cb115-1331" aria-hidden="true" tabindex="-1"></a>pander<span class="sc">::</span><span class="fu">pander</span>(<span class="fu">sessionInfo</span>())</span>
+<span id="cb115-1332"><a href="#cb115-1332" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

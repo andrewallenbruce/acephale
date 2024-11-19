@@ -532,7 +532,8 @@ long_test2[nchar(long_test2) == 5] |>
   split_lengths() |> 
   remove_redundant() |>
   split_first() |>
-  group_5()
+  group_5() |> 
+  nametree()
 
 random_hcpcs() |> 
   split_lengths() |> 
@@ -552,8 +553,7 @@ process_groups <- function(x) {
     g2 = x$x2,
     g3 = group_3(x),
     g4 = group_4(x),
-    g5 = group_5(x)
-    )
+    g5 = group_5(x))
 }
 
 hcpcs_tests |>
@@ -908,7 +908,8 @@ recombine2 <- function(x) {
   
   x <- sf_collapse(list_c(x), collapse = '|')
   
-  str_glue("^({x})[A-Z0-9]{{3}}$")
+  # str_glue("^({x})[A-Z0-9]{{3}}$")
+  str_glue("({x})")
 }
 
 long_test2[sf_nchar(long_test2) == 2] |>
@@ -938,18 +939,28 @@ recombine3 <- function(x) {
   
   if (empty(x)) return(character(0))
   
-  c(
-    if (empty(x[vlen(x) == 1])) NULL else str_glue("{list_c(x[vlen(x) == 1])}"),
-    
-    if (empty(x[vlen(x) > 1])) NULL else map(x[vlen(x) > 1], function(x) {
+  list(
+    if (empty(x[vlen(x) == 1])) 
+      NULL 
+    else 
+      parentheses(
+        sf_collapse(
+          delist(x[vlen(x) == 1]), collapse = "|")
+        ) |>
+      glue::as_glue(),
+    if (empty(x[vlen(x) > 1])) 
+      NULL 
+    else 
+      map(x[vlen(x) > 1], 
+          function(x) {
           
-          front <- uniq(sf_sub(delist(x), start = 1, stop = 1))
+            front <- uniq(sf_sub(delist(x), start = 1, stop = 1))
           
-          back  <- sf_collapse(sf_remove(delist(x), str_glue("^[{front}]{{1}}")), collapse = "|")
+            back  <- sf_collapse(sf_remove(delist(x), str_glue("^[{front}]{{1}}")), collapse = "|")
           
-          str_glue("{front}({back})")
-          })
-    )
+            str_glue("{front}({back})")
+          
+            })) |> list_flatten()
 }
 
 long_test2[sf_nchar(long_test2) == 3] |>
@@ -979,18 +990,28 @@ recombine4 <- function(x) {
   
   if (empty(x)) return(character(0))
   
-  c(
-    if (empty(x[vlen(x) == 1])) NULL else str_glue("{list_c(x[vlen(x) == 1])}"),
-    
-    if (empty(x[vlen(x) > 1])) NULL else map(x[vlen(x) > 1], function(x) {
+  list(
+    if (empty(x[vlen(x) == 1])) 
+      NULL 
+    else 
+      parentheses(
+        sf_collapse(
+          delist(x[vlen(x) == 1]), collapse = "|")
+        ) |>
+      glue::as_glue(),
+    if (empty(x[vlen(x) > 1])) 
+      NULL 
+    else 
+      map(x[vlen(x) > 1], 
+          function(x) {
           
-          front <- uniq(sf_sub(delist(x), start = 1, stop = 1))
+            front <- uniq(sf_sub(delist(x), start = 1, stop = 1))
           
-          back  <- sf_collapse(sf_remove(delist(x), str_glue("^[{front}]{{1}}")), collapse = "|")
+            back  <- sf_collapse(sf_remove(delist(x), str_glue("^[{front}]{{1}}")), collapse = "|")
           
-          str_glue("{front}({back})")
-          })
-    )
+            str_glue("{front}({back})")
+          
+            })) |> list_flatten()
 }
 
 long_test2[sf_nchar(long_test2) == 4] |>
@@ -1020,19 +1041,28 @@ recombine5 <- function(x) {
   
   if (empty(x)) return(character(0))
   
-  c(
-    if (empty(x[vlen(x) == 1])) NULL else str_glue("{list_c(x[vlen(x) == 1])}"),
-    
-    if (empty(x[vlen(x) > 1])) NULL else map(x[vlen(x) > 1], function(x) {
+  list(
+    if (empty(x[vlen(x) == 1])) 
+      NULL 
+    else 
+      parentheses(
+        sf_collapse(
+          delist(x[vlen(x) == 1]), collapse = "|")
+        ) |>
+      glue::as_glue(),
+    if (empty(x[vlen(x) > 1])) 
+      NULL 
+    else 
+      map(x[vlen(x) > 1], 
+          function(x) {
           
-          front <- uniq(sf_sub(delist(x), start = 1, stop = 1))
+            front <- uniq(sf_sub(delist(x), start = 1, stop = 1))
           
-          back  <- sf_collapse(sf_remove(delist(x), str_glue("^[{front}]{{1}}")), collapse = "|")
+            back  <- sf_collapse(sf_remove(delist(x), str_glue("^[{front}]{{1}}")), collapse = "|")
           
-          str_glue("{front}({back})")
+            str_glue("{front}({back})")
           
-          })
-    )
+            })) |> list_flatten()
 }
 
 long_test2[sf_nchar(long_test2) == 5] |>

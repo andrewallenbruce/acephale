@@ -216,3 +216,35 @@ remove_redundant <- function(x, verbose = FALSE) {
     return(out)
   }
 }
+
+
+nametree <- function(x,
+                      prefix1 = '',
+                      prefix2 = '',
+                      prefix3 = '',
+                      prefix4 = '') {
+
+  if (is.list(x)) {
+
+    for (i in seq_along(x)) {
+
+      nm <- names(x)[i]
+
+      if (is.null(nm)) {
+        nm <- "."
+      }
+
+      cat(if (i < length(x)) prefix1 else prefix3, nm, "\n", sep = "")
+
+      prefix <- if(i < length(x)) prefix2 else prefix4
+
+      nametree(
+        x[[i]],
+        paste0(prefix, "|__ "),
+        paste0(prefix, "|   "),
+        paste0(prefix, "\\__ "),
+        paste0(prefix, "    ")
+      )
+    }
+  }
+}
