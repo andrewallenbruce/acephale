@@ -37,12 +37,11 @@ wk_2024_01_22 <- nppez:::get_pin("wk20240122")
 wk_2024_02_05 <- nppez:::get_pin("wk_20240205")
 ```
 
-# Week of January 1, 2024
+# January 1, 2024
 
 ```{r}
 #| label: wk_2024_01_01
 wk_2024_01_01_base <- wk_2024_01_01$basic |> 
-  as.data.table() |> 
   reframe(
     npi,
     entity = case_match(entity, "Ind" ~ "I", "Org" ~ "O", .default = entity),
@@ -65,7 +64,7 @@ wk_2024_01_01_base <- wk_2024_01_01$basic |>
 ```
 
 
-## Deactivated
+### Deactivated
 
 Remove deactivated NPIs with no reactivation date
 
@@ -83,32 +82,25 @@ length(wk_2024_01_01_deact_npi)
 wk_2024_01_01_deact |> fcount(deact_date)
 ```
 
-Deactivated NPIs with Reactivation date
+> *Deactivated NPIs with Reactivation date*
 
 ```{r}
 wk_2024_01_01_base |> 
-  as.data.table() |> 
   filter(not_na(deact_date), 
          not_na(react_date)) |> 
   arrange(desc(deact_date))
 ```
 
-
 ## Base
-
-   - Filter out deactivated NPIs
-   - Split into **Individual** and **Organization**
 
 ```{r}
 #| label: wk_2024_01_01_ind_org
 wk_2024_01_01_ind <- wk_2024_01_01_base |> 
-  as.data.table() |> 
   fsubset(npi %!in% wk_2024_01_01_deact_npi) |> 
   fsubset(entity %in% "I") |> 
   remove_quiet()
 
 wk_2024_01_01_org <- wk_2024_01_01_base |> 
-  as.data.table() |> 
   fsubset(npi %!in% wk_2024_01_01_deact_npi) |> 
   fsubset(entity %in% "O") |> 
   remove_quiet()
@@ -119,12 +111,9 @@ wk_2024_01_01_org
 
 ## Address
 
-Filter out deactivated NPIs
-
 ```{r}
 #| label: wk_2024_01_01_address
 wk_2024_01_01_address <- wk_2024_01_01$address |> 
-  as.data.table() |> 
   fsubset(!npi %in% wk_2024_01_01_deact_npi) |> 
   select(
     npi,
@@ -135,6 +124,8 @@ wk_2024_01_01_address <- wk_2024_01_01$address |>
     ends_with("country"),
     ends_with("phone"),
     ends_with("fax"))
+
+wk_2024_01_01_address
 ```
 
 Exact match on all address fields
@@ -163,6 +154,8 @@ exact <- wk_2024_01_01_address |>
     country = mail_country,
     phone = mail_phone,
     fax = mail_fax)
+
+exact
 ```
 
 Match on all fields except fax
@@ -193,6 +186,8 @@ fax <- wk_2024_01_01_address |>
       not_na(mail_fax) & !not_na(prac_fax) ~ str_glue("M: {mail_fax}"),
       !not_na(mail_fax) & not_na(prac_fax) ~ str_glue("P: {prac_fax}"),
       .default = NA_character_))
+
+fax
 ```
 
 Match on all fields except zip, phone, and fax
@@ -230,8 +225,9 @@ zipphonefax <- wk_2024_01_01_address |>
       not_na(mail_fax) & not_na(prac_fax) & mail_fax != prac_fax ~ str_glue("M: {mail_fax} | P: {prac_fax}"),
       not_na(mail_fax) & is.na(prac_fax) ~ str_glue("M: {mail_fax}"),
       is.na(mail_fax) & not_na(prac_fax) ~ str_glue("P: {prac_fax}"),
-      .default = NA_character_)
-    )
+      .default = NA_character_))
+
+zipphonefax
 ```
 
 Pivot remaining addresses
@@ -249,19 +245,23 @@ pivot <- wk_2024_01_01_address |>
     type_part, 
     delim = "_", 
     names = c("type", "part")) |> 
-  pivot_wider(names_from = part, values_from = value) |> 
-  as.data.table()
+  pivot_wider(names_from = part, values_from = value)
+
+pivot
 ```
 
 Combine all address matches
 
 ```{r}
 #| label: wk_2024_01_01_address_clean
-wk_2024_01_01_address_clean <- rbindlist(list(exact, fax, zipphonefax, pivot), use.names = TRUE, ignore.attr=TRUE) |> 
+wk_2024_01_01_address_clean <- rbindlist(
+  list(exact, fax, zipphonefax, pivot), 
+  use.names = TRUE, 
+  ignore.attr=TRUE) |> 
   join(wk_2024_01_01_base[.c(npi, entity)], on = "npi")
 
-wk_2024_01_01_address_clean |> fsubset(entity == "I")
-wk_2024_01_01_address_clean |> fsubset(entity == "O")
+wk_2024_01_01_address_clean[entity == "I"]
+wk_2024_01_01_address_clean[entity == "O"]
 ```
 
 ## Taxonomy
@@ -271,15 +271,15 @@ wk_2024_01_01_address_clean |> fsubset(entity == "O")
 wk_2024_01_01_taxonomy <- wk_2024_01_01$taxonomy |> 
   reframe(
     npi,
-    txn_code = taxonomy_code,
-    txn_group = taxonomy_group,
-    txn_primary = taxonomy_primary,
-    txn_license = license_number,
-    txn_state = license_state) |> 
-  left_join(wk_2024_01_01_basic[c("npi", "entity")], by = join_by(npi))
+    tax_code = taxonomy_code,
+    tax_group = taxonomy_group,
+    tax_primary = taxonomy_primary,
+    tax_license = license_number,
+    tax_state = license_state) |> 
+  left_join(wk_2024_01_01_base[c("npi", "entity")], by = join_by(npi))
 
-wk_2024_01_01_taxonomy |> filter(entity == "Ind") |> remove_quiet()
-wk_2024_01_01_taxonomy |> filter(entity == "Org") |> remove_quiet()
+wk_2024_01_01_taxonomy |> filter(entity == "I") |> remove_quiet()
+wk_2024_01_01_taxonomy |> filter(entity == "O") |> remove_quiet()
 ```
 
 ## Identifiers
@@ -289,14 +289,14 @@ wk_2024_01_01_taxonomy |> filter(entity == "Org") |> remove_quiet()
 wk_2024_01_01_id <- wk_2024_01_01$identifier |> 
   reframe(
     npi,
-    id = other_id,
-    id_type = other_id_code,
-    id_state = other_id_state,
-    id_issuer = other_id_issuer) |> 
-  left_join(wk_2024_01_01_basic[c("npi", "entity")], by = join_by(npi))
+    identifier = other_id,
+    identifier_type = other_id_code,
+    identifier_state = other_id_state,
+    identifier_issuer = other_id_issuer) |> 
+  left_join(wk_2024_01_01_base[c("npi", "entity")], by = join_by(npi))
 
-wk_2024_01_01_id |> filter(entity == "Ind")
-wk_2024_01_01_id |> filter(entity == "Org")
+wk_2024_01_01_id |> filter(entity == "I") |> remove_quiet()
+wk_2024_01_01_id |> filter(entity == "O") |> remove_quiet()
 ```
 
 ## Other
@@ -316,10 +316,10 @@ wk_2024_01_01_other <- wk_2024_01_01$other |>
     other_suffix,
     other_credential
     ) |> 
-  left_join(wk_2024_01_01_basic[c("npi", "entity")], by = join_by(npi))
+  left_join(wk_2024_01_01_base[c("npi", "entity")], by = join_by(npi))
 
-wk_2024_01_01_other |> filter(entity == "Ind") |> remove_quiet()
-wk_2024_01_01_other |> filter(entity == "Org") |> remove_quiet()
+wk_2024_01_01_other |> filter(entity == "I") |> remove_quiet()
+wk_2024_01_01_other |> filter(entity == "O") |> remove_quiet()
 ```
 
 ## Authorized
@@ -344,7 +344,7 @@ wk_2024_01_01_ao
 
 {{< pagebreak >}}
 
-# Week of January 22, 2024
+# January 22, 2024
 
 ## Deactivated
 
@@ -365,7 +365,6 @@ wk_2024_01_22_deact |> count(deact_date)
 wk_2024_01_01_basic |> filter(npi %in% wk_2024_01_22_deact_npi)
 ```
 
-
 ## Base
 
 ```{r}
@@ -377,6 +376,7 @@ wk_2024_01_22_org <- filter(wk_2024_01_22_basic, entity == "Org") |> remove_quie
 wk_2024_01_22_ind
 wk_2024_01_22_org
 ```
+
 
 ## Address
 
@@ -477,7 +477,7 @@ wk_2024_01_22_ao
 
 {{< pagebreak >}}
 
-# Week of February 05, 2024
+# February 05, 2024
 
 ## Deactivated
 

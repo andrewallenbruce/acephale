@@ -1,0 +1,195 @@
+---
+title: "Comprehensive Search in {provider}"
+format:
+  html:
+    reference-location: block
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#| label: setup
+#| echo: false
+#| message: false
+#| warning: false
+
+knitr::opts_chunk$set(
+  dev = "ragg_png",
+  dpi = 320,
+  out.width = "100%",
+  fig.width = 8,
+  fig.asp = 0.818,
+  fig.retina = 2,
+  fig.align = "center",
+  fig.show = "hold"
+)
+options(scipen = 999, digits = 3)
+
+library(tidyverse)
+library(provider)
+library(S7)
+library(gt)
+```
+
+# Provider
+
+```{r}
+#| label: provider
+Provider <- new_class(name = "Provider", abstract = TRUE)
+```
+
+
+# Individual Provider
+
+```{r}
+#| label: individual
+Individual <- new_class(
+  name = "Individual",
+  parent = Provider,
+  properties = list(
+    npi = new_property(NULL | class_character),
+    entity = new_property(NULL | class_character),
+    demographics = new_property(class_list, 
+      default = list(
+        prefix = class_character,
+        first_name = class_character,
+        middle_name = class_character,
+        last_name = class_character,
+        suffix = class_character,
+        gender = class_character,
+        credential = class_character,
+        sole_proprietor = class_logical,
+        medical_school = class_character,
+        graduation_year = class_numeric
+      )),
+    enrollment = new_property(class_list, 
+      default = list(
+        pac = new_property(NULL | class_character),
+        enid = new_property(NULL | class_character),
+        specialty = new_property(
+          class_list, 
+          default = list(
+            code = class_character, 
+            description = class_character)),
+        state = class_character,
+        opt_out = new_property(class_logical | class_list),
+        order_refer = new_property(
+          class_list, 
+          default = list(
+          Medicare = class_logical,
+          HHA = class_logical,
+          DME = class_logical,
+          PMD = class_logical,
+          Hospice = class_logical
+        ))
+      )),
+    dates = new_property(
+      class_list, 
+      default = list(
+        updated = class_Date,
+        enumerated = class_Date,
+        certified = class_Date
+      )),
+    address = new_property(
+      class_list, 
+      default = list(
+        purpose = class_character,
+        street = class_character,
+        city = class_character,
+        state = class_character,
+        postal_code = class_character,
+        country = class_character,
+        phone = class_character,
+        fax = class_character
+      )),
+    taxonomy = new_property(
+      class_list, 
+      default = list(
+        code = class_character,
+        primary = class_logical,
+        description = class_character,
+        license = class_character,
+        state = class_character
+      )),
+    identifier = new_property(
+      class_list, 
+      default = list(
+        code = class_character,
+        indicator = class_character,
+        issuer = class_character,
+        state = class_character
+      ))
+    )
+  )
+
+Individual()
+```
+
+# Sources
+
+## NPPES
+
+```{r}
+#| label: nppes
+nppes(npi = 1043245657)
+```
+
+## Enrollment in Medicare
+
+```{r}
+#| label: providers
+providers(npi = 1043245657)
+```
+
+```{r}
+#| label: clinicians
+clinicians(npi = 1043245657)
+```
+
+## Medicare Opt-Out
+
+```{r}
+#| label: opt_out
+#| eval: false
+opt_out(npi = 1043245657)
+```
+
+## Order and Referral Eligibility
+
+```{r}
+#| label: order_refer
+order_refer(npi = 1043245657)
+```
+
+## Reassignment of Benefits
+
+```{r}
+#| label: reassign
+reassignments(npi = 1043245657)
+```
+
+## Affiliations
+
+```{r}
+#| label: affiliations
+affiliations(npi = 1043245657)
+```
+
+```{r}
+#| label: hospitals
+bind_rows(
+  hospitals(facility_ccn = 470003),
+  hospitals(facility_ccn = 330250))
+```
+
+<hr>
+
+{{< pagebreak >}}
+
+
+## Session Information 
+
+```{r}
+#| echo: false
+pander::pander(sessionInfo())
+```
