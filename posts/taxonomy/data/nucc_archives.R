@@ -40,105 +40,46 @@ curl::multi_download(
   destfile = glue::glue("{here::here()}/posts/taxonomy/data/csvs/{infotable$filename}"),
   resume = TRUE)
 
-fs::dir_info(glue::glue("{here::here()}/posts/taxonomy/data/csvs"))$path
+###################################################################
 
-# write_csv(infotable, glue::glue("{here::here()}/posts/taxonomy/data/infotable.csv"))
+infotable <- readr::read_csv(glue::glue("{here::here()}/posts/taxonomy/data/infotable.csv"), show_col_types = FALSE, col_types = "ccDc")
 
-infotable |> print(n = 800)
+clean_cols <- \(x) fuimus::remove_quotes(stringr::str_squish(dplyr::na_if(x, "")))
 
-nucc_taxonomy_90 <- readr::read_csv(
-  fs::dir_info(glue::glue("{here::here()}/posts/taxonomy/data/csvs"))$path[31],
-  id = "filename",
-  show_col_types = FALSE) |>
-  janitor::clean_names() |>
-  dplyr::slice(2:n()) |>
-  dplyr::mutate(filename = basename(filename),
-                dplyr::across(dplyr::everything(), ~ dplyr::na_if(., "")),
-                dplyr::across(dplyr::everything(), ~ stringr::str_squish(.)),
-                dplyr::across(dplyr::everything(), ~ fuimus::remove_quotes(.))) |>
-  dplyr::left_join(infotable, by = "filename") |>
-  dplyr::reframe(version, release_date, code, type, classification, specialization, definition, notes)
+selcols <- c("version", "release_date", "code", "type" = "grouping", "grouping", "classification", "specialization", "definition", "notes")
 
-nucc_taxonomy_91 <- readr::read_csv(fs::dir_info(glue::glue("{here::here()}/posts/taxonomy/data/csvs"))$path[32], id = "filename", show_col_types = FALSE) |>
-  janitor::clean_names() |>
-  dplyr::slice(2:n()) |>
-  dplyr::mutate(filename = basename(filename),
-                dplyr::across(dplyr::everything(), ~ dplyr::na_if(., "")),
-                dplyr::across(dplyr::everything(), ~ stringr::str_squish(.)),
-                dplyr::across(dplyr::everything(), ~ fuimus::remove_quotes(.))) |>
-  dplyr::left_join(infotable, by = "filename") |>
-  dplyr::reframe(version, release_date, code, type, classification, specialization, definition, notes)
+notes_regs <- c("http[s]?:" = "", "//" = "", "<br/>" = " ", "<br><br>" = " ",
+  # "([0-9]{1,2})//([0-9]{1,2})//([0-9]{4})" = "",
+  "�" = "")
 
-nucc_taxonomy_100 <- readr::read_csv(fs::dir_info(glue::glue("{here::here()}/posts/taxonomy/data/csvs"))$path[1], id = "filename", show_col_types = FALSE) |>
-  janitor::clean_names() |>
-  dplyr::slice(2:n()) |>
-  dplyr::mutate(filename = basename(filename),
-    dplyr::across(dplyr::everything(), ~ dplyr::na_if(., "")),
-    dplyr::across(dplyr::everything(), ~ stringr::str_squish(.)),
-    dplyr::across(dplyr::everything(), ~ fuimus::remove_quotes(.))) |>
-  dplyr::left_join(infotable, by = "filename") |>
-  dplyr::reframe(version, release_date, code, type, classification, specialization, definition, notes)
+nucc_paths <- fs::dir_info(glue::glue("{here::here()}/posts/taxonomy/data/csvs"))$path
 
+parse_nucc_csvs <- function(path) {
 
-nucc_taxonomy_101 <- readr::read_csv(fs::dir_info(glue::glue("{here::here()}/posts/taxonomy/data/csvs"))$path[2], id = "filename", show_col_types = FALSE) |>
-  janitor::clean_names() |>
-  dplyr::slice(2:n()) |>
-  dplyr::mutate(filename = basename(filename),
-                dplyr::across(dplyr::everything(), ~ dplyr::na_if(., "")),
-                dplyr::across(dplyr::everything(), ~ stringr::str_squish(.)),
-                dplyr::across(dplyr::everything(), ~ fuimus::remove_quotes(.))) |>
-  dplyr::left_join(infotable, by = "filename") |>
-  dplyr::reframe(version, release_date, code, type, classification, specialization, definition, notes)
+  suppressWarnings(
+    readr::read_csv(
+      file = path,
+      id = "filename",
+      show_col_types = FALSE,
+      col_types = "c",
+      name_repair = janitor::make_clean_names)
+    ) |>
+    dplyr::slice(-1) |>
+    dplyr::mutate(
+      filename = basename(filename),
+      dplyr::across(dplyr::everything(), clean_cols),
+      notes = stringr::str_replace_all(notes, notes_regs) |> stringr::str_squish()) |>
+    dplyr::left_join(infotable, by = "filename") |>
+    dplyr::select(
+      dplyr::any_of(selcols),
+      dplyr::everything(),
+      -c(filename, file_url)) |>
+    dplyr::arrange(code) |>
+    readr::write_csv(
+      file = glue::glue("{here::here()}/posts/taxonomy/data/cleaned/{tools::file_path_sans_ext(basename(path))}"),
+      num_threads = 4L)
 
-nucc_taxonomy_110 <- readr::read_csv(fs::dir_info(glue::glue("{here::here()}/posts/taxonomy/data/csvs"))$path[3], id = "filename", show_col_types = FALSE) |>
-  janitor::clean_names() |>
-  dplyr::slice(2:n()) |>
-  dplyr::mutate(filename = basename(filename),
-                dplyr::across(dplyr::everything(), ~ dplyr::na_if(., "")),
-                dplyr::across(dplyr::everything(), ~ stringr::str_squish(.)),
-                dplyr::across(dplyr::everything(), ~ fuimus::remove_quotes(.))) |>
-  dplyr::left_join(infotable, by = "filename") |>
-  dplyr::reframe(version, release_date, code, type, classification, specialization, definition, notes)
+}
 
-nucc_taxonomy_111 <- readr::read_csv(fs::dir_info(glue::glue("{here::here()}/posts/taxonomy/data/csvs"))$path[4], id = "filename", show_col_types = FALSE) |>
-  janitor::clean_names() |>
-  dplyr::slice(2:n()) |>
-  dplyr::mutate(filename = basename(filename),
-                dplyr::across(dplyr::everything(), ~ dplyr::na_if(., "")),
-                dplyr::across(dplyr::everything(), ~ stringr::str_squish(.)),
-                dplyr::across(dplyr::everything(), ~ fuimus::remove_quotes(.))) |>
-  dplyr::left_join(infotable, by = "filename") |>
-  dplyr::reframe(version, release_date, code, type, classification, specialization, definition, notes)
+purrr::walk(nucc_paths, parse_nucc_csvs)
 
-nucc_taxonomy_120 <- readr::read_csv(fs::dir_info(glue::glue("{here::here()}/posts/taxonomy/data/csvs"))$path[5], id = "filename", show_col_types = FALSE) |>
-  janitor::clean_names() |>
-  dplyr::slice(2:n()) |>
-  dplyr::mutate(filename = basename(filename),
-                dplyr::across(dplyr::everything(), ~ dplyr::na_if(., "")),
-                dplyr::across(dplyr::everything(), ~ stringr::str_squish(.)),
-                dplyr::across(dplyr::everything(), ~ fuimus::remove_quotes(.))) |>
-  dplyr::left_join(infotable, by = "filename") |>
-  dplyr::reframe(version, release_date, code, type, classification, specialization, definition, notes)
-
-nucc_taxonomy_121 <- readr::read_csv(fs::dir_info(glue::glue("{here::here()}/posts/taxonomy/data/csvs"))$path[6], id = "filename", show_col_types = FALSE) |>
-  janitor::clean_names() |>
-  dplyr::slice(2:n()) |>
-  dplyr::mutate(filename = basename(filename),
-                dplyr::across(dplyr::everything(), ~ dplyr::na_if(., "")),
-                dplyr::across(dplyr::everything(), ~ stringr::str_squish(.)),
-                dplyr::across(dplyr::everything(), ~ fuimus::remove_quotes(.))) |>
-  dplyr::left_join(infotable, by = "filename") |>
-  dplyr::reframe(version, release_date, code, type, classification, specialization, definition, notes)
-
-
-vctrs::vec_rbind(
-  nucc_taxonomy_90,
-  nucc_taxonomy_91,
-  nucc_taxonomy_100,
-  nucc_taxonomy_101,
-  nucc_taxonomy_110,
-  nucc_taxonomy_111,
-  nucc_taxonomy_120,
-  nucc_taxonomy_121
-  ) |>
-  write_csv(glue::glue("{here::here()}/posts/taxonomy/data/nucc_tax_90_121.csv"))

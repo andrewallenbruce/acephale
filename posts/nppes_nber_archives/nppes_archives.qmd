@@ -124,8 +124,6 @@ wk_2024_01_01_address <- wk_2024_01_01$address |>
     ends_with("country"),
     ends_with("phone"),
     ends_with("fax"))
-
-wk_2024_01_01_address
 ```
 
 Exact match on all address fields
@@ -181,10 +179,10 @@ fax <- wk_2024_01_01_address |>
     country = mail_country,
     phone = mail_phone,
     fax = case_when(
-      not_na(mail_fax) & not_na(prac_fax) & mail_fax == prac_fax ~ str_glue("M: {mail_fax}"),
-      not_na(mail_fax) & not_na(prac_fax) & mail_fax != prac_fax ~ str_glue("M: {mail_fax} | P: {prac_fax}"),
-      not_na(mail_fax) & !not_na(prac_fax) ~ str_glue("M: {mail_fax}"),
-      !not_na(mail_fax) & not_na(prac_fax) ~ str_glue("P: {prac_fax}"),
+      not_na(mail_fax) & not_na(prac_fax) & mail_fax == prac_fax ~ str_glue("{mail_fax}"),
+      not_na(mail_fax) & not_na(prac_fax) & mail_fax != prac_fax ~ str_glue("{mail_fax} | {prac_fax}"),
+      not_na(mail_fax) & !not_na(prac_fax) ~ str_glue("{mail_fax}"),
+      !not_na(mail_fax) & not_na(prac_fax) ~ str_glue("{prac_fax}"),
       .default = NA_character_))
 
 fax
@@ -362,14 +360,14 @@ wk_2024_01_22_deact |> count(deact_date)
 ```
 
 ```{r}
-wk_2024_01_01_basic |> filter(npi %in% wk_2024_01_22_deact_npi)
+wk_2024_01_01_base |> filter(npi %in% wk_2024_01_22_deact_npi)
 ```
 
 ## Base
 
 ```{r}
-#| label: wk_2024_01_22_basic
-wk_2024_01_22_basic <- filter(wk_2024_01_22$basic, !npi %in% wk_2024_01_22_deact_npi)
+#| label: wk_2024_01_22_base
+wk_2024_01_22_base <- filter(wk_2024_01_22$basic, !npi %in% wk_2024_01_22_deact_npi)
 wk_2024_01_22_ind <- filter(wk_2024_01_22_basic, entity == "Ind") |> remove_quiet()
 wk_2024_01_22_org <- filter(wk_2024_01_22_basic, entity == "Org") |> remove_quiet()
 
@@ -493,6 +491,13 @@ length(wk_2024_02_05_deact_npi)
 
 wk_2024_02_05_deact |> count(deact_date)
 ```
+
+
+```{r}
+wk_2024_01_01_base |> 
+  filter(npi %in% c(wk_2024_01_22_deact_npi, wk_2024_02_05_deact_npi))
+```
+
 
 <hr>
 
