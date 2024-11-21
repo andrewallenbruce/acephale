@@ -34,10 +34,10 @@ library(tidyverse)
 source(here("posts/claims/scripts", "load.R"))
 
 claims <- claims |> 
-  combine(adj_codes, c("adj1", "adj2", "adj3"), sep = " | ") |>
-  combine(mods, c("mod1", "mod2"), sep = " = ") |>
-  combine(refer, c("ref", "ref_cred"), sep = " <|||") |>
-  combine(render, c("ren", "ren_cred"), sep = " <|||") |>
+  fuimus::combine(adj_codes, c("adj1", "adj2", "adj3"), sep = " | ") |>
+  fuimus::combine(mods, c("mod1", "mod2"), sep = " = ") |>
+  fuimus::combine(refer, c("ref", "ref_cred"), sep = " <|||") |>
+  fuimus::combine(render, c("ren", "ren_cred"), sep = " <|||") |>
   reframe(
     ptid = id, 
     dos, 
