@@ -34,10 +34,10 @@ library(tidyverse)
 source(here("posts/claims/scripts", "load.R"))
 
 claims <- claims |> 
-  fuimus::combine(adj_codes, c("adj1", "adj2", "adj3"), sep = " | ") |>
-  fuimus::combine(mods, c("mod1", "mod2"), sep = " = ") |>
-  fuimus::combine(refer, c("ref", "ref_cred"), sep = " <|||") |>
-  fuimus::combine(render, c("ren", "ren_cred"), sep = " <|||") |>
+  combine(adj_codes, c("adj1", "adj2", "adj3"), sep = " | ") |>
+  combine(mods, c("mod1", "mod2"), sep = " = ") |>
+  combine(refer, c("ref", "ref_cred"), sep = " <|||") |>
+  combine(render, c("ren", "ren_cred"), sep = " <|||") |>
   reframe(
     ptid = id, 
     dos, 
@@ -78,6 +78,34 @@ Between the dates of **2022-06-14** and **2024-03-12** *(approx 637 days)*,
 # EDA
 
 ```{r}
+appt <- claims |> 
+  select(dos, ptid, .enc) |> 
+  distinct() |> 
+  mutate(year = year(dos), 
+         month = month(dos, label = TRUE, abbr = TRUE), 
+         year_month = data.table::yearmon(dos)) |>
+  summarise(
+    appointments = n(),
+    patients = n_distinct(ptid),
+    new_patients = sum(.enc == 1),
+    .by = c(year, month, year_month))
+
+ggplot(appt, aes(x = year_month)) + 
+  geom_hline(yintercept = 0, color = "grey60", alpha = 1/1.25) +
+  geom_line(aes(y = appointments), colour = "orange", linewidth = 1.75, alpha = 1/1.25) +
+  geom_line(aes(y = patients), colour = "dodgerblue", linewidth = 1.75, alpha = 1/1.25) +
+  geom_line(aes(y = new_patients), colour = "red", linewidth = 1.75, alpha = 1/1.25) +
+  geom_point(aes(y = appointments), color = "#E87800", shape = 21, fill = "grey80", size = 2.5, stroke = 1.2) +
+  geom_point(aes(y = patients), color = "#E87800", shape = 21, fill = "grey80", size = 2.5, stroke = 1.2) +
+  geom_point(aes(y = new_patients), color = "#E87800", shape = 21, fill = "grey80", size = 2.5, stroke = 1.2) +
+  geom_rug(aes(y = appointments), colour = "orange", alpha = 1/3, outside = FALSE) +
+  geom_rug(aes(y = patients), colour = "dodgerblue", alpha = 1/3, outside = FALSE) +
+  geom_rug(aes(y = new_patients), colour = "red", alpha = 1/3, outside = FALSE) +
+  gg_theme()
+```
+
+
+```{r}
 claims |> 
   select(dos, ptid) |> 
   distinct() |> 
@@ -88,17 +116,23 @@ claims |>
   dplyr::count(month, dos) |>
   ggplot(aes(dos, n)) + 
   geom_line(color = "grey70") +
+  geom_hline(yintercept = 0, color = "grey40") +
   geom_point(color = "#E87800", shape = 21, fill = "grey80", size = 2.5, stroke = 1.2) +
-  geom_rug(alpha = 1/3, color = "#E87800", outside = FALSE) +
-  # coord_cartesian(clip = "off") +
+  geom_rug(alpha = 1/2.5, color = "#E87800", outside = FALSE) +
   gg_theme() +
   labs(x = NULL, y = NULL) +
-  facet_wrap(vars(year), scales = "free", dir = "h", nrow = 3, strip.position = "left") +
+  facet_wrap(vars(year), 
+             scales = "free_x", 
+             dir = "h", 
+             nrow = 3, 
+             strip.position = "left",
+             labeller = "label_both") +
   theme(
     panel.grid.minor = element_blank(),
     panel.grid.major = element_blank(),
     panel.grid = element_blank())
 ```
+
 
 
 ```{r}
