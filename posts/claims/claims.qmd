@@ -24,12 +24,12 @@ knitr::opts_chunk$set(
 )
 options(scipen = 999, digits = 3)
 
-library(tidyverse)
 library(here)
 library(gt)
 library(rbrvs)
 library(northstar)
 library(fuimus)
+library(tidyverse)
 
 source(here("posts/claims/scripts", "load.R"))
 
@@ -38,7 +38,7 @@ claims <- claims |>
   fuimus::combine(mods, c("mod1", "mod2"), sep = " = ") |>
   fuimus::combine(refer, c("ref", "ref_cred"), sep = " <|||") |>
   fuimus::combine(render, c("ren", "ren_cred"), sep = " <|||") |>
-  dplyr::reframe(
+  reframe(
     ptid = id, 
     dos, 
     ptdob = dob, 
@@ -63,7 +63,7 @@ claims <- claims |>
     payments, 
     adjustments, 
     adj_codes = str_replace(adj_codes, " -45", " CO-45")) |> 
-  dplyr::arrange(dos, .enc, .ord, ptid)
+  arrange(dos, .enc, .ord, ptid)
 ```
 
 # Findings
@@ -81,21 +81,28 @@ Between the dates of **2022-06-14** and **2024-03-12** *(approx 637 days)*,
 claims |> 
   select(dos, ptid) |> 
   distinct() |> 
-  mutate(year = lubridate::year(dos),
-         month = lubridate::month(dos, label = TRUE, abbr = TRUE),
+  mutate(year = year(dos),
+         month = month(dos, label = TRUE, abbr = TRUE),
          ymon = data.table::yearmon(dos)) |>
-  dplyr::group_by(year) |>
-  dplyr::count(dos) |>
+  group_by(year) |>
+  dplyr::count(month, dos) |>
   ggplot(aes(dos, n)) + 
   geom_line(color = "grey70") +
-  geom_point(color = "#E87800") +
-  geom_rug(alpha = 1/3, color = "#E87800", outside = TRUE) +
-  coord_cartesian(clip = "off") +
-  gg_theme()
+  geom_point(color = "#E87800", shape = 21, fill = "grey80", size = 2.5, stroke = 1.2) +
+  geom_rug(alpha = 1/3, color = "#E87800", outside = FALSE) +
+  # coord_cartesian(clip = "off") +
+  gg_theme() +
+  labs(x = NULL, y = NULL) +
+  facet_wrap(vars(year), scales = "free", dir = "h", nrow = 3, strip.position = "left") +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid = element_blank())
 ```
 
 
 ```{r}
+#| label: ggcal
 claims |> 
   select(dos, ptid, pos_type, render) |> 
   distinct() |> 
@@ -103,60 +110,25 @@ claims |>
          month = lubridate::month(dos, label = TRUE, abbr = TRUE),
          ymon = data.table::yearmon(dos)) |>
   dplyr::group_by(year) |>
-  dplyr::count(dos) |> 
-  ggplot(aes(x = n, y = year, group = year)) + 
-  ggridges::geom_density_ridges(scale = 0.9, rel_min_height = 0.03) +
-  scale_x_continuous(limits = c(0, 160), expand = c(0, 0)) +
-  scale_y_reverse(breaks = c(2022, 2023, 2024),
-                  expand = c(0, 0)) +
-  coord_cartesian(clip = "off") +
-  gg_theme()
-```
-
-
-```{r}
-#| label: ggcal
-library(ggTimeSeries)
-
-cal_dat <- claims |> 
-  select(dos, ptid, pos_type, render) |> 
-  distinct() |> 
-  mutate(year = lubridate::year(dos),
-         month = lubridate::month(dos, label = TRUE, abbr = TRUE),
-         ymon = data.table::yearmon(dos)) |>
-  dplyr::group_by(year) |>
   dplyr::count(dos) |>
-  dplyr::ungroup()
-
-ggplot_calendar_heatmap(
-  cal_dat, 
-  "dos", 
-  "n",
+  dplyr::ungroup() |> 
+  ggTimeSeries::ggplot_calendar_heatmap("dos", "n",
   monthBorderLineEnd = "square",
   dayBorderColour = "white",
   monthBorderSize = 1,
   monthBorderColour = "white") +
-  xlab(NULL) +
-  ylab(NULL) +
-  # scale_fill_continuous(type = "viridis") +
+  labs(x = NULL, y = NULL) +
   facet_wrap(~Year, ncol = 1, nrow = 3) +
+  scale_fill_gradient(na.value = "grey95") +
   gg_theme() +
   theme(
-    # axis.ticks = element_blank(),
-    # axis.text = element_blank(),
-    # strip.text = element_blank(),
-    legend.position = "top",
-    # strip.background = element_blank(),
-    # plot.background = element_blank(),
-    # panel.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_blank(),
     panel.grid = element_blank())
 ```
 
 
-## Ratio Analysis
 
-Revenue Per Visit
-: $RPV =$ Total Payments $\div$ Number of Patient Visits
 
 
 ```{r}
@@ -165,6 +137,12 @@ Revenue Per Visit
 #| eval: false
 #| message: false
 #| warning: false
+
+## Ratio Analysis
+
+# Revenue Per Visit
+# : $RPV =$ Total Payments $\div$ Number of Patient Visits
+
 claims_summary |>
   mutate(
     revenue_adjustments = revenue + adjustments, 
@@ -215,7 +193,7 @@ claims_summary |>
 
 ```{r}
 #| label: insurance_ratios
-#| echo: true
+#| echo: false
 #| eval: false
 #| message: false
 #| warning: false

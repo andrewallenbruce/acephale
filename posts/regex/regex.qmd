@@ -181,26 +181,16 @@ bench::mark(
 # Preprocess Steps
 
 ```{r}
-#| label: split_first_new
-split_first <- function (x) {
-  
-  .c(x1, x2, x3, x4, x5) %=% x
-  
-  list(x1 = x1, 
-       x2 = split_1(x2), 
-       x3 = split_1(x3), 
-       x4 = split_1(x4), 
-       x5 = split_end(x5))
-}
-```
-
-
-```{r}
 #| label: print_method
+x <- x1
+x <- x2
 view <- \(x) {
   
   grp_name <- format(seq_along(x))
   grp_size <- format(vlen(x), justify = "left")
+  # list_unchop(x)
+  # map(x, vctrs::vec_is_list)
+  # vctrs::vec_is_list(x)
   
   grp_mems <- modify_if(x, len_gt_one, function(x) {
     paste0("[", map_chr(x, \(x) paste0(x, collapse = "-")), "]")
@@ -213,7 +203,6 @@ view <- \(x) {
       "{grp_size}|",
       "--{if (empty(grp_mems)) NULL else grp_mems}"
       )
-  
   cli::cat_bullet(msg)
   
   return(invisible(x))
@@ -222,9 +211,9 @@ view <- \(x) {
 
 ```{r}
 #| label: preprocess
-x <- random_hcpcs()
+x <- random_hcpcs(50)
 
-x |> 
+x1 <- x |> 
   split_lengths() |> 
   view()
 
@@ -233,7 +222,7 @@ x |>
   remove_redundant() |>
   view()
 
-x <- x |>
+x2 <- x |>
   split_lengths() |>
   remove_redundant() |>
   split_first() |> 
@@ -262,7 +251,8 @@ c("C75", "C97", "G02", "G04") |>
   split_lengths() |> 
   remove_redundant() |>
   split_first() |>
-  group_3()
+  group_3() |>
+  view()
 
 long_test2[nchar(long_test2) == 3] |> 
   split_lengths() |> 
