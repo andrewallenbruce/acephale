@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
   fig.align = "center",
   fig.show = "hold"
 )
-options(scipen = 999)
+options(scipen = 999, digits = 3)
 
 library(tidyverse)
 library(data.table)
@@ -33,8 +33,8 @@ library(codex)
 library(nppez)
 
 wk_2024_01_01 <- nppez:::get_pin("wk20240101")
-wk_2024_01_22 <- nppez:::get_pin("wk20240122")
-wk_2024_02_05 <- nppez:::get_pin("wk_20240205")
+# wk_2024_01_22 <- nppez:::get_pin("wk20240122")
+# wk_2024_02_05 <- nppez:::get_pin("wk_20240205")
 ```
 
 # 2024-01-01
@@ -42,85 +42,47 @@ wk_2024_02_05 <- nppez:::get_pin("wk_20240205")
 ```{r}
 #| label: w241_base
 w241_base <- wk_2024_01_01$basic |> 
-  reframe(
-    npi,
-    entity = case_match(entity, "Ind" ~ "I", "Org" ~ "O", .default = entity),
-    prefix = str_remove_all(prefix, "\\."),
-    first_name = str_remove_all(first, "\\."),
-    middle_name = str_remove_all(middle, "\\."),
-    last_name = str_remove_all(last, "\\."),
-    suffix = str_remove_all(suffix, "\\."),
-    credential = str_remove_all(credential, "\\."),
-    gender,
-    last_update = updated,
+  fcompute(
+    npi = npi,
+    entity = data.table::fcase(entity == "Ind", "I", entity == "Org", "O"),
+    prefix = sf_remove(prefix, "\\."),
+    first_name = sf_remove(first, "\\."),
+    middle_name = sf_remove(middle, "\\."),
+    last_name = sf_remove(last, "\\."),
+    suffix = sf_remove(suffix, "\\."),
+    credential = sf_remove(credential, "\\."),
+    org_parent = sf_remove(parent_org_lbn, "\\.|,"),
+    org_prov = sf_remove(prov_org_lbn, "\\.|,"),
     cert_date = certified,
-    enum_date,
-    deact_date,
-    react_date,
-    sole_prop,
-    org_subpart = org_sub,
-    parent_org_lbn = str_remove_all(parent_org_lbn, "\\.|,"),
-    prov_org_lbn = str_remove_all(prov_org_lbn, "\\.|,"))
-```
+    enum_date = enum_date,
+    deact_date = deact_date,
+    react_date = react_date,
+    sole_prop = sole_prop,
+    org_subpart = org_sub
+    )
 
+# Remove deactivated NPIs with no reactivation date
+w241_deact <- w241_base |> filter(not_na(deact_date), !not_na(react_date)) |> remove_quiet()
 
-### Deactivated
+w241_base <- fsubset(w241_base, npi %!in% w241_deact$npi)
 
-Remove deactivated NPIs with no reactivation date
+base_g <- GRP(w241_base, ~ entity)
 
-```{r}
-#| label: w241_deact
-w241_deact <- w241_base |> 
-  filter(not_na(deact_date), 
-         !not_na(react_date)) |> 
-  remove_quiet()
-
-w241_deact_npi <- sf_convert(uniq_narm(w241_deact$npi))
-
-length(w241_deact_npi)
-
-w241_deact |> fcount(deact_date)
-```
-
-> *Deactivated NPIs with Reactivation date*
-
-```{r}
-w241_base |> 
-  filter(not_na(deact_date), 
-         not_na(react_date)) |> 
-  arrange(desc(deact_date)) |> 
-  group_split(entity) |> 
-  map(remove_quiet)
-```
-
-## Base
-
-```{r}
-#| label: w241_split
-w241_base |> 
-  fsubset(npi %!in% w241_deact_npi) |> 
-  group_split(entity) |> 
+rsplit(w241_base, base_g) |> 
   map(remove_quiet) |> 
-  set_names(c("Individual", "Organization"))
+  setNames(GRPnames(base_g))
 ```
 
 ## Address
 
 ```{r}
 #| label: w241_add
-w241_add <- wk_2024_01_01$address |> 
-  left_join(w241_base[c("npi", "entity")], by = join_by(npi)) |>
-  fsubset(npi %!in% w241_deact_npi) |> 
-  select(
-    npi,
-    entity,
-    ends_with("address"),
-    ends_with("city"),
-    ends_with("state"),
-    ends_with("zip"),
-    ends_with("country"),
-    ends_with("phone"),
-    ends_with("fax"))
+w241_add <- join(
+  wk_2024_01_01$address, 
+  w241_base[c("npi", "entity")], 
+  on = "npi", 
+  verbose = 0) |> 
+  fsubset(npi %!in% w241_deact$npi)
 
 # Exact match on all address fields
 w241_exact <- w241_add |> 
@@ -132,28 +94,17 @@ w241_exact <- w241_add |>
     mail_country == prac_country,
     mail_phone == prac_phone,
     mail_fax == prac_fax) |> 
-  fmutate(purpose = "MP") |>
-  fselect(
-    npi,
-    entity,
-    purpose,
+  fcompute(
+    npi = npi,
+    entity = entity,
+    purpose = "MP",
     address = prac_address,
     city = prac_city,
     state = prac_state,
-    zip = prac_zip,
+    zip = map_chr(prac_zip, \(x) if (not_na(x) & nchar(x) == 9) str_glue("{substr(x, 1, 5)}-{substr(x, 6, 9)}") else x),
     country = prac_country,
-    phone = prac_phone,
-    fax = prac_fax) |> 
-  rowwise() |>
-  mutate(
-    zip = if_else(not_na(zip) & sf_nchar(zip) == 9, 
-      sf_smush(c(sf_sub(zip, 1, 5), "-", sf_sub(zip, 6, 9))), zip),
-    phone = if_else(not_na(phone) & sf_nchar(phone) == 10,
-      sf_smush(c("(", sf_sub(phone, 1, 3), ") ", sf_sub(phone, 4, 6), "-", sf_sub(phone, 7, 10))), phone),
-    fax = if_else(not_na(fax) & sf_nchar(fax) == 10,
-      sf_smush(c("(", sf_sub(fax, 1, 3), ") ", sf_sub(fax, 4, 6), "-", sf_sub(fax, 7, 10))), fax)) |> 
-  ungroup()
-
+    phone = map_chr(prac_phone, \(x) if (not_na(x) & nchar(x) == 10) str_glue("({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}") else x),
+    fax = map_chr(prac_fax, \(x) if (not_na(x) & nchar(x) == 10) str_glue("({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}") else x))
 
 # Match on all except FAX
 w241_fax <- w241_add |> 
@@ -165,48 +116,35 @@ w241_fax <- w241_add |>
     mail_country == prac_country,
     mail_zip == prac_zip,
     mail_phone == prac_phone) |> 
-  fmutate(
-    fax = case_when(
-      not_na(mail_fax) & not_na(prac_fax) & mail_fax == prac_fax ~ str_glue("{mail_fax}"),
-      not_na(mail_fax) & not_na(prac_fax) & mail_fax != prac_fax ~ str_glue("{mail_fax}, {prac_fax}"),
-      not_na(mail_fax) & !not_na(prac_fax) ~ str_glue("{mail_fax}"),
-      !not_na(mail_fax) & not_na(prac_fax) ~ str_glue("{prac_fax}"),
-      .default = NA_character_) |> as.character(),
-    purpose = case_when(
-      not_na(mail_fax) & !not_na(prac_fax) ~ "M",
-      !not_na(mail_fax) & not_na(prac_fax) ~ "P",
-      .default = "MP")
-    ) |> 
-  fselect(
-    npi,
-    entity,
-    purpose,
+  fcompute(
+    npi = npi,
+    entity = entity,
     address = prac_address,
     city = prac_city,
     state = prac_state,
-    zip = prac_zip,
+    zip = map_chr(prac_zip, \(x) if (not_na(x) & nchar(x) == 9) str_glue("{substr(x, 1, 5)}-{substr(x, 6, 9)}") else x),
     country = prac_country,
-    phone = prac_phone,
-    fax) |>
+    phone = map_chr(prac_phone, \(x) if (not_na(x) & nchar(x) == 10) str_glue("({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}") else x),
+    fax = fcase(
+      not_na(mail_fax) & not_na(prac_fax) & mail_fax == prac_fax, str_glue("{prac_fax}"),
+      not_na(mail_fax) & not_na(prac_fax) & mail_fax != prac_fax, str_glue("{mail_fax}, {prac_fax}"),
+      not_na(mail_fax) & !not_na(prac_fax), str_glue("{mail_fax}"),
+      !not_na(mail_fax) & not_na(prac_fax), str_glue("{prac_fax}")),
+    purpose = fcase(
+      not_na(mail_fax) & !not_na(prac_fax), "M",
+      !not_na(mail_fax) & not_na(prac_fax), "P",
+      default = "MP")) |> 
   fmutate(
-    zip = map_chr(
-      zip, 
-      \(x) if (not_na(x) & nchar(x) == 9) 
-        smush(
-          c(substr(x, 1, 5), "-", substr(x, 6, 9))
-          ) else x),
-    phone = map_chr(
-      phone, 
-      \(x) if (not_na(x) & nchar(x) == 10) 
-        smush(
-          c("(", substr(x, 1, 3), ") ", substr(x, 4, 6), "-", substr(x, 7, 10))
-          ) else x),
     fax = map_chr(
-      fax, 
-      \(x) if (not_na(x) & nchar(x) == 10) 
-        smush(
-          c("(", substr(x, 1, 3), ") ", substr(x, 4, 6), "-", substr(x, 7, 10))
-          ) else x)
+      fax, \(x) if (not_na(x)) {
+        if (nchar(x) == 10) {
+          str_glue("({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}")
+          } else if (nchar(x) > 10) {
+            str_glue("({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}, ({substr(x, 13, 15)})-{substr(x, 16, 18)}-{substr(x, 19, 22)}")
+            } 
+        } 
+      else x
+      )
     )
 
 # Match on all except ZIP, PHONE, and FAX
@@ -217,46 +155,54 @@ w241_phone <- w241_add |>
     mail_city == prac_city,
     mail_state == prac_state,
     mail_country == prac_country) |>
-  fmutate(
-    zip = case_when(
-      not_na(mail_zip) & not_na(prac_zip) & mail_zip == prac_zip ~ str_glue("{mail_zip}"),
-      not_na(mail_zip) & not_na(prac_zip) & mail_zip != prac_zip ~ str_glue("{mail_zip}, {prac_zip}"),
-      not_na(mail_zip) & !not_na(prac_zip) ~ str_glue("{mail_zip}"),
-      !not_na(mail_zip) & not_na(prac_zip) ~ str_glue("{prac_zip}"),
-      .default = NA_character_) |> as.character(),
-    phone = case_when(
-      not_na(mail_phone) & not_na(prac_phone) & mail_phone == prac_phone ~ str_glue("{mail_phone}"),
-      not_na(mail_phone) & not_na(prac_phone) & mail_phone != prac_phone ~ str_glue("{mail_phone}, {prac_phone}"),
-      not_na(mail_phone) & is.na(prac_phone) ~ str_glue("{mail_phone}"),
-      is.na(mail_phone) & not_na(prac_phone) ~ str_glue("{prac_phone}") |> as.character(),
-      .default = NA_character_) |> as.character(),
-    fax = case_when(
-      not_na(mail_fax) & not_na(prac_fax) & mail_fax == prac_fax ~ str_glue("{mail_fax}"),
-      not_na(mail_fax) & not_na(prac_fax) & mail_fax != prac_fax ~ str_glue("{mail_fax} | {prac_fax}"),
-      not_na(mail_fax) & !not_na(prac_fax) ~ str_glue("{mail_fax}"),
-      !not_na(mail_fax) & not_na(prac_fax) ~ str_glue("{prac_fax}"),
-      .default = NA_character_) |> as.character(),
-    purpose = case_when(
-      not_na(mail_zip) & !not_na(mail_zip) ~ "M",
-      !not_na(mail_zip) & not_na(mail_zip) ~ "P",
-      .default = "MP")) |> 
-  fselect(
-    npi,
-    entity,
-    purpose,
+  fcompute(
+    npi = npi,
+    entity = entity,
+    purpose = fcase(not_na(mail_phone) & !not_na(prac_phone), "M",
+                    !not_na(mail_phone) & not_na(prac_phone), "P",
+                    default = "MP"),
     address = prac_address,
     city = prac_city,
     state = prac_state,
-    zip,
+    zip = fcase(
+      not_na(mail_zip) & not_na(prac_zip) & mail_zip == prac_zip, str_glue("{prac_zip}"),
+      not_na(mail_zip) & not_na(prac_zip) & mail_zip != prac_zip, str_glue("{mail_zip}, {prac_zip}"),
+      not_na(mail_zip) & !not_na(prac_zip), str_glue("{mail_zip}"),
+      !not_na(mail_zip) & not_na(prac_zip), str_glue("{prac_zip}")),
     country = prac_country,
-    phone,
-    fax) |> 
+    phone = fcase(
+      not_na(mail_phone) & not_na(prac_phone) & mail_phone == prac_phone, str_glue("{prac_phone}"),
+      not_na(mail_phone) & not_na(prac_phone) & mail_phone != prac_phone, str_glue("{mail_phone}, {prac_phone}"),
+      not_na(mail_phone) & !not_na(prac_phone), str_glue("{mail_phone}"),
+      !not_na(mail_phone) & not_na(prac_phone), str_glue("{prac_phone}")),
+    fax = fcase(
+      not_na(mail_fax) & not_na(prac_fax) & mail_fax == prac_fax, str_glue("{prac_fax}"),
+      not_na(mail_fax) & not_na(prac_fax) & mail_fax != prac_fax, str_glue("{mail_fax}, {prac_fax}"),
+      not_na(mail_fax) & !not_na(prac_fax), str_glue("{mail_fax}"),
+      !not_na(mail_fax) & not_na(prac_fax), str_glue("{prac_fax}"))) |> 
   fmutate(
-    zip = map_chr(zip, \(x) if (not_na(x) & nchar(x) == 9) smush(c(substr(x, 1, 5), "-", substr(x, 6, 9))) else x), 
-    phone = map_chr(phone, \(x) if (not_na(x) & nchar(x) == 10) smush(c("(", substr(x, 1, 3), ") ", substr(x, 4, 6), "-", substr(x, 7, 10))) else x),
-    phone = map_chr(phone, \(x) if (not_na(x) & nchar(x) == 22) smush(
-      c("(", substr(x, 1, 3), ") ", substr(x, 4, 6), "-", substr(x, 7, 10), ", ", "(", substr(x, 15, 17), ") ", substr(x, 18, 20), "-", substr(x, 21, 24))) else x),
-    fax = map_chr(fax, \(x) if (not_na(x) & nchar(x) == 10) smush(c("(", substr(x, 1, 3), ") ", substr(x, 4, 6), "-", substr(x, 7, 10))) else x))
+    zip = map_chr(zip, \(x) if (not_na(x) & nchar(x) == 9) str_glue("{substr(x, 1, 5)}-{substr(x, 6, 9)}") else x), 
+    phone = map_chr(
+      phone, \(x) if (not_na(x)) {
+        if (nchar(x) == 10) {
+          str_glue("({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}")
+          } else if (nchar(x) > 10) {
+            str_glue("({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}, ({substr(x, 13, 15)})-{substr(x, 16, 18)}-{substr(x, 19, 22)}")
+            } 
+        } 
+      else x
+      ),
+    fax = map_chr(
+      fax, \(x) if (not_na(x)) {
+        if (nchar(x) == 10) {
+          str_glue("({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}")
+          } else if (nchar(x) > 10) {
+            str_glue("({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}, ({substr(x, 13, 15)})-{substr(x, 16, 18)}-{substr(x, 19, 22)}")
+            } 
+        } 
+      else x
+      )
+    )
 
 # Pivot remaining addresses
 w241_piv <- w241_add |> 
@@ -279,263 +225,124 @@ w241_piv <- w241_add |>
     ) |>
   pivot_wider(names_from = part, values_from = value) |> 
   fmutate(
-    zip = map_chr(zip, \(x) if (not_na(x) & nchar(x) == 9) smush(c(substr(x, 1, 5), "-", substr(x, 6, 9))) else x), 
-    phone = map_chr(phone, \(x) if (not_na(x) & nchar(x) == 10) smush(c("(", substr(x, 1, 3), ") ", substr(x, 4, 6), "-", substr(x, 7, 10))) else x),
-    phone = map_chr(phone, \(x) if (not_na(x) & nchar(x) == 22) smush(
-      c("(", substr(x, 1, 3), ") ", substr(x, 4, 6), "-", substr(x, 7, 10), ", ", "(", substr(x, 15, 17), ") ", substr(x, 18, 20), "-", substr(x, 21, 24))) else x),
-    fax = map_chr(fax, \(x) if (not_na(x) & nchar(x) == 10) smush(c("(", substr(x, 1, 3), ") ", substr(x, 4, 6), "-", substr(x, 7, 10))) else x))
+    zip = map_chr(zip, \(x) if (not_na(x) & nchar(x) == 9) str_glue("{substr(x, 1, 5)}-{substr(x, 6, 9)}") else x), 
+    phone = map_chr(
+      phone, \(x) if (not_na(x)) {
+        if (nchar(x) == 10) {
+          str_glue("({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}")
+          } else if (nchar(x) > 10) {
+            str_glue("({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}, ({substr(x, 13, 15)})-{substr(x, 16, 18)}-{substr(x, 19, 22)}")
+            } 
+        } 
+      else x
+      ),
+    fax = map_chr(
+      fax, \(x) if (not_na(x)) {
+        if (nchar(x) == 10) {
+          str_glue("({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}")
+          } else if (nchar(x) > 10) {
+            str_glue("({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}, ({substr(x, 13, 15)})-{substr(x, 16, 18)}-{substr(x, 19, 22)}")
+            } 
+        } 
+      else x
+      )
+    )
 
 # Combine all address matches
-rowbind(
-  w241_exact,
-  w241_fax,
-  w241_phone,
-  w241_piv) |> 
-  group_split(entity) |> 
+w241_add <- rowbind(w241_exact, w241_fax, w241_phone, w241_piv)
+
+add_g <- GRP(w241_add, ~ entity)
+
+rsplit(w241_add, add_g) |> 
   map(remove_quiet) |> 
-  set_names(c("Individual", "Organization"))
+  setNames(GRPnames(add_g))
 ```
 
 ## Taxonomy
 
 ```{r}
 #| label: w241_tax
-w241_tax <- wk_2024_01_01$taxonomy |> 
-  left_join(w241_base[c("npi", "entity")], by = join_by(npi)) |>
-  fsubset(npi %!in% w241_deact_npi) |> 
-  reframe(
-    npi,
-    entity,
-    code = taxonomy_code,
-    group = taxonomy_group,
-    primary = taxonomy_primary,
-    license = license_number,
-    state = license_state) |> 
-  group_split(entity) |> 
+w241_tax <- join(
+  wk_2024_01_01$taxonomy[c("npi", "taxonomy_code", "taxonomy_group", "taxonomy_primary")], 
+  w241_base[c("npi", "entity")], 
+  on = "npi", 
+  verbose = 0) |> 
+  fsubset(npi %!in% w241_deact$npi)
+
+tax_g <- GRP(w241_tax, ~ entity)
+
+rsplit(w241_tax, tax_g) |> 
   map(remove_quiet) |> 
-  set_names(c("Individual", "Organization"))
+  setNames(GRPnames(tax_g))
+```
 
-w241_tax
+## License
+
+```{r}
+#| label: w241_lic
+w241_lic <- join(
+  wk_2024_01_01$taxonomy[c("npi", "license_number", "license_state")], 
+  w241_base[c("npi", "entity")], 
+  on = "npi", 
+  verbose = 0) |> 
+  fsubset(npi %!in% w241_deact$npi)
+
+lic_g <- GRP(w241_lic, ~ entity)
+
+rsplit(w241_lic, lic_g) |> 
+  map(remove_quiet) |> 
+  setNames(GRPnames(lic_g))
 ```
 
 ## Identifiers
 
 ```{r}
-#| label: wk_2024_01_01_identifier
-wk_2024_01_01_id <- wk_2024_01_01$identifier |> 
-  reframe(
-    npi,
-    identifier = other_id,
-    identifier_type = other_id_code,
-    identifier_state = other_id_state,
-    identifier_issuer = other_id_issuer) |> 
-  left_join(wk_2024_01_01_base[c("npi", "entity")], by = join_by(npi))
+#| label: w241_id
+w241_id <- join(
+  wk_2024_01_01$identifier, 
+  w241_base[c("npi", "entity")], 
+  on = "npi", 
+  verbose = 0) |> 
+  fsubset(npi %!in% w241_deact$npi)
 
-wk_2024_01_01_id |> filter(entity == "I") |> remove_quiet()
-wk_2024_01_01_id |> filter(entity == "O") |> remove_quiet()
+id_g <- GRP(w241_id, ~ entity)
+
+rsplit(w241_id, id_g) |> 
+  map(remove_quiet) |> 
+  setNames(GRPnames(id_g))
 ```
 
 ## Other
 
 ```{r}
-#| label: wk_2024_01_01_other
-wk_2024_01_01_other <- wk_2024_01_01$other |> 
-  reframe(
-    npi,
-    other_org_name,
-    other_org_type,
-    other_prefix,
-    other_first_name = other_first,
-    other_middle_name = other_middle,
-    other_last_name = other_last,
-    other_last_type,
-    other_suffix,
-    other_credential
-    ) |> 
-  left_join(wk_2024_01_01_base[c("npi", "entity")], by = join_by(npi))
+#| label: w241_oth
+w241_oth <- join(
+  wk_2024_01_01$other, 
+  w241_base[c("npi", "entity")], 
+  on = "npi", 
+  verbose = 0) |> 
+  fsubset(npi %!in% w241_deact$npi)
 
-wk_2024_01_01_other |> filter(entity == "I") |> remove_quiet()
-wk_2024_01_01_other |> filter(entity == "O") |> remove_quiet()
+oth_g <- GRP(w241_oth, ~ entity)
+
+rsplit(w241_oth, oth_g) |> 
+  map(remove_quiet) |> 
+  setNames(GRPnames(oth_g))
 ```
 
 ## Authorized
 
 ```{r}
-#| label: wk_2024_01_01_authorized
-wk_2024_01_01_ao <- wk_2024_01_01$authorized |> 
-  reframe(
-    npi,
-    ao_prefix,
-    ao_first_name = ao_first,
-    ao_last_name = ao_last,
-    ao_middle_name = ao_middle,
-    ao_suffix,
-    ao_title,
-    ao_phone)
+#| label: w241_ao
+w241_ao <- join(
+  wk_2024_01_01$authorized, 
+  w241_base[c("npi", "entity")], 
+  on = "npi", 
+  verbose = 0) |> 
+  fsubset(npi %!in% w241_deact$npi)
 
-wk_2024_01_01_ao
+w241_ao
 ```
-
-<hr>
-
-{{< pagebreak >}}
-
-# January 22, 2024
-
-## Deactivated
-
-```{r}
-#| label: wk_2024_01_22_deact
-wk_2024_01_22_deact <- wk_2024_01_22$basic |> 
-  filter(!is.na(deact_date), is.na(react_date)) |> 
-  remove_quiet()
-
-wk_2024_01_22_deact_npi <- sf_convert(uniq_narm(wk_2024_01_22_deact$npi))
-
-length(wk_2024_01_22_deact_npi)
-
-wk_2024_01_22_deact |> count(deact_date)
-```
-
-```{r}
-wk_2024_01_01_base |> filter(npi %in% wk_2024_01_22_deact_npi)
-```
-
-## Base
-
-```{r}
-#| label: wk_2024_01_22_base
-wk_2024_01_22_base <- filter(wk_2024_01_22$basic, !npi %in% wk_2024_01_22_deact_npi)
-wk_2024_01_22_ind <- filter(wk_2024_01_22_basic, entity == "Ind") |> remove_quiet()
-wk_2024_01_22_org <- filter(wk_2024_01_22_basic, entity == "Org") |> remove_quiet()
-
-wk_2024_01_22_ind
-wk_2024_01_22_org
-```
-
-
-## Address
-
-```{r}
-#| label: wk_2024_01_22_address
-wk_2024_01_22$address |> 
-  filter(!npi %in% wk_2024_01_22_deact_npi) |> 
-  pivot_longer(-npi, names_to = "type_part", values_to = "value") |> 
-  separate_wider_delim(type_part, delim = "_", names = c("type", "part")) |> 
-  pivot_wider(names_from = part, values_from = value) |> 
-  mutate(type = case_match(type,
-                           "mail" ~ "Mailing",
-                           "prac" ~ "Practice",
-                           .default = type))
-```
-
-## Taxonomy
-
-```{r}
-#| label: wk_2024_01_22_taxonomy
-wk_2024_01_22$taxonomy
-
-wk_2024_01_22_taxonomy <- wk_2024_01_22$taxonomy |> 
-  reframe(
-    npi,
-    txn_code = taxonomy_code,
-    txn_group = taxonomy_group,
-    txn_primary = taxonomy_primary,
-    txn_license = license_number,
-    txn_state = license_state) |> 
-  left_join(wk_2024_01_22_basic[c("npi", "entity")], by = join_by(npi))
-
-wk_2024_01_22_taxonomy |> filter(entity == "Ind") |> remove_quiet()
-wk_2024_01_22_taxonomy |> filter(entity == "Org") |> remove_quiet()
-```
-
-## Identifiers
-
-```{r}
-#| label: wk_2024_01_22_identifier
-wk_2024_01_22$identifier
-
-wk_2024_01_22_id <- wk_2024_01_22$identifier |> 
-  reframe(
-    npi,
-    id = other_id,
-    id_type = other_id_code,
-    id_state = other_id_state,
-    id_issuer = other_id_issuer) |> 
-  left_join(wk_2024_01_22_basic[c("npi", "entity")], by = join_by(npi))
-
-wk_2024_01_22_id |> filter(entity == "Ind") |> remove_quiet()
-wk_2024_01_22_id |> filter(entity == "Org") |> remove_quiet()
-```
-
-## Other
-
-```{r}
-#| label: wk_2024_01_22_other
-wk_2024_01_22_other <- wk_2024_01_22$other |> 
-  reframe(
-    npi,
-    other_org_name,
-    other_org_type,
-    other_prefix,
-    other_first_name = other_first,
-    other_middle_name = other_middle,
-    other_last_name = other_last,
-    other_last_type,
-    other_suffix,
-    other_credential
-    ) |> 
-  left_join(wk_2024_01_22_basic[c("npi", "entity")], by = join_by(npi))
-
-wk_2024_01_22_other |> filter(entity == "Ind") |> remove_quiet()
-wk_2024_01_22_other |> filter(entity == "Org") |> remove_quiet()
-```
-
-## Authorized
-
-```{r}
-#| label: wk_2024_01_22_authorized
-wk_2024_01_22_ao <- wk_2024_01_22$authorized |> 
-  reframe(
-    npi,
-    ao_prefix,
-    ao_first_name = ao_first,
-    ao_last_name = ao_last,
-    ao_middle_name = ao_middle,
-    ao_suffix,
-    ao_title,
-    ao_phone)
-
-wk_2024_01_22_ao
-```
-
-<hr>
-
-{{< pagebreak >}}
-
-# February 05, 2024
-
-## Deactivated
-
-```{r}
-#| label: wk_2024_02_05_deact
-wk_2024_02_05_deact <- wk_2024_02_05$basic |> 
-  filter(!is.na(deact_date), is.na(react_date)) |> 
-  remove_quiet()
-
-wk_2024_02_05_deact_npi <- sf_convert(uniq_narm(wk_2024_02_05_deact$npi))
-
-length(wk_2024_02_05_deact_npi)
-
-wk_2024_02_05_deact |> count(deact_date)
-```
-
-
-```{r}
-wk_2024_01_01_base |> 
-  filter(npi %in% c(wk_2024_01_22_deact_npi, wk_2024_02_05_deact_npi))
-```
-
 
 <hr>
 
