@@ -175,7 +175,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <a href="#section" id="toc-section" class="nav-link active" data-scroll-target="#section"><span class="header-section-number">1</span> 2024-01-01</a>
   <ul class="collapse">
 <li><a href="#address" id="toc-address" class="nav-link" data-scroll-target="#address"><span class="header-section-number">1.1</span> Address</a></li>
-  <li><a href="#taxonomy" id="toc-taxonomy" class="nav-link" data-scroll-target="#taxonomy"><span class="header-section-number">1.2</span> Taxonomy</a></li>
+  <li>
+<a href="#taxonomy" id="toc-taxonomy" class="nav-link" data-scroll-target="#taxonomy"><span class="header-section-number">1.2</span> Taxonomy</a>
+  <ul class="collapse">
+<li><a href="#duplicates" id="toc-duplicates" class="nav-link" data-scroll-target="#duplicates">Duplicates</a></li>
+  </ul>
+</li>
   <li><a href="#license" id="toc-license" class="nav-link" data-scroll-target="#license"><span class="header-section-number">1.3</span> License</a></li>
   <li><a href="#identifiers" id="toc-identifiers" class="nav-link" data-scroll-target="#identifiers"><span class="header-section-number">1.4</span> Identifiers</a></li>
   <li><a href="#other" id="toc-other" class="nav-link" data-scroll-target="#other"><span class="header-section-number">1.5</span> Other</a></li>
@@ -217,11 +222,28 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span></span>
 <span><span class="va">w241_base</span> <span class="op">&lt;-</span> <span class="fu">fsubset</span><span class="op">(</span><span class="va">w241_base</span>, <span class="va">npi</span> <span class="op">%!in%</span> <span class="va">w241_deact</span><span class="op">$</span><span class="va">npi</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">base_g</span> <span class="op">&lt;-</span> <span class="fu">GRP</span><span class="op">(</span><span class="va">w241_base</span>, <span class="op">~</span> <span class="va">entity</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">rsplit</span><span class="op">(</span><span class="va">w241_base</span>, <span class="va">base_g</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span><span class="co"># Credentials in Last Name</span></span>
+<span><span class="va">w241_base</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">fsubset</span><span class="op">(</span><span class="fu">sf_detect</span><span class="op">(</span><span class="va">last_name</span>, <span class="st">", "</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">fsubset</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">credential</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 16
+  npi        entity prefix first_name middle_name last_name    suffix credential
+  &lt;chr&gt;      &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;      &lt;chr&gt;       &lt;chr&gt;        &lt;chr&gt;  &lt;chr&gt;     
+1 1265752158 I      &lt;NA&gt;   LIVIA      S           MACHADO, RP… &lt;NA&gt;   &lt;NA&gt;      
+2 1386886174 I      MS     JUDY       A           LIU, INC     &lt;NA&gt;   &lt;NA&gt;      
+# ℹ 8 more variables: org_parent &lt;chr&gt;, org_prov &lt;chr&gt;, cert_date &lt;date&gt;,
+#   enum_date &lt;date&gt;, deact_date &lt;date&gt;, react_date &lt;date&gt;, sole_prop &lt;chr&gt;,
+#   org_subpart &lt;chr&gt;</code></pre>
+</div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">base_g</span> <span class="op">&lt;-</span> <span class="fu">GRP</span><span class="op">(</span><span class="va">w241_base</span>, <span class="op">~</span> <span class="va">entity</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">w241_base_spl</span> <span class="op">&lt;-</span> <span class="fu">rsplit</span><span class="op">(</span><span class="va">w241_base</span>, <span class="va">base_g</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">map</span><span class="op">(</span><span class="va">remove_quiet</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html">setNames</a></span><span class="op">(</span><span class="fu">GRPnames</span><span class="op">(</span><span class="va">base_g</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html">setNames</a></span><span class="op">(</span><span class="fu">GRPnames</span><span class="op">(</span><span class="va">base_g</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">w241_base_spl</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>$I
 # A tibble: 15,267 × 13
@@ -258,11 +280,105 @@ $O
 # ℹ 3,907 more rows
 # ℹ 1 more variable: org_subpart &lt;chr&gt;</code></pre>
 </div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Org NPIs that are org_subpart have org_parent names</span></span>
+<span><span class="fu">rsplit</span><span class="op">(</span><span class="va">w241_base_spl</span><span class="op">$</span><span class="va">O</span>, <span class="va">w241_base_spl</span><span class="op">$</span><span class="va">O</span><span class="op">$</span><span class="va">org_subpart</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$N
+# A tibble: 3,514 × 9
+   npi    entity org_parent org_prov cert_date  enum_date  deact_date react_date
+   &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;      &lt;chr&gt;    &lt;date&gt;     &lt;date&gt;     &lt;date&gt;     &lt;date&gt;    
+ 1 19527… O      &lt;NA&gt;       WHITE B… 2024-01-01 2014-01-31 NA         NA        
+ 2 15489… O      &lt;NA&gt;       MORGAN … 2022-10-04 2021-10-29 NA         NA        
+ 3 12955… O      &lt;NA&gt;       KENDRA … 2023-09-26 2024-01-01 NA         NA        
+ 4 13864… O      &lt;NA&gt;       ULYSSES… 2023-09-19 2024-01-01 NA         NA        
+ 5 15581… O      &lt;NA&gt;       RETHINK… 2023-12-21 2024-01-01 NA         NA        
+ 6 18218… O      &lt;NA&gt;       AURORA … 2023-12-28 2024-01-01 NA         NA        
+ 7 16490… O      &lt;NA&gt;       PULSE U… 2023-12-27 2024-01-01 NA         NA        
+ 8 12753… O      &lt;NA&gt;       NVR &amp; S… 2023-12-30 2024-01-01 NA         NA        
+ 9 13561… O      &lt;NA&gt;       HEBKRAM… 2023-12-30 2024-01-01 NA         NA        
+10 15086… O      &lt;NA&gt;       HYPNOSI… 2023-12-30 2024-01-01 NA         NA        
+# ℹ 3,504 more rows
+# ℹ 1 more variable: org_subpart &lt;chr&gt;
+
+$Y
+# A tibble: 403 × 9
+   npi    entity org_parent org_prov cert_date  enum_date  deact_date react_date
+   &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;      &lt;chr&gt;    &lt;date&gt;     &lt;date&gt;     &lt;date&gt;     &lt;date&gt;    
+ 1 16894… O      RAE 6 LLC  RAE6TECH 2023-12-30 2024-01-01 NA         NA        
+ 2 11248… O      POPLAR PE… POPLAR … 2024-01-01 2023-09-06 NA         NA        
+ 3 19420… O      ASTERRA L… AUBURN … 2024-01-01 2024-01-01 NA         NA        
+ 4 15783… O      LW CARE L… LW CARE… 2023-12-27 2024-01-01 NA         NA        
+ 5 10137… O      LW CARE L… LW CARE… 2024-01-01 2024-01-01 NA         NA        
+ 6 18319… O      LW CARE L… LW CARE… 2024-01-01 2024-01-01 NA         NA        
+ 7 15682… O      LW CARE L… LW CARE… 2024-01-01 2024-01-01 NA         NA        
+ 8 14671… O      1336854454 CLINICA… 2024-01-01 2023-01-23 NA         NA        
+ 9 18218… O      LW CARE L… LW CARE… 2024-01-01 2024-01-01 NA         NA        
+10 11144… O      LAKE WASH… ADVANCE… 2024-01-01 2018-06-11 NA         NA        
+# ℹ 393 more rows
+# ℹ 1 more variable: org_subpart &lt;chr&gt;</code></pre>
+</div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Individuals - Sole Proprietors</span></span>
+<span><span class="fu">rsplit</span><span class="op">(</span><span class="va">w241_base_spl</span><span class="op">$</span><span class="va">I</span>, <span class="va">w241_base_spl</span><span class="op">$</span><span class="va">I</span><span class="op">$</span><span class="va">sole_prop</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$N
+# A tibble: 10,405 × 13
+   npi        entity prefix first_name middle_name last_name   suffix credential
+   &lt;chr&gt;      &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;      &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;  &lt;chr&gt;     
+ 1 1912620808 I      &lt;NA&gt;   DEIDRE     &lt;NA&gt;        HAMILTON    &lt;NA&gt;   &lt;NA&gt;      
+ 2 1619688645 I      &lt;NA&gt;   DESTINY    RENEE       BARNETT     &lt;NA&gt;   AGACNP-BC 
+ 3 1265752158 I      &lt;NA&gt;   LIVIA      S           MACHADO, R… &lt;NA&gt;   &lt;NA&gt;      
+ 4 1609131515 I      &lt;NA&gt;   EYAD       &lt;NA&gt;        ALDAAS      &lt;NA&gt;   MD        
+ 5 1750841870 I      &lt;NA&gt;   TAM        T           TRAN        &lt;NA&gt;   MD        
+ 6 1942708748 I      &lt;NA&gt;   WINFORD    &lt;NA&gt;        PALMA       &lt;NA&gt;   CRNA      
+ 7 1477895621 I      &lt;NA&gt;   GARY       FRANK       RIVAS       &lt;NA&gt;   RD, PA-C  
+ 8 1891305488 I      &lt;NA&gt;   ALISHA     LYNNE       RUKOVISHNI… &lt;NA&gt;   &lt;NA&gt;      
+ 9 1477322501 I      &lt;NA&gt;   ELLA       &lt;NA&gt;        COOK        &lt;NA&gt;   NP        
+10 1568231694 I      &lt;NA&gt;   ANNA       &lt;NA&gt;        THOMPSON    &lt;NA&gt;   &lt;NA&gt;      
+# ℹ 10,395 more rows
+# ℹ 5 more variables: cert_date &lt;date&gt;, enum_date &lt;date&gt;, deact_date &lt;date&gt;,
+#   react_date &lt;date&gt;, sole_prop &lt;chr&gt;
+
+$X
+# A tibble: 29 × 13
+   npi        entity prefix first_name middle_name last_name   suffix credential
+   &lt;chr&gt;      &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;      &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;  &lt;chr&gt;     
+ 1 1639155427 I      &lt;NA&gt;   STEPHEN    JOHN        SMITH       &lt;NA&gt;   MD        
+ 2 1992706071 I      &lt;NA&gt;   PRISCILA   &lt;NA&gt;        SUNTAY      &lt;NA&gt;   MD        
+ 3 1619942935 I      DR     NORMA      VB          MADERAZO    &lt;NA&gt;   MD        
+ 4 1710978242 I      DR     SHAHIRA    HALIM       FELOUS      &lt;NA&gt;   MD        
+ 5 1376521179 I      &lt;NA&gt;   ROSEMARY   M           BRANSTETTER &lt;NA&gt;   LCSW      
+ 6 1033109871 I      DR     JOHN       B           LAFAVE      &lt;NA&gt;   MD        
+ 7 1750325726 I      MS     MERRILL    &lt;NA&gt;        GOLDSTEIN   &lt;NA&gt;   NYPSYA    
+ 8 1144274283 I      MS     LUCILLE    J           ST-PIERRE   &lt;NA&gt;   PTA       
+ 9 1528045325 I      MR     JOHN       &lt;NA&gt;        BOYD        &lt;NA&gt;   LCPC      
+10 1578511382 I      DR     DONALD     MICHAEL     MANZO       &lt;NA&gt;   OD        
+# ℹ 19 more rows
+# ℹ 5 more variables: cert_date &lt;date&gt;, enum_date &lt;date&gt;, deact_date &lt;date&gt;,
+#   react_date &lt;date&gt;, sole_prop &lt;chr&gt;
+
+$Y
+# A tibble: 4,833 × 13
+   npi        entity prefix first_name middle_name last_name   suffix credential
+   &lt;chr&gt;      &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;      &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;  &lt;chr&gt;     
+ 1 1518543511 I      &lt;NA&gt;   VANESSA    &lt;NA&gt;        CHAMBERS    &lt;NA&gt;   RN        
+ 2 1437575206 I      &lt;NA&gt;   MICHELE    &lt;NA&gt;        WHITE       &lt;NA&gt;   PHD LLP L…
+ 3 1053912162 I      MS     CHANEL     MARIE       POOLE       &lt;NA&gt;   LMT       
+ 4 1255864583 I      &lt;NA&gt;   GWENDOLYN  &lt;NA&gt;        WILSON      &lt;NA&gt;   LMHC, ATR 
+ 5 1831968973 I      MS     APRIL      JENILLE     JULIAN-ST … &lt;NA&gt;   &lt;NA&gt;      
+ 6 1922877067 I      &lt;NA&gt;   VASHTI     &lt;NA&gt;        CLARK       &lt;NA&gt;   LMSW      
+ 7 1568231603 I      &lt;NA&gt;   LYNDSEY    &lt;NA&gt;        HANSEN      &lt;NA&gt;   &lt;NA&gt;      
+ 8 1477322519 I      &lt;NA&gt;   MOHAMED    &lt;NA&gt;        ABDURAHMAN  &lt;NA&gt;   &lt;NA&gt;      
+ 9 1912776055 I      &lt;NA&gt;   DWIGHT     &lt;NA&gt;        ADAMS       &lt;NA&gt;   CRNA      
+10 1730958877 I      &lt;NA&gt;   GIFTY      &lt;NA&gt;        BREW-THOMP… &lt;NA&gt;   &lt;NA&gt;      
+# ℹ 4,823 more rows
+# ℹ 5 more variables: cert_date &lt;date&gt;, enum_date &lt;date&gt;, deact_date &lt;date&gt;,
+#   react_date &lt;date&gt;, sole_prop &lt;chr&gt;</code></pre>
+</div>
 </div>
 <section id="address" class="level2" data-number="1.1"><h2 data-number="1.1" class="anchored" data-anchor-id="address">
 <span class="header-section-number">1.1</span> Address</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">w241_add</span> <span class="op">&lt;-</span> <span class="fu">join</span><span class="op">(</span></span>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">w241_add</span> <span class="op">&lt;-</span> <span class="fu">join</span><span class="op">(</span></span>
 <span>  <span class="va">wk_2024_01_01</span><span class="op">$</span><span class="va">address</span>, </span>
 <span>  <span class="va">w241_base</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"npi"</span>, <span class="st">"entity"</span><span class="op">)</span><span class="op">]</span>, </span>
 <span>  on <span class="op">=</span> <span class="st">"npi"</span>, </span>
@@ -478,56 +594,121 @@ $O
 </section><section id="taxonomy" class="level2" data-number="1.2"><h2 data-number="1.2" class="anchored" data-anchor-id="taxonomy">
 <span class="header-section-number">1.2</span> Taxonomy</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">w241_tax</span> <span class="op">&lt;-</span> <span class="fu">join</span><span class="op">(</span></span>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">w241_tax</span> <span class="op">&lt;-</span> <span class="fu">join</span><span class="op">(</span></span>
 <span>  <span class="va">wk_2024_01_01</span><span class="op">$</span><span class="va">taxonomy</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"npi"</span>, <span class="st">"taxonomy_code"</span>, <span class="st">"taxonomy_group"</span>, <span class="st">"taxonomy_primary"</span><span class="op">)</span><span class="op">]</span>, </span>
 <span>  <span class="va">w241_base</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"npi"</span>, <span class="st">"entity"</span><span class="op">)</span><span class="op">]</span>, </span>
 <span>  on <span class="op">=</span> <span class="st">"npi"</span>, </span>
 <span>  verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu">fsubset</span><span class="op">(</span><span class="va">npi</span> <span class="op">%!in%</span> <span class="va">w241_deact</span><span class="op">$</span><span class="va">npi</span><span class="op">)</span></span>
+<span>  <span class="fu">fsubset</span><span class="op">(</span><span class="va">npi</span> <span class="op">%!in%</span> <span class="va">w241_deact</span><span class="op">$</span><span class="va">npi</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">fmutate</span><span class="op">(</span></span>
+<span>    level <span class="op">=</span> <span class="fu">fcase</span><span class="op">(</span></span>
+<span>      <span class="va">taxonomy_primary</span> <span class="op">==</span> <span class="st">"Y"</span>, <span class="st">"Primary"</span>,</span>
+<span>      <span class="va">taxonomy_primary</span> <span class="op">==</span> <span class="st">"N"</span>, <span class="st">"Other"</span>,</span>
+<span>      <span class="va">taxonomy_primary</span> <span class="op">==</span> <span class="st">"X"</span>, <span class="st">"X"</span><span class="op">)</span>,</span>
+<span>    taxonomy_primary <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">w241_tax</span> <span class="op">&lt;-</span> <span class="fu">rowbind</span><span class="op">(</span></span>
+<span>  <span class="va">w241_tax</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">fsubset</span><span class="op">(</span><span class="op">!</span><span class="fu">not_na</span><span class="op">(</span><span class="va">taxonomy_group</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">fselect</span><span class="op">(</span><span class="op">-</span><span class="va">taxonomy_group</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">distinct</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  <span class="va">w241_tax</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">fsubset</span><span class="op">(</span><span class="fu">not_na</span><span class="op">(</span><span class="va">taxonomy_group</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">fselect</span><span class="op">(</span><span class="op">-</span><span class="va">taxonomy_code</span>, <span class="op">-</span><span class="va">level</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">distinct</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">frename</span><span class="op">(</span>taxonomy_code <span class="op">=</span> <span class="va">taxonomy_group</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">fmutate</span><span class="op">(</span>level <span class="op">=</span> <span class="st">"Group"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">tax_g</span> <span class="op">&lt;-</span> <span class="fu">GRP</span><span class="op">(</span><span class="va">w241_tax</span>, <span class="op">~</span> <span class="va">entity</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">rsplit</span><span class="op">(</span><span class="va">w241_tax</span>, <span class="va">tax_g</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span><span class="va">w241_tax</span> <span class="op">&lt;-</span> <span class="fu">rsplit</span><span class="op">(</span><span class="va">w241_tax</span>, <span class="va">tax_g</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">map</span><span class="op">(</span><span class="va">remove_quiet</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html">setNames</a></span><span class="op">(</span><span class="fu">GRPnames</span><span class="op">(</span><span class="va">tax_g</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html">setNames</a></span><span class="op">(</span><span class="fu">GRPnames</span><span class="op">(</span><span class="va">tax_g</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">w241_tax</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>$I
-# A tibble: 21,532 × 5
-   npi        taxonomy_code taxonomy_group taxonomy_primary entity
-   &lt;chr&gt;      &lt;chr&gt;         &lt;chr&gt;          &lt;fct&gt;            &lt;chr&gt; 
- 1 1003009861 207RC0000X    &lt;NA&gt;           Y                I     
- 2 1003013137 363AM0700X    &lt;NA&gt;           Y                I     
- 3 1003013137 363AM0700X    &lt;NA&gt;           N                I     
- 4 1003018060 106H00000X    &lt;NA&gt;           Y                I     
- 5 1003047531 207L00000X    &lt;NA&gt;           Y                I     
- 6 1003047531 390200000X    &lt;NA&gt;           N                I     
- 7 1003047531 207L00000X    &lt;NA&gt;           N                I     
- 8 1003047531 207L00000X    &lt;NA&gt;           N                I     
- 9 1003052903 2084P0800X    &lt;NA&gt;           Y                I     
-10 1003063173 208G00000X    &lt;NA&gt;           Y                I     
-# ℹ 21,522 more rows
+# A tibble: 20,828 × 4
+   npi        taxonomy_code entity level  
+   &lt;chr&gt;      &lt;chr&gt;         &lt;chr&gt;  &lt;chr&gt;  
+ 1 1003009861 207RC0000X    I      Primary
+ 2 1003013137 363AM0700X    I      Primary
+ 3 1003013137 363AM0700X    I      Other  
+ 4 1003018060 106H00000X    I      Primary
+ 5 1003047531 207L00000X    I      Primary
+ 6 1003047531 390200000X    I      Other  
+ 7 1003047531 207L00000X    I      Other  
+ 8 1003052903 2084P0800X    I      Primary
+ 9 1003063173 208G00000X    I      Primary
+10 1003063173 208G00000X    I      Other  
+# ℹ 20,818 more rows
 
 $O
-# A tibble: 6,603 × 5
-   npi        taxonomy_code taxonomy_group taxonomy_primary entity
-   &lt;chr&gt;      &lt;chr&gt;         &lt;chr&gt;          &lt;fct&gt;            &lt;chr&gt; 
- 1 1003096488 261Q00000X    &lt;NA&gt;           Y                O     
- 2 1003196072 3416L0300X    &lt;NA&gt;           Y                O     
- 3 1003199829 207YS0123X    193400000X     Y                O     
- 4 1003200874 253Z00000X    &lt;NA&gt;           Y                O     
- 5 1003200874 251E00000X    &lt;NA&gt;           N                O     
- 6 1003330226 251E00000X    &lt;NA&gt;           Y                O     
- 7 1003330226 251J00000X    &lt;NA&gt;           N                O     
- 8 1003337734 324500000X    &lt;NA&gt;           Y                O     
- 9 1003407230 261QM1300X    &lt;NA&gt;           Y                O     
-10 1003407230 101Y00000X    193200000X     N                O     
-# ℹ 6,593 more rows</code></pre>
+# A tibble: 5,433 × 4
+   npi        taxonomy_code entity level  
+   &lt;chr&gt;      &lt;chr&gt;         &lt;chr&gt;  &lt;chr&gt;  
+ 1 1003096488 261Q00000X    O      Primary
+ 2 1003196072 3416L0300X    O      Primary
+ 3 1003200874 253Z00000X    O      Primary
+ 4 1003200874 251E00000X    O      Other  
+ 5 1003330226 251E00000X    O      Primary
+ 6 1003330226 251J00000X    O      Other  
+ 7 1003337734 324500000X    O      Primary
+ 8 1003407230 261QM1300X    O      Primary
+ 9 1003407230 251E00000X    O      Other  
+10 1003463092 333600000X    O      Primary
+# ℹ 5,423 more rows</code></pre>
 </div>
 </div>
-</section><section id="license" class="level2" data-number="1.3"><h2 data-number="1.3" class="anchored" data-anchor-id="license">
+<section id="duplicates" class="level3"><h3 class="anchored" data-anchor-id="duplicates">Duplicates</h3>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">w241_tax</span><span class="op">$</span><span class="va">O</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">mutate</span><span class="op">(</span>N <span class="op">=</span> <span class="fu">n</span><span class="op">(</span><span class="op">)</span>, .by <span class="op">=</span> <span class="va">npi</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">N</span> <span class="op">==</span> <span class="fl">2</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">mutate</span><span class="op">(</span>eq <span class="op">=</span> <span class="va">taxonomy_code</span> <span class="op">==</span> <span class="fu">flag</span><span class="op">(</span><span class="va">taxonomy_code</span><span class="op">)</span>, .by <span class="op">=</span> <span class="va">npi</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">eq</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 21 × 6
+   npi        taxonomy_code entity level     N eq   
+   &lt;chr&gt;      &lt;chr&gt;         &lt;chr&gt;  &lt;chr&gt; &lt;int&gt; &lt;lgl&gt;
+ 1 1093182198 324500000X    O      Other     2 TRUE 
+ 2 1194812784 332B00000X    O      Other     2 TRUE 
+ 3 1235225210 251E00000X    O      Other     2 TRUE 
+ 4 1336114131 3416L0300X    O      Other     2 TRUE 
+ 5 1376554865 332B00000X    O      Other     2 TRUE 
+ 6 1396804225 324500000X    O      Other     2 TRUE 
+ 7 1396867578 3336C0002X    O      Other     2 TRUE 
+ 8 1427298140 261QP2000X    O      Other     2 TRUE 
+ 9 1457587222 251E00000X    O      Other     2 TRUE 
+10 1467558668 332B00000X    O      Other     2 TRUE 
+# ℹ 11 more rows</code></pre>
+</div>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">w241_tax</span><span class="op">$</span><span class="va">I</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">mutate</span><span class="op">(</span>N <span class="op">=</span> <span class="fu">n</span><span class="op">(</span><span class="op">)</span>, .by <span class="op">=</span> <span class="va">npi</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">N</span> <span class="op">==</span> <span class="fl">2</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">mutate</span><span class="op">(</span>eq <span class="op">=</span> <span class="va">taxonomy_code</span> <span class="op">==</span> <span class="fu">flag</span><span class="op">(</span><span class="va">taxonomy_code</span><span class="op">)</span>, .by <span class="op">=</span> <span class="va">npi</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">eq</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,135 × 6
+   npi        taxonomy_code entity level     N eq   
+   &lt;chr&gt;      &lt;chr&gt;         &lt;chr&gt;  &lt;chr&gt; &lt;int&gt; &lt;lgl&gt;
+ 1 1003013137 363AM0700X    I      Other     2 TRUE 
+ 2 1003063173 208G00000X    I      Other     2 TRUE 
+ 3 1003122698 2085R0202X    I      Other     2 TRUE 
+ 4 1003182908 207ZP0101X    I      Other     2 TRUE 
+ 5 1003202565 207ZP0102X    I      Other     2 TRUE 
+ 6 1003249749 207L00000X    I      Other     2 TRUE 
+ 7 1003443680 207W00000X    I      Other     2 TRUE 
+ 8 1003461666 152W00000X    I      Other     2 TRUE 
+ 9 1003561242 111N00000X    I      Other     2 TRUE 
+10 1003859794 363LF0000X    I      Other     2 TRUE 
+# ℹ 1,125 more rows</code></pre>
+</div>
+</div>
+</section></section><section id="license" class="level2" data-number="1.3"><h2 data-number="1.3" class="anchored" data-anchor-id="license">
 <span class="header-section-number">1.3</span> License</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">w241_lic</span> <span class="op">&lt;-</span> <span class="fu">join</span><span class="op">(</span></span>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">w241_lic</span> <span class="op">&lt;-</span> <span class="fu">join</span><span class="op">(</span></span>
 <span>  <span class="va">wk_2024_01_01</span><span class="op">$</span><span class="va">taxonomy</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"npi"</span>, <span class="st">"license_number"</span>, <span class="st">"license_state"</span><span class="op">)</span><span class="op">]</span>, </span>
 <span>  <span class="va">w241_base</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"npi"</span>, <span class="st">"entity"</span><span class="op">)</span><span class="op">]</span>, </span>
 <span>  on <span class="op">=</span> <span class="st">"npi"</span>, </span>
@@ -536,52 +717,56 @@ $O
 <span></span>
 <span><span class="va">lic_g</span> <span class="op">&lt;-</span> <span class="fu">GRP</span><span class="op">(</span><span class="va">w241_lic</span>, <span class="op">~</span> <span class="va">entity</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">rsplit</span><span class="op">(</span><span class="va">w241_lic</span>, <span class="va">lic_g</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu">map</span><span class="op">(</span><span class="va">remove_quiet</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html">setNames</a></span><span class="op">(</span><span class="fu">GRPnames</span><span class="op">(</span><span class="va">lic_g</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="va">w241_lic</span> <span class="op">&lt;-</span> <span class="fu">rsplit</span><span class="op">(</span><span class="va">w241_lic</span>, <span class="va">lic_g</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">map</span><span class="op">(</span>\<span class="op">(</span><span class="va">df</span><span class="op">)</span> <span class="fu">remove_quiet</span><span class="op">(</span><span class="va">df</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="fu">not_na</span><span class="op">(</span><span class="va">license_number</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html">setNames</a></span><span class="op">(</span><span class="fu">GRPnames</span><span class="op">(</span><span class="va">lic_g</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">w241_lic</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>$I
-# A tibble: 21,532 × 4
+# A tibble: 15,565 × 4
    npi        license_number license_state entity
    &lt;chr&gt;      &lt;chr&gt;          &lt;chr&gt;         &lt;chr&gt; 
  1 1003009861 45263          AZ            I     
- 2 1003013137 &lt;NA&gt;           MN            I     
- 3 1003013137 4354           WI            I     
- 4 1003018060 959            NV            I     
- 5 1003047531 116063         CA            I     
- 6 1003047531 &lt;NA&gt;           CA            I     
- 7 1003047531 30135          OK            I     
- 8 1003047531 MD60681697     WA            I     
- 9 1003052903 087968         NY            I     
-10 1003063173 5499           OK            I     
-# ℹ 21,522 more rows
+ 2 1003013137 4354           WI            I     
+ 3 1003018060 959            NV            I     
+ 4 1003047531 116063         CA            I     
+ 5 1003047531 30135          OK            I     
+ 6 1003047531 MD60681697     WA            I     
+ 7 1003052903 087968         NY            I     
+ 8 1003063173 5499           OK            I     
+ 9 1003063173 036.143737     IL            I     
+10 1003063173 007606         AZ            I     
+# ℹ 15,555 more rows
 
 $O
-# A tibble: 6,603 × 4
+# A tibble: 592 × 4
    npi        license_number license_state entity
    &lt;chr&gt;      &lt;chr&gt;          &lt;chr&gt;         &lt;chr&gt; 
  1 1003096488 12-296         MS            O     
  2 1003196072 23-255         OH            O     
  3 1003199829 10000          ND            O     
- 4 1003200874 &lt;NA&gt;           &lt;NA&gt;          O     
- 5 1003200874 HHA201205      NE            O     
- 6 1003330226 &lt;NA&gt;           &lt;NA&gt;          O     
- 7 1003330226 &lt;NA&gt;           &lt;NA&gt;          O     
- 8 1003337734 &lt;NA&gt;           &lt;NA&gt;          O     
- 9 1003407230 &lt;NA&gt;           &lt;NA&gt;          O     
-10 1003407230 &lt;NA&gt;           &lt;NA&gt;          O     
-# ℹ 6,593 more rows</code></pre>
+ 4 1003200874 HHA201205      NE            O     
+ 5 1013007475 1673           WI            O     
+ 6 1013069608 28RS00588100   NJ            O     
+ 7 1013105568 H80CS06662     IN            O     
+ 8 1013174127 X 05660-1      NY            O     
+ 9 1013214089 230304         NY            O     
+10 1013995521 1038           WI            O     
+# ℹ 582 more rows</code></pre>
 </div>
 </div>
 </section><section id="identifiers" class="level2" data-number="1.4"><h2 data-number="1.4" class="anchored" data-anchor-id="identifiers">
 <span class="header-section-number">1.4</span> Identifiers</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">w241_id</span> <span class="op">&lt;-</span> <span class="fu">join</span><span class="op">(</span></span>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">w241_id</span> <span class="op">&lt;-</span> <span class="fu">join</span><span class="op">(</span></span>
 <span>  <span class="va">wk_2024_01_01</span><span class="op">$</span><span class="va">identifier</span>, </span>
 <span>  <span class="va">w241_base</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"npi"</span>, <span class="st">"entity"</span><span class="op">)</span><span class="op">]</span>, </span>
 <span>  on <span class="op">=</span> <span class="st">"npi"</span>, </span>
 <span>  verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu">fsubset</span><span class="op">(</span><span class="va">npi</span> <span class="op">%!in%</span> <span class="va">w241_deact</span><span class="op">$</span><span class="va">npi</span><span class="op">)</span></span>
+<span>  <span class="fu">fsubset</span><span class="op">(</span><span class="va">npi</span> <span class="op">%!in%</span> <span class="va">w241_deact</span><span class="op">$</span><span class="va">npi</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="co"># Remove Taxonomy Codes</span></span>
+<span>  <span class="fu">fsubset</span><span class="op">(</span><span class="fu">sf_ndetect</span><span class="op">(</span><span class="va">other_id</span>, <span class="st">"^[A-Z0-9]{9}X$"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">id_g</span> <span class="op">&lt;-</span> <span class="fu">GRP</span><span class="op">(</span><span class="va">w241_id</span>, <span class="op">~</span> <span class="va">entity</span><span class="op">)</span></span>
 <span></span>
@@ -590,23 +775,23 @@ $O
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html">setNames</a></span><span class="op">(</span><span class="fu">GRPnames</span><span class="op">(</span><span class="va">id_g</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>$I
-# A tibble: 3,068 × 6
+# A tibble: 3,052 × 6
    npi        other_id   other_id_code other_id_state other_id_issuer     entity
    &lt;chr&gt;      &lt;chr&gt;      &lt;chr&gt;         &lt;chr&gt;          &lt;chr&gt;               &lt;chr&gt; 
- 1 1942708748 390200000X 01            NC             NC                  I     
- 2 1003685140 3496       01            NH             STATE OF NEW HAMPS… I     
- 3 1134998198 1194322628 05            MI             &lt;NA&gt;                I     
- 4 1578544367 10007752   05            TX             &lt;NA&gt;                I     
- 5 1578544367 152031401  05            TX             &lt;NA&gt;                I     
- 6 1578544367 152028001  05            TX             &lt;NA&gt;                I     
- 7 1316936222 4160095    01            TN             BLUE CROSS          I     
- 8 1316936222 1053635    05            LA             &lt;NA&gt;                I     
- 9 1316936222 087281     05            AZ             &lt;NA&gt;                I     
-10 1316936222 3000540    05            TN             &lt;NA&gt;                I     
-# ℹ 3,058 more rows
+ 1 1003685140 3496       01            NH             STATE OF NEW HAMPS… I     
+ 2 1134998198 1194322628 05            MI             &lt;NA&gt;                I     
+ 3 1578544367 10007752   05            TX             &lt;NA&gt;                I     
+ 4 1578544367 152031401  05            TX             &lt;NA&gt;                I     
+ 5 1578544367 152028001  05            TX             &lt;NA&gt;                I     
+ 6 1316936222 4160095    01            TN             BLUE CROSS          I     
+ 7 1316936222 1053635    05            LA             &lt;NA&gt;                I     
+ 8 1316936222 087281     05            AZ             &lt;NA&gt;                I     
+ 9 1316936222 3000540    05            TN             &lt;NA&gt;                I     
+10 1316936222 P00444174  01            &lt;NA&gt;           MEDICARE RAILROAD   I     
+# ℹ 3,042 more rows
 
 $O
-# A tibble: 1,316 × 6
+# A tibble: 1,314 × 6
    npi        other_id   other_id_code other_id_state other_id_issuer     entity
    &lt;chr&gt;      &lt;chr&gt;      &lt;chr&gt;         &lt;chr&gt;          &lt;chr&gt;               &lt;chr&gt; 
  1 1417726456 0155098    05            OH             &lt;NA&gt;                O     
@@ -619,86 +804,91 @@ $O
  8 1891209284 U300404468 01            RI             MEDICARE PTAN       O     
  9 1730729385 1952817926 01            &lt;NA&gt;           ORGANIZATIONAL NPI  O     
 10 1730729385 1043526098 01            &lt;NA&gt;           NPI                 O     
-# ℹ 1,306 more rows</code></pre>
+# ℹ 1,304 more rows</code></pre>
 </div>
 </div>
 </section><section id="other" class="level2" data-number="1.5"><h2 data-number="1.5" class="anchored" data-anchor-id="other">
 <span class="header-section-number">1.5</span> Other</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">w241_oth</span> <span class="op">&lt;-</span> <span class="fu">join</span><span class="op">(</span></span>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">w241_oth</span> <span class="op">&lt;-</span> <span class="fu">join</span><span class="op">(</span></span>
 <span>  <span class="va">wk_2024_01_01</span><span class="op">$</span><span class="va">other</span>, </span>
 <span>  <span class="va">w241_base</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"npi"</span>, <span class="st">"entity"</span><span class="op">)</span><span class="op">]</span>, </span>
 <span>  on <span class="op">=</span> <span class="st">"npi"</span>, </span>
 <span>  verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu">fsubset</span><span class="op">(</span><span class="va">npi</span> <span class="op">%!in%</span> <span class="va">w241_deact</span><span class="op">$</span><span class="va">npi</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">oth_g</span> <span class="op">&lt;-</span> <span class="fu">GRP</span><span class="op">(</span><span class="va">w241_oth</span>, <span class="op">~</span> <span class="va">entity</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">rsplit</span><span class="op">(</span><span class="va">w241_oth</span>, <span class="va">oth_g</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">fsubset</span><span class="op">(</span><span class="va">npi</span> <span class="op">%!in%</span> <span class="va">w241_deact</span><span class="op">$</span><span class="va">npi</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">fcompute</span><span class="op">(</span></span>
+<span>    npi <span class="op">=</span> <span class="va">npi</span>,</span>
+<span>    entity <span class="op">=</span> <span class="va">entity</span>,</span>
+<span>    ao_prefix <span class="op">=</span> <span class="fu">sf_remove</span><span class="op">(</span><span class="va">ao_prefix</span>, <span class="st">"\\."</span><span class="op">)</span>,</span>
+<span>    ao_first_name <span class="op">=</span> <span class="fu">sf_remove</span><span class="op">(</span><span class="va">ao_first</span>, <span class="st">"\\."</span><span class="op">)</span>,</span>
+<span>    ao_middle_name <span class="op">=</span> <span class="fu">sf_remove</span><span class="op">(</span><span class="va">ao_middle</span>, <span class="st">"\\."</span><span class="op">)</span>,</span>
+<span>    ao_last_name <span class="op">=</span> <span class="fu">sf_remove</span><span class="op">(</span><span class="va">ao_last</span>, <span class="st">"\\."</span><span class="op">)</span>,</span>
+<span>    ao_suffix <span class="op">=</span> <span class="fu">sf_remove</span><span class="op">(</span><span class="va">ao_suffix</span>, <span class="st">"\\."</span><span class="op">)</span>,</span>
+<span>    ao_credential <span class="op">=</span> <span class="fu">sf_remove</span><span class="op">(</span><span class="va">ao_credential</span>, <span class="st">"\\."</span><span class="op">)</span>,</span>
+<span>    ao_title <span class="op">=</span> <span class="fu">sf_remove</span><span class="op">(</span><span class="va">ao_title</span>, <span class="st">"\\."</span><span class="op">)</span>,</span>
+<span>    ao_phone <span class="op">=</span> <span class="fu">map_chr</span><span class="op">(</span><span class="va">ao_phone</span>, \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="kw">if</span> <span class="op">(</span><span class="fu">not_na</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span> <span class="fu">str_glue</span><span class="op">(</span><span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}"</span><span class="op">)</span> <span class="kw">else</span> <span class="va">x</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(substitute(list(...)), .data, parent.frame()): object 'ao_prefix' not found</code></pre>
+</div>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">oth_g</span> <span class="op">&lt;-</span> <span class="fu">GRP</span><span class="op">(</span><span class="va">w241_oth</span>, <span class="op">~</span> <span class="va">entity</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error: object 'w241_oth' not found</code></pre>
+</div>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">w241_oth</span> <span class="op">&lt;-</span> <span class="fu">rsplit</span><span class="op">(</span><span class="va">w241_oth</span>, <span class="va">oth_g</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">map</span><span class="op">(</span><span class="va">remove_quiet</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html">setNames</a></span><span class="op">(</span><span class="fu">GRPnames</span><span class="op">(</span><span class="va">oth_g</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>$I
-# A tibble: 1,221 × 9
-   npi        other_prefix other_first other_middle other_last other_last_type
-   &lt;chr&gt;      &lt;chr&gt;        &lt;chr&gt;       &lt;chr&gt;        &lt;chr&gt;      &lt;chr&gt;          
- 1 1255864583 &lt;NA&gt;         GWEN        &lt;NA&gt;         WILSON     2              
- 2 1659140796 &lt;NA&gt;         KATELIN     LEE ANN      BOYER      1              
- 3 1184493223 &lt;NA&gt;         AESHA       ISHWARBHAI   PATEL      5              
- 4 1437928579 &lt;NA&gt;         TREVA       JO           MOYA       1              
- 5 1881463826 &lt;NA&gt;         AMANDA      RENEE        SCHELLHORN 1              
- 6 1871362814 &lt;NA&gt;         BRITTANY    C            DARNELL    1              
- 7 1770352718 &lt;NA&gt;         PEBBLES     MAURINE      YEE        5              
- 8 1497524441 &lt;NA&gt;         CARING      FOR          MAMAS      2              
- 9 1033988084 &lt;NA&gt;         JANINE      LISSETT      LESSLEY    1              
-10 1487423430 &lt;NA&gt;         &lt;NA&gt;        &lt;NA&gt;         &lt;NA&gt;       2              
-# ℹ 1,211 more rows
-# ℹ 3 more variables: other_suffix &lt;chr&gt;, other_credential &lt;chr&gt;, entity &lt;chr&gt;
-
-$O
-# A tibble: 1,125 × 4
-   npi        other_org_name                            other_org_type entity
-   &lt;chr&gt;      &lt;chr&gt;                                     &lt;chr&gt;          &lt;chr&gt; 
- 1 1548924087 MORGAN HEART PLLC                         4              O     
- 2 1538845474 SRS-LA MIRADA, LLC                        3              O     
- 3 1477337988 RISING SUN DERMATOLOGY &amp; COSMETICS CENTER 3              O     
- 4 1447567391 UNITED PLUS HOME HEALTH LLC               3              O     
- 5 1841442092 PALOMA HOME HEALTHCARE                    3              O     
- 6 1508824574 THE ALFANO CENTER                         3              O     
- 7 1295004455 MAXSERVE HOSPICE                          3              O     
- 8 1790271476 MAXSERVE HOSPICE                          3              O     
- 9 1740833243 SUMMIT HEALTHCARE                         3              O     
-10 1427561562 J&amp;CO CHIROPRACTIC                         3              O     
-# ℹ 1,115 more rows</code></pre>
+<div class="cell-output cell-output-error">
+<pre><code>Error: object 'oth_g' not found</code></pre>
+</div>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">w241_oth</span><span class="op">$</span><span class="va">I</span> <span class="op">&lt;-</span> <span class="fu">vctrs</span><span class="fu">::</span><span class="fu"><a href="https://vctrs.r-lib.org/reference/vec_slice.html">vec_slice</a></span><span class="op">(</span><span class="va">w241_oth</span><span class="op">$</span><span class="va">I</span>, <span class="fu">cheapr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/cheapr/man/is_na.html">row_na_counts</a></span><span class="op">(</span><span class="va">w241_oth</span><span class="op">$</span><span class="va">I</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">6</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error: object 'w241_oth' not found</code></pre>
+</div>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">w241_oth</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error: object 'w241_oth' not found</code></pre>
 </div>
 </div>
 </section><section id="authorized" class="level2" data-number="1.6"><h2 data-number="1.6" class="anchored" data-anchor-id="authorized">
 <span class="header-section-number">1.6</span> Authorized</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">w241_ao</span> <span class="op">&lt;-</span> <span class="fu">join</span><span class="op">(</span></span>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">w241_ao</span> <span class="op">&lt;-</span> <span class="fu">join</span><span class="op">(</span></span>
 <span>  <span class="va">wk_2024_01_01</span><span class="op">$</span><span class="va">authorized</span>, </span>
 <span>  <span class="va">w241_base</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"npi"</span>, <span class="st">"entity"</span><span class="op">)</span><span class="op">]</span>, </span>
 <span>  on <span class="op">=</span> <span class="st">"npi"</span>, </span>
 <span>  verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu">fsubset</span><span class="op">(</span><span class="va">npi</span> <span class="op">%!in%</span> <span class="va">w241_deact</span><span class="op">$</span><span class="va">npi</span><span class="op">)</span></span>
+<span>  <span class="fu">fsubset</span><span class="op">(</span><span class="va">npi</span> <span class="op">%!in%</span> <span class="va">w241_deact</span><span class="op">$</span><span class="va">npi</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">fcompute</span><span class="op">(</span></span>
+<span>    npi <span class="op">=</span> <span class="va">npi</span>,</span>
+<span>    entity <span class="op">=</span> <span class="va">entity</span>,</span>
+<span>    ao_prefix <span class="op">=</span> <span class="fu">sf_remove</span><span class="op">(</span><span class="va">ao_prefix</span>, <span class="st">"\\."</span><span class="op">)</span>,</span>
+<span>    ao_first_name <span class="op">=</span> <span class="fu">sf_remove</span><span class="op">(</span><span class="va">ao_first</span>, <span class="st">"\\."</span><span class="op">)</span>,</span>
+<span>    ao_middle_name <span class="op">=</span> <span class="fu">sf_remove</span><span class="op">(</span><span class="va">ao_middle</span>, <span class="st">"\\."</span><span class="op">)</span>,</span>
+<span>    ao_last_name <span class="op">=</span> <span class="fu">sf_remove</span><span class="op">(</span><span class="va">ao_last</span>, <span class="st">"\\."</span><span class="op">)</span>,</span>
+<span>    ao_suffix <span class="op">=</span> <span class="fu">sf_remove</span><span class="op">(</span><span class="va">ao_suffix</span>, <span class="st">"\\."</span><span class="op">)</span>,</span>
+<span>    ao_credential <span class="op">=</span> <span class="fu">sf_remove</span><span class="op">(</span><span class="va">ao_credential</span>, <span class="st">"\\."</span><span class="op">)</span>,</span>
+<span>    ao_title <span class="op">=</span> <span class="fu">sf_remove</span><span class="op">(</span><span class="va">ao_title</span>, <span class="st">"\\."</span><span class="op">)</span>,</span>
+<span>    ao_phone <span class="op">=</span> <span class="fu">map_chr</span><span class="op">(</span><span class="va">ao_phone</span>, \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="kw">if</span> <span class="op">(</span><span class="fu">not_na</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span> <span class="fu">str_glue</span><span class="op">(</span><span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}"</span><span class="op">)</span> <span class="kw">else</span> <span class="va">x</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
 <span></span>
 <span><span class="va">w241_ao</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3,917 × 10
-   npi     ao_prefix ao_first ao_middle ao_last ao_suffix ao_credential ao_title
- * &lt;chr&gt;   &lt;chr&gt;     &lt;chr&gt;    &lt;chr&gt;     &lt;chr&gt;   &lt;chr&gt;     &lt;chr&gt;         &lt;chr&gt;   
- 1 195272… &lt;NA&gt;      MICHELE  &lt;NA&gt;      WHITE   &lt;NA&gt;      PHD, LLP, LPC OWNER   
- 2 154892… &lt;NA&gt;      TANESHA  &lt;NA&gt;      MORGAN  &lt;NA&gt;      LCSW          CEO     
- 3 129550… &lt;NA&gt;      KENDRA   &lt;NA&gt;      TAYLOR  &lt;NA&gt;      &lt;NA&gt;          OWNER   
- 4 138641… &lt;NA&gt;      MELISSA  &lt;NA&gt;      DELLA … &lt;NA&gt;      LCSW          OWNER   
- 5 155813… MRS.      MALYNDI  R.        WEST    &lt;NA&gt;      &lt;NA&gt;          OWNER &amp;…
- 6 182186… &lt;NA&gt;      AURORA   CANE      HOYLE   &lt;NA&gt;      FNP-BC        PRIMARY…
- 7 164904… DR.       ASMITA   &lt;NA&gt;      PATEL   &lt;NA&gt;      MD            SECRETA…
- 8 127530… MR.       RANGANA… &lt;NA&gt;      NARASI… &lt;NA&gt;      &lt;NA&gt;          MANAGER…
- 9 135611… DR.       AKRAM    &lt;NA&gt;      ABD EL… &lt;NA&gt;      MD            PHYSICI…
-10 150863… &lt;NA&gt;      JAYSON   &lt;NA&gt;      ROWLAND &lt;NA&gt;      CHT CPH       HYPNOTH…
+   npi      entity ao_prefix ao_first_name ao_middle_name ao_last_name ao_suffix
+ * &lt;chr&gt;    &lt;chr&gt;  &lt;chr&gt;     &lt;chr&gt;         &lt;chr&gt;          &lt;chr&gt;        &lt;chr&gt;    
+ 1 1952724… O      &lt;NA&gt;      MICHELE       &lt;NA&gt;           WHITE        &lt;NA&gt;     
+ 2 1548924… O      &lt;NA&gt;      TANESHA       &lt;NA&gt;           MORGAN       &lt;NA&gt;     
+ 3 1295504… O      &lt;NA&gt;      KENDRA        &lt;NA&gt;           TAYLOR       &lt;NA&gt;     
+ 4 1386413… O      &lt;NA&gt;      MELISSA       &lt;NA&gt;           DELLA FEMINA &lt;NA&gt;     
+ 5 1558130… O      MRS       MALYNDI       R              WEST         &lt;NA&gt;     
+ 6 1821867… O      &lt;NA&gt;      AURORA        CANE           HOYLE        &lt;NA&gt;     
+ 7 1649049… O      DR        ASMITA        &lt;NA&gt;           PATEL        &lt;NA&gt;     
+ 8 1275302… O      MR        RANGANARAYAN  &lt;NA&gt;           NARASIMHAN   &lt;NA&gt;     
+ 9 1356110… O      DR        AKRAM         &lt;NA&gt;           ABD EL KADER &lt;NA&gt;     
+10 1508635… O      &lt;NA&gt;      JAYSON        &lt;NA&gt;           ROWLAND      &lt;NA&gt;     
 # ℹ 3,907 more rows
-# ℹ 2 more variables: ao_phone &lt;chr&gt;, entity &lt;chr&gt;</code></pre>
+# ℹ 3 more variables: ao_credential &lt;chr&gt;, ao_title &lt;chr&gt;, ao_phone &lt;chr&gt;</code></pre>
 </div>
 </div>
 <hr>
@@ -711,8 +901,8 @@ $O
 <p><strong>Platform:</strong> x86_64-w64-mingw32/x64</p>
 <p><strong>locale:</strong> <em>LC_COLLATE=English_United States.utf8</em>, <em>LC_CTYPE=English_United States.utf8</em>, <em>LC_MONETARY=English_United States.utf8</em>, <em>LC_NUMERIC=C</em> and <em>LC_TIME=English_United States.utf8</em></p>
 <p><strong>attached base packages:</strong> <em>stats</em>, <em>graphics</em>, <em>grDevices</em>, <em>utils</em>, <em>datasets</em>, <em>methods</em> and <em>base</em></p>
-<p><strong>other attached packages:</strong> <em>nppez(v.0.0.1)</em>, <em>codex(v.0.0.1)</em>, <em>fuimus(v.0.0.2)</em>, <em>collapse(v.2.0.17)</em>, <em>data.table(v.1.16.99)</em>, <em>lubridate(v.1.9.3)</em>, <em>forcats(v.1.0.0)</em>, <em>stringr(v.1.5.1)</em>, <em>dplyr(v.1.1.4)</em>, <em>purrr(v.1.0.2)</em>, <em>readr(v.2.1.5)</em>, <em>tidyr(v.1.3.1)</em>, <em>tibble(v.3.2.1)</em>, <em>ggplot2(v.3.5.1)</em> and <em>tidyverse(v.2.0.0)</em></p>
-<p><strong>loaded via a namespace (and not attached):</strong> <em>rappdirs(v.0.3.3)</em>, <em>utf8(v.1.2.4)</em>, <em>generics(v.0.1.3)</em>, <em>stringi(v.1.8.4)</em>, <em>hms(v.1.1.3)</em>, <em>digest(v.0.6.37)</em>, <em>magrittr(v.2.0.3)</em>, <em>evaluate(v.1.0.1)</em>, <em>grid(v.4.4.2)</em>, <em>timechange(v.0.3.0)</em>, <em>fastmap(v.1.2.0)</em>, <em>jsonlite(v.1.8.9)</em>, <em>pins(v.1.4.0)</em>, <em>pander(v.0.6.5)</em>, <em>fansi(v.1.0.6)</em>, <em>scales(v.1.3.0)</em>, <em>textshaping(v.0.4.0)</em>, <em>RApiSerialize(v.0.1.4)</em>, <em>cli(v.3.6.3)</em>, <em>rlang(v.1.1.4)</em>, <em>munsell(v.0.5.1)</em>, <em>withr(v.3.0.2)</em>, <em>yaml(v.2.3.10)</em>, <em>qs(v.0.27.2)</em>, <em>tools(v.4.4.2)</em>, <em>parallel(v.4.4.2)</em>, <em>tzdb(v.0.4.0)</em>, <em>colorspace(v.2.1-1)</em>, <em>vctrs(v.0.6.5)</em>, <em>R6(v.2.5.1)</em>, <em>lifecycle(v.1.0.4)</em>, <em>snakecase(v.0.11.1)</em>, <em>cheapr(v.0.9.91)</em>, <em>stringfish(v.0.16.0)</em>, <em>fs(v.1.6.5)</em>, <em>htmlwidgets(v.1.6.4)</em>, <em>janitor(v.2.2.0)</em>, <em>ragg(v.1.3.3)</em>, <em>pkgconfig(v.2.0.3)</em>, <em>RcppParallel(v.5.1.9)</em>, <em>pillar(v.1.9.0)</em>, <em>gtable(v.0.3.6)</em>, <em>glue(v.1.8.0)</em>, <em>Rcpp(v.1.0.13-1)</em>, <em>systemfonts(v.1.1.0)</em>, <em>xfun(v.0.49)</em>, <em>tidyselect(v.1.2.1)</em>, <em>rstudioapi(v.0.17.1)</em>, <em>knitr(v.1.49)</em>, <em>htmltools(v.0.5.8.1)</em>, <em>rmarkdown(v.2.29)</em> and <em>compiler(v.4.4.2)</em></p>
+<p><strong>other attached packages:</strong> <em>hacksaw(v.0.0.2)</em>, <em>nppez(v.0.0.1)</em>, <em>codex(v.0.0.1)</em>, <em>fuimus(v.0.0.2)</em>, <em>collapse(v.2.0.17)</em>, <em>data.table(v.1.16.99)</em>, <em>lubridate(v.1.9.3)</em>, <em>forcats(v.1.0.0)</em>, <em>stringr(v.1.5.1)</em>, <em>dplyr(v.1.1.4)</em>, <em>purrr(v.1.0.2)</em>, <em>readr(v.2.1.5)</em>, <em>tidyr(v.1.3.1)</em>, <em>tibble(v.3.2.1)</em>, <em>ggplot2(v.3.5.1)</em> and <em>tidyverse(v.2.0.0)</em></p>
+<p><strong>loaded via a namespace (and not attached):</strong> <em>rappdirs(v.0.3.3)</em>, <em>utf8(v.1.2.4)</em>, <em>generics(v.0.1.3)</em>, <em>stringi(v.1.8.4)</em>, <em>hms(v.1.1.3)</em>, <em>digest(v.0.6.37)</em>, <em>magrittr(v.2.0.3)</em>, <em>evaluate(v.1.0.1)</em>, <em>grid(v.4.4.2)</em>, <em>timechange(v.0.3.0)</em>, <em>fastmap(v.1.2.0)</em>, <em>jsonlite(v.1.8.9)</em>, <em>pins(v.1.4.0)</em>, <em>pander(v.0.6.5)</em>, <em>fansi(v.1.0.6)</em>, <em>scales(v.1.3.0)</em>, <em>textshaping(v.0.4.0)</em>, <em>RApiSerialize(v.0.1.4)</em>, <em>cli(v.3.6.3)</em>, <em>rlang(v.1.1.4)</em>, <em>munsell(v.0.5.1)</em>, <em>withr(v.3.0.2)</em>, <em>yaml(v.2.3.10)</em>, <em>qs(v.0.27.2)</em>, <em>tools(v.4.4.2)</em>, <em>parallel(v.4.4.2)</em>, <em>tzdb(v.0.4.0)</em>, <em>zeallot(v.0.1.0)</em>, <em>colorspace(v.2.1-1)</em>, <em>vctrs(v.0.6.5)</em>, <em>R6(v.2.5.1)</em>, <em>lifecycle(v.1.0.4)</em>, <em>snakecase(v.0.11.1)</em>, <em>cheapr(v.0.9.91)</em>, <em>stringfish(v.0.16.0)</em>, <em>fs(v.1.6.5)</em>, <em>htmlwidgets(v.1.6.4)</em>, <em>janitor(v.2.2.0)</em>, <em>ragg(v.1.3.3)</em>, <em>pkgconfig(v.2.0.3)</em>, <em>RcppParallel(v.5.1.9)</em>, <em>pillar(v.1.9.0)</em>, <em>gtable(v.0.3.6)</em>, <em>glue(v.1.8.0)</em>, <em>Rcpp(v.1.0.13-1)</em>, <em>systemfonts(v.1.1.0)</em>, <em>xfun(v.0.49)</em>, <em>tidyselect(v.1.2.1)</em>, <em>rstudioapi(v.0.17.1)</em>, <em>knitr(v.1.49)</em>, <em>htmltools(v.0.5.8.1)</em>, <em>rmarkdown(v.2.29)</em> and <em>compiler(v.4.4.2)</em></p>
 </div>
 </div>
 
@@ -1200,363 +1390,447 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb15" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "NPPES NPI Archives"</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co">    reference-location: block</span></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="an">editor_options:</span><span class="co"> </span></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co">  chunk_output_type: console</span></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(</span>
-<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">dev =</span> <span class="st">"ragg_png"</span>,</span>
-<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">dpi =</span> <span class="dv">320</span>,</span>
-<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">out.width =</span> <span class="st">"100%"</span>,</span>
-<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.width =</span> <span class="dv">8</span>,</span>
-<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.asp =</span> <span class="fl">0.818</span>,</span>
-<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.retina =</span> <span class="dv">2</span>,</span>
-<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.align =</span> <span class="st">"center"</span>,</span>
-<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.show =</span> <span class="st">"hold"</span></span>
-<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen =</span> <span class="dv">999</span>, <span class="at">digits =</span> <span class="dv">3</span>)</span>
-<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
-<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(collapse)</span>
-<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fuimus)</span>
-<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(codex)</span>
-<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(nppez)</span>
-<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a>wk_2024_01_01 <span class="ot">&lt;-</span> nppez<span class="sc">:::</span><span class="fu">get_pin</span>(<span class="st">"wk20240101"</span>)</span>
-<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a><span class="co"># wk_2024_01_22 &lt;- nppez:::get_pin("wk20240122")</span></span>
-<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a><span class="co"># wk_2024_02_05 &lt;- nppez:::get_pin("wk_20240205")</span></span>
-<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a><span class="fu"># 2024-01-01</span></span>
-<span id="cb15-43"><a href="#cb15-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-46"><a href="#cb15-46" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb15-47"><a href="#cb15-47" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: w241_base</span></span>
-<span id="cb15-48"><a href="#cb15-48" aria-hidden="true" tabindex="-1"></a>w241_base <span class="ot">&lt;-</span> wk_2024_01_01<span class="sc">$</span>basic <span class="sc">|&gt;</span> </span>
-<span id="cb15-49"><a href="#cb15-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fcompute</span>(</span>
-<span id="cb15-50"><a href="#cb15-50" aria-hidden="true" tabindex="-1"></a>    <span class="at">npi =</span> npi,</span>
-<span id="cb15-51"><a href="#cb15-51" aria-hidden="true" tabindex="-1"></a>    <span class="at">entity =</span> data.table<span class="sc">::</span><span class="fu">fcase</span>(entity <span class="sc">==</span> <span class="st">"Ind"</span>, <span class="st">"I"</span>, entity <span class="sc">==</span> <span class="st">"Org"</span>, <span class="st">"O"</span>),</span>
-<span id="cb15-52"><a href="#cb15-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">prefix =</span> <span class="fu">sf_remove</span>(prefix, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>),</span>
-<span id="cb15-53"><a href="#cb15-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">first_name =</span> <span class="fu">sf_remove</span>(first, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>),</span>
-<span id="cb15-54"><a href="#cb15-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">middle_name =</span> <span class="fu">sf_remove</span>(middle, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>),</span>
-<span id="cb15-55"><a href="#cb15-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">last_name =</span> <span class="fu">sf_remove</span>(last, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>),</span>
-<span id="cb15-56"><a href="#cb15-56" aria-hidden="true" tabindex="-1"></a>    <span class="at">suffix =</span> <span class="fu">sf_remove</span>(suffix, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>),</span>
-<span id="cb15-57"><a href="#cb15-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">credential =</span> <span class="fu">sf_remove</span>(credential, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>),</span>
-<span id="cb15-58"><a href="#cb15-58" aria-hidden="true" tabindex="-1"></a>    <span class="at">org_parent =</span> <span class="fu">sf_remove</span>(parent_org_lbn, <span class="st">"</span><span class="sc">\\</span><span class="st">.|,"</span>),</span>
-<span id="cb15-59"><a href="#cb15-59" aria-hidden="true" tabindex="-1"></a>    <span class="at">org_prov =</span> <span class="fu">sf_remove</span>(prov_org_lbn, <span class="st">"</span><span class="sc">\\</span><span class="st">.|,"</span>),</span>
-<span id="cb15-60"><a href="#cb15-60" aria-hidden="true" tabindex="-1"></a>    <span class="at">cert_date =</span> certified,</span>
-<span id="cb15-61"><a href="#cb15-61" aria-hidden="true" tabindex="-1"></a>    <span class="at">enum_date =</span> enum_date,</span>
-<span id="cb15-62"><a href="#cb15-62" aria-hidden="true" tabindex="-1"></a>    <span class="at">deact_date =</span> deact_date,</span>
-<span id="cb15-63"><a href="#cb15-63" aria-hidden="true" tabindex="-1"></a>    <span class="at">react_date =</span> react_date,</span>
-<span id="cb15-64"><a href="#cb15-64" aria-hidden="true" tabindex="-1"></a>    <span class="at">sole_prop =</span> sole_prop,</span>
-<span id="cb15-65"><a href="#cb15-65" aria-hidden="true" tabindex="-1"></a>    <span class="at">org_subpart =</span> org_sub</span>
-<span id="cb15-66"><a href="#cb15-66" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb15-67"><a href="#cb15-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-68"><a href="#cb15-68" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove deactivated NPIs with no reactivation date</span></span>
-<span id="cb15-69"><a href="#cb15-69" aria-hidden="true" tabindex="-1"></a>w241_deact <span class="ot">&lt;-</span> w241_base <span class="sc">|&gt;</span> <span class="fu">filter</span>(<span class="fu">not_na</span>(deact_date), <span class="sc">!</span><span class="fu">not_na</span>(react_date)) <span class="sc">|&gt;</span> <span class="fu">remove_quiet</span>()</span>
-<span id="cb15-70"><a href="#cb15-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-71"><a href="#cb15-71" aria-hidden="true" tabindex="-1"></a>w241_base <span class="ot">&lt;-</span> <span class="fu">fsubset</span>(w241_base, npi <span class="sc">%!in%</span> w241_deact<span class="sc">$</span>npi)</span>
-<span id="cb15-72"><a href="#cb15-72" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-73"><a href="#cb15-73" aria-hidden="true" tabindex="-1"></a>base_g <span class="ot">&lt;-</span> <span class="fu">GRP</span>(w241_base, <span class="sc">~</span> entity)</span>
-<span id="cb15-74"><a href="#cb15-74" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-75"><a href="#cb15-75" aria-hidden="true" tabindex="-1"></a><span class="fu">rsplit</span>(w241_base, base_g) <span class="sc">|&gt;</span> </span>
-<span id="cb15-76"><a href="#cb15-76" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(remove_quiet) <span class="sc">|&gt;</span> </span>
-<span id="cb15-77"><a href="#cb15-77" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setNames</span>(<span class="fu">GRPnames</span>(base_g))</span>
-<span id="cb15-78"><a href="#cb15-78" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb15-79"><a href="#cb15-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-80"><a href="#cb15-80" aria-hidden="true" tabindex="-1"></a><span class="fu">## Address</span></span>
-<span id="cb15-81"><a href="#cb15-81" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-84"><a href="#cb15-84" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb15-85"><a href="#cb15-85" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: w241_add</span></span>
-<span id="cb15-86"><a href="#cb15-86" aria-hidden="true" tabindex="-1"></a>w241_add <span class="ot">&lt;-</span> <span class="fu">join</span>(</span>
-<span id="cb15-87"><a href="#cb15-87" aria-hidden="true" tabindex="-1"></a>  wk_2024_01_01<span class="sc">$</span>address, </span>
-<span id="cb15-88"><a href="#cb15-88" aria-hidden="true" tabindex="-1"></a>  w241_base[<span class="fu">c</span>(<span class="st">"npi"</span>, <span class="st">"entity"</span>)], </span>
-<span id="cb15-89"><a href="#cb15-89" aria-hidden="true" tabindex="-1"></a>  <span class="at">on =</span> <span class="st">"npi"</span>, </span>
-<span id="cb15-90"><a href="#cb15-90" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb15-91"><a href="#cb15-91" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fsubset</span>(npi <span class="sc">%!in%</span> w241_deact<span class="sc">$</span>npi)</span>
-<span id="cb15-92"><a href="#cb15-92" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-93"><a href="#cb15-93" aria-hidden="true" tabindex="-1"></a><span class="co"># Exact match on all address fields</span></span>
-<span id="cb15-94"><a href="#cb15-94" aria-hidden="true" tabindex="-1"></a>w241_exact <span class="ot">&lt;-</span> w241_add <span class="sc">|&gt;</span> </span>
-<span id="cb15-95"><a href="#cb15-95" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
-<span id="cb15-96"><a href="#cb15-96" aria-hidden="true" tabindex="-1"></a>    mail_address <span class="sc">==</span> prac_address,</span>
-<span id="cb15-97"><a href="#cb15-97" aria-hidden="true" tabindex="-1"></a>    mail_city <span class="sc">==</span> prac_city,</span>
-<span id="cb15-98"><a href="#cb15-98" aria-hidden="true" tabindex="-1"></a>    mail_state <span class="sc">==</span> prac_state,</span>
-<span id="cb15-99"><a href="#cb15-99" aria-hidden="true" tabindex="-1"></a>    mail_zip <span class="sc">==</span> prac_zip,</span>
-<span id="cb15-100"><a href="#cb15-100" aria-hidden="true" tabindex="-1"></a>    mail_country <span class="sc">==</span> prac_country,</span>
-<span id="cb15-101"><a href="#cb15-101" aria-hidden="true" tabindex="-1"></a>    mail_phone <span class="sc">==</span> prac_phone,</span>
-<span id="cb15-102"><a href="#cb15-102" aria-hidden="true" tabindex="-1"></a>    mail_fax <span class="sc">==</span> prac_fax) <span class="sc">|&gt;</span> </span>
-<span id="cb15-103"><a href="#cb15-103" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fcompute</span>(</span>
-<span id="cb15-104"><a href="#cb15-104" aria-hidden="true" tabindex="-1"></a>    <span class="at">npi =</span> npi,</span>
-<span id="cb15-105"><a href="#cb15-105" aria-hidden="true" tabindex="-1"></a>    <span class="at">entity =</span> entity,</span>
-<span id="cb15-106"><a href="#cb15-106" aria-hidden="true" tabindex="-1"></a>    <span class="at">purpose =</span> <span class="st">"MP"</span>,</span>
-<span id="cb15-107"><a href="#cb15-107" aria-hidden="true" tabindex="-1"></a>    <span class="at">address =</span> prac_address,</span>
-<span id="cb15-108"><a href="#cb15-108" aria-hidden="true" tabindex="-1"></a>    <span class="at">city =</span> prac_city,</span>
-<span id="cb15-109"><a href="#cb15-109" aria-hidden="true" tabindex="-1"></a>    <span class="at">state =</span> prac_state,</span>
-<span id="cb15-110"><a href="#cb15-110" aria-hidden="true" tabindex="-1"></a>    <span class="at">zip =</span> <span class="fu">map_chr</span>(prac_zip, \(x) <span class="cf">if</span> (<span class="fu">not_na</span>(x) <span class="sc">&amp;</span> <span class="fu">nchar</span>(x) <span class="sc">==</span> <span class="dv">9</span>) <span class="fu">str_glue</span>(<span class="st">"{substr(x, 1, 5)}-{substr(x, 6, 9)}"</span>) <span class="cf">else</span> x),</span>
-<span id="cb15-111"><a href="#cb15-111" aria-hidden="true" tabindex="-1"></a>    <span class="at">country =</span> prac_country,</span>
-<span id="cb15-112"><a href="#cb15-112" aria-hidden="true" tabindex="-1"></a>    <span class="at">phone =</span> <span class="fu">map_chr</span>(prac_phone, \(x) <span class="cf">if</span> (<span class="fu">not_na</span>(x) <span class="sc">&amp;</span> <span class="fu">nchar</span>(x) <span class="sc">==</span> <span class="dv">10</span>) <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}"</span>) <span class="cf">else</span> x),</span>
-<span id="cb15-113"><a href="#cb15-113" aria-hidden="true" tabindex="-1"></a>    <span class="at">fax =</span> <span class="fu">map_chr</span>(prac_fax, \(x) <span class="cf">if</span> (<span class="fu">not_na</span>(x) <span class="sc">&amp;</span> <span class="fu">nchar</span>(x) <span class="sc">==</span> <span class="dv">10</span>) <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}"</span>) <span class="cf">else</span> x))</span>
-<span id="cb15-114"><a href="#cb15-114" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-115"><a href="#cb15-115" aria-hidden="true" tabindex="-1"></a><span class="co"># Match on all except FAX</span></span>
-<span id="cb15-116"><a href="#cb15-116" aria-hidden="true" tabindex="-1"></a>w241_fax <span class="ot">&lt;-</span> w241_add <span class="sc">|&gt;</span> </span>
-<span id="cb15-117"><a href="#cb15-117" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
-<span id="cb15-118"><a href="#cb15-118" aria-hidden="true" tabindex="-1"></a>    npi <span class="sc">%!in%</span> w241_exact<span class="sc">$</span>npi,  </span>
-<span id="cb15-119"><a href="#cb15-119" aria-hidden="true" tabindex="-1"></a>    mail_address <span class="sc">==</span> prac_address, </span>
-<span id="cb15-120"><a href="#cb15-120" aria-hidden="true" tabindex="-1"></a>    mail_city <span class="sc">==</span> prac_city,</span>
-<span id="cb15-121"><a href="#cb15-121" aria-hidden="true" tabindex="-1"></a>    mail_state <span class="sc">==</span> prac_state,</span>
-<span id="cb15-122"><a href="#cb15-122" aria-hidden="true" tabindex="-1"></a>    mail_country <span class="sc">==</span> prac_country,</span>
-<span id="cb15-123"><a href="#cb15-123" aria-hidden="true" tabindex="-1"></a>    mail_zip <span class="sc">==</span> prac_zip,</span>
-<span id="cb15-124"><a href="#cb15-124" aria-hidden="true" tabindex="-1"></a>    mail_phone <span class="sc">==</span> prac_phone) <span class="sc">|&gt;</span> </span>
-<span id="cb15-125"><a href="#cb15-125" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fcompute</span>(</span>
-<span id="cb15-126"><a href="#cb15-126" aria-hidden="true" tabindex="-1"></a>    <span class="at">npi =</span> npi,</span>
-<span id="cb15-127"><a href="#cb15-127" aria-hidden="true" tabindex="-1"></a>    <span class="at">entity =</span> entity,</span>
-<span id="cb15-128"><a href="#cb15-128" aria-hidden="true" tabindex="-1"></a>    <span class="at">address =</span> prac_address,</span>
-<span id="cb15-129"><a href="#cb15-129" aria-hidden="true" tabindex="-1"></a>    <span class="at">city =</span> prac_city,</span>
-<span id="cb15-130"><a href="#cb15-130" aria-hidden="true" tabindex="-1"></a>    <span class="at">state =</span> prac_state,</span>
-<span id="cb15-131"><a href="#cb15-131" aria-hidden="true" tabindex="-1"></a>    <span class="at">zip =</span> <span class="fu">map_chr</span>(prac_zip, \(x) <span class="cf">if</span> (<span class="fu">not_na</span>(x) <span class="sc">&amp;</span> <span class="fu">nchar</span>(x) <span class="sc">==</span> <span class="dv">9</span>) <span class="fu">str_glue</span>(<span class="st">"{substr(x, 1, 5)}-{substr(x, 6, 9)}"</span>) <span class="cf">else</span> x),</span>
-<span id="cb15-132"><a href="#cb15-132" aria-hidden="true" tabindex="-1"></a>    <span class="at">country =</span> prac_country,</span>
-<span id="cb15-133"><a href="#cb15-133" aria-hidden="true" tabindex="-1"></a>    <span class="at">phone =</span> <span class="fu">map_chr</span>(prac_phone, \(x) <span class="cf">if</span> (<span class="fu">not_na</span>(x) <span class="sc">&amp;</span> <span class="fu">nchar</span>(x) <span class="sc">==</span> <span class="dv">10</span>) <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}"</span>) <span class="cf">else</span> x),</span>
-<span id="cb15-134"><a href="#cb15-134" aria-hidden="true" tabindex="-1"></a>    <span class="at">fax =</span> <span class="fu">fcase</span>(</span>
-<span id="cb15-135"><a href="#cb15-135" aria-hidden="true" tabindex="-1"></a>      <span class="fu">not_na</span>(mail_fax) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_fax) <span class="sc">&amp;</span> mail_fax <span class="sc">==</span> prac_fax, <span class="fu">str_glue</span>(<span class="st">"{prac_fax}"</span>),</span>
-<span id="cb15-136"><a href="#cb15-136" aria-hidden="true" tabindex="-1"></a>      <span class="fu">not_na</span>(mail_fax) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_fax) <span class="sc">&amp;</span> mail_fax <span class="sc">!=</span> prac_fax, <span class="fu">str_glue</span>(<span class="st">"{mail_fax}, {prac_fax}"</span>),</span>
-<span id="cb15-137"><a href="#cb15-137" aria-hidden="true" tabindex="-1"></a>      <span class="fu">not_na</span>(mail_fax) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">not_na</span>(prac_fax), <span class="fu">str_glue</span>(<span class="st">"{mail_fax}"</span>),</span>
-<span id="cb15-138"><a href="#cb15-138" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">not_na</span>(mail_fax) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_fax), <span class="fu">str_glue</span>(<span class="st">"{prac_fax}"</span>)),</span>
-<span id="cb15-139"><a href="#cb15-139" aria-hidden="true" tabindex="-1"></a>    <span class="at">purpose =</span> <span class="fu">fcase</span>(</span>
-<span id="cb15-140"><a href="#cb15-140" aria-hidden="true" tabindex="-1"></a>      <span class="fu">not_na</span>(mail_fax) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">not_na</span>(prac_fax), <span class="st">"M"</span>,</span>
-<span id="cb15-141"><a href="#cb15-141" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">not_na</span>(mail_fax) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_fax), <span class="st">"P"</span>,</span>
-<span id="cb15-142"><a href="#cb15-142" aria-hidden="true" tabindex="-1"></a>      <span class="at">default =</span> <span class="st">"MP"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb15-143"><a href="#cb15-143" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmutate</span>(</span>
-<span id="cb15-144"><a href="#cb15-144" aria-hidden="true" tabindex="-1"></a>    <span class="at">fax =</span> <span class="fu">map_chr</span>(</span>
-<span id="cb15-145"><a href="#cb15-145" aria-hidden="true" tabindex="-1"></a>      fax, \(x) <span class="cf">if</span> (<span class="fu">not_na</span>(x)) {</span>
-<span id="cb15-146"><a href="#cb15-146" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (<span class="fu">nchar</span>(x) <span class="sc">==</span> <span class="dv">10</span>) {</span>
-<span id="cb15-147"><a href="#cb15-147" aria-hidden="true" tabindex="-1"></a>          <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}"</span>)</span>
-<span id="cb15-148"><a href="#cb15-148" aria-hidden="true" tabindex="-1"></a>          } <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">nchar</span>(x) <span class="sc">&gt;</span> <span class="dv">10</span>) {</span>
-<span id="cb15-149"><a href="#cb15-149" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}, ({substr(x, 13, 15)})-{substr(x, 16, 18)}-{substr(x, 19, 22)}"</span>)</span>
-<span id="cb15-150"><a href="#cb15-150" aria-hidden="true" tabindex="-1"></a>            } </span>
-<span id="cb15-151"><a href="#cb15-151" aria-hidden="true" tabindex="-1"></a>        } </span>
-<span id="cb15-152"><a href="#cb15-152" aria-hidden="true" tabindex="-1"></a>      <span class="cf">else</span> x</span>
-<span id="cb15-153"><a href="#cb15-153" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb15-154"><a href="#cb15-154" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb15-155"><a href="#cb15-155" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-156"><a href="#cb15-156" aria-hidden="true" tabindex="-1"></a><span class="co"># Match on all except ZIP, PHONE, and FAX</span></span>
-<span id="cb15-157"><a href="#cb15-157" aria-hidden="true" tabindex="-1"></a>w241_phone <span class="ot">&lt;-</span> w241_add <span class="sc">|&gt;</span> </span>
-<span id="cb15-158"><a href="#cb15-158" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
-<span id="cb15-159"><a href="#cb15-159" aria-hidden="true" tabindex="-1"></a>    npi <span class="sc">%!in%</span> <span class="fu">c</span>(w241_exact<span class="sc">$</span>npi, w241_fax<span class="sc">$</span>npi),      </span>
-<span id="cb15-160"><a href="#cb15-160" aria-hidden="true" tabindex="-1"></a>    mail_address <span class="sc">==</span> prac_address,</span>
-<span id="cb15-161"><a href="#cb15-161" aria-hidden="true" tabindex="-1"></a>    mail_city <span class="sc">==</span> prac_city,</span>
-<span id="cb15-162"><a href="#cb15-162" aria-hidden="true" tabindex="-1"></a>    mail_state <span class="sc">==</span> prac_state,</span>
-<span id="cb15-163"><a href="#cb15-163" aria-hidden="true" tabindex="-1"></a>    mail_country <span class="sc">==</span> prac_country) <span class="sc">|&gt;</span></span>
-<span id="cb15-164"><a href="#cb15-164" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fcompute</span>(</span>
-<span id="cb15-165"><a href="#cb15-165" aria-hidden="true" tabindex="-1"></a>    <span class="at">npi =</span> npi,</span>
-<span id="cb15-166"><a href="#cb15-166" aria-hidden="true" tabindex="-1"></a>    <span class="at">entity =</span> entity,</span>
-<span id="cb15-167"><a href="#cb15-167" aria-hidden="true" tabindex="-1"></a>    <span class="at">purpose =</span> <span class="fu">fcase</span>(<span class="fu">not_na</span>(mail_phone) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">not_na</span>(prac_phone), <span class="st">"M"</span>,</span>
-<span id="cb15-168"><a href="#cb15-168" aria-hidden="true" tabindex="-1"></a>                    <span class="sc">!</span><span class="fu">not_na</span>(mail_phone) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_phone), <span class="st">"P"</span>,</span>
-<span id="cb15-169"><a href="#cb15-169" aria-hidden="true" tabindex="-1"></a>                    <span class="at">default =</span> <span class="st">"MP"</span>),</span>
-<span id="cb15-170"><a href="#cb15-170" aria-hidden="true" tabindex="-1"></a>    <span class="at">address =</span> prac_address,</span>
-<span id="cb15-171"><a href="#cb15-171" aria-hidden="true" tabindex="-1"></a>    <span class="at">city =</span> prac_city,</span>
-<span id="cb15-172"><a href="#cb15-172" aria-hidden="true" tabindex="-1"></a>    <span class="at">state =</span> prac_state,</span>
-<span id="cb15-173"><a href="#cb15-173" aria-hidden="true" tabindex="-1"></a>    <span class="at">zip =</span> <span class="fu">fcase</span>(</span>
-<span id="cb15-174"><a href="#cb15-174" aria-hidden="true" tabindex="-1"></a>      <span class="fu">not_na</span>(mail_zip) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_zip) <span class="sc">&amp;</span> mail_zip <span class="sc">==</span> prac_zip, <span class="fu">str_glue</span>(<span class="st">"{prac_zip}"</span>),</span>
-<span id="cb15-175"><a href="#cb15-175" aria-hidden="true" tabindex="-1"></a>      <span class="fu">not_na</span>(mail_zip) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_zip) <span class="sc">&amp;</span> mail_zip <span class="sc">!=</span> prac_zip, <span class="fu">str_glue</span>(<span class="st">"{mail_zip}, {prac_zip}"</span>),</span>
-<span id="cb15-176"><a href="#cb15-176" aria-hidden="true" tabindex="-1"></a>      <span class="fu">not_na</span>(mail_zip) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">not_na</span>(prac_zip), <span class="fu">str_glue</span>(<span class="st">"{mail_zip}"</span>),</span>
-<span id="cb15-177"><a href="#cb15-177" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">not_na</span>(mail_zip) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_zip), <span class="fu">str_glue</span>(<span class="st">"{prac_zip}"</span>)),</span>
-<span id="cb15-178"><a href="#cb15-178" aria-hidden="true" tabindex="-1"></a>    <span class="at">country =</span> prac_country,</span>
-<span id="cb15-179"><a href="#cb15-179" aria-hidden="true" tabindex="-1"></a>    <span class="at">phone =</span> <span class="fu">fcase</span>(</span>
-<span id="cb15-180"><a href="#cb15-180" aria-hidden="true" tabindex="-1"></a>      <span class="fu">not_na</span>(mail_phone) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_phone) <span class="sc">&amp;</span> mail_phone <span class="sc">==</span> prac_phone, <span class="fu">str_glue</span>(<span class="st">"{prac_phone}"</span>),</span>
-<span id="cb15-181"><a href="#cb15-181" aria-hidden="true" tabindex="-1"></a>      <span class="fu">not_na</span>(mail_phone) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_phone) <span class="sc">&amp;</span> mail_phone <span class="sc">!=</span> prac_phone, <span class="fu">str_glue</span>(<span class="st">"{mail_phone}, {prac_phone}"</span>),</span>
-<span id="cb15-182"><a href="#cb15-182" aria-hidden="true" tabindex="-1"></a>      <span class="fu">not_na</span>(mail_phone) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">not_na</span>(prac_phone), <span class="fu">str_glue</span>(<span class="st">"{mail_phone}"</span>),</span>
-<span id="cb15-183"><a href="#cb15-183" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">not_na</span>(mail_phone) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_phone), <span class="fu">str_glue</span>(<span class="st">"{prac_phone}"</span>)),</span>
-<span id="cb15-184"><a href="#cb15-184" aria-hidden="true" tabindex="-1"></a>    <span class="at">fax =</span> <span class="fu">fcase</span>(</span>
-<span id="cb15-185"><a href="#cb15-185" aria-hidden="true" tabindex="-1"></a>      <span class="fu">not_na</span>(mail_fax) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_fax) <span class="sc">&amp;</span> mail_fax <span class="sc">==</span> prac_fax, <span class="fu">str_glue</span>(<span class="st">"{prac_fax}"</span>),</span>
-<span id="cb15-186"><a href="#cb15-186" aria-hidden="true" tabindex="-1"></a>      <span class="fu">not_na</span>(mail_fax) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_fax) <span class="sc">&amp;</span> mail_fax <span class="sc">!=</span> prac_fax, <span class="fu">str_glue</span>(<span class="st">"{mail_fax}, {prac_fax}"</span>),</span>
-<span id="cb15-187"><a href="#cb15-187" aria-hidden="true" tabindex="-1"></a>      <span class="fu">not_na</span>(mail_fax) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">not_na</span>(prac_fax), <span class="fu">str_glue</span>(<span class="st">"{mail_fax}"</span>),</span>
-<span id="cb15-188"><a href="#cb15-188" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">not_na</span>(mail_fax) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_fax), <span class="fu">str_glue</span>(<span class="st">"{prac_fax}"</span>))) <span class="sc">|&gt;</span> </span>
-<span id="cb15-189"><a href="#cb15-189" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmutate</span>(</span>
-<span id="cb15-190"><a href="#cb15-190" aria-hidden="true" tabindex="-1"></a>    <span class="at">zip =</span> <span class="fu">map_chr</span>(zip, \(x) <span class="cf">if</span> (<span class="fu">not_na</span>(x) <span class="sc">&amp;</span> <span class="fu">nchar</span>(x) <span class="sc">==</span> <span class="dv">9</span>) <span class="fu">str_glue</span>(<span class="st">"{substr(x, 1, 5)}-{substr(x, 6, 9)}"</span>) <span class="cf">else</span> x), </span>
-<span id="cb15-191"><a href="#cb15-191" aria-hidden="true" tabindex="-1"></a>    <span class="at">phone =</span> <span class="fu">map_chr</span>(</span>
-<span id="cb15-192"><a href="#cb15-192" aria-hidden="true" tabindex="-1"></a>      phone, \(x) <span class="cf">if</span> (<span class="fu">not_na</span>(x)) {</span>
-<span id="cb15-193"><a href="#cb15-193" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (<span class="fu">nchar</span>(x) <span class="sc">==</span> <span class="dv">10</span>) {</span>
-<span id="cb15-194"><a href="#cb15-194" aria-hidden="true" tabindex="-1"></a>          <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}"</span>)</span>
-<span id="cb15-195"><a href="#cb15-195" aria-hidden="true" tabindex="-1"></a>          } <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">nchar</span>(x) <span class="sc">&gt;</span> <span class="dv">10</span>) {</span>
-<span id="cb15-196"><a href="#cb15-196" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}, ({substr(x, 13, 15)})-{substr(x, 16, 18)}-{substr(x, 19, 22)}"</span>)</span>
-<span id="cb15-197"><a href="#cb15-197" aria-hidden="true" tabindex="-1"></a>            } </span>
-<span id="cb15-198"><a href="#cb15-198" aria-hidden="true" tabindex="-1"></a>        } </span>
-<span id="cb15-199"><a href="#cb15-199" aria-hidden="true" tabindex="-1"></a>      <span class="cf">else</span> x</span>
-<span id="cb15-200"><a href="#cb15-200" aria-hidden="true" tabindex="-1"></a>      ),</span>
-<span id="cb15-201"><a href="#cb15-201" aria-hidden="true" tabindex="-1"></a>    <span class="at">fax =</span> <span class="fu">map_chr</span>(</span>
-<span id="cb15-202"><a href="#cb15-202" aria-hidden="true" tabindex="-1"></a>      fax, \(x) <span class="cf">if</span> (<span class="fu">not_na</span>(x)) {</span>
-<span id="cb15-203"><a href="#cb15-203" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (<span class="fu">nchar</span>(x) <span class="sc">==</span> <span class="dv">10</span>) {</span>
-<span id="cb15-204"><a href="#cb15-204" aria-hidden="true" tabindex="-1"></a>          <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}"</span>)</span>
-<span id="cb15-205"><a href="#cb15-205" aria-hidden="true" tabindex="-1"></a>          } <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">nchar</span>(x) <span class="sc">&gt;</span> <span class="dv">10</span>) {</span>
-<span id="cb15-206"><a href="#cb15-206" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}, ({substr(x, 13, 15)})-{substr(x, 16, 18)}-{substr(x, 19, 22)}"</span>)</span>
-<span id="cb15-207"><a href="#cb15-207" aria-hidden="true" tabindex="-1"></a>            } </span>
-<span id="cb15-208"><a href="#cb15-208" aria-hidden="true" tabindex="-1"></a>        } </span>
-<span id="cb15-209"><a href="#cb15-209" aria-hidden="true" tabindex="-1"></a>      <span class="cf">else</span> x</span>
-<span id="cb15-210"><a href="#cb15-210" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb15-211"><a href="#cb15-211" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb15-212"><a href="#cb15-212" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-213"><a href="#cb15-213" aria-hidden="true" tabindex="-1"></a><span class="co"># Pivot remaining addresses</span></span>
-<span id="cb15-214"><a href="#cb15-214" aria-hidden="true" tabindex="-1"></a>w241_piv <span class="ot">&lt;-</span> w241_add <span class="sc">|&gt;</span> </span>
-<span id="cb15-215"><a href="#cb15-215" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(npi <span class="sc">%!in%</span> <span class="fu">c</span>(w241_exact<span class="sc">$</span>npi, w241_fax<span class="sc">$</span>npi, w241_phone<span class="sc">$</span>npi)) <span class="sc">|&gt;</span> </span>
-<span id="cb15-216"><a href="#cb15-216" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
-<span id="cb15-217"><a href="#cb15-217" aria-hidden="true" tabindex="-1"></a>    <span class="sc">-</span><span class="fu">c</span>(npi, entity), </span>
-<span id="cb15-218"><a href="#cb15-218" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"type_part"</span>, </span>
-<span id="cb15-219"><a href="#cb15-219" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"value"</span>, </span>
-<span id="cb15-220"><a href="#cb15-220" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_transform =</span> <span class="fu">list</span>(<span class="at">type_part =</span> stringr<span class="sc">::</span>str_to_title)) <span class="sc">|&gt;</span> </span>
-<span id="cb15-221"><a href="#cb15-221" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate_wider_delim</span>(</span>
-<span id="cb15-222"><a href="#cb15-222" aria-hidden="true" tabindex="-1"></a>    type_part, </span>
-<span id="cb15-223"><a href="#cb15-223" aria-hidden="true" tabindex="-1"></a>    <span class="at">delim =</span> <span class="st">"_"</span>, </span>
-<span id="cb15-224"><a href="#cb15-224" aria-hidden="true" tabindex="-1"></a>    <span class="at">names =</span> <span class="fu">c</span>(<span class="st">"type"</span>, <span class="st">"part"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb15-225"><a href="#cb15-225" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmutate</span>(</span>
-<span id="cb15-226"><a href="#cb15-226" aria-hidden="true" tabindex="-1"></a>    <span class="at">purpose =</span> <span class="fu">case_when</span>(</span>
-<span id="cb15-227"><a href="#cb15-227" aria-hidden="true" tabindex="-1"></a>      type <span class="sc">==</span> <span class="st">"Mail"</span> <span class="sc">~</span> <span class="st">"M"</span>,</span>
-<span id="cb15-228"><a href="#cb15-228" aria-hidden="true" tabindex="-1"></a>      type <span class="sc">==</span> <span class="st">"Prac"</span> <span class="sc">~</span> <span class="st">"P"</span>,</span>
-<span id="cb15-229"><a href="#cb15-229" aria-hidden="true" tabindex="-1"></a>    <span class="at">.default =</span> type),</span>
-<span id="cb15-230"><a href="#cb15-230" aria-hidden="true" tabindex="-1"></a>    <span class="at">type =</span> <span class="cn">NULL</span></span>
-<span id="cb15-231"><a href="#cb15-231" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb15-232"><a href="#cb15-232" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> part, <span class="at">values_from =</span> value) <span class="sc">|&gt;</span> </span>
-<span id="cb15-233"><a href="#cb15-233" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmutate</span>(</span>
-<span id="cb15-234"><a href="#cb15-234" aria-hidden="true" tabindex="-1"></a>    <span class="at">zip =</span> <span class="fu">map_chr</span>(zip, \(x) <span class="cf">if</span> (<span class="fu">not_na</span>(x) <span class="sc">&amp;</span> <span class="fu">nchar</span>(x) <span class="sc">==</span> <span class="dv">9</span>) <span class="fu">str_glue</span>(<span class="st">"{substr(x, 1, 5)}-{substr(x, 6, 9)}"</span>) <span class="cf">else</span> x), </span>
-<span id="cb15-235"><a href="#cb15-235" aria-hidden="true" tabindex="-1"></a>    <span class="at">phone =</span> <span class="fu">map_chr</span>(</span>
-<span id="cb15-236"><a href="#cb15-236" aria-hidden="true" tabindex="-1"></a>      phone, \(x) <span class="cf">if</span> (<span class="fu">not_na</span>(x)) {</span>
-<span id="cb15-237"><a href="#cb15-237" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (<span class="fu">nchar</span>(x) <span class="sc">==</span> <span class="dv">10</span>) {</span>
-<span id="cb15-238"><a href="#cb15-238" aria-hidden="true" tabindex="-1"></a>          <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}"</span>)</span>
-<span id="cb15-239"><a href="#cb15-239" aria-hidden="true" tabindex="-1"></a>          } <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">nchar</span>(x) <span class="sc">&gt;</span> <span class="dv">10</span>) {</span>
-<span id="cb15-240"><a href="#cb15-240" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}, ({substr(x, 13, 15)})-{substr(x, 16, 18)}-{substr(x, 19, 22)}"</span>)</span>
-<span id="cb15-241"><a href="#cb15-241" aria-hidden="true" tabindex="-1"></a>            } </span>
-<span id="cb15-242"><a href="#cb15-242" aria-hidden="true" tabindex="-1"></a>        } </span>
-<span id="cb15-243"><a href="#cb15-243" aria-hidden="true" tabindex="-1"></a>      <span class="cf">else</span> x</span>
-<span id="cb15-244"><a href="#cb15-244" aria-hidden="true" tabindex="-1"></a>      ),</span>
-<span id="cb15-245"><a href="#cb15-245" aria-hidden="true" tabindex="-1"></a>    <span class="at">fax =</span> <span class="fu">map_chr</span>(</span>
-<span id="cb15-246"><a href="#cb15-246" aria-hidden="true" tabindex="-1"></a>      fax, \(x) <span class="cf">if</span> (<span class="fu">not_na</span>(x)) {</span>
-<span id="cb15-247"><a href="#cb15-247" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (<span class="fu">nchar</span>(x) <span class="sc">==</span> <span class="dv">10</span>) {</span>
-<span id="cb15-248"><a href="#cb15-248" aria-hidden="true" tabindex="-1"></a>          <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}"</span>)</span>
-<span id="cb15-249"><a href="#cb15-249" aria-hidden="true" tabindex="-1"></a>          } <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">nchar</span>(x) <span class="sc">&gt;</span> <span class="dv">10</span>) {</span>
-<span id="cb15-250"><a href="#cb15-250" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}, ({substr(x, 13, 15)})-{substr(x, 16, 18)}-{substr(x, 19, 22)}"</span>)</span>
-<span id="cb15-251"><a href="#cb15-251" aria-hidden="true" tabindex="-1"></a>            } </span>
-<span id="cb15-252"><a href="#cb15-252" aria-hidden="true" tabindex="-1"></a>        } </span>
-<span id="cb15-253"><a href="#cb15-253" aria-hidden="true" tabindex="-1"></a>      <span class="cf">else</span> x</span>
-<span id="cb15-254"><a href="#cb15-254" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb15-255"><a href="#cb15-255" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb15-256"><a href="#cb15-256" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-257"><a href="#cb15-257" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine all address matches</span></span>
-<span id="cb15-258"><a href="#cb15-258" aria-hidden="true" tabindex="-1"></a>w241_add <span class="ot">&lt;-</span> <span class="fu">rowbind</span>(w241_exact, w241_fax, w241_phone, w241_piv)</span>
-<span id="cb15-259"><a href="#cb15-259" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-260"><a href="#cb15-260" aria-hidden="true" tabindex="-1"></a>add_g <span class="ot">&lt;-</span> <span class="fu">GRP</span>(w241_add, <span class="sc">~</span> entity)</span>
-<span id="cb15-261"><a href="#cb15-261" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-262"><a href="#cb15-262" aria-hidden="true" tabindex="-1"></a><span class="fu">rsplit</span>(w241_add, add_g) <span class="sc">|&gt;</span> </span>
-<span id="cb15-263"><a href="#cb15-263" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(remove_quiet) <span class="sc">|&gt;</span> </span>
-<span id="cb15-264"><a href="#cb15-264" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setNames</span>(<span class="fu">GRPnames</span>(add_g))</span>
-<span id="cb15-265"><a href="#cb15-265" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb15-266"><a href="#cb15-266" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-267"><a href="#cb15-267" aria-hidden="true" tabindex="-1"></a><span class="fu">## Taxonomy</span></span>
-<span id="cb15-268"><a href="#cb15-268" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-271"><a href="#cb15-271" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb15-272"><a href="#cb15-272" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: w241_tax</span></span>
-<span id="cb15-273"><a href="#cb15-273" aria-hidden="true" tabindex="-1"></a>w241_tax <span class="ot">&lt;-</span> <span class="fu">join</span>(</span>
-<span id="cb15-274"><a href="#cb15-274" aria-hidden="true" tabindex="-1"></a>  wk_2024_01_01<span class="sc">$</span>taxonomy[<span class="fu">c</span>(<span class="st">"npi"</span>, <span class="st">"taxonomy_code"</span>, <span class="st">"taxonomy_group"</span>, <span class="st">"taxonomy_primary"</span>)], </span>
-<span id="cb15-275"><a href="#cb15-275" aria-hidden="true" tabindex="-1"></a>  w241_base[<span class="fu">c</span>(<span class="st">"npi"</span>, <span class="st">"entity"</span>)], </span>
-<span id="cb15-276"><a href="#cb15-276" aria-hidden="true" tabindex="-1"></a>  <span class="at">on =</span> <span class="st">"npi"</span>, </span>
-<span id="cb15-277"><a href="#cb15-277" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb15-278"><a href="#cb15-278" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fsubset</span>(npi <span class="sc">%!in%</span> w241_deact<span class="sc">$</span>npi)</span>
-<span id="cb15-279"><a href="#cb15-279" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-280"><a href="#cb15-280" aria-hidden="true" tabindex="-1"></a>tax_g <span class="ot">&lt;-</span> <span class="fu">GRP</span>(w241_tax, <span class="sc">~</span> entity)</span>
-<span id="cb15-281"><a href="#cb15-281" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-282"><a href="#cb15-282" aria-hidden="true" tabindex="-1"></a><span class="fu">rsplit</span>(w241_tax, tax_g) <span class="sc">|&gt;</span> </span>
-<span id="cb15-283"><a href="#cb15-283" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(remove_quiet) <span class="sc">|&gt;</span> </span>
-<span id="cb15-284"><a href="#cb15-284" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setNames</span>(<span class="fu">GRPnames</span>(tax_g))</span>
-<span id="cb15-285"><a href="#cb15-285" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb15-286"><a href="#cb15-286" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-287"><a href="#cb15-287" aria-hidden="true" tabindex="-1"></a><span class="fu">## License</span></span>
-<span id="cb15-288"><a href="#cb15-288" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-291"><a href="#cb15-291" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb15-292"><a href="#cb15-292" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: w241_lic</span></span>
-<span id="cb15-293"><a href="#cb15-293" aria-hidden="true" tabindex="-1"></a>w241_lic <span class="ot">&lt;-</span> <span class="fu">join</span>(</span>
-<span id="cb15-294"><a href="#cb15-294" aria-hidden="true" tabindex="-1"></a>  wk_2024_01_01<span class="sc">$</span>taxonomy[<span class="fu">c</span>(<span class="st">"npi"</span>, <span class="st">"license_number"</span>, <span class="st">"license_state"</span>)], </span>
-<span id="cb15-295"><a href="#cb15-295" aria-hidden="true" tabindex="-1"></a>  w241_base[<span class="fu">c</span>(<span class="st">"npi"</span>, <span class="st">"entity"</span>)], </span>
-<span id="cb15-296"><a href="#cb15-296" aria-hidden="true" tabindex="-1"></a>  <span class="at">on =</span> <span class="st">"npi"</span>, </span>
-<span id="cb15-297"><a href="#cb15-297" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb15-298"><a href="#cb15-298" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fsubset</span>(npi <span class="sc">%!in%</span> w241_deact<span class="sc">$</span>npi)</span>
-<span id="cb15-299"><a href="#cb15-299" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-300"><a href="#cb15-300" aria-hidden="true" tabindex="-1"></a>lic_g <span class="ot">&lt;-</span> <span class="fu">GRP</span>(w241_lic, <span class="sc">~</span> entity)</span>
-<span id="cb15-301"><a href="#cb15-301" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-302"><a href="#cb15-302" aria-hidden="true" tabindex="-1"></a><span class="fu">rsplit</span>(w241_lic, lic_g) <span class="sc">|&gt;</span> </span>
-<span id="cb15-303"><a href="#cb15-303" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(remove_quiet) <span class="sc">|&gt;</span> </span>
-<span id="cb15-304"><a href="#cb15-304" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setNames</span>(<span class="fu">GRPnames</span>(lic_g))</span>
-<span id="cb15-305"><a href="#cb15-305" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb15-306"><a href="#cb15-306" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-307"><a href="#cb15-307" aria-hidden="true" tabindex="-1"></a><span class="fu">## Identifiers</span></span>
-<span id="cb15-308"><a href="#cb15-308" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-311"><a href="#cb15-311" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb15-312"><a href="#cb15-312" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: w241_id</span></span>
-<span id="cb15-313"><a href="#cb15-313" aria-hidden="true" tabindex="-1"></a>w241_id <span class="ot">&lt;-</span> <span class="fu">join</span>(</span>
-<span id="cb15-314"><a href="#cb15-314" aria-hidden="true" tabindex="-1"></a>  wk_2024_01_01<span class="sc">$</span>identifier, </span>
-<span id="cb15-315"><a href="#cb15-315" aria-hidden="true" tabindex="-1"></a>  w241_base[<span class="fu">c</span>(<span class="st">"npi"</span>, <span class="st">"entity"</span>)], </span>
-<span id="cb15-316"><a href="#cb15-316" aria-hidden="true" tabindex="-1"></a>  <span class="at">on =</span> <span class="st">"npi"</span>, </span>
-<span id="cb15-317"><a href="#cb15-317" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb15-318"><a href="#cb15-318" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fsubset</span>(npi <span class="sc">%!in%</span> w241_deact<span class="sc">$</span>npi)</span>
-<span id="cb15-319"><a href="#cb15-319" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-320"><a href="#cb15-320" aria-hidden="true" tabindex="-1"></a>id_g <span class="ot">&lt;-</span> <span class="fu">GRP</span>(w241_id, <span class="sc">~</span> entity)</span>
-<span id="cb15-321"><a href="#cb15-321" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-322"><a href="#cb15-322" aria-hidden="true" tabindex="-1"></a><span class="fu">rsplit</span>(w241_id, id_g) <span class="sc">|&gt;</span> </span>
-<span id="cb15-323"><a href="#cb15-323" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(remove_quiet) <span class="sc">|&gt;</span> </span>
-<span id="cb15-324"><a href="#cb15-324" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setNames</span>(<span class="fu">GRPnames</span>(id_g))</span>
-<span id="cb15-325"><a href="#cb15-325" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb15-326"><a href="#cb15-326" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-327"><a href="#cb15-327" aria-hidden="true" tabindex="-1"></a><span class="fu">## Other</span></span>
-<span id="cb15-328"><a href="#cb15-328" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-331"><a href="#cb15-331" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb15-332"><a href="#cb15-332" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: w241_oth</span></span>
-<span id="cb15-333"><a href="#cb15-333" aria-hidden="true" tabindex="-1"></a>w241_oth <span class="ot">&lt;-</span> <span class="fu">join</span>(</span>
-<span id="cb15-334"><a href="#cb15-334" aria-hidden="true" tabindex="-1"></a>  wk_2024_01_01<span class="sc">$</span>other, </span>
-<span id="cb15-335"><a href="#cb15-335" aria-hidden="true" tabindex="-1"></a>  w241_base[<span class="fu">c</span>(<span class="st">"npi"</span>, <span class="st">"entity"</span>)], </span>
-<span id="cb15-336"><a href="#cb15-336" aria-hidden="true" tabindex="-1"></a>  <span class="at">on =</span> <span class="st">"npi"</span>, </span>
-<span id="cb15-337"><a href="#cb15-337" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb15-338"><a href="#cb15-338" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fsubset</span>(npi <span class="sc">%!in%</span> w241_deact<span class="sc">$</span>npi)</span>
-<span id="cb15-339"><a href="#cb15-339" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-340"><a href="#cb15-340" aria-hidden="true" tabindex="-1"></a>oth_g <span class="ot">&lt;-</span> <span class="fu">GRP</span>(w241_oth, <span class="sc">~</span> entity)</span>
-<span id="cb15-341"><a href="#cb15-341" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-342"><a href="#cb15-342" aria-hidden="true" tabindex="-1"></a><span class="fu">rsplit</span>(w241_oth, oth_g) <span class="sc">|&gt;</span> </span>
-<span id="cb15-343"><a href="#cb15-343" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(remove_quiet) <span class="sc">|&gt;</span> </span>
-<span id="cb15-344"><a href="#cb15-344" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setNames</span>(<span class="fu">GRPnames</span>(oth_g))</span>
-<span id="cb15-345"><a href="#cb15-345" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb15-346"><a href="#cb15-346" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-347"><a href="#cb15-347" aria-hidden="true" tabindex="-1"></a><span class="fu">## Authorized</span></span>
-<span id="cb15-348"><a href="#cb15-348" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-351"><a href="#cb15-351" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb15-352"><a href="#cb15-352" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: w241_ao</span></span>
-<span id="cb15-353"><a href="#cb15-353" aria-hidden="true" tabindex="-1"></a>w241_ao <span class="ot">&lt;-</span> <span class="fu">join</span>(</span>
-<span id="cb15-354"><a href="#cb15-354" aria-hidden="true" tabindex="-1"></a>  wk_2024_01_01<span class="sc">$</span>authorized, </span>
-<span id="cb15-355"><a href="#cb15-355" aria-hidden="true" tabindex="-1"></a>  w241_base[<span class="fu">c</span>(<span class="st">"npi"</span>, <span class="st">"entity"</span>)], </span>
-<span id="cb15-356"><a href="#cb15-356" aria-hidden="true" tabindex="-1"></a>  <span class="at">on =</span> <span class="st">"npi"</span>, </span>
-<span id="cb15-357"><a href="#cb15-357" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb15-358"><a href="#cb15-358" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fsubset</span>(npi <span class="sc">%!in%</span> w241_deact<span class="sc">$</span>npi)</span>
-<span id="cb15-359"><a href="#cb15-359" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-360"><a href="#cb15-360" aria-hidden="true" tabindex="-1"></a>w241_ao</span>
-<span id="cb15-361"><a href="#cb15-361" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb15-362"><a href="#cb15-362" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-363"><a href="#cb15-363" aria-hidden="true" tabindex="-1"></a>&lt;hr&gt;</span>
-<span id="cb15-364"><a href="#cb15-364" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-365"><a href="#cb15-365" aria-hidden="true" tabindex="-1"></a>{{&lt; pagebreak &gt;}}</span>
-<span id="cb15-366"><a href="#cb15-366" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-367"><a href="#cb15-367" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-368"><a href="#cb15-368" aria-hidden="true" tabindex="-1"></a><span class="fu">## Session Information </span></span>
-<span id="cb15-369"><a href="#cb15-369" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-372"><a href="#cb15-372" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb15-373"><a href="#cb15-373" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
-<span id="cb15-374"><a href="#cb15-374" aria-hidden="true" tabindex="-1"></a>pander<span class="sc">::</span><span class="fu">pander</span>(<span class="fu">sessionInfo</span>())</span>
-<span id="cb15-375"><a href="#cb15-375" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<div class="sourceCode" id="cb33" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "NPPES NPI Archives"</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="co">    reference-location: block</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="an">editor_options:</span><span class="co"> </span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="co">  chunk_output_type: console</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(</span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">dev =</span> <span class="st">"ragg_png"</span>,</span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">dpi =</span> <span class="dv">320</span>,</span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">out.width =</span> <span class="st">"100%"</span>,</span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.width =</span> <span class="dv">8</span>,</span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.asp =</span> <span class="fl">0.818</span>,</span>
+<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.retina =</span> <span class="dv">2</span>,</span>
+<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.align =</span> <span class="st">"center"</span>,</span>
+<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.show =</span> <span class="st">"hold"</span></span>
+<span id="cb33-27"><a href="#cb33-27" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb33-28"><a href="#cb33-28" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen =</span> <span class="dv">999</span>, <span class="at">digits =</span> <span class="dv">3</span>)</span>
+<span id="cb33-29"><a href="#cb33-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-30"><a href="#cb33-30" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb33-31"><a href="#cb33-31" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
+<span id="cb33-32"><a href="#cb33-32" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(collapse)</span>
+<span id="cb33-33"><a href="#cb33-33" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fuimus)</span>
+<span id="cb33-34"><a href="#cb33-34" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(codex)</span>
+<span id="cb33-35"><a href="#cb33-35" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(nppez)</span>
+<span id="cb33-36"><a href="#cb33-36" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(hacksaw)</span>
+<span id="cb33-37"><a href="#cb33-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-38"><a href="#cb33-38" aria-hidden="true" tabindex="-1"></a>wk_2024_01_01 <span class="ot">&lt;-</span> nppez<span class="sc">:::</span><span class="fu">get_pin</span>(<span class="st">"wk20240101"</span>)</span>
+<span id="cb33-39"><a href="#cb33-39" aria-hidden="true" tabindex="-1"></a><span class="co"># wk_2024_01_22 &lt;- nppez:::get_pin("wk20240122")</span></span>
+<span id="cb33-40"><a href="#cb33-40" aria-hidden="true" tabindex="-1"></a><span class="co"># wk_2024_02_05 &lt;- nppez:::get_pin("wk_20240205")</span></span>
+<span id="cb33-41"><a href="#cb33-41" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb33-42"><a href="#cb33-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-43"><a href="#cb33-43" aria-hidden="true" tabindex="-1"></a><span class="fu"># 2024-01-01</span></span>
+<span id="cb33-44"><a href="#cb33-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-47"><a href="#cb33-47" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb33-48"><a href="#cb33-48" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: w241_base</span></span>
+<span id="cb33-49"><a href="#cb33-49" aria-hidden="true" tabindex="-1"></a>w241_base <span class="ot">&lt;-</span> wk_2024_01_01<span class="sc">$</span>basic <span class="sc">|&gt;</span> </span>
+<span id="cb33-50"><a href="#cb33-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fcompute</span>(</span>
+<span id="cb33-51"><a href="#cb33-51" aria-hidden="true" tabindex="-1"></a>    <span class="at">npi =</span> npi,</span>
+<span id="cb33-52"><a href="#cb33-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">entity =</span> data.table<span class="sc">::</span><span class="fu">fcase</span>(entity <span class="sc">==</span> <span class="st">"Ind"</span>, <span class="st">"I"</span>, entity <span class="sc">==</span> <span class="st">"Org"</span>, <span class="st">"O"</span>),</span>
+<span id="cb33-53"><a href="#cb33-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">prefix =</span> <span class="fu">sf_remove</span>(prefix, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>),</span>
+<span id="cb33-54"><a href="#cb33-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">first_name =</span> <span class="fu">sf_remove</span>(first, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>),</span>
+<span id="cb33-55"><a href="#cb33-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">middle_name =</span> <span class="fu">sf_remove</span>(middle, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>),</span>
+<span id="cb33-56"><a href="#cb33-56" aria-hidden="true" tabindex="-1"></a>    <span class="at">last_name =</span> <span class="fu">sf_remove</span>(last, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>),</span>
+<span id="cb33-57"><a href="#cb33-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">suffix =</span> <span class="fu">sf_remove</span>(suffix, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>),</span>
+<span id="cb33-58"><a href="#cb33-58" aria-hidden="true" tabindex="-1"></a>    <span class="at">credential =</span> <span class="fu">sf_remove</span>(credential, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>),</span>
+<span id="cb33-59"><a href="#cb33-59" aria-hidden="true" tabindex="-1"></a>    <span class="at">org_parent =</span> <span class="fu">sf_remove</span>(parent_org_lbn, <span class="st">"</span><span class="sc">\\</span><span class="st">.|,"</span>),</span>
+<span id="cb33-60"><a href="#cb33-60" aria-hidden="true" tabindex="-1"></a>    <span class="at">org_prov =</span> <span class="fu">sf_remove</span>(prov_org_lbn, <span class="st">"</span><span class="sc">\\</span><span class="st">.|,"</span>),</span>
+<span id="cb33-61"><a href="#cb33-61" aria-hidden="true" tabindex="-1"></a>    <span class="at">cert_date =</span> certified,</span>
+<span id="cb33-62"><a href="#cb33-62" aria-hidden="true" tabindex="-1"></a>    <span class="at">enum_date =</span> enum_date,</span>
+<span id="cb33-63"><a href="#cb33-63" aria-hidden="true" tabindex="-1"></a>    <span class="at">deact_date =</span> deact_date,</span>
+<span id="cb33-64"><a href="#cb33-64" aria-hidden="true" tabindex="-1"></a>    <span class="at">react_date =</span> react_date,</span>
+<span id="cb33-65"><a href="#cb33-65" aria-hidden="true" tabindex="-1"></a>    <span class="at">sole_prop =</span> sole_prop,</span>
+<span id="cb33-66"><a href="#cb33-66" aria-hidden="true" tabindex="-1"></a>    <span class="at">org_subpart =</span> org_sub</span>
+<span id="cb33-67"><a href="#cb33-67" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb33-68"><a href="#cb33-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-69"><a href="#cb33-69" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove deactivated NPIs with no reactivation date</span></span>
+<span id="cb33-70"><a href="#cb33-70" aria-hidden="true" tabindex="-1"></a>w241_deact <span class="ot">&lt;-</span> w241_base <span class="sc">|&gt;</span> <span class="fu">filter</span>(<span class="fu">not_na</span>(deact_date), <span class="sc">!</span><span class="fu">not_na</span>(react_date)) <span class="sc">|&gt;</span> <span class="fu">remove_quiet</span>()</span>
+<span id="cb33-71"><a href="#cb33-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-72"><a href="#cb33-72" aria-hidden="true" tabindex="-1"></a>w241_base <span class="ot">&lt;-</span> <span class="fu">fsubset</span>(w241_base, npi <span class="sc">%!in%</span> w241_deact<span class="sc">$</span>npi)</span>
+<span id="cb33-73"><a href="#cb33-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-74"><a href="#cb33-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-75"><a href="#cb33-75" aria-hidden="true" tabindex="-1"></a><span class="co"># Credentials in Last Name</span></span>
+<span id="cb33-76"><a href="#cb33-76" aria-hidden="true" tabindex="-1"></a>w241_base <span class="sc">|&gt;</span> </span>
+<span id="cb33-77"><a href="#cb33-77" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fsubset</span>(<span class="fu">sf_detect</span>(last_name, <span class="st">", "</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb33-78"><a href="#cb33-78" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fsubset</span>(<span class="fu">is.na</span>(credential))</span>
+<span id="cb33-79"><a href="#cb33-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-80"><a href="#cb33-80" aria-hidden="true" tabindex="-1"></a>base_g <span class="ot">&lt;-</span> <span class="fu">GRP</span>(w241_base, <span class="sc">~</span> entity)</span>
+<span id="cb33-81"><a href="#cb33-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-82"><a href="#cb33-82" aria-hidden="true" tabindex="-1"></a>w241_base_spl <span class="ot">&lt;-</span> <span class="fu">rsplit</span>(w241_base, base_g) <span class="sc">|&gt;</span> </span>
+<span id="cb33-83"><a href="#cb33-83" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(remove_quiet) <span class="sc">|&gt;</span> </span>
+<span id="cb33-84"><a href="#cb33-84" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setNames</span>(<span class="fu">GRPnames</span>(base_g))</span>
+<span id="cb33-85"><a href="#cb33-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-86"><a href="#cb33-86" aria-hidden="true" tabindex="-1"></a>w241_base_spl</span>
+<span id="cb33-87"><a href="#cb33-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-88"><a href="#cb33-88" aria-hidden="true" tabindex="-1"></a><span class="co"># Org NPIs that are org_subpart have org_parent names</span></span>
+<span id="cb33-89"><a href="#cb33-89" aria-hidden="true" tabindex="-1"></a><span class="fu">rsplit</span>(w241_base_spl<span class="sc">$</span>O, w241_base_spl<span class="sc">$</span>O<span class="sc">$</span>org_subpart)</span>
+<span id="cb33-90"><a href="#cb33-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-91"><a href="#cb33-91" aria-hidden="true" tabindex="-1"></a><span class="co"># Individuals - Sole Proprietors</span></span>
+<span id="cb33-92"><a href="#cb33-92" aria-hidden="true" tabindex="-1"></a><span class="fu">rsplit</span>(w241_base_spl<span class="sc">$</span>I, w241_base_spl<span class="sc">$</span>I<span class="sc">$</span>sole_prop)</span>
+<span id="cb33-93"><a href="#cb33-93" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb33-94"><a href="#cb33-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-95"><a href="#cb33-95" aria-hidden="true" tabindex="-1"></a><span class="fu">## Address</span></span>
+<span id="cb33-96"><a href="#cb33-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-99"><a href="#cb33-99" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb33-100"><a href="#cb33-100" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: w241_add</span></span>
+<span id="cb33-101"><a href="#cb33-101" aria-hidden="true" tabindex="-1"></a>w241_add <span class="ot">&lt;-</span> <span class="fu">join</span>(</span>
+<span id="cb33-102"><a href="#cb33-102" aria-hidden="true" tabindex="-1"></a>  wk_2024_01_01<span class="sc">$</span>address, </span>
+<span id="cb33-103"><a href="#cb33-103" aria-hidden="true" tabindex="-1"></a>  w241_base[<span class="fu">c</span>(<span class="st">"npi"</span>, <span class="st">"entity"</span>)], </span>
+<span id="cb33-104"><a href="#cb33-104" aria-hidden="true" tabindex="-1"></a>  <span class="at">on =</span> <span class="st">"npi"</span>, </span>
+<span id="cb33-105"><a href="#cb33-105" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb33-106"><a href="#cb33-106" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fsubset</span>(npi <span class="sc">%!in%</span> w241_deact<span class="sc">$</span>npi)</span>
+<span id="cb33-107"><a href="#cb33-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-108"><a href="#cb33-108" aria-hidden="true" tabindex="-1"></a><span class="co"># Exact match on all address fields</span></span>
+<span id="cb33-109"><a href="#cb33-109" aria-hidden="true" tabindex="-1"></a>w241_exact <span class="ot">&lt;-</span> w241_add <span class="sc">|&gt;</span> </span>
+<span id="cb33-110"><a href="#cb33-110" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb33-111"><a href="#cb33-111" aria-hidden="true" tabindex="-1"></a>    mail_address <span class="sc">==</span> prac_address,</span>
+<span id="cb33-112"><a href="#cb33-112" aria-hidden="true" tabindex="-1"></a>    mail_city <span class="sc">==</span> prac_city,</span>
+<span id="cb33-113"><a href="#cb33-113" aria-hidden="true" tabindex="-1"></a>    mail_state <span class="sc">==</span> prac_state,</span>
+<span id="cb33-114"><a href="#cb33-114" aria-hidden="true" tabindex="-1"></a>    mail_zip <span class="sc">==</span> prac_zip,</span>
+<span id="cb33-115"><a href="#cb33-115" aria-hidden="true" tabindex="-1"></a>    mail_country <span class="sc">==</span> prac_country,</span>
+<span id="cb33-116"><a href="#cb33-116" aria-hidden="true" tabindex="-1"></a>    mail_phone <span class="sc">==</span> prac_phone,</span>
+<span id="cb33-117"><a href="#cb33-117" aria-hidden="true" tabindex="-1"></a>    mail_fax <span class="sc">==</span> prac_fax) <span class="sc">|&gt;</span> </span>
+<span id="cb33-118"><a href="#cb33-118" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fcompute</span>(</span>
+<span id="cb33-119"><a href="#cb33-119" aria-hidden="true" tabindex="-1"></a>    <span class="at">npi =</span> npi,</span>
+<span id="cb33-120"><a href="#cb33-120" aria-hidden="true" tabindex="-1"></a>    <span class="at">entity =</span> entity,</span>
+<span id="cb33-121"><a href="#cb33-121" aria-hidden="true" tabindex="-1"></a>    <span class="at">purpose =</span> <span class="st">"MP"</span>,</span>
+<span id="cb33-122"><a href="#cb33-122" aria-hidden="true" tabindex="-1"></a>    <span class="at">address =</span> prac_address,</span>
+<span id="cb33-123"><a href="#cb33-123" aria-hidden="true" tabindex="-1"></a>    <span class="at">city =</span> prac_city,</span>
+<span id="cb33-124"><a href="#cb33-124" aria-hidden="true" tabindex="-1"></a>    <span class="at">state =</span> prac_state,</span>
+<span id="cb33-125"><a href="#cb33-125" aria-hidden="true" tabindex="-1"></a>    <span class="at">zip =</span> <span class="fu">map_chr</span>(prac_zip, \(x) <span class="cf">if</span> (<span class="fu">not_na</span>(x) <span class="sc">&amp;</span> <span class="fu">nchar</span>(x) <span class="sc">==</span> <span class="dv">9</span>) <span class="fu">str_glue</span>(<span class="st">"{substr(x, 1, 5)}-{substr(x, 6, 9)}"</span>) <span class="cf">else</span> x),</span>
+<span id="cb33-126"><a href="#cb33-126" aria-hidden="true" tabindex="-1"></a>    <span class="at">country =</span> prac_country,</span>
+<span id="cb33-127"><a href="#cb33-127" aria-hidden="true" tabindex="-1"></a>    <span class="at">phone =</span> <span class="fu">map_chr</span>(prac_phone, \(x) <span class="cf">if</span> (<span class="fu">not_na</span>(x) <span class="sc">&amp;</span> <span class="fu">nchar</span>(x) <span class="sc">==</span> <span class="dv">10</span>) <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}"</span>) <span class="cf">else</span> x),</span>
+<span id="cb33-128"><a href="#cb33-128" aria-hidden="true" tabindex="-1"></a>    <span class="at">fax =</span> <span class="fu">map_chr</span>(prac_fax, \(x) <span class="cf">if</span> (<span class="fu">not_na</span>(x) <span class="sc">&amp;</span> <span class="fu">nchar</span>(x) <span class="sc">==</span> <span class="dv">10</span>) <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}"</span>) <span class="cf">else</span> x))</span>
+<span id="cb33-129"><a href="#cb33-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-130"><a href="#cb33-130" aria-hidden="true" tabindex="-1"></a><span class="co"># Match on all except FAX</span></span>
+<span id="cb33-131"><a href="#cb33-131" aria-hidden="true" tabindex="-1"></a>w241_fax <span class="ot">&lt;-</span> w241_add <span class="sc">|&gt;</span> </span>
+<span id="cb33-132"><a href="#cb33-132" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb33-133"><a href="#cb33-133" aria-hidden="true" tabindex="-1"></a>    npi <span class="sc">%!in%</span> w241_exact<span class="sc">$</span>npi,  </span>
+<span id="cb33-134"><a href="#cb33-134" aria-hidden="true" tabindex="-1"></a>    mail_address <span class="sc">==</span> prac_address, </span>
+<span id="cb33-135"><a href="#cb33-135" aria-hidden="true" tabindex="-1"></a>    mail_city <span class="sc">==</span> prac_city,</span>
+<span id="cb33-136"><a href="#cb33-136" aria-hidden="true" tabindex="-1"></a>    mail_state <span class="sc">==</span> prac_state,</span>
+<span id="cb33-137"><a href="#cb33-137" aria-hidden="true" tabindex="-1"></a>    mail_country <span class="sc">==</span> prac_country,</span>
+<span id="cb33-138"><a href="#cb33-138" aria-hidden="true" tabindex="-1"></a>    mail_zip <span class="sc">==</span> prac_zip,</span>
+<span id="cb33-139"><a href="#cb33-139" aria-hidden="true" tabindex="-1"></a>    mail_phone <span class="sc">==</span> prac_phone) <span class="sc">|&gt;</span> </span>
+<span id="cb33-140"><a href="#cb33-140" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fcompute</span>(</span>
+<span id="cb33-141"><a href="#cb33-141" aria-hidden="true" tabindex="-1"></a>    <span class="at">npi =</span> npi,</span>
+<span id="cb33-142"><a href="#cb33-142" aria-hidden="true" tabindex="-1"></a>    <span class="at">entity =</span> entity,</span>
+<span id="cb33-143"><a href="#cb33-143" aria-hidden="true" tabindex="-1"></a>    <span class="at">address =</span> prac_address,</span>
+<span id="cb33-144"><a href="#cb33-144" aria-hidden="true" tabindex="-1"></a>    <span class="at">city =</span> prac_city,</span>
+<span id="cb33-145"><a href="#cb33-145" aria-hidden="true" tabindex="-1"></a>    <span class="at">state =</span> prac_state,</span>
+<span id="cb33-146"><a href="#cb33-146" aria-hidden="true" tabindex="-1"></a>    <span class="at">zip =</span> <span class="fu">map_chr</span>(prac_zip, \(x) <span class="cf">if</span> (<span class="fu">not_na</span>(x) <span class="sc">&amp;</span> <span class="fu">nchar</span>(x) <span class="sc">==</span> <span class="dv">9</span>) <span class="fu">str_glue</span>(<span class="st">"{substr(x, 1, 5)}-{substr(x, 6, 9)}"</span>) <span class="cf">else</span> x),</span>
+<span id="cb33-147"><a href="#cb33-147" aria-hidden="true" tabindex="-1"></a>    <span class="at">country =</span> prac_country,</span>
+<span id="cb33-148"><a href="#cb33-148" aria-hidden="true" tabindex="-1"></a>    <span class="at">phone =</span> <span class="fu">map_chr</span>(prac_phone, \(x) <span class="cf">if</span> (<span class="fu">not_na</span>(x) <span class="sc">&amp;</span> <span class="fu">nchar</span>(x) <span class="sc">==</span> <span class="dv">10</span>) <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}"</span>) <span class="cf">else</span> x),</span>
+<span id="cb33-149"><a href="#cb33-149" aria-hidden="true" tabindex="-1"></a>    <span class="at">fax =</span> <span class="fu">fcase</span>(</span>
+<span id="cb33-150"><a href="#cb33-150" aria-hidden="true" tabindex="-1"></a>      <span class="fu">not_na</span>(mail_fax) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_fax) <span class="sc">&amp;</span> mail_fax <span class="sc">==</span> prac_fax, <span class="fu">str_glue</span>(<span class="st">"{prac_fax}"</span>),</span>
+<span id="cb33-151"><a href="#cb33-151" aria-hidden="true" tabindex="-1"></a>      <span class="fu">not_na</span>(mail_fax) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_fax) <span class="sc">&amp;</span> mail_fax <span class="sc">!=</span> prac_fax, <span class="fu">str_glue</span>(<span class="st">"{mail_fax}, {prac_fax}"</span>),</span>
+<span id="cb33-152"><a href="#cb33-152" aria-hidden="true" tabindex="-1"></a>      <span class="fu">not_na</span>(mail_fax) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">not_na</span>(prac_fax), <span class="fu">str_glue</span>(<span class="st">"{mail_fax}"</span>),</span>
+<span id="cb33-153"><a href="#cb33-153" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">not_na</span>(mail_fax) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_fax), <span class="fu">str_glue</span>(<span class="st">"{prac_fax}"</span>)),</span>
+<span id="cb33-154"><a href="#cb33-154" aria-hidden="true" tabindex="-1"></a>    <span class="at">purpose =</span> <span class="fu">fcase</span>(</span>
+<span id="cb33-155"><a href="#cb33-155" aria-hidden="true" tabindex="-1"></a>      <span class="fu">not_na</span>(mail_fax) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">not_na</span>(prac_fax), <span class="st">"M"</span>,</span>
+<span id="cb33-156"><a href="#cb33-156" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">not_na</span>(mail_fax) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_fax), <span class="st">"P"</span>,</span>
+<span id="cb33-157"><a href="#cb33-157" aria-hidden="true" tabindex="-1"></a>      <span class="at">default =</span> <span class="st">"MP"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb33-158"><a href="#cb33-158" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmutate</span>(</span>
+<span id="cb33-159"><a href="#cb33-159" aria-hidden="true" tabindex="-1"></a>    <span class="at">fax =</span> <span class="fu">map_chr</span>(</span>
+<span id="cb33-160"><a href="#cb33-160" aria-hidden="true" tabindex="-1"></a>      fax, \(x) <span class="cf">if</span> (<span class="fu">not_na</span>(x)) {</span>
+<span id="cb33-161"><a href="#cb33-161" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (<span class="fu">nchar</span>(x) <span class="sc">==</span> <span class="dv">10</span>) {</span>
+<span id="cb33-162"><a href="#cb33-162" aria-hidden="true" tabindex="-1"></a>          <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}"</span>)</span>
+<span id="cb33-163"><a href="#cb33-163" aria-hidden="true" tabindex="-1"></a>          } <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">nchar</span>(x) <span class="sc">&gt;</span> <span class="dv">10</span>) {</span>
+<span id="cb33-164"><a href="#cb33-164" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}, ({substr(x, 13, 15)})-{substr(x, 16, 18)}-{substr(x, 19, 22)}"</span>)</span>
+<span id="cb33-165"><a href="#cb33-165" aria-hidden="true" tabindex="-1"></a>            } </span>
+<span id="cb33-166"><a href="#cb33-166" aria-hidden="true" tabindex="-1"></a>        } </span>
+<span id="cb33-167"><a href="#cb33-167" aria-hidden="true" tabindex="-1"></a>      <span class="cf">else</span> x</span>
+<span id="cb33-168"><a href="#cb33-168" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb33-169"><a href="#cb33-169" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb33-170"><a href="#cb33-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-171"><a href="#cb33-171" aria-hidden="true" tabindex="-1"></a><span class="co"># Match on all except ZIP, PHONE, and FAX</span></span>
+<span id="cb33-172"><a href="#cb33-172" aria-hidden="true" tabindex="-1"></a>w241_phone <span class="ot">&lt;-</span> w241_add <span class="sc">|&gt;</span> </span>
+<span id="cb33-173"><a href="#cb33-173" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb33-174"><a href="#cb33-174" aria-hidden="true" tabindex="-1"></a>    npi <span class="sc">%!in%</span> <span class="fu">c</span>(w241_exact<span class="sc">$</span>npi, w241_fax<span class="sc">$</span>npi),      </span>
+<span id="cb33-175"><a href="#cb33-175" aria-hidden="true" tabindex="-1"></a>    mail_address <span class="sc">==</span> prac_address,</span>
+<span id="cb33-176"><a href="#cb33-176" aria-hidden="true" tabindex="-1"></a>    mail_city <span class="sc">==</span> prac_city,</span>
+<span id="cb33-177"><a href="#cb33-177" aria-hidden="true" tabindex="-1"></a>    mail_state <span class="sc">==</span> prac_state,</span>
+<span id="cb33-178"><a href="#cb33-178" aria-hidden="true" tabindex="-1"></a>    mail_country <span class="sc">==</span> prac_country) <span class="sc">|&gt;</span></span>
+<span id="cb33-179"><a href="#cb33-179" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fcompute</span>(</span>
+<span id="cb33-180"><a href="#cb33-180" aria-hidden="true" tabindex="-1"></a>    <span class="at">npi =</span> npi,</span>
+<span id="cb33-181"><a href="#cb33-181" aria-hidden="true" tabindex="-1"></a>    <span class="at">entity =</span> entity,</span>
+<span id="cb33-182"><a href="#cb33-182" aria-hidden="true" tabindex="-1"></a>    <span class="at">purpose =</span> <span class="fu">fcase</span>(<span class="fu">not_na</span>(mail_phone) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">not_na</span>(prac_phone), <span class="st">"M"</span>,</span>
+<span id="cb33-183"><a href="#cb33-183" aria-hidden="true" tabindex="-1"></a>                    <span class="sc">!</span><span class="fu">not_na</span>(mail_phone) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_phone), <span class="st">"P"</span>,</span>
+<span id="cb33-184"><a href="#cb33-184" aria-hidden="true" tabindex="-1"></a>                    <span class="at">default =</span> <span class="st">"MP"</span>),</span>
+<span id="cb33-185"><a href="#cb33-185" aria-hidden="true" tabindex="-1"></a>    <span class="at">address =</span> prac_address,</span>
+<span id="cb33-186"><a href="#cb33-186" aria-hidden="true" tabindex="-1"></a>    <span class="at">city =</span> prac_city,</span>
+<span id="cb33-187"><a href="#cb33-187" aria-hidden="true" tabindex="-1"></a>    <span class="at">state =</span> prac_state,</span>
+<span id="cb33-188"><a href="#cb33-188" aria-hidden="true" tabindex="-1"></a>    <span class="at">zip =</span> <span class="fu">fcase</span>(</span>
+<span id="cb33-189"><a href="#cb33-189" aria-hidden="true" tabindex="-1"></a>      <span class="fu">not_na</span>(mail_zip) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_zip) <span class="sc">&amp;</span> mail_zip <span class="sc">==</span> prac_zip, <span class="fu">str_glue</span>(<span class="st">"{prac_zip}"</span>),</span>
+<span id="cb33-190"><a href="#cb33-190" aria-hidden="true" tabindex="-1"></a>      <span class="fu">not_na</span>(mail_zip) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_zip) <span class="sc">&amp;</span> mail_zip <span class="sc">!=</span> prac_zip, <span class="fu">str_glue</span>(<span class="st">"{mail_zip}, {prac_zip}"</span>),</span>
+<span id="cb33-191"><a href="#cb33-191" aria-hidden="true" tabindex="-1"></a>      <span class="fu">not_na</span>(mail_zip) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">not_na</span>(prac_zip), <span class="fu">str_glue</span>(<span class="st">"{mail_zip}"</span>),</span>
+<span id="cb33-192"><a href="#cb33-192" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">not_na</span>(mail_zip) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_zip), <span class="fu">str_glue</span>(<span class="st">"{prac_zip}"</span>)),</span>
+<span id="cb33-193"><a href="#cb33-193" aria-hidden="true" tabindex="-1"></a>    <span class="at">country =</span> prac_country,</span>
+<span id="cb33-194"><a href="#cb33-194" aria-hidden="true" tabindex="-1"></a>    <span class="at">phone =</span> <span class="fu">fcase</span>(</span>
+<span id="cb33-195"><a href="#cb33-195" aria-hidden="true" tabindex="-1"></a>      <span class="fu">not_na</span>(mail_phone) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_phone) <span class="sc">&amp;</span> mail_phone <span class="sc">==</span> prac_phone, <span class="fu">str_glue</span>(<span class="st">"{prac_phone}"</span>),</span>
+<span id="cb33-196"><a href="#cb33-196" aria-hidden="true" tabindex="-1"></a>      <span class="fu">not_na</span>(mail_phone) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_phone) <span class="sc">&amp;</span> mail_phone <span class="sc">!=</span> prac_phone, <span class="fu">str_glue</span>(<span class="st">"{mail_phone}, {prac_phone}"</span>),</span>
+<span id="cb33-197"><a href="#cb33-197" aria-hidden="true" tabindex="-1"></a>      <span class="fu">not_na</span>(mail_phone) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">not_na</span>(prac_phone), <span class="fu">str_glue</span>(<span class="st">"{mail_phone}"</span>),</span>
+<span id="cb33-198"><a href="#cb33-198" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">not_na</span>(mail_phone) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_phone), <span class="fu">str_glue</span>(<span class="st">"{prac_phone}"</span>)),</span>
+<span id="cb33-199"><a href="#cb33-199" aria-hidden="true" tabindex="-1"></a>    <span class="at">fax =</span> <span class="fu">fcase</span>(</span>
+<span id="cb33-200"><a href="#cb33-200" aria-hidden="true" tabindex="-1"></a>      <span class="fu">not_na</span>(mail_fax) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_fax) <span class="sc">&amp;</span> mail_fax <span class="sc">==</span> prac_fax, <span class="fu">str_glue</span>(<span class="st">"{prac_fax}"</span>),</span>
+<span id="cb33-201"><a href="#cb33-201" aria-hidden="true" tabindex="-1"></a>      <span class="fu">not_na</span>(mail_fax) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_fax) <span class="sc">&amp;</span> mail_fax <span class="sc">!=</span> prac_fax, <span class="fu">str_glue</span>(<span class="st">"{mail_fax}, {prac_fax}"</span>),</span>
+<span id="cb33-202"><a href="#cb33-202" aria-hidden="true" tabindex="-1"></a>      <span class="fu">not_na</span>(mail_fax) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">not_na</span>(prac_fax), <span class="fu">str_glue</span>(<span class="st">"{mail_fax}"</span>),</span>
+<span id="cb33-203"><a href="#cb33-203" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">not_na</span>(mail_fax) <span class="sc">&amp;</span> <span class="fu">not_na</span>(prac_fax), <span class="fu">str_glue</span>(<span class="st">"{prac_fax}"</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb33-204"><a href="#cb33-204" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmutate</span>(</span>
+<span id="cb33-205"><a href="#cb33-205" aria-hidden="true" tabindex="-1"></a>    <span class="at">zip =</span> <span class="fu">map_chr</span>(zip, \(x) <span class="cf">if</span> (<span class="fu">not_na</span>(x) <span class="sc">&amp;</span> <span class="fu">nchar</span>(x) <span class="sc">==</span> <span class="dv">9</span>) <span class="fu">str_glue</span>(<span class="st">"{substr(x, 1, 5)}-{substr(x, 6, 9)}"</span>) <span class="cf">else</span> x), </span>
+<span id="cb33-206"><a href="#cb33-206" aria-hidden="true" tabindex="-1"></a>    <span class="at">phone =</span> <span class="fu">map_chr</span>(</span>
+<span id="cb33-207"><a href="#cb33-207" aria-hidden="true" tabindex="-1"></a>      phone, \(x) <span class="cf">if</span> (<span class="fu">not_na</span>(x)) {</span>
+<span id="cb33-208"><a href="#cb33-208" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (<span class="fu">nchar</span>(x) <span class="sc">==</span> <span class="dv">10</span>) {</span>
+<span id="cb33-209"><a href="#cb33-209" aria-hidden="true" tabindex="-1"></a>          <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}"</span>)</span>
+<span id="cb33-210"><a href="#cb33-210" aria-hidden="true" tabindex="-1"></a>          } <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">nchar</span>(x) <span class="sc">&gt;</span> <span class="dv">10</span>) {</span>
+<span id="cb33-211"><a href="#cb33-211" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}, ({substr(x, 13, 15)})-{substr(x, 16, 18)}-{substr(x, 19, 22)}"</span>)</span>
+<span id="cb33-212"><a href="#cb33-212" aria-hidden="true" tabindex="-1"></a>            } </span>
+<span id="cb33-213"><a href="#cb33-213" aria-hidden="true" tabindex="-1"></a>        } </span>
+<span id="cb33-214"><a href="#cb33-214" aria-hidden="true" tabindex="-1"></a>      <span class="cf">else</span> x</span>
+<span id="cb33-215"><a href="#cb33-215" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb33-216"><a href="#cb33-216" aria-hidden="true" tabindex="-1"></a>    <span class="at">fax =</span> <span class="fu">map_chr</span>(</span>
+<span id="cb33-217"><a href="#cb33-217" aria-hidden="true" tabindex="-1"></a>      fax, \(x) <span class="cf">if</span> (<span class="fu">not_na</span>(x)) {</span>
+<span id="cb33-218"><a href="#cb33-218" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (<span class="fu">nchar</span>(x) <span class="sc">==</span> <span class="dv">10</span>) {</span>
+<span id="cb33-219"><a href="#cb33-219" aria-hidden="true" tabindex="-1"></a>          <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}"</span>)</span>
+<span id="cb33-220"><a href="#cb33-220" aria-hidden="true" tabindex="-1"></a>          } <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">nchar</span>(x) <span class="sc">&gt;</span> <span class="dv">10</span>) {</span>
+<span id="cb33-221"><a href="#cb33-221" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}, ({substr(x, 13, 15)})-{substr(x, 16, 18)}-{substr(x, 19, 22)}"</span>)</span>
+<span id="cb33-222"><a href="#cb33-222" aria-hidden="true" tabindex="-1"></a>            } </span>
+<span id="cb33-223"><a href="#cb33-223" aria-hidden="true" tabindex="-1"></a>        } </span>
+<span id="cb33-224"><a href="#cb33-224" aria-hidden="true" tabindex="-1"></a>      <span class="cf">else</span> x</span>
+<span id="cb33-225"><a href="#cb33-225" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb33-226"><a href="#cb33-226" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb33-227"><a href="#cb33-227" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-228"><a href="#cb33-228" aria-hidden="true" tabindex="-1"></a><span class="co"># Pivot remaining addresses</span></span>
+<span id="cb33-229"><a href="#cb33-229" aria-hidden="true" tabindex="-1"></a>w241_piv <span class="ot">&lt;-</span> w241_add <span class="sc">|&gt;</span> </span>
+<span id="cb33-230"><a href="#cb33-230" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(npi <span class="sc">%!in%</span> <span class="fu">c</span>(w241_exact<span class="sc">$</span>npi, w241_fax<span class="sc">$</span>npi, w241_phone<span class="sc">$</span>npi)) <span class="sc">|&gt;</span> </span>
+<span id="cb33-231"><a href="#cb33-231" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb33-232"><a href="#cb33-232" aria-hidden="true" tabindex="-1"></a>    <span class="sc">-</span><span class="fu">c</span>(npi, entity), </span>
+<span id="cb33-233"><a href="#cb33-233" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"type_part"</span>, </span>
+<span id="cb33-234"><a href="#cb33-234" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"value"</span>, </span>
+<span id="cb33-235"><a href="#cb33-235" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_transform =</span> <span class="fu">list</span>(<span class="at">type_part =</span> stringr<span class="sc">::</span>str_to_title)) <span class="sc">|&gt;</span> </span>
+<span id="cb33-236"><a href="#cb33-236" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate_wider_delim</span>(</span>
+<span id="cb33-237"><a href="#cb33-237" aria-hidden="true" tabindex="-1"></a>    type_part, </span>
+<span id="cb33-238"><a href="#cb33-238" aria-hidden="true" tabindex="-1"></a>    <span class="at">delim =</span> <span class="st">"_"</span>, </span>
+<span id="cb33-239"><a href="#cb33-239" aria-hidden="true" tabindex="-1"></a>    <span class="at">names =</span> <span class="fu">c</span>(<span class="st">"type"</span>, <span class="st">"part"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb33-240"><a href="#cb33-240" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmutate</span>(</span>
+<span id="cb33-241"><a href="#cb33-241" aria-hidden="true" tabindex="-1"></a>    <span class="at">purpose =</span> <span class="fu">case_when</span>(</span>
+<span id="cb33-242"><a href="#cb33-242" aria-hidden="true" tabindex="-1"></a>      type <span class="sc">==</span> <span class="st">"Mail"</span> <span class="sc">~</span> <span class="st">"M"</span>,</span>
+<span id="cb33-243"><a href="#cb33-243" aria-hidden="true" tabindex="-1"></a>      type <span class="sc">==</span> <span class="st">"Prac"</span> <span class="sc">~</span> <span class="st">"P"</span>,</span>
+<span id="cb33-244"><a href="#cb33-244" aria-hidden="true" tabindex="-1"></a>    <span class="at">.default =</span> type),</span>
+<span id="cb33-245"><a href="#cb33-245" aria-hidden="true" tabindex="-1"></a>    <span class="at">type =</span> <span class="cn">NULL</span></span>
+<span id="cb33-246"><a href="#cb33-246" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb33-247"><a href="#cb33-247" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> part, <span class="at">values_from =</span> value) <span class="sc">|&gt;</span> </span>
+<span id="cb33-248"><a href="#cb33-248" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmutate</span>(</span>
+<span id="cb33-249"><a href="#cb33-249" aria-hidden="true" tabindex="-1"></a>    <span class="at">zip =</span> <span class="fu">map_chr</span>(zip, \(x) <span class="cf">if</span> (<span class="fu">not_na</span>(x) <span class="sc">&amp;</span> <span class="fu">nchar</span>(x) <span class="sc">==</span> <span class="dv">9</span>) <span class="fu">str_glue</span>(<span class="st">"{substr(x, 1, 5)}-{substr(x, 6, 9)}"</span>) <span class="cf">else</span> x), </span>
+<span id="cb33-250"><a href="#cb33-250" aria-hidden="true" tabindex="-1"></a>    <span class="at">phone =</span> <span class="fu">map_chr</span>(</span>
+<span id="cb33-251"><a href="#cb33-251" aria-hidden="true" tabindex="-1"></a>      phone, \(x) <span class="cf">if</span> (<span class="fu">not_na</span>(x)) {</span>
+<span id="cb33-252"><a href="#cb33-252" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (<span class="fu">nchar</span>(x) <span class="sc">==</span> <span class="dv">10</span>) {</span>
+<span id="cb33-253"><a href="#cb33-253" aria-hidden="true" tabindex="-1"></a>          <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}"</span>)</span>
+<span id="cb33-254"><a href="#cb33-254" aria-hidden="true" tabindex="-1"></a>          } <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">nchar</span>(x) <span class="sc">&gt;</span> <span class="dv">10</span>) {</span>
+<span id="cb33-255"><a href="#cb33-255" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}, ({substr(x, 13, 15)})-{substr(x, 16, 18)}-{substr(x, 19, 22)}"</span>)</span>
+<span id="cb33-256"><a href="#cb33-256" aria-hidden="true" tabindex="-1"></a>            } </span>
+<span id="cb33-257"><a href="#cb33-257" aria-hidden="true" tabindex="-1"></a>        } </span>
+<span id="cb33-258"><a href="#cb33-258" aria-hidden="true" tabindex="-1"></a>      <span class="cf">else</span> x</span>
+<span id="cb33-259"><a href="#cb33-259" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb33-260"><a href="#cb33-260" aria-hidden="true" tabindex="-1"></a>    <span class="at">fax =</span> <span class="fu">map_chr</span>(</span>
+<span id="cb33-261"><a href="#cb33-261" aria-hidden="true" tabindex="-1"></a>      fax, \(x) <span class="cf">if</span> (<span class="fu">not_na</span>(x)) {</span>
+<span id="cb33-262"><a href="#cb33-262" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (<span class="fu">nchar</span>(x) <span class="sc">==</span> <span class="dv">10</span>) {</span>
+<span id="cb33-263"><a href="#cb33-263" aria-hidden="true" tabindex="-1"></a>          <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}"</span>)</span>
+<span id="cb33-264"><a href="#cb33-264" aria-hidden="true" tabindex="-1"></a>          } <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">nchar</span>(x) <span class="sc">&gt;</span> <span class="dv">10</span>) {</span>
+<span id="cb33-265"><a href="#cb33-265" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}, ({substr(x, 13, 15)})-{substr(x, 16, 18)}-{substr(x, 19, 22)}"</span>)</span>
+<span id="cb33-266"><a href="#cb33-266" aria-hidden="true" tabindex="-1"></a>            } </span>
+<span id="cb33-267"><a href="#cb33-267" aria-hidden="true" tabindex="-1"></a>        } </span>
+<span id="cb33-268"><a href="#cb33-268" aria-hidden="true" tabindex="-1"></a>      <span class="cf">else</span> x</span>
+<span id="cb33-269"><a href="#cb33-269" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb33-270"><a href="#cb33-270" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb33-271"><a href="#cb33-271" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-272"><a href="#cb33-272" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine all address matches</span></span>
+<span id="cb33-273"><a href="#cb33-273" aria-hidden="true" tabindex="-1"></a>w241_add <span class="ot">&lt;-</span> <span class="fu">rowbind</span>(w241_exact, w241_fax, w241_phone, w241_piv)</span>
+<span id="cb33-274"><a href="#cb33-274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-275"><a href="#cb33-275" aria-hidden="true" tabindex="-1"></a>add_g <span class="ot">&lt;-</span> <span class="fu">GRP</span>(w241_add, <span class="sc">~</span> entity)</span>
+<span id="cb33-276"><a href="#cb33-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-277"><a href="#cb33-277" aria-hidden="true" tabindex="-1"></a><span class="fu">rsplit</span>(w241_add, add_g) <span class="sc">|&gt;</span> </span>
+<span id="cb33-278"><a href="#cb33-278" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(remove_quiet) <span class="sc">|&gt;</span> </span>
+<span id="cb33-279"><a href="#cb33-279" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setNames</span>(<span class="fu">GRPnames</span>(add_g))</span>
+<span id="cb33-280"><a href="#cb33-280" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb33-281"><a href="#cb33-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-282"><a href="#cb33-282" aria-hidden="true" tabindex="-1"></a><span class="fu">## Taxonomy</span></span>
+<span id="cb33-283"><a href="#cb33-283" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-286"><a href="#cb33-286" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb33-287"><a href="#cb33-287" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: w241_tax</span></span>
+<span id="cb33-288"><a href="#cb33-288" aria-hidden="true" tabindex="-1"></a>w241_tax <span class="ot">&lt;-</span> <span class="fu">join</span>(</span>
+<span id="cb33-289"><a href="#cb33-289" aria-hidden="true" tabindex="-1"></a>  wk_2024_01_01<span class="sc">$</span>taxonomy[<span class="fu">c</span>(<span class="st">"npi"</span>, <span class="st">"taxonomy_code"</span>, <span class="st">"taxonomy_group"</span>, <span class="st">"taxonomy_primary"</span>)], </span>
+<span id="cb33-290"><a href="#cb33-290" aria-hidden="true" tabindex="-1"></a>  w241_base[<span class="fu">c</span>(<span class="st">"npi"</span>, <span class="st">"entity"</span>)], </span>
+<span id="cb33-291"><a href="#cb33-291" aria-hidden="true" tabindex="-1"></a>  <span class="at">on =</span> <span class="st">"npi"</span>, </span>
+<span id="cb33-292"><a href="#cb33-292" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb33-293"><a href="#cb33-293" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fsubset</span>(npi <span class="sc">%!in%</span> w241_deact<span class="sc">$</span>npi) <span class="sc">|&gt;</span> </span>
+<span id="cb33-294"><a href="#cb33-294" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmutate</span>(</span>
+<span id="cb33-295"><a href="#cb33-295" aria-hidden="true" tabindex="-1"></a>    <span class="at">level =</span> <span class="fu">fcase</span>(</span>
+<span id="cb33-296"><a href="#cb33-296" aria-hidden="true" tabindex="-1"></a>      taxonomy_primary <span class="sc">==</span> <span class="st">"Y"</span>, <span class="st">"Primary"</span>,</span>
+<span id="cb33-297"><a href="#cb33-297" aria-hidden="true" tabindex="-1"></a>      taxonomy_primary <span class="sc">==</span> <span class="st">"N"</span>, <span class="st">"Other"</span>,</span>
+<span id="cb33-298"><a href="#cb33-298" aria-hidden="true" tabindex="-1"></a>      taxonomy_primary <span class="sc">==</span> <span class="st">"X"</span>, <span class="st">"X"</span>),</span>
+<span id="cb33-299"><a href="#cb33-299" aria-hidden="true" tabindex="-1"></a>    <span class="at">taxonomy_primary =</span> <span class="cn">NULL</span>)</span>
+<span id="cb33-300"><a href="#cb33-300" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-301"><a href="#cb33-301" aria-hidden="true" tabindex="-1"></a>w241_tax <span class="ot">&lt;-</span> <span class="fu">rowbind</span>(</span>
+<span id="cb33-302"><a href="#cb33-302" aria-hidden="true" tabindex="-1"></a>  w241_tax <span class="sc">|&gt;</span> </span>
+<span id="cb33-303"><a href="#cb33-303" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fsubset</span>(<span class="sc">!</span><span class="fu">not_na</span>(taxonomy_group)) <span class="sc">|&gt;</span> </span>
+<span id="cb33-304"><a href="#cb33-304" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fselect</span>(<span class="sc">-</span>taxonomy_group) <span class="sc">|&gt;</span> </span>
+<span id="cb33-305"><a href="#cb33-305" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(),</span>
+<span id="cb33-306"><a href="#cb33-306" aria-hidden="true" tabindex="-1"></a>  w241_tax <span class="sc">|&gt;</span> </span>
+<span id="cb33-307"><a href="#cb33-307" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fsubset</span>(<span class="fu">not_na</span>(taxonomy_group)) <span class="sc">|&gt;</span> </span>
+<span id="cb33-308"><a href="#cb33-308" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fselect</span>(<span class="sc">-</span>taxonomy_code, <span class="sc">-</span>level) <span class="sc">|&gt;</span> </span>
+<span id="cb33-309"><a href="#cb33-309" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb33-310"><a href="#cb33-310" aria-hidden="true" tabindex="-1"></a>  <span class="fu">frename</span>(<span class="at">taxonomy_code =</span> taxonomy_group) <span class="sc">|&gt;</span> </span>
+<span id="cb33-311"><a href="#cb33-311" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmutate</span>(<span class="at">level =</span> <span class="st">"Group"</span>))</span>
+<span id="cb33-312"><a href="#cb33-312" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-313"><a href="#cb33-313" aria-hidden="true" tabindex="-1"></a>tax_g <span class="ot">&lt;-</span> <span class="fu">GRP</span>(w241_tax, <span class="sc">~</span> entity)</span>
+<span id="cb33-314"><a href="#cb33-314" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-315"><a href="#cb33-315" aria-hidden="true" tabindex="-1"></a>w241_tax <span class="ot">&lt;-</span> <span class="fu">rsplit</span>(w241_tax, tax_g) <span class="sc">|&gt;</span> </span>
+<span id="cb33-316"><a href="#cb33-316" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(remove_quiet) <span class="sc">|&gt;</span> </span>
+<span id="cb33-317"><a href="#cb33-317" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setNames</span>(<span class="fu">GRPnames</span>(tax_g))</span>
+<span id="cb33-318"><a href="#cb33-318" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-319"><a href="#cb33-319" aria-hidden="true" tabindex="-1"></a>w241_tax</span>
+<span id="cb33-320"><a href="#cb33-320" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb33-321"><a href="#cb33-321" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-322"><a href="#cb33-322" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-323"><a href="#cb33-323" aria-hidden="true" tabindex="-1"></a><span class="fu">### Duplicates</span></span>
+<span id="cb33-324"><a href="#cb33-324" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-327"><a href="#cb33-327" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb33-328"><a href="#cb33-328" aria-hidden="true" tabindex="-1"></a>w241_tax<span class="sc">$</span>O <span class="sc">|&gt;</span> </span>
+<span id="cb33-329"><a href="#cb33-329" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">N =</span> <span class="fu">n</span>(), <span class="at">.by =</span> npi) <span class="sc">|&gt;</span> </span>
+<span id="cb33-330"><a href="#cb33-330" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(N <span class="sc">==</span> <span class="dv">2</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb33-331"><a href="#cb33-331" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">eq =</span> taxonomy_code <span class="sc">==</span> <span class="fu">flag</span>(taxonomy_code), <span class="at">.by =</span> npi) <span class="sc">|&gt;</span> </span>
+<span id="cb33-332"><a href="#cb33-332" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(eq)</span>
+<span id="cb33-333"><a href="#cb33-333" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-334"><a href="#cb33-334" aria-hidden="true" tabindex="-1"></a>w241_tax<span class="sc">$</span>I <span class="sc">|&gt;</span> </span>
+<span id="cb33-335"><a href="#cb33-335" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">N =</span> <span class="fu">n</span>(), <span class="at">.by =</span> npi) <span class="sc">|&gt;</span> </span>
+<span id="cb33-336"><a href="#cb33-336" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(N <span class="sc">==</span> <span class="dv">2</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb33-337"><a href="#cb33-337" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">eq =</span> taxonomy_code <span class="sc">==</span> <span class="fu">flag</span>(taxonomy_code), <span class="at">.by =</span> npi) <span class="sc">|&gt;</span> </span>
+<span id="cb33-338"><a href="#cb33-338" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(eq)</span>
+<span id="cb33-339"><a href="#cb33-339" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb33-340"><a href="#cb33-340" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-341"><a href="#cb33-341" aria-hidden="true" tabindex="-1"></a><span class="fu">## License</span></span>
+<span id="cb33-342"><a href="#cb33-342" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-345"><a href="#cb33-345" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb33-346"><a href="#cb33-346" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: w241_lic</span></span>
+<span id="cb33-347"><a href="#cb33-347" aria-hidden="true" tabindex="-1"></a>w241_lic <span class="ot">&lt;-</span> <span class="fu">join</span>(</span>
+<span id="cb33-348"><a href="#cb33-348" aria-hidden="true" tabindex="-1"></a>  wk_2024_01_01<span class="sc">$</span>taxonomy[<span class="fu">c</span>(<span class="st">"npi"</span>, <span class="st">"license_number"</span>, <span class="st">"license_state"</span>)], </span>
+<span id="cb33-349"><a href="#cb33-349" aria-hidden="true" tabindex="-1"></a>  w241_base[<span class="fu">c</span>(<span class="st">"npi"</span>, <span class="st">"entity"</span>)], </span>
+<span id="cb33-350"><a href="#cb33-350" aria-hidden="true" tabindex="-1"></a>  <span class="at">on =</span> <span class="st">"npi"</span>, </span>
+<span id="cb33-351"><a href="#cb33-351" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb33-352"><a href="#cb33-352" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fsubset</span>(npi <span class="sc">%!in%</span> w241_deact<span class="sc">$</span>npi)</span>
+<span id="cb33-353"><a href="#cb33-353" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-354"><a href="#cb33-354" aria-hidden="true" tabindex="-1"></a>lic_g <span class="ot">&lt;-</span> <span class="fu">GRP</span>(w241_lic, <span class="sc">~</span> entity)</span>
+<span id="cb33-355"><a href="#cb33-355" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-356"><a href="#cb33-356" aria-hidden="true" tabindex="-1"></a>w241_lic <span class="ot">&lt;-</span> <span class="fu">rsplit</span>(w241_lic, lic_g) <span class="sc">|&gt;</span> </span>
+<span id="cb33-357"><a href="#cb33-357" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(\(df) <span class="fu">remove_quiet</span>(df) <span class="sc">|&gt;</span> <span class="fu">filter</span>(<span class="fu">not_na</span>(license_number))) <span class="sc">|&gt;</span> </span>
+<span id="cb33-358"><a href="#cb33-358" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setNames</span>(<span class="fu">GRPnames</span>(lic_g))</span>
+<span id="cb33-359"><a href="#cb33-359" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-360"><a href="#cb33-360" aria-hidden="true" tabindex="-1"></a>w241_lic</span>
+<span id="cb33-361"><a href="#cb33-361" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb33-362"><a href="#cb33-362" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-363"><a href="#cb33-363" aria-hidden="true" tabindex="-1"></a><span class="fu">## Identifiers</span></span>
+<span id="cb33-364"><a href="#cb33-364" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-367"><a href="#cb33-367" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb33-368"><a href="#cb33-368" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: w241_id</span></span>
+<span id="cb33-369"><a href="#cb33-369" aria-hidden="true" tabindex="-1"></a>w241_id <span class="ot">&lt;-</span> <span class="fu">join</span>(</span>
+<span id="cb33-370"><a href="#cb33-370" aria-hidden="true" tabindex="-1"></a>  wk_2024_01_01<span class="sc">$</span>identifier, </span>
+<span id="cb33-371"><a href="#cb33-371" aria-hidden="true" tabindex="-1"></a>  w241_base[<span class="fu">c</span>(<span class="st">"npi"</span>, <span class="st">"entity"</span>)], </span>
+<span id="cb33-372"><a href="#cb33-372" aria-hidden="true" tabindex="-1"></a>  <span class="at">on =</span> <span class="st">"npi"</span>, </span>
+<span id="cb33-373"><a href="#cb33-373" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb33-374"><a href="#cb33-374" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fsubset</span>(npi <span class="sc">%!in%</span> w241_deact<span class="sc">$</span>npi) <span class="sc">|&gt;</span> </span>
+<span id="cb33-375"><a href="#cb33-375" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Remove Taxonomy Codes</span></span>
+<span id="cb33-376"><a href="#cb33-376" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fsubset</span>(<span class="fu">sf_ndetect</span>(other_id, <span class="st">"^[A-Z0-9]{9}X$"</span>))</span>
+<span id="cb33-377"><a href="#cb33-377" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-378"><a href="#cb33-378" aria-hidden="true" tabindex="-1"></a>id_g <span class="ot">&lt;-</span> <span class="fu">GRP</span>(w241_id, <span class="sc">~</span> entity)</span>
+<span id="cb33-379"><a href="#cb33-379" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-380"><a href="#cb33-380" aria-hidden="true" tabindex="-1"></a><span class="fu">rsplit</span>(w241_id, id_g) <span class="sc">|&gt;</span> </span>
+<span id="cb33-381"><a href="#cb33-381" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(remove_quiet) <span class="sc">|&gt;</span> </span>
+<span id="cb33-382"><a href="#cb33-382" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setNames</span>(<span class="fu">GRPnames</span>(id_g))</span>
+<span id="cb33-383"><a href="#cb33-383" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb33-384"><a href="#cb33-384" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-385"><a href="#cb33-385" aria-hidden="true" tabindex="-1"></a><span class="fu">## Other</span></span>
+<span id="cb33-386"><a href="#cb33-386" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-389"><a href="#cb33-389" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb33-390"><a href="#cb33-390" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: w241_oth</span></span>
+<span id="cb33-391"><a href="#cb33-391" aria-hidden="true" tabindex="-1"></a>w241_oth <span class="ot">&lt;-</span> <span class="fu">join</span>(</span>
+<span id="cb33-392"><a href="#cb33-392" aria-hidden="true" tabindex="-1"></a>  wk_2024_01_01<span class="sc">$</span>other, </span>
+<span id="cb33-393"><a href="#cb33-393" aria-hidden="true" tabindex="-1"></a>  w241_base[<span class="fu">c</span>(<span class="st">"npi"</span>, <span class="st">"entity"</span>)], </span>
+<span id="cb33-394"><a href="#cb33-394" aria-hidden="true" tabindex="-1"></a>  <span class="at">on =</span> <span class="st">"npi"</span>, </span>
+<span id="cb33-395"><a href="#cb33-395" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb33-396"><a href="#cb33-396" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fsubset</span>(npi <span class="sc">%!in%</span> w241_deact<span class="sc">$</span>npi) <span class="sc">|&gt;</span> </span>
+<span id="cb33-397"><a href="#cb33-397" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fcompute</span>(</span>
+<span id="cb33-398"><a href="#cb33-398" aria-hidden="true" tabindex="-1"></a>    <span class="at">npi =</span> npi,</span>
+<span id="cb33-399"><a href="#cb33-399" aria-hidden="true" tabindex="-1"></a>    <span class="at">entity =</span> entity,</span>
+<span id="cb33-400"><a href="#cb33-400" aria-hidden="true" tabindex="-1"></a>    <span class="at">ao_prefix =</span> <span class="fu">sf_remove</span>(ao_prefix, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>),</span>
+<span id="cb33-401"><a href="#cb33-401" aria-hidden="true" tabindex="-1"></a>    <span class="at">ao_first_name =</span> <span class="fu">sf_remove</span>(ao_first, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>),</span>
+<span id="cb33-402"><a href="#cb33-402" aria-hidden="true" tabindex="-1"></a>    <span class="at">ao_middle_name =</span> <span class="fu">sf_remove</span>(ao_middle, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>),</span>
+<span id="cb33-403"><a href="#cb33-403" aria-hidden="true" tabindex="-1"></a>    <span class="at">ao_last_name =</span> <span class="fu">sf_remove</span>(ao_last, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>),</span>
+<span id="cb33-404"><a href="#cb33-404" aria-hidden="true" tabindex="-1"></a>    <span class="at">ao_suffix =</span> <span class="fu">sf_remove</span>(ao_suffix, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>),</span>
+<span id="cb33-405"><a href="#cb33-405" aria-hidden="true" tabindex="-1"></a>    <span class="at">ao_credential =</span> <span class="fu">sf_remove</span>(ao_credential, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>),</span>
+<span id="cb33-406"><a href="#cb33-406" aria-hidden="true" tabindex="-1"></a>    <span class="at">ao_title =</span> <span class="fu">sf_remove</span>(ao_title, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>),</span>
+<span id="cb33-407"><a href="#cb33-407" aria-hidden="true" tabindex="-1"></a>    <span class="at">ao_phone =</span> <span class="fu">map_chr</span>(ao_phone, \(x) <span class="cf">if</span> (<span class="fu">not_na</span>(x)) <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}"</span>) <span class="cf">else</span> x)</span>
+<span id="cb33-408"><a href="#cb33-408" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb33-409"><a href="#cb33-409" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-410"><a href="#cb33-410" aria-hidden="true" tabindex="-1"></a>oth_g <span class="ot">&lt;-</span> <span class="fu">GRP</span>(w241_oth, <span class="sc">~</span> entity)</span>
+<span id="cb33-411"><a href="#cb33-411" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-412"><a href="#cb33-412" aria-hidden="true" tabindex="-1"></a>w241_oth <span class="ot">&lt;-</span> <span class="fu">rsplit</span>(w241_oth, oth_g) <span class="sc">|&gt;</span> </span>
+<span id="cb33-413"><a href="#cb33-413" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(remove_quiet) <span class="sc">|&gt;</span> </span>
+<span id="cb33-414"><a href="#cb33-414" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setNames</span>(<span class="fu">GRPnames</span>(oth_g))</span>
+<span id="cb33-415"><a href="#cb33-415" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-416"><a href="#cb33-416" aria-hidden="true" tabindex="-1"></a>w241_oth<span class="sc">$</span>I <span class="ot">&lt;-</span> vctrs<span class="sc">::</span><span class="fu">vec_slice</span>(w241_oth<span class="sc">$</span>I, cheapr<span class="sc">::</span><span class="fu">row_na_counts</span>(w241_oth<span class="sc">$</span>I) <span class="sc">&lt;</span> <span class="dv">6</span>)</span>
+<span id="cb33-417"><a href="#cb33-417" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-418"><a href="#cb33-418" aria-hidden="true" tabindex="-1"></a>w241_oth</span>
+<span id="cb33-419"><a href="#cb33-419" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb33-420"><a href="#cb33-420" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-421"><a href="#cb33-421" aria-hidden="true" tabindex="-1"></a><span class="fu">## Authorized</span></span>
+<span id="cb33-422"><a href="#cb33-422" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-425"><a href="#cb33-425" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb33-426"><a href="#cb33-426" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: w241_ao</span></span>
+<span id="cb33-427"><a href="#cb33-427" aria-hidden="true" tabindex="-1"></a>w241_ao <span class="ot">&lt;-</span> <span class="fu">join</span>(</span>
+<span id="cb33-428"><a href="#cb33-428" aria-hidden="true" tabindex="-1"></a>  wk_2024_01_01<span class="sc">$</span>authorized, </span>
+<span id="cb33-429"><a href="#cb33-429" aria-hidden="true" tabindex="-1"></a>  w241_base[<span class="fu">c</span>(<span class="st">"npi"</span>, <span class="st">"entity"</span>)], </span>
+<span id="cb33-430"><a href="#cb33-430" aria-hidden="true" tabindex="-1"></a>  <span class="at">on =</span> <span class="st">"npi"</span>, </span>
+<span id="cb33-431"><a href="#cb33-431" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb33-432"><a href="#cb33-432" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fsubset</span>(npi <span class="sc">%!in%</span> w241_deact<span class="sc">$</span>npi) <span class="sc">|&gt;</span> </span>
+<span id="cb33-433"><a href="#cb33-433" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fcompute</span>(</span>
+<span id="cb33-434"><a href="#cb33-434" aria-hidden="true" tabindex="-1"></a>    <span class="at">npi =</span> npi,</span>
+<span id="cb33-435"><a href="#cb33-435" aria-hidden="true" tabindex="-1"></a>    <span class="at">entity =</span> entity,</span>
+<span id="cb33-436"><a href="#cb33-436" aria-hidden="true" tabindex="-1"></a>    <span class="at">ao_prefix =</span> <span class="fu">sf_remove</span>(ao_prefix, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>),</span>
+<span id="cb33-437"><a href="#cb33-437" aria-hidden="true" tabindex="-1"></a>    <span class="at">ao_first_name =</span> <span class="fu">sf_remove</span>(ao_first, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>),</span>
+<span id="cb33-438"><a href="#cb33-438" aria-hidden="true" tabindex="-1"></a>    <span class="at">ao_middle_name =</span> <span class="fu">sf_remove</span>(ao_middle, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>),</span>
+<span id="cb33-439"><a href="#cb33-439" aria-hidden="true" tabindex="-1"></a>    <span class="at">ao_last_name =</span> <span class="fu">sf_remove</span>(ao_last, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>),</span>
+<span id="cb33-440"><a href="#cb33-440" aria-hidden="true" tabindex="-1"></a>    <span class="at">ao_suffix =</span> <span class="fu">sf_remove</span>(ao_suffix, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>),</span>
+<span id="cb33-441"><a href="#cb33-441" aria-hidden="true" tabindex="-1"></a>    <span class="at">ao_credential =</span> <span class="fu">sf_remove</span>(ao_credential, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>),</span>
+<span id="cb33-442"><a href="#cb33-442" aria-hidden="true" tabindex="-1"></a>    <span class="at">ao_title =</span> <span class="fu">sf_remove</span>(ao_title, <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>),</span>
+<span id="cb33-443"><a href="#cb33-443" aria-hidden="true" tabindex="-1"></a>    <span class="at">ao_phone =</span> <span class="fu">map_chr</span>(ao_phone, \(x) <span class="cf">if</span> (<span class="fu">not_na</span>(x)) <span class="fu">str_glue</span>(<span class="st">"({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}"</span>) <span class="cf">else</span> x)</span>
+<span id="cb33-444"><a href="#cb33-444" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb33-445"><a href="#cb33-445" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-446"><a href="#cb33-446" aria-hidden="true" tabindex="-1"></a>w241_ao</span>
+<span id="cb33-447"><a href="#cb33-447" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb33-448"><a href="#cb33-448" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-449"><a href="#cb33-449" aria-hidden="true" tabindex="-1"></a>&lt;hr&gt;</span>
+<span id="cb33-450"><a href="#cb33-450" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-451"><a href="#cb33-451" aria-hidden="true" tabindex="-1"></a>{{&lt; pagebreak &gt;}}</span>
+<span id="cb33-452"><a href="#cb33-452" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-453"><a href="#cb33-453" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-454"><a href="#cb33-454" aria-hidden="true" tabindex="-1"></a><span class="fu">## Session Information </span></span>
+<span id="cb33-455"><a href="#cb33-455" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-458"><a href="#cb33-458" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb33-459"><a href="#cb33-459" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb33-460"><a href="#cb33-460" aria-hidden="true" tabindex="-1"></a>pander<span class="sc">::</span><span class="fu">pander</span>(<span class="fu">sessionInfo</span>())</span>
+<span id="cb33-461"><a href="#cb33-461" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

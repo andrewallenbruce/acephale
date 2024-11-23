@@ -31,6 +31,7 @@ library(collapse)
 library(fuimus)
 library(codex)
 library(nppez)
+library(hacksaw)
 
 wk_2024_01_01 <- nppez:::get_pin("wk20240101")
 # wk_2024_01_22 <- nppez:::get_pin("wk20240122")
@@ -66,11 +67,25 @@ w241_deact <- w241_base |> filter(not_na(deact_date), !not_na(react_date)) |> re
 
 w241_base <- fsubset(w241_base, npi %!in% w241_deact$npi)
 
+
+# Credentials in Last Name
+w241_base |> 
+  fsubset(sf_detect(last_name, ", ")) |> 
+  fsubset(is.na(credential))
+
 base_g <- GRP(w241_base, ~ entity)
 
-rsplit(w241_base, base_g) |> 
+w241_base_spl <- rsplit(w241_base, base_g) |> 
   map(remove_quiet) |> 
   setNames(GRPnames(base_g))
+
+w241_base_spl
+
+# Org NPIs that are org_subpart have org_parent names
+rsplit(w241_base_spl$O, w241_base_spl$O$org_subpart)
+
+# Individuals - Sole Proprietors
+rsplit(w241_base_spl$I, w241_base_spl$I$sole_prop)
 ```
 
 ## Address
@@ -267,13 +282,50 @@ w241_tax <- join(
   w241_base[c("npi", "entity")], 
   on = "npi", 
   verbose = 0) |> 
-  fsubset(npi %!in% w241_deact$npi)
+  fsubset(npi %!in% w241_deact$npi) |> 
+  fmutate(
+    level = fcase(
+      taxonomy_primary == "Y", "Primary",
+      taxonomy_primary == "N", "Other",
+      taxonomy_primary == "X", "X"),
+    taxonomy_primary = NULL)
+
+w241_tax <- rowbind(
+  w241_tax |> 
+  fsubset(!not_na(taxonomy_group)) |> 
+  fselect(-taxonomy_group) |> 
+  distinct(),
+  w241_tax |> 
+  fsubset(not_na(taxonomy_group)) |> 
+  fselect(-taxonomy_code, -level) |> 
+  distinct() |> 
+  frename(taxonomy_code = taxonomy_group) |> 
+  fmutate(level = "Group"))
 
 tax_g <- GRP(w241_tax, ~ entity)
 
-rsplit(w241_tax, tax_g) |> 
+w241_tax <- rsplit(w241_tax, tax_g) |> 
   map(remove_quiet) |> 
   setNames(GRPnames(tax_g))
+
+w241_tax
+```
+
+
+### Duplicates
+
+```{r}
+w241_tax$O |> 
+  mutate(N = n(), .by = npi) |> 
+  filter(N == 2) |> 
+  mutate(eq = taxonomy_code == flag(taxonomy_code), .by = npi) |> 
+  filter(eq)
+
+w241_tax$I |> 
+  mutate(N = n(), .by = npi) |> 
+  filter(N == 2) |> 
+  mutate(eq = taxonomy_code == flag(taxonomy_code), .by = npi) |> 
+  filter(eq)
 ```
 
 ## License
@@ -289,9 +341,11 @@ w241_lic <- join(
 
 lic_g <- GRP(w241_lic, ~ entity)
 
-rsplit(w241_lic, lic_g) |> 
-  map(remove_quiet) |> 
+w241_lic <- rsplit(w241_lic, lic_g) |> 
+  map(\(df) remove_quiet(df) |> filter(not_na(license_number))) |> 
   setNames(GRPnames(lic_g))
+
+w241_lic
 ```
 
 ## Identifiers
@@ -303,7 +357,9 @@ w241_id <- join(
   w241_base[c("npi", "entity")], 
   on = "npi", 
   verbose = 0) |> 
-  fsubset(npi %!in% w241_deact$npi)
+  fsubset(npi %!in% w241_deact$npi) |> 
+  # Remove Taxonomy Codes
+  fsubset(sf_ndetect(other_id, "^[A-Z0-9]{9}X$"))
 
 id_g <- GRP(w241_id, ~ entity)
 
@@ -321,13 +377,29 @@ w241_oth <- join(
   w241_base[c("npi", "entity")], 
   on = "npi", 
   verbose = 0) |> 
-  fsubset(npi %!in% w241_deact$npi)
+  fsubset(npi %!in% w241_deact$npi) |> 
+  fcompute(
+    npi = npi,
+    entity = entity,
+    ao_prefix = sf_remove(ao_prefix, "\\."),
+    ao_first_name = sf_remove(ao_first, "\\."),
+    ao_middle_name = sf_remove(ao_middle, "\\."),
+    ao_last_name = sf_remove(ao_last, "\\."),
+    ao_suffix = sf_remove(ao_suffix, "\\."),
+    ao_credential = sf_remove(ao_credential, "\\."),
+    ao_title = sf_remove(ao_title, "\\."),
+    ao_phone = map_chr(ao_phone, \(x) if (not_na(x)) str_glue("({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}") else x)
+  )
 
 oth_g <- GRP(w241_oth, ~ entity)
 
-rsplit(w241_oth, oth_g) |> 
+w241_oth <- rsplit(w241_oth, oth_g) |> 
   map(remove_quiet) |> 
   setNames(GRPnames(oth_g))
+
+w241_oth$I <- vctrs::vec_slice(w241_oth$I, cheapr::row_na_counts(w241_oth$I) < 6)
+
+w241_oth
 ```
 
 ## Authorized
@@ -339,7 +411,19 @@ w241_ao <- join(
   w241_base[c("npi", "entity")], 
   on = "npi", 
   verbose = 0) |> 
-  fsubset(npi %!in% w241_deact$npi)
+  fsubset(npi %!in% w241_deact$npi) |> 
+  fcompute(
+    npi = npi,
+    entity = entity,
+    ao_prefix = sf_remove(ao_prefix, "\\."),
+    ao_first_name = sf_remove(ao_first, "\\."),
+    ao_middle_name = sf_remove(ao_middle, "\\."),
+    ao_last_name = sf_remove(ao_last, "\\."),
+    ao_suffix = sf_remove(ao_suffix, "\\."),
+    ao_credential = sf_remove(ao_credential, "\\."),
+    ao_title = sf_remove(ao_title, "\\."),
+    ao_phone = map_chr(ao_phone, \(x) if (not_na(x)) str_glue("({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}") else x)
+  )
 
 w241_ao
 ```
