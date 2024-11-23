@@ -8,6 +8,8 @@ format:
       - text: NUCC Taxonomy Site
         icon: bookmark-plus
         href: https://www.nucc.org/index.php/code-sets-mainmenu-41/provider-taxonomy-mainmenu-40
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup}
@@ -83,10 +85,6 @@ Taxonomy |>
 # Code Hierarchy
 
 The code set is structured into 3 distinct levels:
-
-   I.  Provider Grouping
-   II.  Classification
-   III.  Area of Specialization
 
 ::: {.panel-tabset}
 
@@ -257,6 +255,17 @@ xwalk |>
   gt::sub_missing(missing_text = "---") |> 
   gt::tab_options(quarto.disable_processing = TRUE)
 ```
+
+
+# arktax
+
+```{r}
+#| label: arktax
+#| echo: false
+#| eval: false
+arktax::get_pin("ark_taxonomy")
+```
+
 
 ## Sources
 
