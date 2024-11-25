@@ -30,6 +30,7 @@ library(rbrvs)
 library(northstar)
 library(fuimus)
 library(tidyverse)
+library(marquee)
 
 source(here("posts/claims/scripts", "load.R"))
 
@@ -78,6 +79,9 @@ Between the dates of **2022-06-14** and **2024-03-12** *(approx 637 days)*,
 # EDA
 
 ```{r}
+#| label: appt
+#| message: false
+#| warning: false
 appt <- claims |> 
   select(dos, ptid, .enc) |> 
   distinct() |> 
@@ -90,6 +94,10 @@ appt <- claims |>
     new_patients = sum(.enc == 1),
     .by = c(year, month, year_month))
 
+md_title <- "# {.orange Appointments}, {.dodgerblue Patients}, & {.red New Patients}"
+
+# "For _Dates of Service_: 2022-06-14 to 2024-03-12"
+
 ggplot(appt, aes(x = year_month)) + 
   geom_hline(yintercept = 0, color = "grey60", alpha = 1/1.25) +
   geom_line(aes(y = appointments), colour = "orange", linewidth = 1.75, alpha = 1/1.25) +
@@ -101,7 +109,12 @@ ggplot(appt, aes(x = year_month)) +
   geom_rug(aes(y = appointments), colour = "orange", alpha = 1/3, outside = FALSE) +
   geom_rug(aes(y = patients), colour = "dodgerblue", alpha = 1/3, outside = FALSE) +
   geom_rug(aes(y = new_patients), colour = "red", alpha = 1/3, outside = FALSE) +
-  gg_theme()
+  gg_theme() +
+  ggtitle(md_title) +
+  theme(plot.title = element_marquee(size = 9, width = 1),
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid = element_blank())
 ```
 
 

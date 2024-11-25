@@ -131,10 +131,12 @@ The [Medicare Provider and Supplier Taxonomy Crosswalk](https://data.cms.gov/pro
 ## NUCC to Medicare
 
 ```{r}
+#| label: medicare_footnotes
+#| echo: false
+#| eval: false
 #| message: false
 #| warning: false
 #| code-fold: false
-#| echo: false
 
 dplyr::tibble(
   ind = c(1:14),
@@ -171,9 +173,8 @@ dplyr::tibble(
   )
 ```
 
-<br>
-
 ```{r}
+#| label: xwalk
 #| message: false
 #| warning: false
 #| code-fold: false
@@ -181,42 +182,66 @@ dplyr::tibble(
 #| eval: true
 xwalk <- provider::taxonomy_crosswalk(tidy = FALSE) |> 
   janitor::clean_names() |> 
-  # dplyr::slice(1:558) |> 
+  dplyr::tibble() |> 
   dplyr::mutate(
-    .id = dplyr::row_number(),
-    .after = provider_taxonomy_code
-  ) |> 
-  tidyr::separate_longer_delim(
-    cols = provider_taxonomy_description_type_classification_specialization,
-    delim = "/"
-  ) |> 
-  dplyr::mutate(
-    .group = dplyr::row_number(), 
-    .by = c(provider_taxonomy_code, .id)
-  ) |>
-  tidyr::pivot_wider(
-    names_from = .group,
-    values_from = provider_taxonomy_description_type_classification_specialization,
-    names_prefix = "tax"
-  ) |> 
-  tidyr::unite(
-    "specialization",
-    c(tax3, tax4, tax5, tax6),
-    sep = "/",
-    na.rm = TRUE
-  ) |> 
-  dplyr::mutate(
-    dplyr::across(
-      dplyr::where(is.character),
-      ~dplyr::na_if(., "")
-    )
-  )
+    dplyr::across(dplyr::everything(), ~ dplyr::na_if(., "")),
+    dplyr::across(dplyr::everything(), ~ stringr::str_squish(.))) |> 
+  dplyr::reframe(
+    .id = dplyr::row_number(), 
+    taxonomy_code = provider_taxonomy_code,
+    taxonomy_type = provider_taxonomy_description_type_classification_specialization,
+    specialty_code = medicare_specialty_code,
+    specialty_type = medicare_provider_supplier_type_description)
 
 xwalk
 ```
 
 
 ```{r}
+#| label: tax_split
+taxonomy <- xwalk |> 
+  dplyr::select(.id, taxonomy_code, taxonomy_type) |> 
+  dplyr::mutate(
+    dlim = case_when(
+      sf_detect(taxonomy_type, "/") ~ "fwslash", 
+      sf_ndetect(taxonomy_type, "/") ~ "comma"),
+    n = case_when(
+      sf_detect(taxonomy_type, "/") ~ str_count(taxonomy_type, "/"), 
+      sf_ndetect(taxonomy_type, "/") ~ str_count(taxonomy_type, ","))) |> 
+  tidyr::separate_longer_delim(cols = taxonomy_type, delim = stringr::regex("[\\/|,]")) |>
+  dplyr::mutate(taxonomy_type = if_else(sf_detect(taxonomy_type, "Urban Indian Health \\(I"), "Urban Indian Health [ITU] Pharmacy", str_squish(taxonomy_type)),
+                dlim = NULL,
+                n = NULL) |> 
+  dplyr::filter(sf_ndetect(taxonomy_type, "^T$|U\\)\\sPharmacy")) |>
+  dplyr::mutate(.group = dplyr::row_number(), .by = c(taxonomy_code, .id), .after = .id) |>
+  tidyr::pivot_wider(
+    names_from = .group,
+    values_from = taxonomy_type,
+    names_prefix = "tax")
+
+taxonomy
+```
+
+
+```{r}
+#| label: spec_split
+xwalk |> 
+  dplyr::reframe(.id = as.character(.id), specialty_code, specialty_type) |> 
+  tidyr::nest(.by = c(specialty_code, specialty_type), .key = ".id") |> 
+  dplyr::mutate(.id = map_chr(.id, function(x) glue::glue("{delist(x)}") |> glue::glue_collapse(sep = ", "))) |> 
+  tidyr::separate_longer_delim(cols = specialty_type, delim = stringr::regex("[\\/]")) |> 
+  dplyr::mutate(
+    specialty_type = str_squish(specialty_type),
+    test = sf_detect(specialty_code, "\\[[A-Z0-9]{2}\\]$"),
+    code_note = map2_chr(test, specialty_code, function(x, y) {if (x) { sf_extract(y, "(?<=\\[).*?(?=\\])") } else { NA_character_ }})) #|> 
+  # print(n = 250)
+```
+
+
+```{r}
+#| label: xwalk_table
+#| echo: false
+#| eval: false
 xwalk |> 
   dplyr::reframe(
     note1 = stringr::str_extract(medicare_specialty_code, "(?<=\\[).*?(?=\\])"),
@@ -260,9 +285,14 @@ xwalk |>
 # arktax
 
 ```{r}
-#| label: arktax
-arktax::retrieve_ark(which = "wide")
+#| label: arktax_wide
+arktax::retrieve_ark(which = "wide") |> 
+  dplyr::filter(code == "208D00000X", year == 2024)
+```
 
+
+```{r}
+#| label: arktax_long
 arktax::retrieve_ark(which = "long")
 ```
 
