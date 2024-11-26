@@ -36,17 +36,17 @@ init_pkg <- \(pkgname) {
   github <- "https://github.com/andrewallenbruce/"
   
   usethis::create_package(
-  path = glue::glue("{local}{pkgname}"),
-  fields = list(
-    Package = glue::glue("{pkgname}"),
-    "Authors@R" = utils::person(
-      "Andrew", 
-      "Bruce", , 
-      email = "andrewallenbruce@gmail.com", 
-      role = c("aut", "cre", "cph")),
-    Maintainer = "Andrew Bruce <andrewallenbruce@gmail.com>",
-    URL = glue::glue("{github}{pkgname}"),
-    BugReports = glue::glue("{github}{pkgname}/issues"))
+    path = glue::glue("{local}{pkgname}"),
+    fields = list(
+      Package = glue::glue("{pkgname}"),
+      "Authors@R" = utils::person(
+        given = c("Andrew", "Allen"), 
+        family = "Bruce", 
+        email = "andrewallenbruce@gmail.com", 
+        role = c("aut", "cre", "cph")),
+      Maintainer = "Andrew Allen Bruce <andrewallenbruce@gmail.com>",
+      URL = glue::glue("{github}{pkgname}"),
+      BugReports = glue::glue("{github}{pkgname}/issues"))
   )
 }
 ```
@@ -98,7 +98,6 @@ usethis::use_readme_rmd()
 ![GitHub R package version](https://img.shields.io/github/r-package/v/andrewallenbruce/{pkgname}?style=flat-square&logo=R&label=Package&color=%23192a38)
 [![Code size](https://img.shields.io/github/languages/code-size/andrewallenbruce/{pkgname}.svg)](https://github.com/andrewallenbruce/{pkgname})
 [![Last commit](https://img.shields.io/github/last-commit/andrewallenbruce/{pkgname}.svg)](https://github.com/andrewallenbruce/{pkgname}/commits/master)
-[![R-CMD-check](https://github.com/andrewallenbruce/{pkgname}/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/andrewallenbruce/{pkgname}/actions/workflows/R-CMD-check.yaml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://choosealicense.com/licenses/mit/)
 
 <!-- badges: end -->
@@ -127,15 +126,6 @@ Config/roxyglobals/unique: TRUE
 #| eval: false
 usethis::use_testthat(parallel = TRUE)
 usethis::use_test("add-test")
-```
-
-## Use {covr}
-
-```{r}
-#| label: use-covr
-#| eval: false
-usethis::use_coverage("codecov")
-usethis::use_github_action("test-coverage")
 ```
 
 
@@ -420,6 +410,16 @@ Run after committing changes:
 usethis::use_version("patch")
 ```
 
+{{< pagebreak >}}
+
+## Use {covr}
+
+```{r}
+#| label: use-covr
+#| eval: false
+usethis::use_coverage("codecov")
+usethis::use_github_action("test-coverage")
+```
 
 {{< pagebreak >}}
 

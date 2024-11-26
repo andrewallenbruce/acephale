@@ -131,14 +131,15 @@ The [Medicare Provider and Supplier Taxonomy Crosswalk](https://data.cms.gov/pro
 
 ```{r}
 #| label: xwalk
+na_squish <- \(x) stringr::str_squish(fuimus::na_if_common(x))
+
 xwalk <- provider::taxonomy_crosswalk(tidy = FALSE) |> 
   janitor::clean_names() |> 
   dplyr::tibble() |> 
   dplyr::mutate(
-    dplyr::across(dplyr::everything(), ~ dplyr::na_if(., "")),
-    dplyr::across(dplyr::everything(), ~ stringr::str_squish(.))) |> 
-  dplyr::reframe(
-    .id = dplyr::row_number(), 
+    dplyr::across(dplyr::everything(), na_squish),
+    .id = dplyr::row_number()) |> 
+  dplyr::rename(
     taxonomy_code = provider_taxonomy_code,
     taxonomy_type = provider_taxonomy_description_type_classification_specialization,
     specialty_code = medicare_specialty_code,
@@ -159,19 +160,34 @@ xwalk
 #| label: tax_split
 taxonomy <- xwalk |> 
   dplyr::select(.id, taxonomy_code, taxonomy_type) |> 
+  # dplyr::mutate(
+  #   dlim = dplyr::case_when(
+  #     codex::sf_detect(taxonomy_type, "/") ~ "fslash", 
+  #     codex::sf_ndetect(taxonomy_type, "/") ~ "comma"),
+  #   n = dplyr::case_when(
+  #     codex::sf_detect(taxonomy_type, "/") ~ stringr::str_count(taxonomy_type, "/"), 
+  #     codex::sf_ndetect(taxonomy_type, "/") ~ stringr::str_count(taxonomy_type, ","))) |> 
+  tidyr::separate_longer_delim(
+    cols = taxonomy_type, 
+    delim = stringr::regex("[\\/|,]")) |>
   dplyr::mutate(
-    dlim = case_when(
-      sf_detect(taxonomy_type, "/") ~ "fwslash", 
-      sf_ndetect(taxonomy_type, "/") ~ "comma"),
-    n = case_when(
-      sf_detect(taxonomy_type, "/") ~ str_count(taxonomy_type, "/"), 
-      sf_ndetect(taxonomy_type, "/") ~ str_count(taxonomy_type, ","))) |> 
-  tidyr::separate_longer_delim(cols = taxonomy_type, delim = stringr::regex("[\\/|,]")) |>
-  dplyr::mutate(taxonomy_type = if_else(sf_detect(taxonomy_type, "Urban Indian Health \\(I"), "Urban Indian Health [ITU] Pharmacy", str_squish(taxonomy_type)),
-                dlim = NULL,
-                n = NULL) |> 
-  dplyr::filter(sf_ndetect(taxonomy_type, "^T$|U\\)\\sPharmacy")) |>
-  dplyr::mutate(.group = dplyr::row_number(), .by = c(taxonomy_code, .id), .after = .id) |>
+    taxonomy_type = dplyr::if_else(
+      codex::sf_detect(
+        taxonomy_type, 
+        "Urban Indian Health \\(I"), 
+      "Urban Indian Health [ITU] Pharmacy", 
+      str_squish(taxonomy_type)),
+    dlim = NULL,
+    n = NULL) |> 
+  dplyr::filter(
+    sf_ndetect(
+      taxonomy_type, 
+      "^T$|U\\)\\sPharmacy")
+    ) |>
+  dplyr::mutate(
+    .group = dplyr::row_number(), 
+    .by = c(taxonomy_code, .id), 
+    .after = .id) |>
   tidyr::pivot_wider(
     names_from = .group,
     values_from = taxonomy_type,
@@ -194,16 +210,16 @@ taxonomy |>
 
 ```{r}
 #| label: spec_split
-
+#| message: false
 ### Medicare Footnotes
 footnotes <- dplyr::tibble(
-  note = 1:14,
+  note = as.character(1:14),
   note_description = readr::read_lines(
-    here::here("posts", 
-               "taxonomy", 
-               "scripts", 
-               "taxonomy_notes.txt"))) |> 
-  dplyr::mutate(note = as.character(note))
+    here::here(
+      "posts", 
+      "taxonomy", 
+      "scripts", 
+      "taxonomy_notes.txt")))
 
 specialty <- xwalk |> 
   dplyr::select(
@@ -218,17 +234,26 @@ specialty <- xwalk |>
     by = dplyr::join_by(code_note == note)) |> 
   fuimus::combine(
     name = note, 
-    columns = c("type_note", "code_note"), sep = ", ") |>
+    columns = c(
+      "type_note", 
+      "code_note"), 
+    sep = ", ") |>
   fuimus::combine(
     name = note_description, 
-    columns = c("note_description.x", "note_description.y"), sep = " ")
+    columns = c(
+      "note_description.x", 
+      "note_description.y"), 
+    sep = " ")
 
 
 specialty |> 
   dplyr::mutate(.id = as.character(.id)) |> 
   tidyr::nest(data = .id) |> 
-  dplyr::mutate(.id = map_chr(data, function(x) glue::glue("{delist(x)}") |> glue::glue_collapse(sep = ", ")),
-                data = NULL) |> 
+  dplyr::mutate(.id = map_chr(
+    data, function(x) 
+      glue::glue("{delist(x)}") |> 
+      glue::glue_collapse(sep = ", ")),
+    data = NULL) |> 
   tidyr::separate_longer_delim(
     cols = specialty_type, 
     delim = stringr::fixed("/")) |> 
@@ -250,9 +275,10 @@ arktax::retrieve_ark(
   which = "wide") |> 
   dplyr::select(code, notes) |> 
   dplyr::distinct(code, notes, .keep_all = TRUE) |>
-  dplyr::mutate(updates = str_extract_all(notes, "\\[.*\\]"),
-                sources = str_remove_all(notes, "\\s?\\[.*\\]") |> dplyr::na_if(""),
-                notes = NULL) |>
+  dplyr::mutate(
+    updates = str_extract_all(notes, "\\[.*\\]"),
+    sources = str_remove_all(notes, "\\s?\\[.*\\]") |> dplyr::na_if(""),
+    notes = NULL) |>
   tidyr::unnest(updates) |>
   dplyr::select(-sources) |> 
   dplyr::filter(not_na(updates)) |> 
@@ -261,8 +287,8 @@ arktax::retrieve_ark(
     delim = stringr::fixed("; ")) |> 
   dplyr::mutate(updates = str_remove_all(updates, "(^\\[)|(\\]$)"),
                 multi = str_count(updates, ", \\d{1}/\\d{1}/\\d{4}")) |>
-  dplyr::filter(multi > 0) |>
-  print(n = 100)
+  dplyr::filter(multi > 0) |> 
+  print(n = 25)
 ```
 
 
@@ -271,7 +297,8 @@ arktax::retrieve_ark(
 arktax::retrieve_ark(which = "long") |> 
   dplyr::filter(year == max(year), .by = code) |>
   dplyr::distinct(year, code, level, description, nyears) |> 
-  print(n = 100)
+  dplyr::select(-year) |>
+  print(n = 25)
 ```
 
 
