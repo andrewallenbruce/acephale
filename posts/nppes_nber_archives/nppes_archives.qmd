@@ -32,7 +32,8 @@ library(fuimus)
 library(codex)
 library(nppez)
 library(arktax)
-library(hacksaw)
+library(S7)
+# library(hacksaw)
 
 wk_2024_01_01 <- nppez:::get_pin("wk20240101")
 # wk_2024_01_22 <- nppez:::get_pin("wk20240122")
@@ -64,11 +65,9 @@ w241_base <- wk_2024_01_01$basic |>
     org_subpart = org_sub)
 
 # Isolate deactivated NPIs with no reactivation date
-w241_deact <- remove_quiet(
-  w241_base[
-    not_na(w241_base$deact_date) & 
-      na(w241_base$react_date), ]
-  )
+w241_deact <- remove_quiet(w241_base[not_na(w241_base$deact_date) & na(w241_base$react_date),]) |> arrange(deact_date)
+
+list(npi = sf_convert(w241_deact$npi), date = sf_convert(as.character(w241_deact$deact_date)))
 
 # Remove them from base frame
 w241_base <- fsubset(w241_base, npi %!in% w241_deact$npi)

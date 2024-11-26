@@ -23,10 +23,9 @@ editor_options:
 #| fig.width: 8
 
 library(tidyverse)
-library(downlit)
-library(htmltools)
 library(provider)
 library(collapsibleTree)
+library(codex)
 library(arktax)
 ```
 
@@ -233,8 +232,7 @@ xwalk |>
   dplyr::mutate(
     specialty_type = str_squish(specialty_type),
     test = sf_detect(specialty_code, "\\[[A-Z0-9]{2}\\]$"),
-    code_note = map2_chr(test, specialty_code, function(x, y) {if (x) { sf_extract(y, "(?<=\\[).*?(?=\\])") } else { NA_character_ }})) #|> 
-  # print(n = 250)
+    code_note = map2_chr(test, specialty_code, function(x, y) {if (x) { sf_extract(y, "(?<=\\[).*?(?=\\])") } else { NA_character_ }}))
 ```
 
 
@@ -286,14 +284,22 @@ xwalk |>
 
 ```{r}
 #| label: arktax_wide
-arktax::retrieve_ark(which = "wide") |> 
-  dplyr::filter(code == "208D00000X", year == 2024)
+arktax::retrieve_ark(
+  year = 2024,
+  which = "wide") |> 
+  dplyr::select(year, code, notes) |> 
+  dplyr::distinct(year, code, .keep_all = TRUE) |>
+  dplyr::filter(not_na(notes)) |> 
+  print(n = 100)
 ```
 
 
 ```{r}
 #| label: arktax_long
-arktax::retrieve_ark(which = "long")
+arktax::retrieve_ark(which = "long") |> 
+  dplyr::filter(year == max(year), .by = code) |>
+  dplyr::distinct(year, code, level, description, nyears) |> 
+  print(n = 100)
 ```
 
 
