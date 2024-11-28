@@ -186,7 +186,8 @@ bench::mark(
 view_length <- \(x) {
   grp_name <- format(seq_along(x))
   grp_size <- format(vlen(x), justify = "left")
-  grp_mems <- if (empty(grp_mems)) NULL else format(unname(grp_mems), justify = "none")
+  grp_mems <- unname(grp_mems)
+  grp_mems <- if (empty(grp_mems)) NULL else format(grp_mems, justify = "none")
   cli::cat_bullet(glue::glue("{grp_name}: ", "{grp_size}|", "-[{grp_mems}]"))
   return(invisible(x))
 }
