@@ -182,25 +182,26 @@ bench::mark(
 # Preprocess Steps
 
 ```{r}
-#| label: print_method
-view <- \(x) {
-  
+#| label: view_length
+view_length <- \(x) {
   grp_name <- format(seq_along(x))
   grp_size <- format(vlen(x), justify = "left")
-  grp_mems <- purrr::modify_if(
-    x, vctrs::obj_is_list, 
-    function(x) paste0("(", map_chr(x, \(x) paste0(x, collapse = " ")), ")"))
+  grp_mems <- if (empty(grp_mems)) NULL else format(unname(grp_mems), justify = "none")
+  cli::cat_bullet(glue::glue("{grp_name}: ", "{grp_size}|", "-[{grp_mems}]"))
+  return(invisible(x))
+}
+```
+
+```{r}
+#| label: view_first
+view_first <- \(x) {
+  grp_name <- format(seq_along(x))
+  grp_size <- format(vlen(x), justify = "left")
   
-  grp_mems <- format(unname(grp_mems), justify = "none")
-  grp_mems <- if (empty(grp_mems)) NULL else grp_mems
-  
-  msg <- glue::glue(
-      "{grp_name}: ",
-      "{grp_size}|",
-      "-[{grp_mems}]"
-      )
-  
-  cli::cat_bullet(msg)
+  grp_mems <- purrr::modify_if(x, is.list, \(x) map_chr(x, \(x) paste0("<", paste0(x, collapse = " "), ">")))
+  grp_mems <- if (empty(grp_mems)) NULL else format(unname(grp_mems), justify = "none")
+
+  cli::cat_bullet(glue::glue("{grp_name}: ", "{grp_size}|", "-[{grp_mems}]"))
   
   return(invisible(x))
 }
@@ -212,29 +213,27 @@ x <- random_hcpcs(50)
 
 x |> 
   split_lengths() |> 
-  view()
+  view_length()
 
 x |>
   split_lengths() |> 
   remove_redundant() |>
-  view()
+  view_length()
 
 x |>
   split_lengths() |>
   remove_redundant() |>
   split_first() |> 
-  view()
+  view_first()
 
 random_hcpcs(50) |> 
   split_lengths() |> 
   remove_redundant() |>
   split_first() |>
-  view()
+  view_first()
 ```
 
 <hr>
-
-{{< pagebreak >}}
 
 # Process Groups
 
@@ -249,25 +248,53 @@ c("C75", "C97", "G02", "G04") |>
   remove_redundant() |>
   split_first() |>
   group_3() |>
-  view()
+  view_first()
 
 long_test2[nchar(long_test2) == 3] |> 
   split_lengths() |> 
   remove_redundant() |>
   split_first() |>
-  group_3()
+  group_3() |>
+  view_first()
 
 random_hcpcs() |> 
   split_lengths() |> 
   remove_redundant() |>
   split_first() |>
-  group_3()
+  group_3() |>
+  view_first()
 ```
 
 ## Group 4
 
 ```{r}
+#| label: group_4
+c("C751", "C752", "C970", "G020", "G021", "G040") |> 
+  split_lengths() |> 
+  remove_redundant() |>
+  split_first() |>
+  group_4() |>
+  view_first()
+
+long_test2[nchar(long_test2) == 4] |> 
+  split_lengths() |> 
+  remove_redundant() |>
+  split_first() |>
+  group_4() |>
+  view_first()
+
+random_hcpcs() |> 
+  split_lengths() |> 
+  remove_redundant() |>
+  split_first() |>
+  group_4() |>
+  view_first()
+```
+
+```{r}
 #| label: group_4_old
+#| eval: false
+#| echo: false
 #| message: true
 old_group_4 <- function(x) {
   x <- getelem(x, "x4")
@@ -513,23 +540,81 @@ c("C7510", "C9701", "G0200", "G0400") |>
   split_lengths() |> 
   remove_redundant() |>
   split_first() |>
-  group_5()
+  group_5() |>
+  view_first()
 
 long_test2[nchar(long_test2) == 5] |> 
   split_lengths() |> 
   remove_redundant() |>
   split_first() |>
-  group_5() |> 
-  nametree()
+  group_5() |>
+  view_first()
 
 random_hcpcs() |> 
   split_lengths() |> 
   remove_redundant() |>
   split_first() |>
-  group_5()
+  group_5() |>
+  view_first()
 ```
 
 ## process_groups
+
+```{r}
+#| eval: false
+#| echo: false
+view_group <- \(x) {
+  
+  x <- getelem(x, "3$")
+  
+  map(x, function(x) {
+    
+    map(x, function(x) {
+    
+    modify_if(x, function(x) vlen(x) > 1, function(x) {
+      
+      list_c(x)
+      
+      })
+    })
+  })
+}
+```
+
+```{r}
+#| eval: false
+#| echo: false
+not_one <- \(x) !collapse::allv(x, 1)
+
+is_not_one <- \(x) purrr::map(purrr::map(x, vlen), not_one)
+
+view_group <- \(x) {
+  
+  x <- getelem(x, "3$")
+  
+  if (any(vlen(x[[1]]) > 1)) list_c(vlen(x[[1]]) > 1)
+  
+  purrr::map_if(x[[1]], function(x) vlen(x) > 1, function(x) list_c(x))
+
+  purrr::map(x, \(x) { which(collapse::anyv(vlen(x) > 1, value = TRUE)) })
+  purrr::map(x, function(x) which(vlen(x) > 1))
+  
+  purrr::map_if(x, function(x) purrr::map(x, \(x) vlen(x) > 1), function(x) purrr::map(x, \(x) purrr::list_c(x)))
+  
+  
+  grp_name <- format(seq_along(x))
+  grp_size <- format(vlen(x), justify = "left")
+  
+  purrr::modify_if(x, is_not_one, \(x) map_chr(x, \(x) paste0("<", paste0(x, collapse = " "), ">")))
+  
+  grp_mems <- purrr::modify_if(x, is.list, function(x) purrr::map_chr(x, function(x) paste0("<", paste0(x, collapse = " "), ">")))
+  grp_mems <- if (empty(grp_mems)) NULL else format(unname(grp_mems), justify = "none")
+
+  cli::cat_bullet(glue::glue("{grp_name}: ", "{grp_size}|", "-[{grp_mems}]"))
+  
+  return(invisible(x))
+}
+```
 
 ```{r}
 #| label: process_groups
@@ -721,14 +806,16 @@ long_test2[sf_nchar(long_test2) == 2] |>
   remove_redundant() |>
   split_first() |>
   process_groups() |>
-  red2()
+  red2() |> 
+  view_first()
 
 paste0("A", c(0:5, LETTERS)) |> 
   split_lengths() |>
   remove_redundant() |>
   split_first() |>
   process_groups() |>
-  red2()
+  red2() |>
+  view_first()
 ```
 
 ## red3
@@ -767,7 +854,8 @@ long_test2[sf_nchar(long_test2) == 3] |>
   remove_redundant() |>
   split_first() |>
   process_groups() |> 
-  red3()
+  red3() |> 
+  view_first()
 ```
 
 ## red4
@@ -807,7 +895,8 @@ long_test2[sf_nchar(long_test2) == 4] |>
   remove_redundant() |>
   split_first() |>
   process_groups() |> 
-  red4()
+  red4() |> 
+  view_first()
 ```
 
 ## red5
@@ -846,7 +935,8 @@ long_test2[sf_nchar(long_test2) == 5] |>
   # remove_redundant() |>
   split_first() |>
   process_groups() |> 
-  red5()
+  red5() |> 
+  view_first()
 ```
 
 ## reduce_groups
