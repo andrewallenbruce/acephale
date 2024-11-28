@@ -270,25 +270,54 @@ specialty |>
 
 ```{r}
 #| label: arktax_wide
-arktax::retrieve_ark(
-  year = 2024,
-  which = "wide") |> 
+wide <- arktax::retrieve_ark(year = 2024, which = "wide")
+
+base <- wide |> 
   dplyr::select(code, notes) |> 
   dplyr::distinct(code, notes, .keep_all = TRUE) |>
   dplyr::mutate(
-    updates = str_extract_all(notes, "\\[.*\\]"),
-    sources = str_remove_all(notes, "\\s?\\[.*\\]") |> dplyr::na_if(""),
+    updates = stringr::str_extract_all(notes, "\\[.*\\]"),
+    sources = stringr::str_remove_all(notes, "\\s?\\[.*\\]") |> dplyr::na_if(""),
     notes = NULL) |>
-  tidyr::unnest(updates) |>
+  tidyr::unnest(updates)
+
+updates <- base |>
   dplyr::select(-sources) |> 
   dplyr::filter(not_na(updates)) |> 
-  separate_longer_delim(
-    cols = updates, 
-    delim = stringr::fixed("; ")) |> 
-  dplyr::mutate(updates = str_remove_all(updates, "(^\\[)|(\\]$)"),
-                multi = str_count(updates, ", \\d{1}/\\d{1}/\\d{4}")) |>
-  dplyr::filter(multi > 0) |> 
-  print(n = 25)
+  tidyr::separate_longer_delim(cols = updates, delim = stringr::fixed("; ")) |> 
+  dplyr::mutate(updates = stringr::str_remove_all(updates, "(^\\[)|(\\]$)"),
+                first = stringr::str_extract_all(updates, ", \\d{1,2}")) |>
+  tidyr::unnest(first, keep_empty = TRUE) |>
+  dplyr::mutate(first = str_remove(first, ", "))
+
+updates <- vctrs::vec_rbind(
+  updates |> 
+    dplyr::mutate(multi = str_count(updates, ", \\d{1}/\\d{1}/\\d{4}")) |>
+    dplyr::filter(multi == 0) |> 
+    dplyr::select(-first, -multi),
+  updates |>
+    dplyr::mutate(multi = str_count(updates, ", \\d{1}/\\d{1}/\\d{4}")) |>
+    dplyr::filter(multi > 0) |> 
+    tidyr::separate_longer_delim(
+      cols = updates, 
+      delim = stringr::regex(", \\d{1,2}")) |>
+    dplyr::mutate(updates = dplyr::if_else(
+      stringr::str_detect(updates, "^[/]"), 
+      stringr::str_glue("{first}{updates}"), updates),
+      first = NULL,
+      multi = NULL)) |> 
+  dplyr::mutate(
+    dates = stringr::str_extract_all(updates, "\\d{1,2}[/]\\d{1,2}[/]\\d{4}"),
+    updates = stringr::str_remove_all(updates, "\\d{1,2}[/]\\d{1,2}[/]\\d{4}:\\s")) |> 
+  tidyr::unnest(dates, keep_empty = TRUE) |>
+  dplyr::mutate(dates = clock::date_parse(dates, format = "%m/%d/%Y"))
+
+updates |> 
+  dplyr::count(updates)
+
+base |> dplyr::select(-updates)
+
+wide
 ```
 
 
