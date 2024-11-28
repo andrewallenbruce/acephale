@@ -176,33 +176,30 @@ bench::mark(
 
 ::: 
 
-{{< pagebreak >}}
+<hr>
+
 
 # Preprocess Steps
 
 ```{r}
 #| label: print_method
-x <- x1
-x <- x2
 view <- \(x) {
   
   grp_name <- format(seq_along(x))
   grp_size <- format(vlen(x), justify = "left")
-  # list_unchop(x)
-  # map(x, vctrs::vec_is_list)
-  # vctrs::vec_is_list(x)
+  grp_mems <- purrr::modify_if(
+    x, vctrs::obj_is_list, 
+    function(x) paste0("(", map_chr(x, \(x) paste0(x, collapse = " ")), ")"))
   
-  grp_mems <- modify_if(x, len_gt_one, function(x) {
-    paste0("[", map_chr(x, \(x) paste0(x, collapse = "-")), "]")
-  })
-  
-  grp_mems <- format(unname(map_vec(grp_mems, paste0, collapse = " ")), justify = "none")
+  grp_mems <- format(unname(grp_mems), justify = "none")
+  grp_mems <- if (empty(grp_mems)) NULL else grp_mems
   
   msg <- glue::glue(
       "{grp_name}: ",
       "{grp_size}|",
-      "--{if (empty(grp_mems)) NULL else grp_mems}"
+      "-[{grp_mems}]"
       )
+  
   cli::cat_bullet(msg)
   
   return(invisible(x))
@@ -213,7 +210,7 @@ view <- \(x) {
 #| label: preprocess
 x <- random_hcpcs(50)
 
-x1 <- x |> 
+x |> 
   split_lengths() |> 
   view()
 
@@ -222,7 +219,7 @@ x |>
   remove_redundant() |>
   view()
 
-x2 <- x |>
+x |>
   split_lengths() |>
   remove_redundant() |>
   split_first() |> 
