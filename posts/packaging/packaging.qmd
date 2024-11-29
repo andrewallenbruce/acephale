@@ -24,13 +24,25 @@ knitr::opts_chunk$set(
 options(scipen = 999, digits = 2)
 ```
 
+# Initialize R Package
 
-# Initial Steps
-
-```{r}
-#| label: create-package
+```{r filename="initialize_package.R"}
+#| label: initialize_package
 #| eval: false
-init_pkg <- \(pkgname) {
+
+#' Initialize a new R package
+#'
+#' @param pkgname `<chr>` name of package
+#'
+#' @returns nothing
+#'
+#' @examplesIf FALSE
+#' initialize_package("package")
+#'
+#' @autoglobal
+#'
+#' @noRd
+initialize_package <- \(pkgname) {
   
   local  <- "C:/Users/Andrew/Desktop/Repositories/"
   github <- "https://github.com/andrewallenbruce/"
@@ -59,7 +71,7 @@ init_pkg <- \(pkgname) {
 usethis::use_git()
 ```
 
-> _Will ask you to commit files to Git. Say yes._
+> _Will ask you to commit files to Git. Say **YES**._
 
 ## Create Repository on GitHub
 
@@ -69,15 +81,15 @@ usethis::use_git()
 usethis::use_github()
 ```
 
-> _Will ask you to commit files to GitHub. Say yes._
+> _Will ask you to commit files to GitHub. Say **YES**._
 
 ## Add License, COC, Package Document, and News
 
 ```{r}
 #| label: add-license-coc-doc-news
 #| eval: false
-usethis::use_mit_license("Andrew Allen Bruce")
-usethis::use_code_of_conduct("andrewallenbruce@gmail.com")
+usethis::use_mit_license(copyright_holder = "Andrew Allen Bruce")
+usethis::use_code_of_conduct(contact = "andrewallenbruce@gmail.com")
 usethis::use_package_doc()
 usethis::use_news_md()
 ```
@@ -90,14 +102,14 @@ usethis::use_news_md()
 usethis::use_readme_rmd()
 ```
 
-### Add Badges
+### Add Badges to README
 
 ```markdown
 <!-- badges: start -->
 
-![GitHub R package version](https://img.shields.io/github/r-package/v/andrewallenbruce/{pkgname}?style=flat-square&logo=R&label=Package&color=%23192a38)
-[![Code size](https://img.shields.io/github/languages/code-size/andrewallenbruce/{pkgname}.svg)](https://github.com/andrewallenbruce/{pkgname})
-[![Last commit](https://img.shields.io/github/last-commit/andrewallenbruce/{pkgname}.svg)](https://github.com/andrewallenbruce/{pkgname}/commits/master)
+![GitHub R package version](https://img.shields.io/github/r-package/v/andrewallenbruce/PACKAGE?style=flat-square&logo=R&label=Package&color=%23192a38)
+[![Code size](https://img.shields.io/github/languages/code-size/andrewallenbruce/PACKAGE.svg)](https://github.com/andrewallenbruce/PACKAGE)
+[![Last commit](https://img.shields.io/github/last-commit/andrewallenbruce/PACKAGE.svg)](https://github.com/andrewallenbruce/PACKAGE/commits/master)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://choosealicense.com/licenses/mit/)
 
 <!-- badges: end -->
@@ -111,13 +123,12 @@ usethis::use_readme_rmd()
 roxyglobals::use_roxyglobals()
 ```
 
-In the DESCRIPTION file, make sure these two fields are filled out as follows:
+In the `DESCRIPTION` file, make sure the following two fields are as follows:
 
 ```yaml
 Config/roxyglobals/filename: generated-globals.R
 Config/roxyglobals/unique: TRUE
 ```
-
 
 ## Use {testthat}
 
@@ -226,7 +237,7 @@ devtools::build_rmd("README.Rmd")
 usethis::use_tidy_description()
 ```
 
-{{< pagebreak >}}
+<hr>
 
 # Add a {pin}
 
@@ -397,7 +408,7 @@ list_pins <- function(...) {
 }
 ```
 
-{{< pagebreak >}}
+<hr>
 
 # Bump Package Version
 
@@ -410,9 +421,7 @@ Run after committing changes:
 usethis::use_version("patch")
 ```
 
-{{< pagebreak >}}
-
-## Use {covr}
+# Use {covr}
 
 ```{r}
 #| label: use-covr
@@ -421,7 +430,67 @@ usethis::use_coverage("codecov")
 usethis::use_github_action("test-coverage")
 ```
 
-{{< pagebreak >}}
+<hr>
+
+# Use {gert} 
+
+> When RStudio won't let you commit files & push them to GitHub.
+
+```{r}
+#| label: gert
+#| eval: false
+files <- gert::git_status()
+
+files_to_stage <- files |>
+  dplyr::filter(!staged) |>
+  dplyr::pull(file)
+
+gert::git_add(files_to_stage)
+gert::git_commit_all(message = "COMMIT MESSAGE")
+gert::git_push()
+```
+
+# Update Personal Packages
+
+```{r}
+#| label: update_packages
+#| eval: false
+#' Install/upgrade personal packages
+#'
+#' @autoglobal
+#'
+#' @keywords internal
+#'
+#' @noRd
+update_packages <- function() {
+
+  pkgs <- c(
+    "careroll",
+    "codexchain",
+    "costoffice",
+    "defogger",
+    "forager",
+    "fuimus",
+    "northstar",
+    "pathologie",
+    "procedural",
+    "provider",
+    "rbrvs", # name will change
+    "nppez",
+    "arktax",
+    "arknpi",
+    "codex"
+  )
+
+  pak::pkg_install(
+    glue::glue(
+      "andrewallenbruce/{pkgs}"
+    ),
+    upgrade = TRUE,
+    ask = FALSE)
+}
+```
+
 
 ## Session Information 
 
