@@ -66,6 +66,18 @@ Taxonomy <- provider::taxonomies(shape = "wide") |>
     definition
     )
 
+# arktax::taxonomy_raw(
+#   year = 2024, 
+#   version = 0) |> 
+#   dplyr::select(
+#     section,
+#     grouping,
+#     classification,
+#     specialization,
+#     code,
+#     display_name,
+#     definition)
+
 Taxonomy |> 
   dplyr::group_by(section, grouping) |> 
   dplyr::summarise(Classifications = dplyr::n()) |>
@@ -223,10 +235,9 @@ taxonomy <- xwalk |>
     dlim = NULL,
     n = NULL) |> 
   dplyr::filter(
-    sf_ndetect(
+    codex::sf_ndetect(
       taxonomy_type, 
-      "^T$|U\\)\\sPharmacy")
-    ) |>
+      "^T$|U\\)\\sPharmacy")) |>
   dplyr::mutate(
     .group = dplyr::row_number(), 
     .by = c(taxonomy_code, .id), 
@@ -292,7 +303,7 @@ specialty <- xwalk |>
 specialty |> 
   dplyr::mutate(.id = as.character(.id)) |> 
   tidyr::nest(data = .id) |> 
-  dplyr::mutate(.id = map_chr(
+  dplyr::mutate(.id = purrr::map_chr(
     data, function(x) 
       glue::glue("{codex::delist(x)}") |> 
       glue::glue_collapse(sep = ", ")),
@@ -300,12 +311,10 @@ specialty |>
   tidyr::separate_longer_delim(
     cols = specialty_type, 
     delim = stringr::fixed("/")) |> 
-  dplyr::mutate(specialty_type = str_squish(specialty_type))
+  dplyr::mutate(specialty_type = stringr::str_squish(specialty_type))
 ```
 
 <hr>
-
-
 
 ## Sources
 
