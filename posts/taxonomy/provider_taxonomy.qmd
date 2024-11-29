@@ -155,6 +155,20 @@ arktax::taxonomy_changelog()
 arktax::taxonomy_sources()
 ```
 
+## Display Names
+
+```{r}
+#| label: arktax_taxonomy_display
+arktax::taxonomy_display()
+```
+
+## Definitions
+
+```{r}
+#| label: arktax_taxonomy_definition
+arktax::taxonomy_definition()
+```
+
 <hr>
 
 # Medicare Crosswalk
@@ -181,10 +195,10 @@ xwalk <- provider::taxonomy_crosswalk(tidy = FALSE) |>
     specialty_code = medicare_specialty_code,
     specialty_type = medicare_provider_supplier_type_description) |> 
   dplyr::mutate(
-    type_note = str_extract(specialty_type, "(\\[)(.*?)(\\])$", group = 2),
-    code_note = str_extract(specialty_code, "(\\[)(.*?)(\\])$", group = 2),
-    specialty_type = str_remove(specialty_type, "\\[.*\\]"),
-    specialty_code = str_remove(specialty_code, "\\[.*\\]"))
+    type_note = stringr::str_extract(specialty_type, "(\\[)(.*?)(\\])$", group = 2),
+    code_note = stringr::str_extract(specialty_code, "(\\[)(.*?)(\\])$", group = 2),
+    specialty_type = stringr::str_remove(specialty_type, "\\[.*\\]"),
+    specialty_code = stringr::str_remove(specialty_code, "\\[.*\\]"))
 
 xwalk
 ```
@@ -280,7 +294,7 @@ specialty |>
   tidyr::nest(data = .id) |> 
   dplyr::mutate(.id = map_chr(
     data, function(x) 
-      glue::glue("{delist(x)}") |> 
+      glue::glue("{codex::delist(x)}") |> 
       glue::glue_collapse(sep = ", ")),
     data = NULL) |> 
   tidyr::separate_longer_delim(
