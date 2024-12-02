@@ -32,127 +32,102 @@ library(fuimus)
 library(codex)
 library(nppez)
 library(arktax)
+library(arknpi)
 library(S7)
-# library(hacksaw)
 
-wk_2024_01_01 <- nppez:::get_pin("wk20240101")
+make_case <- function(x, y) {
+  data.table::fcase(
+    codex::not_na(x) & codex::not_na(y) & x == y, stringr::str_glue("{y}") |> as.character(), 
+    codex::not_na(x) & codex::not_na(y) & x != y, stringr::str_glue("{x}, {y}") |> as.character(), 
+    codex::not_na(x) & codex::na(y), stringr::str_glue("{x}") |> as.character(), 
+    codex::na(x) & codex::not_na(y), stringr::str_glue("{y}") |> as.character(),
+    default = NA_character_)
+}
+
+make_zip <- function(x) {
+  ifelse(
+    codex::not_na(x) & nchar(x) == 9, 
+    stringr::str_glue("{substr(x, 1, 5)}-{substr(x, 6, 9)}") |> as.character(), 
+    x)
+}
+
+make_phone <- function(x) {
+  
+  c1 <- "({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}"
+  c2 <- ", ({substr(x, 13, 15)})-{substr(x, 16, 18)}-{substr(x, 19, 22)}"
+  c3 <- codex::smush(c1, c2)
+  
+  data.table::fcase(
+      codex::not_na(x) & nchar(x) == 10, stringr::str_glue(c1) |> as.character(), 
+      codex::not_na(x) & nchar(x) > 10, stringr::str_glue(c3) |> as.character(),
+      default = NA_character_)
+}
+
+
+wk_2024_01_01 <- arknpi::get_pin("wk_2024_01_01-07")
+
+# wk_2024_01_01 <- nppez:::get_pin("wk20240101")
 # wk_2024_01_22 <- nppez:::get_pin("wk20240122")
 # wk_2024_02_05 <- nppez:::get_pin("wk_20240205")
 ```
 
 # 2024-01-01
 
+## Deactivated
+
 ```{r}
-#| label: w241_base
-w241_base <- wk_2024_01_01$basic |> 
-  fcompute(
-    npi = npi,
-    entity = fcase(entity == "Ind", "I", 
-                   entity == "Org", "O"),
-    prefix = sf_remove(prefix, "\\."),
-    first_name = sf_remove(first, "\\."),
-    middle_name = sf_remove(middle, "\\."),
-    last_name = sf_remove(last, "\\."),
-    suffix = sf_remove(suffix, "\\."),
-    credential = sf_remove(credential, "\\."),
-    org_parent = sf_remove(parent_org_lbn, "\\.|,"),
-    org_prov = sf_remove(prov_org_lbn, "\\.|,"),
-    cert_date = certified,
-    enum_date = enum_date,
-    deact_date = deact_date,
-    react_date = react_date,
-    sole_prop = sole_prop,
-    org_subpart = org_sub)
+#| label: deactivated
+wk_2024_01_01$deactivated |> 
+  dplyr::count(deact_date)
+```
 
-# Isolate deactivated NPIs with no reactivation date
-w241_deact <- remove_quiet(w241_base[not_na(w241_base$deact_date) & na(w241_base$react_date),]) |> arrange(deact_date)
 
-list(npi = sf_convert(w241_deact$npi), date = sf_convert(as.character(w241_deact$deact_date)))
+## Base
 
-# Remove them from base frame
-w241_base <- fsubset(w241_base, npi %!in% w241_deact$npi)
+```{r}
+#| label: base
+base <- wk_2024_01_01$base
 
 # Split into individuals and organizations
-base_g <- GRP(w241_base, ~ entity)
+base_grp <- collapse::GRP(base, ~ entity)
 
-rsplit(w241_base, base_g) |> 
-  map(remove_quiet) |> 
-  setNames(GRPnames(base_g))
+collapse::rsplit(base, base_grp) |> 
+  purrr::map(fuimus::remove_quiet) |> 
+  setNames(collapse::GRPnames(base_grp))
 ```
 
 ### Other Transformations to Keep in Mind
 
 ```{r}
 # Credentials in Last Name
-w241_base |> 
-  fsubset(sf_detect(last_name, ", ")) |> 
-  fsubset(na(credential)) |> 
-  glimpse()
+base |> 
+  collapse::fsubset(codex::sf_detect(last_name, ", ")) |> 
+  collapse::fsubset(codex::na(credential)) |> 
+  dplyr::glimpse()
 ```
 
 
 ```{r}
-w241_base_spl <- rsplit(w241_base, base_g) |> 
-  map(remove_quiet) |> 
-  setNames(GRPnames(base_g))
+base_split <- collapse::rsplit(base, base_grp) |> 
+  purrr::map(fuimus::remove_quiet) |> 
+  setNames(collapse::GRPnames(base_grp))
 
 # Org NPIs that are org_subpart have org_parent names
-rsplit(w241_base_spl$O, w241_base_spl$O$org_subpart)
+collapse::rsplit(base_split$O, base_split$O$org_subpart)
 
 # Individuals - Sole Proprietors
-rsplit(w241_base_spl$I, w241_base_spl$I$sole_prop)
+collapse::rsplit(base_split$I, base_split$I$sole_prop)
 ```
-
 
 ## Address
 
 ```{r}
-#| label: w241_add
-w241_add <- join(
-  wk_2024_01_01$address, 
-  w241_base[c("npi", "entity")], 
-  on = "npi", 
-  verbose = 0) |> 
-  fsubset(npi %!in% w241_deact$npi)
-
-make_case <- function(x, y) {
-  fcase(
-    not_na(x) & not_na(y) & x == y, str_glue("{y}"), 
-    not_na(x) & not_na(y) & x != y, str_glue("{x}, {y}"), 
-    not_na(x) & na(y), str_glue("{x}"), 
-    na(x) & not_na(y), str_glue("{y}")
-  )
-}
-
-make_zip <- function(x) {
-  map_chr(
-    x, 
-    function(x) {
-      if (not_na(x) & nchar(x) == 9) 
-        str_glue(
-          "{substr(x, 1, 5)}-{substr(x, 6, 9)}"
-          )
-      else 
-        x
-    }
-  )
-}
-
-make_phone <- function(x) {
-  
-  cnd1 <- "({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}"
-  cnd2 <- smush(cnd1, ", ({substr(x, 13, 15)})-{substr(x, 16, 18)}-{substr(x, 19, 22)}")
-  
-  map_chr(x, function(x) {if (not_na(x)) {
-    fcase(
-      nchar(x) == 10, str_glue(cnd1), 
-      nchar(x) > 10, str_glue(cnd2),
-      default = str_glue("{x}"))} else str_glue("{x}") })
-}
+#| label: address
+address <- wk_2024_01_01$address
 
 # Exact match on all address fields
-w241_exact <- w241_add |> 
-  filter(
+exact <- address |> 
+  dplyr::filter(
     mail_address == prac_address,
     mail_city == prac_city,
     mail_state == prac_state,
@@ -160,7 +135,7 @@ w241_exact <- w241_add |>
     mail_country == prac_country,
     mail_phone == prac_phone,
     mail_fax == prac_fax) |> 
-  fcompute(
+  collapse::fcompute(
     npi = npi,
     entity = entity,
     purpose = "MP",
@@ -173,16 +148,16 @@ w241_exact <- w241_add |>
     fax = make_phone(prac_fax))
 
 # Match on all except FAX
-w241_fax <- w241_add |> 
-  filter(
-    npi %!in% w241_exact$npi,  
+fax <- address |> 
+  dplyr::filter(
+    npi %!in% exact$npi,  
     mail_address == prac_address, 
     mail_city == prac_city,
     mail_state == prac_state,
     mail_country == prac_country,
     mail_zip == prac_zip,
     mail_phone == prac_phone) |> 
-  fcompute(
+  collapse::fcompute(
     npi = npi,
     entity = entity,
     address = prac_address,
@@ -192,28 +167,25 @@ w241_fax <- w241_add |>
     country = prac_country,
     phone = make_phone(prac_phone),
     fax = make_case(mail_fax, prac_fax),
-    purpose = fcase(
-      not_na(mail_fax) & na(prac_fax), "M",
-      na(mail_fax) & not_na(prac_fax), "P",
+    purpose = data.table::fcase(
+      codex::not_na(mail_fax) & codex::na(prac_fax), "M",
+      codex::na(mail_fax) & codex::not_na(prac_fax), "P",
       default = "MP")) |> 
-  fmutate(fax = make_phone(fax))
+  collapse::fmutate(fax = make_phone(fax))
 
 # Match on all except ZIP, PHONE, and FAX
-w241_phone <- w241_add |> 
-  filter(
-    npi %!in% c(
-      w241_exact$npi, 
-      w241_fax$npi),      
+phone <- address |> 
+  dplyr::filter(npi %!in% c(exact$npi, fax$npi),      
     mail_address == prac_address,
     mail_city == prac_city,
     mail_state == prac_state,
     mail_country == prac_country) |>
-  fcompute(
+  collapse::fcompute(
     npi = npi,
     entity = entity,
-    purpose = fcase(
-      not_na(mail_phone) & na(prac_phone), "M",
-      na(mail_phone) & not_na(prac_phone), "P",
+    purpose = data.table::fcase(
+      codex::not_na(mail_phone) & codex::na(prac_phone), "M",
+      codex::na(mail_phone) & codex::not_na(prac_phone), "P",
       default = "MP"),
     address = prac_address,
     city = prac_city,
@@ -222,217 +194,164 @@ w241_phone <- w241_add |>
     country = prac_country,
     phone = make_case(mail_phone, prac_phone),
     fax = make_case(mail_fax, prac_fax)) |> 
-  fmutate(
+  collapse::fmutate(
     zip = make_zip(zip),
     phone = make_phone(phone),
     fax = make_phone(fax))
 
 # Pivot remaining addresses
-w241_piv <- w241_add |> 
-  filter(
-    npi %!in% c(
-      w241_exact$npi, 
-      w241_fax$npi, 
-      w241_phone$npi
-      )) |> 
-  pivot_longer(
+piv <- address |> 
+  dplyr::filter(npi %!in% c(exact$npi, fax$npi, phone$npi)) |> 
+  tidyr::pivot_longer(
     -c(npi, entity), 
     names_to = "type_part", 
-    values_to = "value", 
-    names_transform = list(
-      type_part = stringr::str_to_title)
-    ) |> 
-  separate_wider_delim(
+    values_to = "value") |> 
+  tidyr::separate_wider_delim(
     type_part, 
     delim = "_", 
     names = c("type", "part")) |> 
-  fmutate(
-    purpose = case_when(
-      type == "Mail" ~ "M",
-      type == "Prac" ~ "P",
+  collapse::fmutate(
+    purpose = dplyr::case_when(
+      type == "mail" ~ "M",
+      type == "prac" ~ "P",
     .default = type),
     type = NULL) |>
-  pivot_wider(
+  tidyr::pivot_wider(
     names_from = part, 
     values_from = value) |> 
-  fmutate(
+  collapse::fmutate(
     zip = make_zip(zip),
     phone = make_phone(phone),
     fax = make_phone(fax))
 
-# Combine all address matches
-w241_add <- rowbind(w241_exact, w241_fax, w241_phone, w241_piv)
+address <- collapse::rowbind(exact, fax, phone, piv)
 
-add_g <- GRP(w241_add, ~ entity)
+add_grp <- collapse::GRP(address, ~ entity)
 
-rsplit(w241_add, add_g) |> 
-  map(remove_quiet) |> 
-  setNames(GRPnames(add_g))
+collapse::rsplit(address, add_grp) |> 
+  purrr::map(remove_quiet) |> 
+  setNames(collapse::GRPnames(add_grp))
 ```
 
 ## Taxonomy
 
 ```{r}
-#| label: w241_tax
-w241_tax <- join(
-  wk_2024_01_01$taxonomy[
-    c("npi", 
-      "taxonomy_code", 
-      "taxonomy_group", 
-      "taxonomy_primary")
-    ], 
-  w241_base[c("npi", "entity")], 
-  on = "npi", 
-  verbose = 0) |> 
-  fsubset(npi %!in% w241_deact$npi) |> 
-  fmutate(
-    level = fcase(
-      taxonomy_primary == "Y", "Primary",
-      taxonomy_primary == "N", "Other",
+#| label: taxonomy
+taxonomy <- wk_2024_01_01$taxonomy |> 
+  dplyr::select(npi, entity, dplyr::starts_with("taxonomy")) |> 
+  collapse::fmutate(
+    taxonomy_level = data.table::fcase(
+      taxonomy_primary == "Y", "P",
+      taxonomy_primary == "N", "O",
       taxonomy_primary == "X", "X"),
     taxonomy_primary = NULL)
 
-w241_tax <- rowbind(
-  w241_tax |> 
-    fsubset(na(taxonomy_group)) |> 
-    fselect(-taxonomy_group) |> 
-    distinct(),
-  w241_tax |> 
-    fsubset(not_na(taxonomy_group)) |> 
-    fselect(-taxonomy_code, -level) |> 
-    distinct() |> 
-    frename(taxonomy_code = taxonomy_group) |> 
-    fmutate(level = "Group"))
+taxonomy <- collapse::rowbind(
+  taxonomy |> 
+    collapse::fsubset(codex::na(taxonomy_group)) |> 
+    collapse::fselect(-taxonomy_group) |> 
+    dplyr::distinct(),
+  taxonomy |> 
+    collapse::fsubset(codex::not_na(taxonomy_group)) |> 
+    collapse::fselect(-taxonomy_code, -taxonomy_level) |> 
+    dplyr::distinct() |> 
+    collapse::frename(taxonomy_code = taxonomy_group) |> 
+    collapse::fmutate(taxonomy_level = "G")
+  )
 
-tax_g <- GRP(w241_tax, ~ entity)
+# taxonomy <- collapse::join(
+#   license, 
+#   taxonomy, 
+#   on = c("npi"), 
+#   how = "full") |> 
+#   dplyr::distinct()
 
-w241_tax <- rsplit(w241_tax, tax_g) |> 
-  map(remove_quiet) |> 
-  setNames(GRPnames(tax_g))
+tax_grp <- collapse::GRP(taxonomy, ~ entity)
 
-w241_tax
+taxonomy <- collapse::rsplit(taxonomy, tax_grp) |> 
+  purrr::map(remove_quiet) |> 
+  setNames(collapse::GRPnames(tax_grp))
+
+taxonomy
 ```
-
 
 #### Duplicates
 
 ```{r}
-w241_tax$O |> 
-  mutate(N = n(), .by = npi) |> 
-  filter(N == 2) |> 
-  mutate(eq = taxonomy_code == flag(taxonomy_code), .by = npi) |> 
-  filter(eq)
+taxonomy$O |> 
+  dplyr::mutate(N = dplyr::n(), .by = npi) |> 
+  dplyr::filter(N == 2) |> 
+  dplyr::mutate(eq = taxonomy_code == collapse::flag(taxonomy_code), .by = npi) |> 
+  dplyr::filter(eq)
 
-w241_tax$I |> 
-  mutate(N = n(), .by = npi) |> 
-  filter(N == 2) |> 
-  mutate(eq = taxonomy_code == flag(taxonomy_code), .by = npi) |> 
-  filter(eq)
+taxonomy$I |> 
+  dplyr::mutate(N = dplyr::n(), .by = npi) |> 
+  dplyr::filter(N == 2) |> 
+  dplyr::mutate(eq = taxonomy_code == collapse::flag(taxonomy_code), .by = npi) |> 
+  dplyr::filter(eq)
 ```
 
 ## License
 
 ```{r}
-#| label: w241_lic
-w241_lic <- join(
-  wk_2024_01_01$taxonomy[
-    c("npi", 
-      "license_number", 
-      "license_state")], 
-  w241_base[c("npi", "entity")], 
-  on = "npi", 
-  verbose = 0) |> 
-  fsubset(npi %!in% w241_deact$npi)
+#| label: license
+license <- collapse::fselect(
+  wk_2024_01_01$taxonomy, 
+  npi, 
+  entity, 
+  license_no, 
+  license_state)
 
-lic_g <- GRP(w241_lic, ~ entity)
+license_grp <- collapse::GRP(license, ~ entity)
 
-w241_lic <- rsplit(w241_lic, lic_g) |> 
-  map(\(df) 
-      remove_quiet(df) |> 
-        filter(not_na(license_number))) |> 
-  setNames(GRPnames(lic_g))
+license <- collapse::rsplit(license, license_grp) |> 
+  purrr::map(
+    \(df) 
+    fuimus::remove_quiet(df) |> 
+      dplyr::filter(codex::not_na(license_no))) |> 
+  setNames(collapse::GRPnames(license_grp))
 
-w241_lic
+license
 ```
 
 ## Identifiers
 
 ```{r}
-#| label: w241_id
-w241_id <- join(
-  wk_2024_01_01$identifier, 
-  w241_base[c("npi", "entity")], 
-  on = "npi", 
-  verbose = 0) |> 
-  fsubset(npi %!in% w241_deact$npi) |> 
+#| label: identifier
+identifier <- wk_2024_01_01$identifier |> 
   # Remove Taxonomy Codes
-  fsubset(sf_ndetect(other_id, "^[A-Z0-9]{9}X$"))
+  collapse::fsubset(codex::sf_ndetect(otid, "^[A-Z0-9]{9}X$"))
 
-id_g <- GRP(w241_id, ~ entity)
+id_grp <- collapse::GRP(identifier, ~ entity)
 
-rsplit(w241_id, id_g) |> 
-  map(remove_quiet) |> 
-  setNames(GRPnames(id_g))
+collapse::rsplit(identifier, id_grp) |> 
+  purrr::map(remove_quiet) |> 
+  setNames(collapse::GRPnames(id_grp))
 ```
 
-## Other
+## Other Names
 
 ```{r}
-#| label: w241_oth
-w241_oth <- join(
-  wk_2024_01_01$other, 
-  w241_base[c("npi", "entity")], 
-  on = "npi", 
-  verbose = 0) |> 
-  fsubset(npi %!in% w241_deact$npi) |> 
-  fcompute(
-    npi = npi,
-    entity = entity,
-    org_name = sf_remove(other_org_name, "\\."),
-    org_type = sf_remove(other_org_type, "\\."),
-    prefix = sf_remove(other_prefix, "\\."),
-    first_name = sf_remove(other_first, "\\."),
-    middle_name = sf_remove(other_middle, "\\."),
-    last_name = sf_remove(other_last, "\\."),
-    last_type = sf_remove(other_last_type, "\\."),
-    suffix = sf_remove(other_suffix, "\\."),
-    credential = sf_remove(other_credential, "\\."))
+#| label: other
+other <- wk_2024_01_01$other
 
-oth_g <- GRP(w241_oth, ~ entity)
+oth_grp <- collapse::GRP(other, ~ entity)
 
-w241_oth <- rsplit(w241_oth, oth_g) |> 
-  map(remove_quiet) |> 
-  setNames(GRPnames(oth_g))
+other <- collapse::rsplit(other, oth_grp) |> 
+  purrr::map(remove_quiet) |> 
+  setNames(collapse::GRPnames(oth_grp))
 
-w241_oth$I <- vctrs::vec_slice(w241_oth$I, cheapr::row_na_counts(w241_oth$I) < 6)
+other$I <- vctrs::vec_slice(other$I, cheapr::row_na_counts(other$I) < 6)
 
-w241_oth
+other
 ```
 
-## Authorized
+## Authorized Official
 
 ```{r}
-#| label: w241_ao
-w241_ao <- join(
-  wk_2024_01_01$authorized, 
-  w241_base[c("npi", "entity")], 
-  on = "npi", 
-  verbose = 0) |> 
-  fsubset(npi %!in% w241_deact$npi) |> 
-  fcompute(
-    npi = npi,
-    entity = entity,
-    ao_prefix = sf_remove(ao_prefix, "\\."),
-    ao_first_name = sf_remove(ao_first, "\\."),
-    ao_middle_name = sf_remove(ao_middle, "\\."),
-    ao_last_name = sf_remove(ao_last, "\\."),
-    ao_suffix = sf_remove(ao_suffix, "\\."),
-    ao_credential = sf_remove(ao_credential, "\\."),
-    ao_title = sf_remove(ao_title, "\\."),
-    ao_phone = make_phone(ao_phone)
-  )
-
-w241_ao
+#| label: ao
+wk_2024_01_01$ao |> 
+  collapse::fmutate(ao_phone = make_phone(ao_phone))
 ```
 
 <hr>

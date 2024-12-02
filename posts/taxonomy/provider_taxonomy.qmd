@@ -185,41 +185,34 @@ arktax::taxonomy_definition()
 
 # Medicare Crosswalk
 
-> Providers and suppliers with the proper taxonomy code eligible for Medicare programs.
-
 The [Medicare Provider and Supplier Taxonomy Crosswalk](https://data.cms.gov/provider-characteristics/medicare-provider-supplier-enrollment/medicare-provider-and-supplier-taxonomy-crosswalk) dataset lists the providers and suppliers eligible to enroll in Medicare programs with the proper healthcare provider taxonomy code. This data includes the Medicare specialty codes, if available, provider/supplier type description, taxonomy code, and the taxonomy description.
 
-## NUCC to Medicare
+## Raw
 
 ```{r}
-#| label: xwalk
-na_squish <- \(x) stringr::str_squish(fuimus::na_if_common(x))
-
-xwalk <- provider::taxonomy_crosswalk(tidy = FALSE) |> 
-  janitor::clean_names() |> 
-  dplyr::tibble() |> 
-  dplyr::mutate(
-    dplyr::across(dplyr::everything(), na_squish),
-    .id = dplyr::row_number()) |> 
-  dplyr::rename(
-    taxonomy_code = provider_taxonomy_code,
-    taxonomy_type = provider_taxonomy_description_type_classification_specialization,
-    specialty_code = medicare_specialty_code,
-    specialty_type = medicare_provider_supplier_type_description) |> 
-  dplyr::mutate(
-    type_note = stringr::str_extract(specialty_type, "(\\[)(.*?)(\\])$", group = 2),
-    code_note = stringr::str_extract(specialty_code, "(\\[)(.*?)(\\])$", group = 2),
-    specialty_type = stringr::str_remove(specialty_type, "\\[.*\\]"),
-    specialty_code = stringr::str_remove(specialty_code, "\\[.*\\]"))
-
-xwalk
+#| label: arktax_crosswalk_raw
+arktax::crosswalk_raw()
 ```
 
+## Footnotes
+
+```{r}
+#| label: arktax_crosswalk_footnotes
+arktax::crosswalk_footnotes()
+```
+
+## Taxonomy
+
+```{r}
+#| label: arktax_crosswalk_taxonomy
+arktax::crosswalk_taxonomy()
+```
 
 ### Taxonomy Split
 
 ```{r}
 #| label: tax_split
+#| eval: false
 taxonomy <- xwalk |> 
   dplyr::select(.id, taxonomy_code, taxonomy_type) |> 
   tidyr::separate_longer_delim(
@@ -264,17 +257,7 @@ taxonomy |>
 
 ```{r}
 #| label: spec_split
-#| message: false
-### Medicare Footnotes
-footnotes <- dplyr::tibble(
-  note = as.character(1:14),
-  note_description = readr::read_lines(
-    here::here(
-      "posts", 
-      "taxonomy", 
-      "scripts", 
-      "taxonomy_notes.txt")))
-
+#| eval: false
 specialty <- xwalk |> 
   dplyr::select(
     .id, 
