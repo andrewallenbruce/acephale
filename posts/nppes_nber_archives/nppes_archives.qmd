@@ -35,7 +35,8 @@ library(arktax)
 library(arknpi)
 library(S7)
 
-wk_2024_01_01 <- arknpi::get_pin("wk_2024_01_01-07")
+wk <- arknpi::get_pin("wk_2024_01_01-07")
+deactivated <- arknpi::get_pin("deactivated")
 
 # wk_2024_01_01 <- nppez:::get_pin("wk20240101")
 # wk_2024_01_22 <- nppez:::get_pin("wk20240122")
@@ -48,15 +49,16 @@ wk_2024_01_01 <- arknpi::get_pin("wk_2024_01_01-07")
 
 ```{r}
 #| label: deactivated
-wk_2024_01_01$deactivated |> 
-  collapse::fcount(deact_date)
+deactivated |> 
+  collapse::fcount(deact_date) |> 
+  print(n = 50)
 ```
 
 ## Base
 
 ```{r}
 #| label: base
-base <- wk_2024_01_01$base
+base <- wk$base
 
 # Split into individuals and organizations
 base_grp <- collapse::GRP(base, ~ entity)
@@ -107,41 +109,11 @@ collapse::rsplit(base_split$I, base_split$I$sole_prop) |>
 
 ## Address
 
-```{r}
-#| label: address_functions
-#| echo: false
-make_purpose <- function(mail, prac) {
-  data.table::fcase(
-      codex::not_na(mail) & codex::na(prac), "M",
-      codex::na(mail) & codex::not_na(prac), "P",
-      default = "MP")
-}
-
-make_zip <- function(x) {
-  ifelse(
-    codex::not_na(x) & nchar(x) == 9,
-    stringr::str_glue("{substr(x, 1, 5)}-{substr(x, 6, 9)}") |> as.character(),
-    x)
-}
-
-make_phone <- function(x) {
-
-  c1 <- "({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}"
-  c2 <- ", ({substr(x, 13, 15)})-{substr(x, 16, 18)}-{substr(x, 19, 22)}"
-  c3 <- codex::smush(c1, c2)
-
-  data.table::fcase(
-      codex::not_na(x) & nchar(x) == 10, stringr::str_glue(c1) |> as.character(),
-      codex::not_na(x) & nchar(x) > 10, stringr::str_glue(c3) |> as.character(),
-      default = NA_character_)
-}
-```
-
-   - Need to consider matches on city, state, zip, with different addresses
+   - Consider matches on **city, state, & zip** with different addresses
 
 ```{r}
 #| label: address
-address <- wk_2024_01_01$address
+address <- wk$address
 
 # Exact match on all address fields
 exact <- address |> 
@@ -160,10 +132,10 @@ exact <- address |>
     address = prac_address,
     city = prac_city,
     state = prac_state,
-    zip = make_zip(prac_zip),
+    zip = arknpi::make_zip(prac_zip),
     country = prac_country,
-    phone = make_phone(prac_phone),
-    fax = make_phone(prac_fax))
+    phone = arknpi::make_phone(prac_phone),
+    fax = arknpi::make_phone(prac_fax))
 
 # Match on all except FAX
 fax <- address |> 
@@ -181,12 +153,12 @@ fax <- address |>
     address = prac_address,
     city = prac_city,
     state = prac_state,
-    zip = make_zip(prac_zip),
+    zip = arknpi::make_zip(prac_zip),
     country = prac_country,
-    phone = make_phone(prac_phone),
+    phone = arknpi::make_phone(prac_phone),
     fax = arknpi::make_case(mail_fax, prac_fax),
-    purpose = make_purpose(mail_fax, prac_fax)) |>
-  collapse::fmutate(fax = make_phone(fax))
+    purpose = arknpi::make_purpose(mail_fax, prac_fax)) |>
+  collapse::fmutate(fax = arknpi::make_phone(fax))
 
 # Match on all except ZIP, PHONE, and FAX
 phone <- address |> 
@@ -198,7 +170,7 @@ phone <- address |>
   collapse::fcompute(
     npi = npi,
     entity = entity,
-    purpose = make_purpose(mail_phone, prac_phone),
+    purpose = arknpi::make_purpose(mail_phone, prac_phone),
     address = prac_address,
     city = prac_city,
     state = prac_state,
@@ -207,9 +179,9 @@ phone <- address |>
     phone = arknpi::make_case(mail_phone, prac_phone),
     fax = arknpi::make_case(mail_fax, prac_fax)) |> 
   collapse::fmutate(
-    zip = make_zip(zip),
-    phone = make_phone(phone),
-    fax = make_phone(fax))
+    zip = arknpi::make_zip(zip),
+    phone = arknpi::make_phone(phone),
+    fax = arknpi::make_phone(fax))
 
 # Pivot remaining addresses
 piv <- address |> 
@@ -232,9 +204,9 @@ piv <- address |>
     names_from = part, 
     values_from = value) |> 
   collapse::fmutate(
-    zip = make_zip(zip),
-    phone = make_phone(phone),
-    fax = make_phone(fax))
+    zip = arknpi::make_zip(zip),
+    phone = arknpi::make_phone(phone),
+    fax = arknpi::make_phone(fax))
 
 address <- collapse::rowbind(exact, fax, phone, piv)
 
@@ -251,7 +223,7 @@ address
 
 ```{r}
 #| label: taxonomy
-taxonomy <- wk_2024_01_01$taxonomy |> 
+taxonomy <- wk$taxonomy |> 
   dplyr::select(npi, entity, dplyr::starts_with("taxonomy")) |> 
   collapse::fmutate(
     taxonomy_level = data.table::fcase(
@@ -287,10 +259,18 @@ taxonomy
 ```{r}
 #| label: taxonomy_duplicates
 taxonomy <- taxonomy |> 
-  collapse::fmutate(primary = ifelse(taxonomy_level == "P", taxonomy_code, NA_character_)) |> 
-  tidyr::fill(primary) |> 
+  collapse::fmutate(
+    primary = ifelse(
+      taxonomy_level == "P", 
+      taxonomy_code, 
+      NA_character_)) |> 
+  tidyr::fill(primary, .by = npi) |> 
   collapse::fgroup_by(npi) |>
-  collapse::fmutate(eq = ifelse(taxonomy_level != "P" & taxonomy_code == primary, TRUE, FALSE)) |> 
+  collapse::fmutate(
+    eq = ifelse(
+      taxonomy_level != "P" & taxonomy_code == primary, 
+      TRUE, 
+      FALSE)) |> 
   collapse::fungroup() |> 
   collapse::fsubset(!eq) |> 
   collapse::fselect(-eq, -primary)
@@ -316,7 +296,7 @@ taxonomy
 ```{r}
 #| label: license
 license <- collapse::fselect(
-  wk_2024_01_01$taxonomy, 
+  wk$taxonomy, 
   npi, 
   entity, 
   license_no, 
@@ -337,7 +317,7 @@ license
 
 ```{r}
 #| label: identifier
-identifier <- wk_2024_01_01$identifier |> 
+identifier <- wk$identifier |> 
   # Remove Taxonomy Codes
   collapse::fsubset(codex::sf_ndetect(otid, "^[A-Z0-9]{9}X$")) |> 
   collapse::fmutate(otid_type = as.character(as.integer(otid_type)))
@@ -353,7 +333,7 @@ collapse::rsplit(identifier, id_grp) |>
 
 ```{r}
 #| label: other
-other <- wk_2024_01_01$other
+other <- wk$other
 
 oth_grp <- collapse::GRP(other, ~ entity)
 
@@ -370,8 +350,8 @@ other
 
 ```{r}
 #| label: ao
-wk_2024_01_01$ao |> 
-  collapse::fmutate(ao_phone = make_phone(ao_phone))
+wk$ao |> 
+  collapse::fmutate(ao_phone = arknpi::make_phone(ao_phone))
 ```
 
 <hr>
