@@ -1,5 +1,5 @@
 ---
-title: "NPPES NPI Archives"
+title: "`{arknpi}`: NPPES Npi Registry Archive"
 format:
   html:
     reference-location: block
@@ -29,10 +29,11 @@ library(data.table)
 library(collapse)
 library(fuimus)
 library(codex)
-library(nppez)
-library(arktax)
 library(arknpi)
-library(S7)
+
+# library(nppez)
+# library(arktax)
+# library(S7)
 
 wk <- arknpi::get_pin("wk_2024_01_01-07")
 deactivated <- arknpi::get_pin("deactivated")
@@ -58,9 +59,6 @@ deactivated |>
 ```{r}
 #| label: base
 base <- wk$base
-
-# Split into individuals and organizations
-# base_grp <- collapse::GRP(base, ~ entity)
 
 base_split <- collapse::rsplit(base, base$entity) |> 
   purrr::map(fuimus::remove_quiet) |> 

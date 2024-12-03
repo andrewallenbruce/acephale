@@ -1,5 +1,5 @@
 ---
-title: "Comprehensive Search in {provider}"
+title: "{provider}: Comprehensive Search with S7"
 format:
   html:
     reference-location: block
@@ -28,21 +28,26 @@ options(scipen = 999, digits = 3)
 library(tidyverse)
 library(provider)
 library(S7)
-library(gt)
 ```
 
 # Provider
 
 ```{r}
-#| label: provider
-Provider <- new_class(name = "Provider", abstract = TRUE)
+#| label: provider_class
+Provider <- new_class(
+  name = "Provider", 
+  abstract = TRUE,
+  properties = list(
+    npi = class_character,
+    entity = class_factor
+  ))
 ```
 
 
-# Individual Provider
+## Individual Provider
 
 ```{r}
-#| label: individual
+#| label: individual_class
 Individual <- new_class(
   name = "Individual",
   parent = Provider,
@@ -60,28 +65,7 @@ Individual <- new_class(
         credential = class_character,
         sole_proprietor = class_logical,
         medical_school = class_character,
-        graduation_year = class_numeric
-      )),
-    enrollment = new_property(class_list, 
-      default = list(
-        pac = new_property(NULL | class_character),
-        enid = new_property(NULL | class_character),
-        specialty = new_property(
-          class_list, 
-          default = list(
-            code = class_character, 
-            description = class_character)),
-        state = class_character,
-        opt_out = new_property(class_logical | class_list),
-        order_refer = new_property(
-          class_list, 
-          default = list(
-          Medicare = class_logical,
-          HHA = class_logical,
-          DME = class_logical,
-          PMD = class_logical,
-          Hospice = class_logical
-        ))
+        graduation_year = class_integer
       )),
     dates = new_property(
       class_list, 
@@ -118,12 +102,93 @@ Individual <- new_class(
         indicator = class_character,
         issuer = class_character,
         state = class_character
-      ))
-    )
-  )
-
-Individual()
+      )),
+    enrollment = new_property(class_list, 
+      default = list(
+        pac = new_property(NULL | class_character),
+        enid = new_property(NULL | class_character),
+        specialty = new_property(
+          class_list, 
+          default = list(
+            code = class_character, 
+            description = class_character)),
+        state = class_character,
+        # opt_out = new_property(class_logical | class_list),
+        order_refer = new_property(
+          class_list, 
+          default = list(
+          MedicareB = class_logical,
+          HHA = class_logical,
+          DME = class_logical,
+          PMD = class_logical,
+          Hospice = class_logical))))))
 ```
+
+### Example
+
+```{r}
+#| label: individual_example
+fung_example <- Individual(
+  npi = "1043245657",
+  entity = "I",
+  demographics = list(
+    prefix = "DR",
+    first_name = "MARK",
+    middle_name = "K",
+    last_name = "FUNG",
+    suffix = NA_character_,
+    gender = "Male",
+    credential = "MD, PhD",
+    sole_proprietor = FALSE,
+    medical_school = NA_character_,
+    graduation_year = 1999L),
+  dates = list(
+    updated = as.Date("2013-10-08"),
+    enumerated = as.Date("2006-07-11"),
+    certified = as.Date("2021-07-01")),
+  address = list(
+    purpose = "Practice",
+    street = "111 COLCHESTER AVE",
+    city = "BURLINGTON",
+    state = "VT",
+    postal_code = "05401",
+    country = "US",
+    phone = "802-847-3000",
+    fax = "802-847-3509"),
+  taxonomy = list(
+    code = "207ZB0001X",
+    primary = TRUE,
+    description = "Pathology, Blood Banking & Transfusion Medicine",
+    license = "042-0010655",
+    state = "VT"),
+  identifier = list(
+    code = "1010070",
+    indicator = "05",
+    issuer = "MEDICAID",
+    state = "VT"),
+  enrollment = list(
+    pac = "7810891009",
+    enid = "I20031120000251",
+    specialty = list(
+      code = "14-22",
+      description = "PRACTITIONER - PATHOLOGY"),
+    state = "VT",
+    order_refer = list(
+      MedicareB = TRUE,
+      HHA = TRUE,
+      DME = TRUE,
+      PMD = TRUE,
+      Hospice = TRUE)))
+
+fung_example@demographics
+```
+
+```{r}
+arktax::taxonomy_hierarchy(taxonomy_code = "207ZB0001X")
+
+arktax::taxonomy_definition(taxonomy_code = "207ZB0001X")$taxonomy_definition
+```
+
 
 # Sources
 
@@ -131,19 +196,22 @@ Individual()
 
 ```{r}
 #| label: nppes
-nppes(npi = 1043245657)
+nppes(npi = 1043245657) |> 
+  dplyr::glimpse()
 ```
 
 ## Enrollment in Medicare
 
 ```{r}
 #| label: providers
-providers(npi = 1043245657)
+providers(npi = 1043245657) |> 
+  dplyr::glimpse()
 ```
 
 ```{r}
 #| label: clinicians
-clinicians(npi = 1043245657)
+clinicians(npi = 1043245657) |> 
+  dplyr::glimpse()
 ```
 
 ## Medicare Opt-Out
@@ -165,27 +233,28 @@ order_refer(npi = 1043245657)
 
 ```{r}
 #| label: reassign
-reassignments(npi = 1043245657)
+reassignments(npi = 1043245657) |> 
+  dplyr::glimpse()
 ```
 
 ## Affiliations
 
 ```{r}
 #| label: affiliations
-affiliations(npi = 1043245657)
+affiliations(npi = 1043245657) |> 
+  dplyr::glimpse()
 ```
 
 ```{r}
 #| label: hospitals
-bind_rows(
-  hospitals(facility_ccn = 470003),
-  hospitals(facility_ccn = 330250))
+hospitals(facility_ccn = 470003) |> 
+  dplyr::glimpse()
+
+hospitals(facility_ccn = 330250) |> 
+  dplyr::glimpse()
 ```
 
 <hr>
-
-{{< pagebreak >}}
-
 
 ## Session Information 
 
