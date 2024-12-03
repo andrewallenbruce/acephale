@@ -35,35 +35,6 @@ library(arktax)
 library(arknpi)
 library(S7)
 
-make_case <- function(x, y) {
-  data.table::fcase(
-    codex::not_na(x) & codex::not_na(y) & x == y, stringr::str_glue("{y}") |> as.character(), 
-    codex::not_na(x) & codex::not_na(y) & x != y, stringr::str_glue("{x}, {y}") |> as.character(), 
-    codex::not_na(x) & codex::na(y), stringr::str_glue("{x}") |> as.character(), 
-    codex::na(x) & codex::not_na(y), stringr::str_glue("{y}") |> as.character(),
-    default = NA_character_)
-}
-
-make_zip <- function(x) {
-  ifelse(
-    codex::not_na(x) & nchar(x) == 9, 
-    stringr::str_glue("{substr(x, 1, 5)}-{substr(x, 6, 9)}") |> as.character(), 
-    x)
-}
-
-make_phone <- function(x) {
-  
-  c1 <- "({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}"
-  c2 <- ", ({substr(x, 13, 15)})-{substr(x, 16, 18)}-{substr(x, 19, 22)}"
-  c3 <- codex::smush(c1, c2)
-  
-  data.table::fcase(
-      codex::not_na(x) & nchar(x) == 10, stringr::str_glue(c1) |> as.character(), 
-      codex::not_na(x) & nchar(x) > 10, stringr::str_glue(c3) |> as.character(),
-      default = NA_character_)
-}
-
-
 wk_2024_01_01 <- arknpi::get_pin("wk_2024_01_01-07")
 
 # wk_2024_01_01 <- nppez:::get_pin("wk20240101")
@@ -71,16 +42,15 @@ wk_2024_01_01 <- arknpi::get_pin("wk_2024_01_01-07")
 # wk_2024_02_05 <- nppez:::get_pin("wk_20240205")
 ```
 
-# 2024-01-01
+# Weekly NPPES Step-Through
 
-## Deactivated
+## Deactivated NPIs
 
 ```{r}
 #| label: deactivated
 wk_2024_01_01$deactivated |> 
-  dplyr::count(deact_date)
+  collapse::fcount(deact_date)
 ```
-
 
 ## Base
 
@@ -91,35 +61,83 @@ base <- wk_2024_01_01$base
 # Split into individuals and organizations
 base_grp <- collapse::GRP(base, ~ entity)
 
-collapse::rsplit(base, base_grp) |> 
-  purrr::map(fuimus::remove_quiet) |> 
-  setNames(collapse::GRPnames(base_grp))
-```
-
-### Other Transformations to Keep in Mind
-
-```{r}
-# Credentials in Last Name
-base |> 
-  collapse::fsubset(codex::sf_detect(last_name, ", ")) |> 
-  collapse::fsubset(codex::na(credential)) |> 
-  dplyr::glimpse()
-```
-
-
-```{r}
 base_split <- collapse::rsplit(base, base_grp) |> 
   purrr::map(fuimus::remove_quiet) |> 
   setNames(collapse::GRPnames(base_grp))
 
-# Org NPIs that are org_subpart have org_parent names
-collapse::rsplit(base_split$O, base_split$O$org_subpart)
+base_split
+```
 
-# Individuals - Sole Proprietors
-collapse::rsplit(base_split$I, base_split$I$sole_prop)
+### Considerations:
+
+#### No Credentials
+
+   - Look for credentials in `last_name`
+
+```{r}
+#| label: base_no_credentials
+base |> 
+  collapse::fsubset(codex::na(credential)) |> 
+  collapse::fsubset(entity == "I") |> 
+  collapse::fsubset(codex::sf_detect(last_name, ", ")) |> 
+  dplyr::glimpse()
+```
+
+#### Organization Parts 
+
+   - `org_subpart`s have `org_parent` names
+   - Non-subparts only have `org_provider` names
+
+```{r}
+#| label: base_org_parts
+collapse::rsplit(base_split$O, base_split$O$org_subpart) |> 
+  purrr::map(fuimus::remove_quiet)
+```
+
+#### Sole Proprietors
+
+   - If `sole_prop` is `X` (Did Not Answer), then `cert_date` is `NA`
+   - Looks like `deact_date` & `react_date` are `NA` as well
+
+```{r}
+#| label: base_sole
+collapse::rsplit(base_split$I, base_split$I$sole_prop) |> 
+  purrr::map(fuimus::remove_quiet)
 ```
 
 ## Address
+
+```{r}
+#| label: address_functions
+#| echo: false
+make_purpose <- function(mail, prac) {
+  data.table::fcase(
+      codex::not_na(mail) & codex::na(prac), "M",
+      codex::na(mail) & codex::not_na(prac), "P",
+      default = "MP")
+}
+
+make_zip <- function(x) {
+  ifelse(
+    codex::not_na(x) & nchar(x) == 9,
+    stringr::str_glue("{substr(x, 1, 5)}-{substr(x, 6, 9)}") |> as.character(),
+    x)
+}
+
+make_phone <- function(x) {
+
+  c1 <- "({substr(x, 1, 3)}) {substr(x, 4, 6)}-{substr(x, 7, 10)}"
+  c2 <- ", ({substr(x, 13, 15)})-{substr(x, 16, 18)}-{substr(x, 19, 22)}"
+  c3 <- codex::smush(c1, c2)
+
+  data.table::fcase(
+      codex::not_na(x) & nchar(x) == 10, stringr::str_glue(c1) |> as.character(),
+      codex::not_na(x) & nchar(x) > 10, stringr::str_glue(c3) |> as.character(),
+      default = NA_character_)
+}
+```
+
+   - Need to consider matches on city, state, zip, with different addresses
 
 ```{r}
 #| label: address
@@ -166,11 +184,8 @@ fax <- address |>
     zip = make_zip(prac_zip),
     country = prac_country,
     phone = make_phone(prac_phone),
-    fax = make_case(mail_fax, prac_fax),
-    purpose = data.table::fcase(
-      codex::not_na(mail_fax) & codex::na(prac_fax), "M",
-      codex::na(mail_fax) & codex::not_na(prac_fax), "P",
-      default = "MP")) |> 
+    fax = arknpi::make_case(mail_fax, prac_fax),
+    purpose = make_purpose(mail_fax, prac_fax)) |>
   collapse::fmutate(fax = make_phone(fax))
 
 # Match on all except ZIP, PHONE, and FAX
@@ -183,17 +198,14 @@ phone <- address |>
   collapse::fcompute(
     npi = npi,
     entity = entity,
-    purpose = data.table::fcase(
-      codex::not_na(mail_phone) & codex::na(prac_phone), "M",
-      codex::na(mail_phone) & codex::not_na(prac_phone), "P",
-      default = "MP"),
+    purpose = make_purpose(mail_phone, prac_phone),
     address = prac_address,
     city = prac_city,
     state = prac_state,
-    zip = make_case(mail_zip, prac_zip),
+    zip = arknpi::make_case(mail_zip, prac_zip),
     country = prac_country,
-    phone = make_case(mail_phone, prac_phone),
-    fax = make_case(mail_fax, prac_fax)) |> 
+    phone = arknpi::make_case(mail_phone, prac_phone),
+    fax = arknpi::make_case(mail_fax, prac_fax)) |> 
   collapse::fmutate(
     zip = make_zip(zip),
     phone = make_phone(phone),
@@ -228,9 +240,11 @@ address <- collapse::rowbind(exact, fax, phone, piv)
 
 add_grp <- collapse::GRP(address, ~ entity)
 
-collapse::rsplit(address, add_grp) |> 
+address <- collapse::rsplit(address, add_grp) |> 
   purrr::map(remove_quiet) |> 
   setNames(collapse::GRPnames(add_grp))
+
+address
 ```
 
 ## Taxonomy
@@ -257,15 +271,37 @@ taxonomy <- collapse::rowbind(
     dplyr::distinct() |> 
     collapse::frename(taxonomy_code = taxonomy_group) |> 
     collapse::fmutate(taxonomy_level = "G")
-  )
+  ) |> 
+  collapse::fmutate(
+    taxonomy_level = factor(
+      taxonomy_level, 
+      levels = c("P", "O", "X", "G"), 
+      ordered = TRUE)) |> 
+  dplyr::arrange(npi, taxonomy_level)
 
-# taxonomy <- collapse::join(
-#   license, 
-#   taxonomy, 
-#   on = c("npi"), 
-#   how = "full") |> 
-#   dplyr::distinct()
+taxonomy
+```
 
+#### Deduplicate Primary Taxonomy
+
+```{r}
+#| label: taxonomy_duplicates
+taxonomy <- taxonomy |> 
+  collapse::fmutate(primary = ifelse(taxonomy_level == "P", taxonomy_code, NA_character_)) |> 
+  tidyr::fill(primary) |> 
+  collapse::fgroup_by(npi) |>
+  collapse::fmutate(eq = ifelse(taxonomy_level != "P" & taxonomy_code == primary, TRUE, FALSE)) |> 
+  collapse::fungroup() |> 
+  collapse::fsubset(!eq) |> 
+  collapse::fselect(-eq, -primary)
+
+taxonomy
+```
+
+### Taxonomy Split
+
+```{r}
+#| label: taxonomy_split
 tax_grp <- collapse::GRP(taxonomy, ~ entity)
 
 taxonomy <- collapse::rsplit(taxonomy, tax_grp) |> 
@@ -273,22 +309,6 @@ taxonomy <- collapse::rsplit(taxonomy, tax_grp) |>
   setNames(collapse::GRPnames(tax_grp))
 
 taxonomy
-```
-
-#### Duplicates
-
-```{r}
-taxonomy$O |> 
-  dplyr::mutate(N = dplyr::n(), .by = npi) |> 
-  dplyr::filter(N == 2) |> 
-  dplyr::mutate(eq = taxonomy_code == collapse::flag(taxonomy_code), .by = npi) |> 
-  dplyr::filter(eq)
-
-taxonomy$I |> 
-  dplyr::mutate(N = dplyr::n(), .by = npi) |> 
-  dplyr::filter(N == 2) |> 
-  dplyr::mutate(eq = taxonomy_code == collapse::flag(taxonomy_code), .by = npi) |> 
-  dplyr::filter(eq)
 ```
 
 ## License
@@ -300,15 +320,14 @@ license <- collapse::fselect(
   npi, 
   entity, 
   license_no, 
-  license_state)
+  license_state) |> 
+  dplyr::distinct()
 
 license_grp <- collapse::GRP(license, ~ entity)
 
 license <- collapse::rsplit(license, license_grp) |> 
-  purrr::map(
-    \(df) 
-    fuimus::remove_quiet(df) |> 
-      dplyr::filter(codex::not_na(license_no))) |> 
+  purrr::map(\(df) fuimus::remove_quiet(df) |> 
+               dplyr::filter(codex::not_na(license_no))) |> 
   setNames(collapse::GRPnames(license_grp))
 
 license
@@ -320,7 +339,8 @@ license
 #| label: identifier
 identifier <- wk_2024_01_01$identifier |> 
   # Remove Taxonomy Codes
-  collapse::fsubset(codex::sf_ndetect(otid, "^[A-Z0-9]{9}X$"))
+  collapse::fsubset(codex::sf_ndetect(otid, "^[A-Z0-9]{9}X$")) |> 
+  collapse::fmutate(otid_type = as.character(as.integer(otid_type)))
 
 id_grp <- collapse::GRP(identifier, ~ entity)
 
