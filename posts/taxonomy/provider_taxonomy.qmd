@@ -21,10 +21,9 @@ editor_options:
 #| out.width: "100%"
 #| fig.align: "center"
 #| fig.width: 8
-
 library(tidyverse)
-library(provider)
 library(collapsibleTree)
+library(provider)
 library(codex)
 library(arktax)
 ```
@@ -55,32 +54,10 @@ Taxonomy codes are selected by the provider at the time of NPI registration. Whe
 #| warning: false
 #| echo: false
 #| fig.cap: "Interactive Provider Taxonomy Hierarchy"
-Taxonomy <- provider::taxonomies(shape = "wide") |>
-  dplyr::reframe(
-    section,
-    grouping,
-    classification,
-    specialization,
-    code,
-    display_name,
-    definition
-    )
-
-# arktax::taxonomy_raw(
-#   year = 2024, 
-#   version = 0) |> 
-#   dplyr::select(
-#     section,
-#     grouping,
-#     classification,
-#     specialization,
-#     code,
-#     display_name,
-#     definition)
-
-Taxonomy |> 
-  dplyr::group_by(section, grouping) |> 
-  dplyr::summarise(Classifications = dplyr::n()) |>
+arktax::taxonomy_raw(year = 2024, version = 1) |>
+  dplyr::select(section, grouping, classification, specialization, code, display_name, definition) |>
+  dplyr::arrange(section, grouping, classification, specialization) |>
+  dplyr::summarise(Classifications = dplyr::n(), .by = c(section, grouping)) |>
   collapsibleTree::collapsibleTreeSummary(
     hierarchy = c("section", "grouping"),
     root = "Taxonomies",
@@ -89,8 +66,7 @@ Taxonomy |>
     nodeSize = "leafCount",
     maxPercent = 50,
     tooltip = FALSE,
-    fontSize = 14
-    )
+    fontSize = 14)
 ```
 
 # Code Hierarchy
@@ -194,6 +170,11 @@ The [Medicare Provider and Supplier Taxonomy Crosswalk](https://data.cms.gov/pro
 arktax::crosswalk_raw()
 ```
 
+```{r}
+arktax::taxonomy_raw(taxonomy_code = c("101YM0800X", "101YP2500X")) |> 
+  dplyr::filter(codex::not_na(display_name))
+```
+
 ## Footnotes
 
 ```{r}
@@ -213,32 +194,19 @@ arktax::crosswalk_taxonomy()
 ```{r}
 #| label: tax_split
 #| eval: false
-taxonomy <- xwalk |> 
-  dplyr::select(.id, taxonomy_code, taxonomy_type) |> 
-  tidyr::separate_longer_delim(
-    cols = taxonomy_type, 
-    delim = stringr::regex("[\\/|,]")) |>
-  dplyr::mutate(
-    taxonomy_type = dplyr::if_else(
-      codex::sf_detect(
-        taxonomy_type, 
-        "Urban Indian Health \\(I"), 
-      "Urban Indian Health [ITU] Pharmacy", 
-      str_squish(taxonomy_type)),
-    dlim = NULL,
-    n = NULL) |> 
-  dplyr::filter(
-    codex::sf_ndetect(
-      taxonomy_type, 
-      "^T$|U\\)\\sPharmacy")) |>
-  dplyr::mutate(
-    .group = dplyr::row_number(), 
-    .by = c(taxonomy_code, .id), 
-    .after = .id) |>
-  tidyr::pivot_wider(
-    names_from = .group,
-    values_from = taxonomy_type,
-    names_prefix = "tax")
+arktax::crosswalk_taxonomy() |> 
+  dplyr::select(taxonomy_code, taxonomy_description) |> 
+  tidyr::separate_longer_delim(cols = taxonomy_description, delim = stringr::regex("[\\/|,]")) |>
+  dplyr::mutate(taxonomy_description = dplyr::if_else(codex::sf_detect(taxonomy_description, 
+        "Urban Indian Health \\(I"), "Urban Indian Health [ITU] Pharmacy", stringr::str_squish(taxonomy_description))) |> 
+  dplyr::filter(codex::sf_ndetect(taxonomy_description, "^T$|U\\)\\sPharmacy")) |>
+  dplyr::mutate(n_desc = dplyr::row_number(), .by = taxonomy_code) |>
+  # tidyr::pivot_wider(names_from = n_desc, 
+  #                    values_from = taxonomy_description,
+  #                    names_prefix = "tax_") |> 
+  # dplyr::count(taxonomy_code, sort = TRUE) |> 
+  # dplyr::filter(n < 8) |> 
+  # dplyr::count(n)
 
 taxonomy
 

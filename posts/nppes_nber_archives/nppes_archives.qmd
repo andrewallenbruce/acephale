@@ -12,7 +12,6 @@ editor_options:
 #| echo: false
 #| message: false
 #| warning: false
-
 knitr::opts_chunk$set(
   dev = "ragg_png",
   dpi = 320,
@@ -61,9 +60,9 @@ deactivated |>
 base <- wk$base
 
 # Split into individuals and organizations
-base_grp <- collapse::GRP(base, ~ entity)
+# base_grp <- collapse::GRP(base, ~ entity)
 
-base_split <- collapse::rsplit(base, base_grp) |> 
+base_split <- collapse::rsplit(base, base$entity) |> 
   purrr::map(fuimus::remove_quiet) |> 
   setNames(collapse::GRPnames(base_grp))
 
