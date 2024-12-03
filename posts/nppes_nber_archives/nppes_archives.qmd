@@ -49,22 +49,23 @@ deactivated <- arknpi::get_pin("deactivated")
 
 ```{r}
 #| label: deactivated
-deactivated |> 
-  collapse::fcount(deact_date) |> 
-  print(n = 50)
+deactivated |> collapse::fcount(deact_date)
 ```
 
 ## Base
 
+   - Remove `suffix` columns
+
 ```{r}
 #| label: base
-base <- wk$base
+base <- collapse::rsplit(
+  collapse::funique(wk$base), 
+  wk$base$entity) |> 
+  purrr::map(fuimus::remove_quiet)
 
-base_split <- collapse::rsplit(base, base$entity) |> 
-  purrr::map(fuimus::remove_quiet) |> 
-  setNames(collapse::GRPnames(base_grp))
-
-base_split
+base$I$prefix <- NULL
+base$I$suffix <- NULL
+base
 ```
 
 ### Considerations:
@@ -75,9 +76,8 @@ base_split
 
 ```{r}
 #| label: base_no_credentials
-base |> 
+base$I |> 
   collapse::fsubset(codex::na(credential)) |> 
-  collapse::fsubset(entity == "I") |> 
   collapse::fsubset(codex::sf_detect(last_name, ", ")) |> 
   dplyr::glimpse()
 ```
@@ -89,18 +89,28 @@ base |>
 
 ```{r}
 #| label: base_org_parts
-collapse::rsplit(base_split$O, base_split$O$org_subpart) |> 
-  purrr::map(fuimus::remove_quiet)
+collapse::rsplit(
+  base$O |> 
+    dplyr::relocate(
+      org_parent, 
+      org_provider, 
+      .after = npi), 
+  base$O$org_subpart) |> 
+  purrr::map(\(df) 
+      fuimus::remove_quiet(df) |> 
+      dplyr::select(-org_subpart))
 ```
 
 #### Sole Proprietors
 
-   - If `sole_prop` is `X` (Did Not Answer), then `cert_date` is `NA`
+   - If `sole_prop` is `X` *(Did Not Answer)*, then `cert_date` is `NA`
    - Looks like `deact_date` & `react_date` are `NA` as well
 
 ```{r}
 #| label: base_sole
-collapse::rsplit(base_split$I, base_split$I$sole_prop) |> 
+collapse::rsplit(
+  base$I, 
+  base$I$sole_prop) |> 
   purrr::map(fuimus::remove_quiet)
 ```
 
@@ -110,7 +120,7 @@ collapse::rsplit(base_split$I, base_split$I$sole_prop) |>
 
 ```{r}
 #| label: address
-address <- wk$address
+address <- collapse::funique(wk$address)
 
 # Exact match on all address fields
 exact <- address |> 
@@ -207,11 +217,10 @@ piv <- address |>
 
 address <- collapse::rowbind(exact, fax, phone, piv)
 
-add_grp <- collapse::GRP(address, ~ entity)
-
-address <- collapse::rsplit(address, add_grp) |> 
-  purrr::map(remove_quiet) |> 
-  setNames(collapse::GRPnames(add_grp))
+address <- collapse::rsplit(
+  address, 
+  address$entity) |> 
+  purrr::map(remove_quiet)
 
 address
 ```
@@ -221,7 +230,10 @@ address
 ```{r}
 #| label: taxonomy
 taxonomy <- wk$taxonomy |> 
-  dplyr::select(npi, entity, dplyr::starts_with("taxonomy")) |> 
+  dplyr::select(
+    npi, 
+    entity, 
+    dplyr::starts_with("taxonomy")) |> 
   collapse::fmutate(
     taxonomy_level = data.table::fcase(
       taxonomy_primary == "Y", "P",
@@ -233,59 +245,32 @@ taxonomy <- collapse::rowbind(
   taxonomy |> 
     collapse::fsubset(codex::na(taxonomy_group)) |> 
     collapse::fselect(-taxonomy_group) |> 
-    dplyr::distinct(),
+    collapse::funique(),
   taxonomy |> 
     collapse::fsubset(codex::not_na(taxonomy_group)) |> 
     collapse::fselect(-taxonomy_code, -taxonomy_level) |> 
-    dplyr::distinct() |> 
+    collapse::funique() |> 
     collapse::frename(taxonomy_code = taxonomy_group) |> 
-    collapse::fmutate(taxonomy_level = "G")
-  ) |> 
+    collapse::fmutate(taxonomy_level = "G")) |> 
   collapse::fmutate(
     taxonomy_level = factor(
       taxonomy_level, 
       levels = c("P", "O", "X", "G"), 
       ordered = TRUE)) |> 
-  dplyr::arrange(npi, taxonomy_level)
-
-taxonomy
-```
-
-#### Deduplicate Primary Taxonomy
-
-```{r}
-#| label: taxonomy_duplicates
-taxonomy <- taxonomy |> 
-  collapse::fmutate(
-    primary = ifelse(
-      taxonomy_level == "P", 
-      taxonomy_code, 
-      NA_character_)) |> 
+  dplyr::arrange(npi, taxonomy_level) |> 
+  #------------------Deduplicate Primary Taxonomy
+  collapse::fmutate(primary = ifelse(taxonomy_level == "P", taxonomy_code, NA_character_)) |> 
   tidyr::fill(primary, .by = npi) |> 
   collapse::fgroup_by(npi) |>
-  collapse::fmutate(
-    eq = ifelse(
-      taxonomy_level != "P" & taxonomy_code == primary, 
-      TRUE, 
-      FALSE)) |> 
+  collapse::fmutate(eq = ifelse(taxonomy_level != "P" & taxonomy_code == primary, TRUE, FALSE)) |> 
   collapse::fungroup() |> 
   collapse::fsubset(!eq) |> 
   collapse::fselect(-eq, -primary)
 
-taxonomy
-```
-
-### Taxonomy Split
-
-```{r}
-#| label: taxonomy_split
-tax_grp <- collapse::GRP(taxonomy, ~ entity)
-
-taxonomy <- collapse::rsplit(taxonomy, tax_grp) |> 
-  purrr::map(remove_quiet) |> 
-  setNames(collapse::GRPnames(tax_grp))
-
-taxonomy
+collapse::rsplit(
+  taxonomy, 
+  taxonomy$entity) |> 
+  purrr::map(remove_quiet)
 ```
 
 ## License
@@ -298,14 +283,15 @@ license <- collapse::fselect(
   entity, 
   license_no, 
   license_state) |> 
-  dplyr::distinct()
+  collapse::funique()
 
-license_grp <- collapse::GRP(license, ~ entity)
-
-license <- collapse::rsplit(license, license_grp) |> 
-  purrr::map(\(df) fuimus::remove_quiet(df) |> 
-               dplyr::filter(codex::not_na(license_no))) |> 
-  setNames(collapse::GRPnames(license_grp))
+license <- collapse::rsplit(
+  license, 
+  license$entity) |> 
+  purrr::map(
+    function(df) 
+      fuimus::remove_quiet(df) |> 
+      dplyr::filter(codex::not_na(license_no)))
 
 license
 ```
@@ -316,31 +302,44 @@ license
 #| label: identifier
 identifier <- wk$identifier |> 
   # Remove Taxonomy Codes
-  collapse::fsubset(codex::sf_ndetect(otid, "^[A-Z0-9]{9}X$")) |> 
+  collapse::fsubset(
+    codex::sf_ndetect(otid, "^[A-Z0-9]{9}X$")) |> 
   collapse::fmutate(otid_type = as.character(as.integer(otid_type)))
 
-id_grp <- collapse::GRP(identifier, ~ entity)
-
-collapse::rsplit(identifier, id_grp) |> 
-  purrr::map(remove_quiet) |> 
-  setNames(collapse::GRPnames(id_grp))
+collapse::rsplit(
+  identifier, 
+  identifier$entity) |> 
+  purrr::map(remove_quiet)
 ```
 
 ## Other Names
 
+   - change prefix to `onm_`
+
 ```{r}
 #| label: other
-other <- wk$other
+names(wk$other) <- c(
+  "npi", "entity", "onm_org", 
+  "onm_org_type", "onm_prefix", 
+  "onm_first", "onm_middle", 
+  "onm_last", "onm_last_type", 
+  "onm_suffix", "onm_credential")
 
-oth_grp <- collapse::GRP(other, ~ entity)
+other <- collapse::rsplit(
+  wk$other, 
+  wk$other$entity) |> 
+  purrr::map(remove_quiet)
 
-other <- collapse::rsplit(other, oth_grp) |> 
-  purrr::map(remove_quiet) |> 
-  setNames(collapse::GRPnames(oth_grp))
+other$I <- vctrs::vec_slice(
+  other$I, 
+  cheapr::row_na_counts(other$I) < 6)
 
-other$I <- vctrs::vec_slice(other$I, cheapr::row_na_counts(other$I) < 6)
+other$O |> collapse::frename(onm_type = onm_org_type)
 
-other
+other$I |> 
+  collapse::frename(
+    onm_type = onm_last_type) |> 
+  collapse::fcount(onm_prefix)
 ```
 
 ## Authorized Official
@@ -348,13 +347,11 @@ other
 ```{r}
 #| label: ao
 wk$ao |> 
-  collapse::fmutate(ao_phone = arknpi::make_phone(ao_phone))
+  collapse::fmutate(ao_phone = arknpi::make_phone(ao_phone)) |> 
+  collapse::fselect(-ao_prefix, -ao_suffix)
 ```
 
 <hr>
-
-{{< pagebreak >}}
-
 
 ## Session Information 
 
