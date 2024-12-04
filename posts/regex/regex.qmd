@@ -179,6 +179,18 @@ bench::mark(
 # Preprocess Steps
 
 ```{r}
+utils::formatOL(
+  c("Mix dry ingredients thoroughly.",
+       "Pour in wet ingredients.",
+       "Mix for 10 minutes.",
+       "Bake for one hour at 300 degrees."),
+  offset = 3
+  ) |> 
+  writeLines()
+```
+
+
+```{r}
 #| label: view_length
 view_length <- \(x) {
   grp_name <- format(seq_along(x))

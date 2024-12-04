@@ -1,5 +1,5 @@
 ---
-title: "`{arknpi}`: NPPES Npi Registry Archive"
+title: "{arknpi}: NPPES Npi Registry Archive"
 format:
   html:
     reference-location: block
@@ -34,13 +34,12 @@ library(arknpi)
 # library(nppez)
 # library(arktax)
 # library(S7)
-
-wk <- arknpi::get_pin("wk_2024_01_01-07")
-deactivated <- arknpi::get_pin("deactivated")
-
 # wk_2024_01_01 <- nppez:::get_pin("wk20240101")
 # wk_2024_01_22 <- nppez:::get_pin("wk20240122")
 # wk_2024_02_05 <- nppez:::get_pin("wk_20240205")
+
+wk <- arknpi::get_pin("wk_2024_01_01-07")
+deactivated <- arknpi::get_pin("deactivated")
 ```
 
 # Weekly NPPES Step-Through
@@ -113,6 +112,8 @@ collapse::rsplit(
   base$I$sole_prop) |> 
   purrr::map(fuimus::remove_quiet)
 ```
+
+<hr>
 
 ## Address
 
@@ -225,6 +226,33 @@ address <- collapse::rsplit(
 address
 ```
 
+### Secondary Practice Locations
+
+```{r}
+ploc <- tidytable::fread(
+  "D:/NBER_NPI_Archives/weekly/unzipped/practicelocation/pl_pfile_20240101-20240107.csv",
+  colClasses = list(character = 1:10)) |> 
+  setNames(c("npi", "add_1", "add_2", "city", "state", 
+             "zip", "country", "phone", "ext", "fax")) |> 
+  purrr::map_dfr(fuimus::na_if_common) |> 
+  fuimus::combine(address, c("add_1", "add_2"), sep = " ") |>
+  fuimus::combine(phone, c("phone", "ext"), sep = " ") |>
+  dplyr::reframe(
+    npi,
+    purpose = "S",
+    address,
+    city,
+    state,
+    zip = arknpi::make_zip(zip),
+    country,
+    phone = arknpi::make_phone(phone),
+    fax = arknpi::make_phone(fax))
+
+ploc
+```
+
+<hr>
+
 ## Taxonomy
 
 ```{r}
@@ -314,33 +342,51 @@ collapse::rsplit(
 
 ## Other Names
 
-   - change prefix to `onm_`
+   - change prefix to `oname_`
 
 ```{r}
 #| label: other
-names(wk$other) <- c(
-  "npi", "entity", "onm_org", 
-  "onm_org_type", "onm_prefix", 
-  "onm_first", "onm_middle", 
-  "onm_last", "onm_last_type", 
-  "onm_suffix", "onm_credential")
+wk$other <- wk$other |> 
+  setNames(c(
+    "npi", "entity", "onm_org", 
+    "onm_org_type", "onm_prefix", 
+    "onm_first", "onm_middle", 
+    "onm_last", "onm_last_type", 
+    "onm_suffix", "onm_credential")) |> 
+  collapse::fselect(-onm_suffix, -onm_prefix)
 
 other <- collapse::rsplit(
   wk$other, 
   wk$other$entity) |> 
   purrr::map(remove_quiet)
 
-other$I <- vctrs::vec_slice(
-  other$I, 
-  cheapr::row_na_counts(other$I) < 6)
+other$O <- collapse::frename(other$O, onm_type = onm_org_type)
+other$I <- collapse::frename(other$I, onm_type = onm_last_type)
 
-other$O |> collapse::frename(onm_type = onm_org_type)
-
-other$I |> 
-  collapse::frename(
-    onm_type = onm_last_type) |> 
-  collapse::fcount(onm_prefix)
+other$I
 ```
+
+```{r}
+oname <- tidytable::fread(
+  "D:/NBER_NPI_Archives/weekly/unzipped/othername/othername_pfile_20240101-20240107.csv",
+    colClasses = list(character = 1:3)) |> 
+  janitor::clean_names() |>
+    purrr::map_dfr(fuimus::na_if_common) |> 
+  dplyr::reframe(
+    npi, 
+    entity = "O",
+    oname_org = provider_other_organization_name, 
+    oname_type = provider_other_organization_name_type_code)
+
+
+dplyr::left_join(oname, other$O, by = c("npi", "entity")) |> 
+  dplyr::arrange(npi)
+
+dplyr::arrange(other$O, npi)
+
+dplyr::arrange(oname, npi)
+```
+
 
 ## Authorized Official
 
