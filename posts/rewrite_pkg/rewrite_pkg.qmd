@@ -1,5 +1,5 @@
 ---
-title: "{provider}: Comprehensive Search with S7"
+title: "Rewriting A Package"
 format:
   html:
     reference-location: block
@@ -27,13 +27,149 @@ options(scipen = 999, digits = 3)
 
 library(tidyverse)
 library(provider)
+library(arktax)
 library(S7)
 ```
 
-# Provider
+# S7 Sketch
+
+## API Examples
+
+### NPPES
 
 ```{r}
-#| label: provider_class
+#| label: sources_nppes
+nppes(npi = 1043245657) |> glimpse()
+```
+
+### Taxonomy
+
+```{r}
+#| label: sources_taxonomy
+ex_tx = "207ZB0001X"
+```
+
+::: {.panel-tabset}
+
+## Display
+
+```{r}
+#| label: sources_taxonomy_display
+tx_dis <- taxonomy_display(
+  taxonomy_code = ex_tx
+  )[["taxonomy_display"]]
+
+cat(tx_dis)
+```
+
+## Definition
+
+```{r}
+#| label: sources_taxonomy_definition
+tx_def <- taxonomy_definition(
+  taxonomy_code = ex_tx
+  )[["taxonomy_definition"]]
+
+cat(tx_def)
+```
+
+## Hierarchy
+
+```{r}
+#| label: sources_taxonomy_hierarchy
+tx_hier <- taxonomy_hierarchy(
+  taxonomy_code = ex_tx
+  )[, 2:3]
+
+tx_hier
+```
+
+## Changelog
+
+```{r}
+#| label: sources_taxonomy_changelog
+tx_chg <- taxonomy_changelog(
+  taxonomy_code = ex_tx
+  )[, 2:4]
+
+tx_chg
+```
+
+## Console
+
+```{r}
+#| label: sources_taxonomy_console
+utils::formatOL(
+  c(
+    "Section: ",
+    "Grouping: ",
+    "Classification: ",
+    "Specialization: "
+    ),
+  type = "I",
+  offset = 2
+  ) |> 
+  writeLines()
+
+# view_length <- \(x) {
+#   grp_name <- format(seq_along(x))
+#   grp_size <- format(vlen(x), justify = "left")
+#   grp_mems <- unname(x)
+#   grp_mems <- if (empty(grp_mems)) NULL else format(grp_mems, justify = "none")
+#   cli::cat_bullet(glue::glue("{grp_name}: ", "{grp_size}|", "-[{grp_mems}]"))
+#   return(invisible(x))
+# }
+```
+
+
+::: 
+
+<hr>
+
+### Medicare Enrollment
+
+```{r}
+#| label: sources_providers
+providers(npi = 1043245657) |> glimpse()
+```
+
+```{r}
+#| label: sources_clinicians
+clinicians(npi = 1043245657) |> glimpse()
+```
+
+```{r}
+#| label: sources_opt_out
+#| eval: false
+opt_out(npi = 1043245657)
+```
+
+```{r}
+#| label: sources_order_refer
+order_refer(npi = 1043245657)
+```
+
+```{r}
+#| label: sources_reassign
+reassignments(npi = 1043245657) |> glimpse()
+```
+
+```{r}
+#| label: sources_affiliations
+affiliations(npi = 1043245657) |> glimpse()
+```
+
+```{r}
+#| label: sources_hospitals
+hospitals(facility_ccn = 470003) |> glimpse()
+
+hospitals(facility_ccn = 330250) |> glimpse()
+```
+
+## Provider Class
+
+```{r}
+#| label: provider_s7class
 Provider <- new_class(
   name = "Provider", 
   abstract = TRUE,
@@ -43,11 +179,10 @@ Provider <- new_class(
   ))
 ```
 
-
-## Individual Provider
+### Individual Class
 
 ```{r}
-#| label: individual_class
+#| label: individual_s7class
 Individual <- new_class(
   name = "Individual",
   parent = Provider,
@@ -124,11 +259,11 @@ Individual <- new_class(
           Hospice = class_logical))))))
 ```
 
-### Example
+#### Example
 
 ```{r}
-#| label: individual_example
-fung_example <- Individual(
+#| label: individual_s7class_example
+fung_ex <- Individual(
   npi = "1043245657",
   entity = "I",
   demographics = list(
@@ -180,78 +315,7 @@ fung_example <- Individual(
       PMD = TRUE,
       Hospice = TRUE)))
 
-fung_example@demographics
-```
-
-```{r}
-arktax::taxonomy_hierarchy(taxonomy_code = "207ZB0001X")
-
-arktax::taxonomy_definition(taxonomy_code = "207ZB0001X")$taxonomy_definition
-```
-
-
-# Sources
-
-## NPPES
-
-```{r}
-#| label: nppes
-nppes(npi = 1043245657) |> 
-  dplyr::glimpse()
-```
-
-## Enrollment in Medicare
-
-```{r}
-#| label: providers
-providers(npi = 1043245657) |> 
-  dplyr::glimpse()
-```
-
-```{r}
-#| label: clinicians
-clinicians(npi = 1043245657) |> 
-  dplyr::glimpse()
-```
-
-## Medicare Opt-Out
-
-```{r}
-#| label: opt_out
-#| eval: false
-opt_out(npi = 1043245657)
-```
-
-## Order and Referral Eligibility
-
-```{r}
-#| label: order_refer
-order_refer(npi = 1043245657)
-```
-
-## Reassignment of Benefits
-
-```{r}
-#| label: reassign
-reassignments(npi = 1043245657) |> 
-  dplyr::glimpse()
-```
-
-## Affiliations
-
-```{r}
-#| label: affiliations
-affiliations(npi = 1043245657) |> 
-  dplyr::glimpse()
-```
-
-```{r}
-#| label: hospitals
-hospitals(facility_ccn = 470003) |> 
-  dplyr::glimpse()
-
-hospitals(facility_ccn = 330250) |> 
-  dplyr::glimpse()
+fung_ex
 ```
 
 <hr>
