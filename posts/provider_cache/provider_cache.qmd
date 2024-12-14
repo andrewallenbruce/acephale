@@ -28,6 +28,7 @@ options(scipen = 999, digits = 3)
 library(tidyverse)
 library(fastverse)
 library(provider)
+library(codex)
 library(httr2)
 ```
 
@@ -37,78 +38,70 @@ library(httr2)
 
 ```{r}
 #| label: ndf
-meta_ndf <- \(fn) {
+meta_ndf <- \(fname) {
   
-  fn <- match.arg(fn, c("affiliations", "clinicians"))
-
-  id <- c(affiliations = "27ea-46a8", clinicians = "mj5m-pzi6")
+  x <- request(
+    paste0(
+      "https://data.cms.gov/",
+      "provider-data/api/1/",
+      "metastore/schemas/",
+      "dataset/items/",
+      switch(fname, 
+             affiliations = "27ea-46a8", 
+             clinicians   = "mj5m-pzi6", 
+             stop("Invalid argument")),
+    "?show-reference-ids=true")) |>
+       req_perform() |>
+       resp_body_json(
+         check_type     = FALSE,
+         simplifyVector = TRUE)
   
-  url <- paste0(
-    "https://data.cms.gov/",
-    "provider-data/api/1/metastore/",
-    "schemas/dataset/items/",
-    unname(id[fn]),
-    "?show-reference-ids=true")
-  
-  x <- request(url) |>
+  y <- request(
+    paste0(
+    "https://data.cms.gov/", 
+    "provider-data/api/1/",
+    "datastore/query/", 
+    x[["distribution"]][["identifier"]], 
+    "?limit=1&offset=100&",
+    "count=true&results=true&", 
+    "schema=true&keys=true&",
+    "format=json&rowIds=true")) |>
        req_perform() |>
        resp_body_json(
          check_type = FALSE,
          simplifyVector = TRUE)
   
-  x <- list(
+  z <- y[["schema"]][[x[["distribution"]][["identifier"]]]][["fields"]]
+  
+  list(
     title        = x[["title"]],
     description  = x[["description"]],
     identifier   = x[["identifier"]],
     distribution = x[["distribution"]][["identifier"]],
-    date         = c(issued   = x[["issued"]], 
+    date         = c(issued = x[["issued"]], 
                      modified = x[["modified"]], 
                      released = x[["released"]]),
     landing      = x[["landingPage"]],
     csv          = x[["distribution"]][["data"]][["downloadURL"]],
-    request      = url,
-    dictionary   = paste0(
-      "https://data.cms.gov/",
-      "provider-data/sites/default/",
-      "files/data_dictionaries/physician/",
-      "DOC_Data_Dictionary.pdf"
-      )
-    )
-  
-  url2 <- paste0(
-    "https://data.cms.gov/", 
-    "provider-data/api/1/",
-    "datastore/query/", 
-    x$distribution, 
-    "?limit=1&offset=100&count=true&results=true", 
-    "&schema=true&keys=true&format=json&rowIds=true")
-  
-  y <- request(url2) |>
-       req_perform() |>
-       resp_body_json(
-         check_type = FALSE,
-         simplifyVector = TRUE)
-  
-  yschema <- y[["schema"]][[x[["distribution"]]]][["fields"]]
-  
-  y <- list(
-    dim = c(nrows = y[["count"]],
-            ncols = yschema[["record_number"]][["length"]]),
-    output = data.frame(field = names(y[["results"]]), 
-                        value = codex::delist(y[["results"]])),
+    dictionary   = paste0("https://data.cms.gov/provider-data/sites/default/",
+                          "files/data_dictionaries/physician/DOC_Data_Dictionary.pdf"),
+    dim = c(nrows = y[["count"]], 
+            ncols = z[["record_number"]][["length"]]),
+    output = data.frame(
+      field = names(y[["results"]]), 
+      value = dplyr::na_if(delist(y[["results"]]), "")
+      ),
     fields = c(
-      yschema[["npi"]][["description"]],
-      yschema[["ind_pac_id"]][["description"]],
-      yschema[["provider_last_name"]][["description"]],
-      yschema[["provider_first_name"]][["description"]],
-      yschema[["provider_middle_name"]][["description"]],
-      yschema[["suff"]][["description"]],
-      yschema[["facility_type"]][["description"]],
-      yschema[["facility_affiliations_certification_number"]][["description"]],
-      yschema[["facility_type_certification_number"]][["description"]]
+      z[["npi"]][["description"]],
+      z[["ind_pac_id"]][["description"]],
+      z[["provider_last_name"]][["description"]],
+      z[["provider_first_name"]][["description"]],
+      z[["provider_middle_name"]][["description"]],
+      z[["suff"]][["description"]],
+      z[["facility_type"]][["description"]],
+      z[["facility_affiliations_certification_number"]][["description"]],
+      z[["facility_type_certification_number"]][["description"]]
     ))
-  
-  c(x, y)
 }
 
 meta_ndf("affiliations")
