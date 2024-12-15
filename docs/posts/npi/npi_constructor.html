@@ -5,9 +5,9 @@
 <meta name="generator" content="quarto-1.6.39">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Andrew Allen Bruce">
-<meta name="dcterms.date" content="2024-11-12">
+<meta name="dcterms.date" content="2024-12-14">
 <meta name="description" content="Experimenting with the CMS standard for NPI validation.">
-<title>NPIs &amp; Luhn’s Algorithm – acéphale</title>
+<title>provider: Luhn’s Algorithm – acéphale</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -139,11 +139,11 @@ window.Quarto = {
   typesetMath
 };
 </script>
-<meta property="og:title" content="NPIs &amp; Luhn’s Algorithm – acéphale">
+<meta property="og:title" content="provider: Luhn’s Algorithm – acéphale">
 <meta property="og:description" content="Experimenting with the CMS standard for NPI validation.">
 <meta property="og:site_name" content="acéphale">
 <meta property="og:locale" content="en_US">
-<meta name="twitter:title" content="NPIs &amp; Luhn’s Algorithm – acéphale">
+<meta name="twitter:title" content="provider: Luhn’s Algorithm – acéphale">
 <meta name="twitter:description" content="Experimenting with the CMS standard for NPI validation.">
 <meta name="twitter:creator" content="@andrewallbruce">
 <meta name="twitter:card" content="summary">
@@ -185,7 +185,7 @@ window.Quarto = {
       </div> <!-- /container-fluid -->
     </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full"><div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <div class="quarto-title-block"><div><h1 class="title">NPIs &amp; Luhn’s Algorithm</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i></button></div></div>
+      <div class="quarto-title-block"><div><h1 class="title">provider: Luhn’s Algorithm</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i></button></div></div>
             <p class="subtitle lead">Step-by-step National Provider Identifier Validation with Luhn’s Algorithm</p>
                   <div>
         <div class="description">
@@ -208,7 +208,7 @@ window.Quarto = {
       <div>
       <div class="quarto-title-meta-heading">Last updated</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">November 12, 2024</p>
+        <p class="date">December 14, 2024</p>
       </div>
     </div>
     
@@ -897,7 +897,7 @@ Next Multiple of Ten
 <span><span class="op">}</span></span>
 <span><span class="fu">random_npi_generator</span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "2991085381" "2752288265" "2751381432"</code></pre>
+<pre><code>[1] "1067993531" "1986174102" "1486099066"</code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
@@ -907,7 +907,7 @@ Next Multiple of Ten
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">x</span><span class="op">[</span><span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map_lgl</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">luhn</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html">cat</a></span><span class="op">(</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">/</span> <span class="va">n</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>, <span class="st">"%"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>10.045 %</code></pre>
+<pre><code>9.978 %</code></pre>
 </div>
 <div class="sourceCode" id="cb62"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="http://bench.r-lib.org/reference/mark.html">mark</a></span><span class="op">(</span></span>
 <span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map_lgl</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">luhn</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -917,14 +917,14 @@ Next Multiple of Ten
 <pre><code>Rows: 1
 Columns: 9
 $ expression &lt;bch:expr&gt; &lt;purrr::map_lgl(x, luhn)&gt;
-$ min        &lt;bch:tm&gt; 2.78s
-$ median     &lt;bch:tm&gt; 2.78s
-$ `itr/sec`  &lt;dbl&gt; 0.3594546
+$ min        &lt;bch:tm&gt; 2.82s
+$ median     &lt;bch:tm&gt; 2.82s
+$ `itr/sec`  &lt;dbl&gt; 0.3545314
 $ mem_alloc  &lt;bch:byt&gt; 391KB
-$ `gc/sec`   &lt;dbl&gt; 8.626911
+$ `gc/sec`   &lt;dbl&gt; 8.508754
 $ n_itr      &lt;int&gt; 1
 $ n_gc       &lt;dbl&gt; 24
-$ total_time &lt;bch:tm&gt; 2.78s</code></pre>
+$ total_time &lt;bch:tm&gt; 2.82s</code></pre>
 </div>
 </div>
 <div style="page-break-after: always;"></div>
@@ -932,12 +932,12 @@ $ total_time &lt;bch:tm&gt; 2.78s</code></pre>
 <span class="header-section-number">2.5</span> Session Information</h2>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<p><strong>R version 4.4.1 (2024-06-14 ucrt)</strong></p>
+<p><strong>R version 4.4.2 (2024-10-31 ucrt)</strong></p>
 <p><strong>Platform:</strong> x86_64-w64-mingw32/x64</p>
 <p><strong>locale:</strong> <em>LC_COLLATE=English_United States.utf8</em>, <em>LC_CTYPE=English_United States.utf8</em>, <em>LC_MONETARY=English_United States.utf8</em>, <em>LC_NUMERIC=C</em> and <em>LC_TIME=English_United States.utf8</em></p>
 <p><strong>attached base packages:</strong> <em>stats</em>, <em>graphics</em>, <em>grDevices</em>, <em>utils</em>, <em>datasets</em>, <em>methods</em> and <em>base</em></p>
-<p><strong>other attached packages:</strong> <em>cli(v.3.6.3)</em>, <em>rlang(v.1.1.4)</em>, <em>fuimus(v.0.0.2)</em>, <em>lubridate(v.1.9.3)</em>, <em>forcats(v.1.0.0)</em>, <em>stringr(v.1.5.1)</em>, <em>dplyr(v.1.1.4)</em>, <em>purrr(v.1.0.2)</em>, <em>readr(v.2.1.5)</em>, <em>tidyr(v.1.3.1)</em>, <em>tibble(v.3.2.1)</em>, <em>ggplot2(v.3.5.1)</em> and <em>tidyverse(v.2.0.0)</em></p>
-<p><strong>loaded via a namespace (and not attached):</strong> <em>utf8(v.1.2.4)</em>, <em>generics(v.0.1.3)</em>, <em>stringi(v.1.8.4)</em>, <em>hms(v.1.1.3)</em>, <em>digest(v.0.6.37)</em>, <em>magrittr(v.2.0.3)</em>, <em>evaluate(v.1.0.1)</em>, <em>grid(v.4.4.1)</em>, <em>timechange(v.0.3.0)</em>, <em>fastmap(v.1.2.0)</em>, <em>jsonlite(v.1.8.9)</em>, <em>bench(v.1.1.3)</em>, <em>pander(v.0.6.5)</em>, <em>kit(v.0.0.19)</em>, <em>fansi(v.1.0.6)</em>, <em>scales(v.1.3.0)</em>, <em>textshaping(v.0.4.0)</em>, <em>munsell(v.0.5.1)</em>, <em>withr(v.3.0.2)</em>, <em>yaml(v.2.3.10)</em>, <em>parallel(v.4.4.1)</em>, <em>tools(v.4.4.1)</em>, <em>tzdb(v.0.4.0)</em>, <em>colorspace(v.2.1-1)</em>, <em>profmem(v.0.6.0)</em>, <em>vctrs(v.0.6.5)</em>, <em>R6(v.2.5.1)</em>, <em>lifecycle(v.1.0.4)</em>, <em>cheapr(v.0.9.91)</em>, <em>stringfish(v.0.16.0)</em>, <em>htmlwidgets(v.1.6.4)</em>, <em>ragg(v.1.3.3)</em>, <em>pkgconfig(v.2.0.3)</em>, <em>RcppParallel(v.5.1.9)</em>, <em>pillar(v.1.9.0)</em>, <em>gtable(v.0.3.6)</em>, <em>data.table(v.1.16.99)</em>, <em>glue(v.1.8.0)</em>, <em>codex(v.0.0.0.9000)</em>, <em>Rcpp(v.1.0.13)</em>, <em>collapse(v.2.0.17)</em>, <em>systemfonts(v.1.1.0)</em>, <em>xfun(v.0.49)</em>, <em>tidyselect(v.1.2.1)</em>, <em>rstudioapi(v.0.17.1)</em>, <em>knitr(v.1.49)</em>, <em>htmltools(v.0.5.8.1)</em>, <em>rmarkdown(v.2.29)</em> and <em>compiler(v.4.4.1)</em></p>
+<p><strong>other attached packages:</strong> <em>cli(v.3.6.3)</em>, <em>rlang(v.1.1.4)</em>, <em>fuimus(v.0.0.5.9002)</em>, <em>lubridate(v.1.9.4)</em>, <em>forcats(v.1.0.0)</em>, <em>stringr(v.1.5.1)</em>, <em>dplyr(v.1.1.4)</em>, <em>purrr(v.1.0.2)</em>, <em>readr(v.2.1.5)</em>, <em>tidyr(v.1.3.1.9000)</em>, <em>tibble(v.3.2.1)</em>, <em>ggplot2(v.3.5.1)</em> and <em>tidyverse(v.2.0.0)</em></p>
+<p><strong>loaded via a namespace (and not attached):</strong> <em>utf8(v.1.2.4)</em>, <em>generics(v.0.1.3)</em>, <em>stringi(v.1.8.4)</em>, <em>hms(v.1.1.3)</em>, <em>digest(v.0.6.37)</em>, <em>magrittr(v.2.0.3)</em>, <em>evaluate(v.1.0.1)</em>, <em>grid(v.4.4.2)</em>, <em>timechange(v.0.3.0)</em>, <em>fastmap(v.1.2.0)</em>, <em>jsonlite(v.1.8.9)</em>, <em>bench(v.1.1.3)</em>, <em>pander(v.0.6.5)</em>, <em>kit(v.0.0.19)</em>, <em>fansi(v.1.0.6)</em>, <em>scales(v.1.3.0)</em>, <em>textshaping(v.0.4.1)</em>, <em>munsell(v.0.5.1)</em>, <em>withr(v.3.0.2)</em>, <em>yaml(v.2.3.10)</em>, <em>parallel(v.4.4.2)</em>, <em>tools(v.4.4.2)</em>, <em>tzdb(v.0.4.0)</em>, <em>colorspace(v.2.1-1)</em>, <em>profmem(v.0.6.0)</em>, <em>vctrs(v.0.6.5)</em>, <em>R6(v.2.5.1)</em>, <em>lifecycle(v.1.0.4)</em>, <em>cheapr(v.0.9.92)</em>, <em>stringfish(v.0.16.0)</em>, <em>htmlwidgets(v.1.6.4)</em>, <em>ragg(v.1.3.3)</em>, <em>pkgconfig(v.2.0.3)</em>, <em>RcppParallel(v.5.1.9)</em>, <em>pillar(v.1.9.0)</em>, <em>gtable(v.0.3.6)</em>, <em>data.table(v.1.16.99)</em>, <em>glue(v.1.8.0)</em>, <em>codex(v.0.0.1)</em>, <em>Rcpp(v.1.0.13-1)</em>, <em>collapse(v.2.0.18)</em>, <em>systemfonts(v.1.1.0)</em>, <em>xfun(v.0.49)</em>, <em>tidyselect(v.1.2.1)</em>, <em>rstudioapi(v.0.17.1)</em>, <em>knitr(v.1.49)</em>, <em>htmltools(v.0.5.8.1)</em>, <em>rmarkdown(v.2.29)</em> and <em>compiler(v.4.4.2)</em></p>
 </div>
 </div>
 
@@ -946,14 +946,14 @@ $ total_time &lt;bch:tm&gt; 2.78s</code></pre>
 
 </section></section><a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a><div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-reuse"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div class="quarto-appendix-contents"><div><a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></div></div></section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{allen_bruce2024,
   author = {Allen Bruce, Andrew},
-  title = {NPIs \&amp; {Luhn’s} {Algorithm}},
-  date = {2024-11-12},
+  title = {Provider: {Luhn’s} {Algorithm}},
+  date = {2024-12-14},
   url = {https://andrewallenbruce.github.io/acephale/posts/npi/npi_constructor.html},
   langid = {en}
 }
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-allen_bruce2024" class="csl-entry quarto-appendix-citeas" role="listitem">
-Allen Bruce, Andrew. 2024. <span>“NPIs &amp; Luhn’s Algorithm.”</span>
-November 12, 2024. <a href="https://andrewallenbruce.github.io/acephale/posts/npi/npi_constructor.html">https://andrewallenbruce.github.io/acephale/posts/npi/npi_constructor.html</a>.
+Allen Bruce, Andrew. 2024. <span>“Provider: Luhn’s Algorithm.”</span>
+December 14, 2024. <a href="https://andrewallenbruce.github.io/acephale/posts/npi/npi_constructor.html">https://andrewallenbruce.github.io/acephale/posts/npi/npi_constructor.html</a>.
 </div></div></section></div></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -1423,7 +1423,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
 <div class="sourceCode" id="cb64" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "NPIs &amp; Luhn's Algorithm"</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "provider: Luhn's Algorithm"</span></span>
 <span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Step-by-step National Provider Identifier Validation with Luhn's Algorithm"</span></span>
 <span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> "Experimenting with the CMS standard for NPI validation."</span></span>
 <span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
