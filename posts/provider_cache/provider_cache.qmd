@@ -34,7 +34,14 @@ na_if <- fuimus:::na_if
 gelm <- \(l, e, m = "re", ...) collapse::get_elem(l = l, elem = e, regex = ifelse(m == "re", TRUE, FALSE), DF.as.list = ifelse(m == "df", TRUE, FALSE), ...)
 ```
 
+[Centers for Medicare & Medicaid Services Data API](https://data.cms.gov/api-docs)
+
 # National Downloadable File
+
+>   **Previous Work**
+>
+>   * [provider(gh issue #60) - version 1](https://github.com/andrewallenbruce/provider/issues/60#issue-2000723817)
+>   * [provider(gh issue #60) - version 2](https://github.com/andrewallenbruce/provider/issues/60#issuecomment-1820270391)
 
 ```{r}
 #| label: ndf
@@ -107,10 +114,54 @@ meta_ndf("affiliations")
 meta_ndf("clinicians")
 ```
 
-# Previous Work
 
-   * [provider(gh issue #60) - version 1](https://github.com/andrewallenbruce/provider/issues/60#issue-2000723817)
-   * [provider(gh issue #60) - version 2](https://github.com/andrewallenbruce/provider/issues/60#issuecomment-1820270391)
+## pointblank
+
+```{r}
+#| label: pointblank
+
+library(pointblank)
+
+johnd <- affiliations(npi = 1558595660, na.rm = FALSE)
+
+johnd |> 
+  create_informant(
+    tbl_name = NULL,
+    label = "Provider Facility Affiliations"
+  ) |> 
+  info_tabular(
+    `Row Definition` = "A row has randomized values.",
+    Source = c(
+      "- From the **pointblank** package.",
+      "- [https://rstudio.github.io/pointblank/]()"
+     )
+   ) |> 
+  info_columns(
+    columns = npi,
+    info = "10-digit National Provider Identifier.") |>
+  info_columns(
+    columns = pac,
+    info = "10-digit PECOS Associate Control ID.") |>
+  info_columns(
+    columns = vars(first, middle, last, suffix),
+    info = "Individual Provider's Name.") |>
+  info_columns(
+    columns = facility_type,
+    info = "Individual Provider's Name.") |>
+  info_section(
+    section_name = "Notes",
+    usage = "`affiliations(parent_ccn = '670055')`",
+    Source = c(
+      "- From the **(provider)** package.",
+      "- [CMS Affiliations API](https://data.cms.gov/provider-data/dataset/27ea-46a8)"
+    )) |> 
+  get_informant_report(
+    title = "**`affiliations()`** Data Dictionary",
+    size = "standard"
+  )
+```
+
+--------------------------------------------------------------------------------
 
 # Codebook
 
