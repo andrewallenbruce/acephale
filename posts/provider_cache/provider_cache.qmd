@@ -12,7 +12,6 @@ editor_options:
 #| echo: false
 #| message: false
 #| warning: false
-
 knitr::opts_chunk$set(
   dev = "ragg_png",
   dpi = 320,
@@ -30,11 +29,14 @@ library(fastverse)
 library(provider)
 library(codex)
 library(httr2)
+
+na_if <- fuimus:::na_if
 ```
 
 # National Downloadable File
 
    * [Data Dictionary](https://data.cms.gov/provider-data/sites/default/files/data_dictionaries/physician/DOC_Data_Dictionary.pdf)
+
 
 ```{r}
 #| label: ndf
@@ -71,42 +73,85 @@ meta_ndf <- \(fname) {
          check_type = FALSE,
          simplifyVector = TRUE)
   
-  z <- y[["schema"]][[x[["distribution"]][["identifier"]]]][["fields"]]
+  z <- y[["schema"]][[
+    x[["distribution"]][["identifier"]]
+    ]][["fields"]]
   
-  list(
-    title        = x[["title"]],
-    description  = x[["description"]],
-    identifier   = x[["identifier"]],
-    distribution = x[["distribution"]][["identifier"]],
-    date         = c(issued = x[["issued"]], 
-                     modified = x[["modified"]], 
-                     released = x[["released"]]),
-    landing      = x[["landingPage"]],
-    csv          = x[["distribution"]][["data"]][["downloadURL"]],
-    dictionary   = paste0("https://data.cms.gov/provider-data/sites/default/",
-                          "files/data_dictionaries/physician/DOC_Data_Dictionary.pdf"),
-    dim = c(nrows = y[["count"]], 
-            ncols = z[["record_number"]][["length"]]),
-    output = data.frame(
+  out <- list(
+    title = x[["title"]],
+    desc  = x[["description"]],
+    idnt  = x[["identifier"]],
+    dist  = x[["distribution"]][["identifier"]],
+    date  = c(issued = x[["issued"]], 
+              modified = x[["modified"]], 
+              released = x[["released"]]),
+    home  = x[["landingPage"]],
+    csv   = x[["distribution"]][["data"]][["downloadURL"]],
+    dict  = paste0("https://data.cms.gov/provider-data/sites/default/",
+                   "files/data_dictionaries/physician/DOC_Data_Dictionary.pdf"),
+    dim   = c(row = y[["count"]], 
+              col = z[["record_number"]][["length"]]),
+    out = data.frame(
       field = names(y[["results"]]), 
-      value = dplyr::na_if(delist(y[["results"]]), "")
+      value = na_if(delist(y[["results"]]), "")
       ),
-    fields = c(
-      z[["npi"]][["description"]],
-      z[["ind_pac_id"]][["description"]],
-      z[["provider_last_name"]][["description"]],
-      z[["provider_first_name"]][["description"]],
-      z[["provider_middle_name"]][["description"]],
-      z[["suff"]][["description"]],
-      z[["facility_type"]][["description"]],
-      z[["facility_affiliations_certification_number"]][["description"]],
-      z[["facility_type_certification_number"]][["description"]]
-    ))
+    field = c(delist(getelem(z[names(z)], "description"))))
+  
+  class(out) <- c("metadata", "list")
+  
+  out
 }
 
 meta_ndf("affiliations")
 
 meta_ndf("clinicians")
+```
+
+
+```{r}
+#| label: print_meta
+#| eval: false
+print.metadata <- \(x, ...) { 
+  x <- meta_ndf("affiliations")
+  
+  # dimensions
+  glue::glue("Dimensions: [{x[['dim']][1]} x {x[['dim']][2]}]")
+  glue::glue("Dates:      {utils::formatUL(
+             format(names(x[['date']]), justify = 'left')}: {unname(x[['date']]))}")
+  
+  x
+  
+  writeLines(
+    formatDL(names(x), unname(x), style = "table", indent = 8)
+    )
+  }
+
+utils::formatUL(
+  c("Mix dry ingredients thoroughly.",
+       "Pour in wet ingredients.",
+       "Mix for 10 minutes.",
+       "Bake for one hour at 300 degrees."),
+  offset = 3
+  ) |> 
+  writeLines()
+
+format.metadata <- \(x, ...) {
+  
+  cat(
+    "Title: ", x$title, "\n",
+    "Description: ", x$desc, "\n",
+    "Identifier: ", x$idnt, "\n",
+    "Distribution: ", x$dist, "\n",
+    "Issued: ", x$date[["issued"]], "\n",
+    "Modified: ", x$date[["modified"]], "\n",
+    "Released: ", x$date[["released"]], "\n",
+    "Home: ", x$home, "\n",
+    "CSV: ", x$csv, "\n",
+    "Data Dictionary: ", x$dict, "\n",
+    "Dimensions: ", x$dim[["row"]], " rows x ", x$dim[["col"]], " columns", "\n",
+    "Fields: ", "\n"
+  )
+}
 ```
 
 
