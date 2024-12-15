@@ -7,8 +7,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r}
-#| label: setup
+```{r setup}
 #| echo: false
 #| message: false
 #| warning: false
@@ -31,16 +30,17 @@ library(codex)
 library(httr2)
 
 na_if <- fuimus:::na_if
+
+gelm <- \(l, e, m = "re", ...) collapse::get_elem(l = l, elem = e, regex = ifelse(m == "re", TRUE, FALSE), DF.as.list = ifelse(m == "df", TRUE, FALSE), ...)
 ```
 
 # National Downloadable File
 
-   * [Data Dictionary](https://data.cms.gov/provider-data/sites/default/files/data_dictionaries/physician/DOC_Data_Dictionary.pdf)
-
-
 ```{r}
 #| label: ndf
 meta_ndf <- \(fname) {
+  
+  stopifnot(curl::has_internet())
   
   x <- request(
     paste0(
@@ -58,12 +58,18 @@ meta_ndf <- \(fname) {
          check_type     = FALSE,
          simplifyVector = TRUE)
   
+  distro <- gelm(
+    gelm(
+      x,
+      "distribution"), 
+    "identifier")
+  
   y <- request(
     paste0(
     "https://data.cms.gov/", 
     "provider-data/api/1/",
     "datastore/query/", 
-    x[["distribution"]][["identifier"]], 
+    distro, 
     "?limit=1&offset=100&",
     "count=true&results=true&", 
     "schema=true&keys=true&",
@@ -73,31 +79,25 @@ meta_ndf <- \(fname) {
          check_type = FALSE,
          simplifyVector = TRUE)
   
-  z <- y[["schema"]][[
-    x[["distribution"]][["identifier"]]
-    ]][["fields"]]
+  z <- gelm(gelm(gelm(
+        y, 
+        "schema"), 
+      distro), 
+    "fields")
   
   out <- list(
-    title = x[["title"]],
-    desc  = x[["description"]],
-    idnt  = x[["identifier"]],
-    dist  = x[["distribution"]][["identifier"]],
-    date  = c(issued = x[["issued"]], 
-              modified = x[["modified"]], 
-              released = x[["released"]]),
-    home  = x[["landingPage"]],
-    csv   = x[["distribution"]][["data"]][["downloadURL"]],
-    dict  = paste0("https://data.cms.gov/provider-data/sites/default/",
-                   "files/data_dictionaries/physician/DOC_Data_Dictionary.pdf"),
-    dim   = c(row = y[["count"]], 
-              col = z[["record_number"]][["length"]]),
-    out = data.frame(
-      field = names(y[["results"]]), 
-      value = na_if(delist(y[["results"]]), "")
-      ),
-    field = c(delist(getelem(z[names(z)], "description"))))
-  
-  class(out) <- c("metadata", "list")
+    title        = gelm(x, "title"),
+    description  = gelm(x, "description"),
+    identifier   = gelm(gelm(x, "identifier"), "identifier"),
+    distribution = distro,
+    issued       = gelm(x, "issued"), 
+    modified     = gelm(x, "modified")[[1]], 
+    released     = gelm(x, "released"),
+    dimension    = str_glue('{gelm(gelm(y, "count"), is.numeric)} x {gelm(gelm(z, "record_number"), "length")}'), 
+    fields       = delist(getelem(z[names(z)], "description")),
+    site         = gelm(x, "landingPage"),
+    csv          = gelm(gelm(gelm(x, "distribution"), "data"), "downloadURL", m = "df"),
+    dictionary   = paste0("https://data.cms.gov/provider-data/sites/default/files/data_dictionaries/physician/DOC_Data_Dictionary.pdf"))
   
   out
 }
@@ -107,60 +107,14 @@ meta_ndf("affiliations")
 meta_ndf("clinicians")
 ```
 
-
-```{r}
-#| label: print_meta
-#| eval: false
-print.metadata <- \(x, ...) { 
-  x <- meta_ndf("affiliations")
-  
-  # dimensions
-  glue::glue("Dimensions: [{x[['dim']][1]} x {x[['dim']][2]}]")
-  glue::glue("Dates:      {utils::formatUL(
-             format(names(x[['date']]), justify = 'left')}: {unname(x[['date']]))}")
-  
-  x
-  
-  writeLines(
-    formatDL(names(x), unname(x), style = "table", indent = 8)
-    )
-  }
-
-utils::formatUL(
-  c("Mix dry ingredients thoroughly.",
-       "Pour in wet ingredients.",
-       "Mix for 10 minutes.",
-       "Bake for one hour at 300 degrees."),
-  offset = 3
-  ) |> 
-  writeLines()
-
-format.metadata <- \(x, ...) {
-  
-  cat(
-    "Title: ", x$title, "\n",
-    "Description: ", x$desc, "\n",
-    "Identifier: ", x$idnt, "\n",
-    "Distribution: ", x$dist, "\n",
-    "Issued: ", x$date[["issued"]], "\n",
-    "Modified: ", x$date[["modified"]], "\n",
-    "Released: ", x$date[["released"]], "\n",
-    "Home: ", x$home, "\n",
-    "CSV: ", x$csv, "\n",
-    "Data Dictionary: ", x$dict, "\n",
-    "Dimensions: ", x$dim[["row"]], " rows x ", x$dim[["col"]], " columns", "\n",
-    "Fields: ", "\n"
-  )
-}
-```
-
-
 # Previous Work
 
    * [provider(gh issue #60) - version 1](https://github.com/andrewallenbruce/provider/issues/60#issue-2000723817)
    * [provider(gh issue #60) - version 2](https://github.com/andrewallenbruce/provider/issues/60#issuecomment-1820270391)
 
 # Codebook
+
+## Code
 
 ```{r}
 #| label: code
@@ -177,6 +131,7 @@ code(
   labels = c("Male", "Female"))
 ```
 
+## Codebook
 
 ```{r}
 #| label: codebook
@@ -197,6 +152,8 @@ codebook(
        levels = 1:3, 
        labels = c("S1", "S2", "S3")))
 ```
+
+## Encode
 
 ```{r}
 #| label: encode
@@ -235,6 +192,7 @@ dataset <- data.frame(
 encode(dataset, labels)
 ```
 
+## Decode
 
 ```{r}
 #| label: decode
@@ -273,3 +231,12 @@ dataset <- data.frame(
 decode(dataset, labels)
 ```
 
+--------------------------------------------------------------------------------
+
+
+## Session Information 
+
+```{r}
+#| echo: false
+pander::pander(sessionInfo())
+```

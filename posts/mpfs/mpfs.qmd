@@ -553,7 +553,6 @@ However, the law sets the payment amount for Non-Participating Physicians at $95
 Calculating $95\%$ of $115\%$ of an amount, $x$, is equivalent to $x \times 1.0925$ (or $109.25\%$):
 
 ```{r}
-#| code-fold: false
 # 95% of 115% of 10
 (10 * 1.15) * 0.95 
 
@@ -608,16 +607,16 @@ rvu24a |>
     footnote = foot_53,
     locations = cells_stub(rows = 3)) |> 
   tab_footnote(footnote = foot_mod) |> 
-  gt::tab_options(
+  tab_options(
     heading.align = "left",
-    heading.border.bottom.color = "#555555", # "#4758AB",
+    heading.border.bottom.color = "#555555",
     heading.title.font.weight = "bold",
-    heading.background.color = "#555555", # "#f8f9fa",
+    heading.background.color = "#555555",
     quarto.disable_processing = TRUE,
-    data_row.padding.horizontal = gt::px(20),
-    column_labels.padding.horizontal = gt::px(20),
+    data_row.padding.horizontal = px(20),
+    column_labels.padding.horizontal = px(20),
     table.border.top.color = "#555555",
-    table.width = gt::pct(100))
+    table.width = pct(100))
 ```
 
 ### Status Codes
@@ -671,25 +670,24 @@ rvu24a |>
   cols_label(n = "# of Codes") |> 
   fmt_markdown() |> 
   fmt_integer() |> 
-  # opt_table_font(font = google_font(name = "Rubik")) |>
   opt_all_caps() |>
   tab_style(
-    style = cell_fill(color = "yellow", alpha = 0.3),
+    style = cell_fill(
+      color = "tan", 
+      alpha = 0.3),
     locations = cells_body(
       columns = everything(),
-      rows = c(1, 7, 12)
-    )
-  ) |> 
-  gt::tab_options(
+      rows = c(1, 7, 12))) |> 
+  tab_options(
     heading.align = "left",
-    heading.border.bottom.color = "#555555", # "#4758AB",
+    heading.border.bottom.color = "#555555",
     heading.title.font.weight = "bold",
-    heading.background.color = "#555555", # "#f8f9fa",
+    heading.background.color = "#555555",
     quarto.disable_processing = TRUE,
-    data_row.padding.horizontal = gt::px(20),
-    column_labels.padding.horizontal = gt::px(20),
+    data_row.padding.horizontal = px(20),
+    column_labels.padding.horizontal = px(20),
     table.border.top.color = "#555555",
-    table.width = gt::pct(100))
+    table.width = pct(100))
 ```
 
 ### PC/TC Indicator
@@ -730,16 +728,14 @@ code.<br><br>Example Code: **93005** *Electrocardiogram; Tracing Only, without i
 
   "8" = "Identifies the professional component of clinical laboratory codes for which separate payment may be made only if the physician interprets an abnormal smear for hospital inpatient. This applies to CPT codes 88141, 85060 and HCPCS code P3001-26. No TC billing is recognized because payment for the underlying clinical laboratory test is made to the hospital, generally through the PPS rate. No payment is recognized for CPT codes 88141, 85060 or HCPCS code P3001-26 furnished to hospital outpatients or non-hospital patients. The physician interpretation is paid through the clinical laboratory fee schedule payment for the clinical laboratory test.",
 
-  "9" = "Concept of a professional/technical component does not apply."
-)
+  "9" = "Concept of a professional/technical component does not apply.")
 
 rvu24a |> 
   filter(!is.na(pctc_ind)) |> 
   count(pctc_ind) |> 
   mutate(
     category = pctc_lookup[pctc_ind],
-    description = pctc_lookup2[pctc_ind]
-    ) |> 
+    description = pctc_lookup2[pctc_ind]) |> 
   gt(rowname_col = "pctc_ind") |> 
   cols_align(align = "left") |> 
   cols_label(n = "# of Codes") |> 
@@ -751,18 +747,18 @@ rvu24a |>
     style = list(
       cell_text(align = "center", 
                 size = px(18), 
-                color = "white")),
+                color = "black")),
     locations = cells_stub()) |> 
-  gt::tab_options(
+  tab_options(
     heading.align = "left",
-    heading.border.bottom.color = "#555555", # "#4758AB",
+    heading.border.bottom.color = "#555555", 
     heading.title.font.weight = "bold",
-    heading.background.color = "#555555", # "#f8f9fa",
+    heading.background.color = "#555555", 
     quarto.disable_processing = TRUE,
-    data_row.padding.horizontal = gt::px(20),
-    column_labels.padding.horizontal = gt::px(20),
+    data_row.padding.horizontal = px(20),
+    column_labels.padding.horizontal = px(20),
     table.border.top.color = "#555555",
-    table.width = gt::pct(100))
+    table.width = pct(100))
 ```
 
 ## Global Surgery Days
@@ -781,9 +777,7 @@ glob_join <- dplyr::tibble(
     "Maternity codes; usual global period does not apply.",
     "Global concept does not apply.",
     "Carrier determines whether the global concept applies and establishes postoperative period, if appropriate, at time of pricing.",
-    "Code is related to another service and is always included in the global period of the other service."
-  )
-)
+    "Code is related to another service and is always included in the global period of the other service."))
 
 rvu24a |> 
   filter(!is.na(glob_days)) |>
@@ -796,19 +790,19 @@ rvu24a |>
   cols_label(n = "# of Codes") |> 
   opt_all_caps() |>
   tab_style(
-    style = cell_text(align = "center", size = px(16)),
-    locations = cells_stub()
-  ) |> 
-  gt::tab_options(
+    style = cell_text(align = "center", 
+                      size = px(16)),
+    locations = cells_stub()) |> 
+  tab_options(
     heading.align = "left",
     heading.border.bottom.color = "#555555", # "#4758AB",
     heading.title.font.weight = "bold",
     heading.background.color = "#555555", # "#f8f9fa",
     quarto.disable_processing = TRUE,
-    data_row.padding.horizontal = gt::px(20),
-    column_labels.padding.horizontal = gt::px(20),
+    data_row.padding.horizontal = px(20),
+    column_labels.padding.horizontal = px(20),
     table.border.top.color = "#555555",
-    table.width = gt::pct(100))
+    table.width = pct(100))
 ```
 
 ### Operative Percentages
@@ -826,20 +820,21 @@ rvu24a |>
   gt() |> 
   cols_label(pre_op = "Percentage",
              n = "# of HCPCS") |> 
-  fmt_percent(columns = pre_op, drop_trailing_zeros = TRUE) |> 
+  fmt_percent(columns = pre_op, 
+              drop_trailing_zeros = TRUE) |> 
   fmt_integer(columns = n) |> 
   tab_header(title = md("Global **Preoperative** Percentages")) |> 
   opt_all_caps() |>
-  gt::tab_options(
+  tab_options(
     heading.align = "left",
     heading.border.bottom.color = "#555555", # "#4758AB",
     heading.title.font.weight = "bold",
     heading.background.color = "#555555", # "#f8f9fa",
     quarto.disable_processing = TRUE,
-    data_row.padding.horizontal = gt::px(20),
-    column_labels.padding.horizontal = gt::px(20),
+    data_row.padding.horizontal = px(20),
+    column_labels.padding.horizontal = px(20),
     table.border.top.color = "#555555",
-    table.width = gt::pct(100))
+    table.width = pct(100))
 ```
 
 ## Intraoperative
@@ -853,23 +848,24 @@ rvu24a |>
   gt() |> 
   cols_label(intra_op = "Percentage",
              n = "# of HCPCS") |> 
-  fmt_percent(columns = intra_op, drop_trailing_zeros = TRUE) |> 
+  fmt_percent(columns = intra_op, 
+              drop_trailing_zeros = TRUE) |> 
   fmt_integer(columns = n) |> 
   tab_header(
     title = md("Global **Intraoperative** Percentages"),
     subtitle = md("*Includes Postoperative Work in the Hospital*")
     ) |> 
   opt_all_caps() |>
-  gt::tab_options(
+  tab_options(
     heading.align = "left",
     heading.border.bottom.color = "#555555", # "#4758AB",
     heading.title.font.weight = "bold",
     heading.background.color = "#555555", # "#f8f9fa",
     quarto.disable_processing = TRUE,
-    data_row.padding.horizontal = gt::px(20),
-    column_labels.padding.horizontal = gt::px(20),
+    data_row.padding.horizontal = px(20),
+    column_labels.padding.horizontal = px(20),
     table.border.top.color = "#555555",
-    table.width = gt::pct(100))
+    table.width = pct(100))
 ```
 
 ## Postoperative
@@ -883,23 +879,23 @@ rvu24a |>
   gt() |> 
   cols_label(post_op = "Percentage",
              n = "# of HCPCS") |> 
-  fmt_percent(columns = post_op, drop_trailing_zeros = TRUE) |> 
+  fmt_percent(columns = post_op, 
+              drop_trailing_zeros = TRUE) |> 
   fmt_integer(columns = n) |> 
   tab_header(
     title = md("Global **Postoperative** Percentages"),
-    subtitle = md("*Provided in the office after discharge from the hospital*")
-    ) |> 
+    subtitle = md("*Provided in the office after discharge from the hospital*")) |> 
   opt_all_caps() |>
-  gt::tab_options(
+  tab_options(
     heading.align = "left",
     heading.border.bottom.color = "#555555", # "#4758AB",
     heading.title.font.weight = "bold",
     heading.background.color = "#555555", # "#f8f9fa",
     quarto.disable_processing = TRUE,
-    data_row.padding.horizontal = gt::px(20),
-    column_labels.padding.horizontal = gt::px(20),
+    data_row.padding.horizontal = px(20),
+    column_labels.padding.horizontal = px(20),
     table.border.top.color = "#555555",
-    table.width = gt::pct(100))
+    table.width = pct(100))
 ```
 :::
 
@@ -989,7 +985,9 @@ This file contains locality-specific physician fee schedule payment amounts for 
 ```{r}
 #| message: false
 #| warning: false
-northstar:::data_dict("md", "pfs")
+northstar:::data_dict("df", "pfs")
+
+northstar:::data_dict("df", "rvu")
 ```
 
 
@@ -1017,27 +1015,27 @@ pfs_pay |>
 # GPCIs
 
 ```{r}
-#| echo: false
 #| message: false
 #| warning: false
-
 search_gpcis()[1:7] |> 
-  gt(rowname_col = "mac", groupname_col = "state") |> 
-  tab_stubhead(label = "MAC") |> 
+  gt() |> 
   cols_label(
     mac = "MAC",
     state = "State",
     locality = "Locality",
     locality_name = "Name",
-    gpci_work = "Work",
-    gpci_pe = "Practice",
-    gpci_mp = "Malpractice") |> 
-  cols_merge(
-    columns = c(locality, locality_name),
-    pattern = "<b>{1}</b><< {2}>>") |> 
-  cols_align(align = "left") |> 
+    gpci_work = md("**GPCI**<i><sub>wk</sub></i>"),
+    gpci_pe = md("**GPCI**<i><sub>pe</sub></i>"),
+    gpci_mp = md("**GPCI**<i><sub>mp</sub></i>")
+    ) |>
+  # cols_merge(
+  #   columns = c(locality, locality_name),
+  #   pattern = "<b>{1}</b><< {2}>>") |> 
+  # cols_align(align = "left") |> 
   opt_all_caps() |>
-  fmt_number(decimals = 3, drop_trailing_zeros = TRUE) |> 
+  fmt_number(
+    decimals = 3, 
+    drop_trailing_zeros = TRUE) |> 
   tab_header(
     title = md("**2024 Geographic Practice Cost Indices** by State & Medicare Locality")) |> 
   tab_footnote(
@@ -1052,25 +1050,39 @@ search_gpcis()[1:7] |>
   tab_footnote(
     footnote = md("**Note**: The *Further Continuing Appropriations and Other Extensions Act, 2024* (Section 501) extended the 1.0 Work GPCI floor through January 19, 2024. Therefore, the Work GPCIs for 2023 reflect the 1.0 Work GPCI floor. Work GPCIs for 2024 are shown both with and without a 1.0 floor and Work GPCIs for 2025 do not reflect a 1.0 floor.")) |>
   tab_style(
+    style = css(
+      position = "sticky", 
+      top = "-1em", 
+      `z-index` = 10),
+    locations = cells_column_labels()) |>
+  tab_style(
+      style = cell_text(
+      font = google_font(name = "Fira Code")),
+      locations = cells_body(columns = contains("gpci"))) |>
+  tab_style(
     style = cell_text(align = "center", size = px(14)),
     locations = cells_stub()) |> 
-gt::tab_options(
+  tab_options(
+    column_labels.border.bottom.style = "hidden",
+    column_labels.padding.horizontal = px(20),
+    column_labels.background.color = "#555555",
+    container.height = px(490),
+    data_row.padding.horizontal = px(20),
     heading.align = "left",
-    heading.border.bottom.color = "#555555", # "#4758AB",
+    heading.border.bottom.color = "#555555",
     heading.title.font.weight = "bold",
-    heading.background.color = "#555555", # "#f8f9fa",
+    heading.background.color = "#555555",
     quarto.disable_processing = TRUE,
-    data_row.padding.horizontal = gt::px(20),
-    column_labels.padding.horizontal = gt::px(20),
-    table.border.top.color = "#555555",
-    table.width = gt::pct(100),
-    source_notes.font.size = px(16),
     row_group.as_column = TRUE,
-    row_group.default_label = "MAC")
+    row_group.default_label = "MAC",
+    source_notes.font.size = px(16),
+    table.border.top.color = "#555555",
+    table.border.top.style = "hidden",
+    table.width = pct(75))
 ```
 
 
-{{< pagebreak >}}
+--------------------------------------------------------------------------------
 
 
 ## Session Information 
