@@ -174,23 +174,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>
 <a href="#national-downloadable-file" id="toc-national-downloadable-file" class="nav-link active" data-scroll-target="#national-downloadable-file"><span class="header-section-number">1</span> National Downloadable File</a>
   <ul class="collapse">
-<li><a href="#pointblank" id="toc-pointblank" class="nav-link" data-scroll-target="#pointblank"><span class="header-section-number">1.1</span> pointblank</a></li>
+<li><a href="#field-comparison" id="toc-field-comparison" class="nav-link" data-scroll-target="#field-comparison">Field Comparison</a></li>
+  <li><a href="#pointblank" id="toc-pointblank" class="nav-link" data-scroll-target="#pointblank"><span class="header-section-number">1.1</span> pointblank</a></li>
   </ul>
 </li>
   <li>
 <a href="#new-api-faq" id="toc-new-api-faq" class="nav-link" data-scroll-target="#new-api-faq"><span class="header-section-number">2</span> New API FAQ</a>
   <ul class="collapse">
 <li><a href="#finding-data" id="toc-finding-data" class="nav-link" data-scroll-target="#finding-data"><span class="header-section-number">2.1</span> Finding Data</a></li>
-  </ul>
-</li>
-  <li>
-<a href="#codebook" id="toc-codebook" class="nav-link" data-scroll-target="#codebook"><span class="header-section-number">3</span> Codebook</a>
-  <ul class="collapse">
-<li><a href="#code" id="toc-code" class="nav-link" data-scroll-target="#code"><span class="header-section-number">3.1</span> Code</a></li>
-  <li><a href="#codebook-1" id="toc-codebook-1" class="nav-link" data-scroll-target="#codebook-1"><span class="header-section-number">3.2</span> Codebook</a></li>
-  <li><a href="#encode" id="toc-encode" class="nav-link" data-scroll-target="#encode"><span class="header-section-number">3.3</span> Encode</a></li>
-  <li><a href="#decode" id="toc-decode" class="nav-link" data-scroll-target="#decode"><span class="header-section-number">3.4</span> Decode</a></li>
-  <li><a href="#session-information" id="toc-session-information" class="nav-link" data-scroll-target="#session-information"><span class="header-section-number">3.5</span> Session Information</a></li>
+  <li><a href="#session-information" id="toc-session-information" class="nav-link" data-scroll-target="#session-information"><span class="header-section-number">2.2</span> Session Information</a></li>
   </ul>
 </li>
   </ul></nav>
@@ -199,20 +191,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
     </div>
 <!-- main -->
-<main class="content quarto-banner-title-block" id="quarto-document-content"><ul>
-<li>
-<a href="https://data.cms.gov/api-docs">Centers for Medicare &amp; Medicaid Services Data API</a> = <a href="https://data.cms.gov/sites/default/files/2024-10/7ef65521-65a4-41ed-b600-3a0011f8ec4b/API%20Guide%20Formatted%201_6.pdf">API FAQ for data.CMS.gov | OCTOBER 2024 - VERSION 1.6</a>
-</li>
-</ul>
-<section id="national-downloadable-file" class="level1" data-number="1"><h1 data-number="1">
+<main class="content quarto-banner-title-block" id="quarto-document-content"><section id="national-downloadable-file" class="level1" data-number="1"><h1 data-number="1">
 <span class="header-section-number">1</span> National Downloadable File</h1>
 <blockquote class="blockquote">
 <p><strong>Previous Work</strong></p>
 <ul>
-<li><a href="https://github.com/andrewallenbruce/provider/issues/60#issue-2000723817">provider(gh issue #60) - version 1</a></li>
-<li><a href="https://github.com/andrewallenbruce/provider/issues/60#issuecomment-1820270391">provider(gh issue #60) - version 2</a></li>
+<li><a href="https://github.com/andrewallenbruce/provider/issues/60#issue-2000723817">provider #60 - version 1</a></li>
+<li><a href="https://github.com/andrewallenbruce/provider/issues/60#issuecomment-1820270391">provider #60 - version 2</a></li>
 </ul>
 </blockquote>
+<ul>
+<li><a href="https://data.cms.gov/api-docs">Centers for Medicare &amp; Medicaid Services Data API</a></li>
+<li><a href="https://data.cms.gov/sites/default/files/2024-10/7ef65521-65a4-41ed-b600-3a0011f8ec4b/API%20Guide%20Formatted%201_6.pdf">API FAQ for data.CMS.gov | OCTOBER 2024 - VERSION 1.6</a></li>
+</ul>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">meta_ndf</span> <span class="op">&lt;-</span> \<span class="op">(</span><span class="va">fname</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  </span>
@@ -234,11 +225,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span>         check_type     <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>         simplifyVector <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span>  </span>
-<span>  <span class="va">distro</span> <span class="op">&lt;-</span> <span class="fu">gelm</span><span class="op">(</span></span>
-<span>    <span class="fu">gelm</span><span class="op">(</span></span>
-<span>      <span class="va">x</span>,</span>
-<span>      <span class="st">"distribution"</span><span class="op">)</span>, </span>
-<span>    <span class="st">"identifier"</span><span class="op">)</span></span>
+<span>  <span class="va">distro</span> <span class="op">&lt;-</span> <span class="fu">gelm</span><span class="op">(</span><span class="fu">gelm</span><span class="op">(</span><span class="va">x</span>, <span class="st">"distribution"</span><span class="op">)</span>, <span class="st">"identifier"</span><span class="op">)</span></span>
 <span>  </span>
 <span>  <span class="va">y</span> <span class="op">&lt;-</span> <span class="fu">request</span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span></span>
@@ -255,13 +242,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span>         check_type <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>         simplifyVector <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span>  </span>
-<span>  <span class="va">z</span> <span class="op">&lt;-</span> <span class="fu">gelm</span><span class="op">(</span><span class="fu">gelm</span><span class="op">(</span><span class="fu">gelm</span><span class="op">(</span></span>
-<span>        <span class="va">y</span>, </span>
-<span>        <span class="st">"schema"</span><span class="op">)</span>, </span>
-<span>      <span class="va">distro</span><span class="op">)</span>, </span>
-<span>    <span class="st">"fields"</span><span class="op">)</span></span>
+<span>  <span class="va">z</span> <span class="op">&lt;-</span> <span class="fu">gelm</span><span class="op">(</span><span class="fu">gelm</span><span class="op">(</span><span class="fu">gelm</span><span class="op">(</span><span class="va">y</span>, <span class="st">"schema"</span><span class="op">)</span>, <span class="va">distro</span><span class="op">)</span>, <span class="st">"fields"</span><span class="op">)</span></span>
 <span>  </span>
-<span>  <span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span></span>
 <span>    title        <span class="op">=</span> <span class="fu">gelm</span><span class="op">(</span><span class="va">x</span>, <span class="st">"title"</span><span class="op">)</span>,</span>
 <span>    description  <span class="op">=</span> <span class="fu">gelm</span><span class="op">(</span><span class="va">x</span>, <span class="st">"description"</span><span class="op">)</span>,</span>
 <span>    identifier   <span class="op">=</span> <span class="fu">gelm</span><span class="op">(</span><span class="fu">gelm</span><span class="op">(</span><span class="va">x</span>, <span class="st">"identifier"</span><span class="op">)</span>, <span class="st">"identifier"</span><span class="op">)</span>,</span>
@@ -269,114 +252,124 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span>    issued       <span class="op">=</span> <span class="fu">gelm</span><span class="op">(</span><span class="va">x</span>, <span class="st">"issued"</span><span class="op">)</span>, </span>
 <span>    modified     <span class="op">=</span> <span class="fu">gelm</span><span class="op">(</span><span class="va">x</span>, <span class="st">"modified"</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, </span>
 <span>    released     <span class="op">=</span> <span class="fu">gelm</span><span class="op">(</span><span class="va">x</span>, <span class="st">"released"</span><span class="op">)</span>,</span>
-<span>    dimension    <span class="op">=</span> <span class="fu">str_glue</span><span class="op">(</span><span class="st">'{gelm(gelm(y, "count"), is.numeric)} x {gelm(gelm(z, "record_number"), "length")}'</span><span class="op">)</span>, </span>
-<span>    fields       <span class="op">=</span> <span class="fu">delist</span><span class="op">(</span><span class="fu">getelem</span><span class="op">(</span><span class="va">z</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span><span class="op">]</span>, <span class="st">"description"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    dimensions   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="fu">gelm</span><span class="op">(</span><span class="fu">gelm</span><span class="op">(</span><span class="va">y</span>, <span class="st">"count"</span><span class="op">)</span>, <span class="va">is.numeric</span><span class="op">)</span>, <span class="st">" x "</span>, <span class="fu">gelm</span><span class="op">(</span><span class="fu">gelm</span><span class="op">(</span><span class="va">z</span>, <span class="st">"record_number"</span><span class="op">)</span>, <span class="st">"length"</span><span class="op">)</span><span class="op">)</span>, </span>
+<span>    fields       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span>,</span>
 <span>    site         <span class="op">=</span> <span class="fu">gelm</span><span class="op">(</span><span class="va">x</span>, <span class="st">"landingPage"</span><span class="op">)</span>,</span>
 <span>    csv          <span class="op">=</span> <span class="fu">gelm</span><span class="op">(</span><span class="fu">gelm</span><span class="op">(</span><span class="fu">gelm</span><span class="op">(</span><span class="va">x</span>, <span class="st">"distribution"</span><span class="op">)</span>, <span class="st">"data"</span><span class="op">)</span>, <span class="st">"downloadURL"</span>, m <span class="op">=</span> <span class="st">"df"</span><span class="op">)</span>,</span>
 <span>    dictionary   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"https://data.cms.gov/provider-data/sites/default/files/data_dictionaries/physician/DOC_Data_Dictionary.pdf"</span><span class="op">)</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="va">out</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="fu">meta_ndf</span><span class="op">(</span><span class="st">"affiliations"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>$title
-[1] "Facility Affiliation Data"
-
-$description
-[1] "This is the facility affiliations data publicly reported in the Provider Data Catalog."
-
-$identifier
-[1] "27ea-46a8"
-
-$distribution
-[1] "c0bada3c-9379-5a16-99ec-868e930451d6"
-
-$issued
-[1] "2023-08-17"
-
-$modified
-[1] "2024-12-02"
-
-$released
-[1] "2024-12-12"
-
-$dimension
-1561449 x 10
-
-$fields
-[1] "NPI"                                       
-[2] "Ind_PAC_ID"                                
-[3] "Provider Last Name"                        
-[4] "Provider First Name"                       
-[5] "Provider Middle Name"                      
-[6] "suff"                                      
-[7] "facility_type"                             
-[8] "Facility Affiliations Certification Number"
-[9] "Facility Type Certification Number"        
-
-$site
-[1] "https://data.cms.gov/provider-data/dataset/27ea-46a8"
-
-$csv
-[1] "https://data.cms.gov/provider-data/sites/default/files/resources/b7c4080ae144663e43353a9c35cd3f53_1733184311/Facility_Affiliation.csv"
-
-$dictionary
-[1] "https://data.cms.gov/provider-data/sites/default/files/data_dictionaries/physician/DOC_Data_Dictionary.pdf"</code></pre>
+<span><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">meta_ndf</span><span class="op">(</span><span class="st">"clinicians"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>$title
-[1] "National Downloadable File"
-
-$description
-[1] "The Doctors and Clinicians national downloadable file is organized such that each line is unique at the clinician/enrollment record/group/address level. Clinicians with multiple Medicare enrollment records and/or single enrollments linking to multiple practice locations are listed on multiple lines."
-
-$identifier
-[1] "mj5m-pzi6"
-
-$distribution
-[1] "21902f69-cf10-57df-b859-94bb4c92e05d"
-
-$issued
-[1] "2023-08-17"
-
-$modified
-[1] "2024-12-02"
-
-$released
-[1] "2024-12-12"
-
-$dimension
-2595328 x 10
-
-$fields
- [1] "NPI"                  "Ind_PAC_ID"           "Ind_enrl_ID"         
- [4] "Provider Last Name"   "Provider First Name"  "Provider Middle Name"
- [7] "suff"                 "gndr"                 "Cred"                
-[10] "Med_sch"              "Grd_yr"               "pri_spec"            
-[13] "sec_spec_1"           "sec_spec_2"           "sec_spec_3"          
-[16] "sec_spec_4"           "sec_spec_all"         "Telehlth"            
-[19] "Facility Name"        "org_pac_id"           "num_org_mem"         
-[22] "adr_ln_1"             "adr_ln_2"             "ln_2_sprs"           
-[25] "City/Town"            "State"                "ZIP Code"            
-[28] "Telephone Number"     "ind_assgn"            "grp_assgn"           
-[31] "adrs_id"             
-
-$site
-[1] "https://data.cms.gov/provider-data/dataset/mj5m-pzi6"
-
-$csv
-[1] "https://data.cms.gov/provider-data/sites/default/files/resources/52c3f098d7e56028a298fd297cb0b38d_1733184310/DAC_NationalDownloadableFile.csv"
-
-$dictionary
-[1] "https://data.cms.gov/provider-data/sites/default/files/data_dictionaries/physician/DOC_Data_Dictionary.pdf"</code></pre>
+<section id="field-comparison" class="level3"><h3 class="anchored" data-anchor-id="field-comparison">Field Comparison</h3>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">aff</span> <span class="op">&lt;-</span> <span class="fu">provider</span><span class="fu">::</span><span class="fu"><a href="https://andrewallenbruce.github.io/provider/reference/affiliations.html">affiliations</a></span><span class="op">(</span>npi <span class="op">=</span> <span class="fl">1558595660</span>, na.rm <span class="op">=</span> <span class="cn">FALSE</span>, tidy <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html">cat</a></span><span class="op">(</span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/format.html">formatOL</a></span><span class="op">(</span><span class="fu">meta_ndf</span><span class="op">(</span><span class="st">"affiliations"</span><span class="op">)</span><span class="op">$</span><span class="va">fields</span>, offset <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>, sep <span class="op">=</span> <span class="st">"\n"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html">cat</a></span><span class="op">(</span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/format.html">formatOL</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">aff</span><span class="op">)</span>, offset <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>, sep <span class="op">=</span> <span class="st">"\n"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell quarto-layout-panel" data-layout-ncol="2" data-layout-align="center">
+<div class="quarto-layout-row">
+<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<pre><code> 1. record_number
+ 2. npi
+ 3. ind_pac_id
+ 4. provider_last_name
+ 5. provider_first_name
+ 6. provider_middle_name
+ 7. suff
+ 8. facility_type
+ 9. facility_affiliations_certification_number
+10. facility_type_certification_number</code></pre>
+</div>
+<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<pre><code> 1. record_number
+ 2. npi
+ 3. ind_pac_id
+ 4. provider_last_name
+ 5. provider_first_name
+ 6. provider_middle_name
+ 7. suff
+ 8. facility_type
+ 9. facility_affiliations_certification_number
+10. facility_type_certification_number</code></pre>
 </div>
 </div>
-<section id="pointblank" class="level2" data-number="1.1"><h2 data-number="1.1" class="anchored" data-anchor-id="pointblank">
+</div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">cln</span> <span class="op">&lt;-</span> <span class="fu">provider</span><span class="fu">::</span><span class="fu"><a href="https://andrewallenbruce.github.io/provider/reference/clinicians.html">clinicians</a></span><span class="op">(</span>npi <span class="op">=</span> <span class="fl">1558595660</span>, na.rm <span class="op">=</span> <span class="cn">FALSE</span>, tidy <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html">cat</a></span><span class="op">(</span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/format.html">formatOL</a></span><span class="op">(</span><span class="fu">meta_ndf</span><span class="op">(</span><span class="st">"clinicians"</span><span class="op">)</span><span class="op">$</span><span class="va">fields</span><span class="op">)</span>, sep <span class="op">=</span> <span class="st">"\n"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html">cat</a></span><span class="op">(</span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/format.html">formatOL</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">cln</span><span class="op">)</span>, offset <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, sep <span class="op">=</span> <span class="st">"\n"</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell quarto-layout-panel" data-layout-ncol="2" data-layout-align="center">
+<div class="quarto-layout-row">
+<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<pre><code> 1. record_number
+ 2. npi
+ 3. ind_pac_id
+ 4. ind_enrl_id
+ 5. provider_last_name
+ 6. provider_first_name
+ 7. provider_middle_name
+ 8. suff
+ 9. gndr
+10. cred
+11. med_sch
+12. grd_yr
+13. pri_spec
+14. sec_spec_1
+15. sec_spec_2
+16. sec_spec_3
+17. sec_spec_4
+18. sec_spec_all
+19. telehlth
+20. facility_name
+21. org_pac_id
+22. num_org_mem
+23. adr_ln_1
+24. adr_ln_2
+25. ln_2_sprs
+26. citytown
+27. state
+28. zip_code
+29. telephone_number
+30. ind_assgn
+31. grp_assgn
+32. adrs_id</code></pre>
+</div>
+<div class="cell-output cell-output-stdout quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<pre><code>  1. record_number
+  2. npi
+  3. ind_pac_id
+  4. ind_enrl_id
+  5. provider_last_name
+  6. provider_first_name
+  7. provider_middle_name
+  8. suff
+  9. gndr
+ 10. cred
+ 11. med_sch
+ 12. grd_yr
+ 13. pri_spec
+ 14. sec_spec_1
+ 15. sec_spec_2
+ 16. sec_spec_3
+ 17. sec_spec_4
+ 18. sec_spec_all
+ 19. telehlth
+ 20. facility_name
+ 21. org_pac_id
+ 22. num_org_mem
+ 23. adr_ln_1
+ 24. adr_ln_2
+ 25. ln_2_sprs
+ 26. citytown
+ 27. state
+ 28. zip_code
+ 29. telephone_number
+ 30. ind_assgn
+ 31. grp_assgn
+ 32. adrs_id</code></pre>
+</div>
+</div>
+</div>
+</section><section id="pointblank" class="level2" data-number="1.1"><h2 data-number="1.1" class="anchored" data-anchor-id="pointblank">
 <span class="header-section-number">1.1</span> pointblank</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/pointblank/">pointblank</a></span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/pointblank/">pointblank</a></span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>
 Attaching package: 'pointblank'</code></pre>
@@ -386,7 +379,7 @@ Attaching package: 'pointblank'</code></pre>
 
     between</code></pre>
 </div>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">johnd</span> <span class="op">&lt;-</span> <span class="fu">affiliations</span><span class="op">(</span>npi <span class="op">=</span> <span class="fl">1558595660</span>, na.rm <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">johnd</span> <span class="op">&lt;-</span> <span class="fu">affiliations</span><span class="op">(</span>npi <span class="op">=</span> <span class="fl">1558595660</span>, na.rm <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">johnd</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rstudio.github.io/pointblank/reference/create_informant.html">create_informant</a></span><span class="op">(</span></span>
@@ -1052,14 +1045,14 @@ A row has randomized values.</td>
 </tbody>
 <tfoot class="gt_sourcenotes"><tr class="odd">
 <td class="gt_sourcenote">
-<span style="background-color:#FFF;color:#444;padding:0.5em 0.5em;position:inherit;text-transform:uppercase;margin-left:10px;border:solid 1px #999999;font-variant-numeric:tabular-nums;border-radius:0;padding:2px 10px 2px 10px;padding:2px 10px 2px 10px;">2024-12-16 02:10:00 EST</span> <span style="background-color:#FFF;color:#444;padding:0.5em 0.5em;position:inherit;margin:5px 1px 5px 0;border:solid 1px #999999;font-variant-numeric:tabular-nums;border-radius:0;padding:2px 10px 2px 10px;">&lt; 1 s</span> <span style="background-color:#FFF;color:#444;padding:0.5em 0.5em;position:inherit;text-transform:uppercase;margin:5px 1px 5px -1px;border:solid 1px #999999;font-variant-numeric:tabular-nums;border-radius:0;padding:2px 10px 2px 10px;">2024-12-16 02:10:00 EST</span>
+<span style="background-color:#FFF;color:#444;padding:0.5em 0.5em;position:inherit;text-transform:uppercase;margin-left:10px;border:solid 1px #999999;font-variant-numeric:tabular-nums;border-radius:0;padding:2px 10px 2px 10px;padding:2px 10px 2px 10px;">2024-12-16 11:43:33 EST</span> <span style="background-color:#FFF;color:#444;padding:0.5em 0.5em;position:inherit;margin:5px 1px 5px 0;border:solid 1px #999999;font-variant-numeric:tabular-nums;border-radius:0;padding:2px 10px 2px 10px;">&lt; 1 s</span> <span style="background-color:#FFF;color:#444;padding:0.5em 0.5em;position:inherit;text-transform:uppercase;margin:5px 1px 5px -1px;border:solid 1px #999999;font-variant-numeric:tabular-nums;border-radius:0;padding:2px 10px 2px 10px;">2024-12-16 11:43:34 EST</span>
 </td>
 </tr></tfoot>
 </table>
 </div>
 </div>
 </div>
-</section></section><section id="new-api-faq" class="level1" data-number="2"><h1 data-number="2">
+<hr></section></section><section id="new-api-faq" class="level1" data-number="2"><h1 data-number="2">
 <span class="header-section-number">2</span> New API FAQ</h1>
 <section id="finding-data" class="level2" data-number="2.1"><h2 data-number="2.1" class="anchored" data-anchor-id="finding-data">
 <span class="header-section-number">2.1</span> Finding Data</h2>
@@ -1084,180 +1077,24 @@ A row has randomized values.</td>
 <p>Older Version Code Example in Python</p>
 <p>Finds the API link for the 2017 Medicare Inpatient Hospitals - by Provider and Service Data</p>
 <p>https://data.cms.gov/provider-summary-by-type-of-service/medicare-inpatient-hospitals/medicare-inpatient-hospitals-by-provider-and-service</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>url         <span class="op">=</span> <span class="st">"https://data.cms.gov/data.json"</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>title       <span class="op">=</span> <span class="st">"Medicare Inpatient Hospitals - by Provider and Service"</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>time_period <span class="op">=</span> <span class="st">"2017-01-01/2017-12-31"</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>response    <span class="op">=</span> requests.request(<span class="st">"GET"</span>, url)</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> response.ok:</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    response <span class="op">=</span> response.json()</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    dataset <span class="op">=</span> response[<span class="st">'dataset'</span>]</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="bu">set</span> <span class="kw">in</span> dataset:</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> title <span class="op">==</span> <span class="bu">set</span>[<span class="st">'title'</span>]:</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> distro <span class="kw">in</span> <span class="bu">set</span>[<span class="st">'distribution'</span>]:</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="st">'format'</span> <span class="kw">in</span> distro.keys():</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">if</span> distro[<span class="st">'format'</span>] <span class="op">==</span> <span class="st">"API"</span> <span class="kw">and</span> distro[<span class="st">'temporal'</span>] <span class="op">==</span> time_period:</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>                        <span class="bu">print</span>(<span class="ss">f"API link for </span><span class="sc">{</span>title<span class="sc">}</span><span class="ss"> from </span><span class="sc">{</span>time_period<span class="sc">}</span><span class="ss"> is </span><span class="sc">{</span>distro[<span class="st">'accessURL'</span>]<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<hr></section></section><section id="codebook" class="level1" data-number="3"><h1 data-number="3">
-<span class="header-section-number">3</span> Codebook</h1>
-<section id="code" class="level2" data-number="3.1"><h2 data-number="3.1" class="anchored" data-anchor-id="code">
-<span class="header-section-number">3.1</span> Code</h2>
-<div class="cell" data-layout-align="center">
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">code</span> <span class="op">&lt;-</span> \<span class="op">(</span><span class="va">variable</span>, <span class="va">levels</span>, <span class="va">labels</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html">tibble</a></span><span class="op">(</span></span>
-<span>    variable <span class="op">=</span> <span class="va">variable</span>, </span>
-<span>    level <span class="op">=</span> <span class="va">levels</span>, </span>
-<span>    label <span class="op">=</span> <span class="va">labels</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="fu">code</span><span class="op">(</span></span>
-<span>  <span class="st">"SEX"</span>, </span>
-<span>  levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, </span>
-<span>  labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 2 × 3
-  variable level label 
-  &lt;chr&gt;    &lt;dbl&gt; &lt;chr&gt; 
-1 SEX          0 Male  
-2 SEX          1 Female</code></pre>
-</div>
-</div>
-</section><section id="codebook-1" class="level2" data-number="3.2"><h2 data-number="3.2" class="anchored" data-anchor-id="codebook-1">
-<span class="header-section-number">3.2</span> Codebook</h2>
-<div class="cell" data-layout-align="center">
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">codebook</span> <span class="op">&lt;-</span> \<span class="op">(</span><span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  </span>
-<span>  <span class="va">map</span> <span class="op">&lt;-</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/list2.html">list2</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">map</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map_chr</a></span><span class="op">(</span><span class="va">map</span>, \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span><span class="op">$</span><span class="va">variable</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="va">map</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="fu">codebook</span><span class="op">(</span></span>
-<span>  <span class="fu">code</span><span class="op">(</span><span class="st">"SEX"</span>, </span>
-<span>       levels <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">1</span>, </span>
-<span>       labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span><span class="op">)</span><span class="op">)</span>, </span>
-<span>  <span class="fu">code</span><span class="op">(</span><span class="st">"STUDY"</span>, </span>
-<span>       levels <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, </span>
-<span>       labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"S1"</span>, <span class="st">"S2"</span>, <span class="st">"S3"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>$SEX
-# A tibble: 2 × 3
-  variable level label 
-  &lt;chr&gt;    &lt;int&gt; &lt;chr&gt; 
-1 SEX          0 Male  
-2 SEX          1 Female
-
-$STUDY
-# A tibble: 3 × 3
-  variable level label
-  &lt;chr&gt;    &lt;int&gt; &lt;chr&gt;
-1 STUDY        1 S1   
-2 STUDY        2 S2   
-3 STUDY        3 S3   </code></pre>
-</div>
-</div>
-</section><section id="encode" class="level2" data-number="3.3"><h2 data-number="3.3" class="anchored" data-anchor-id="encode">
-<span class="header-section-number">3.3</span> Encode</h2>
-<div class="cell" data-layout-align="center">
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">encode</span> <span class="op">&lt;-</span> \<span class="op">(</span><span class="va">data</span>, <span class="va">codebook</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  </span>
-<span>  <span class="va">mapped_vars</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">codebook</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="va">mapped_data</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map2.html">map2</a></span><span class="op">(</span><span class="va">data</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span>, \<span class="op">(</span><span class="va">x</span>, <span class="va">var</span>, <span class="va">m</span><span class="op">)</span> <span class="op">{</span></span>
-<span>      </span>
-<span>      <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="va">var</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="va">mapped_vars</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
-<span>      </span>
-<span>      <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">x</span>, levels <span class="op">=</span> <span class="va">m</span><span class="op">[[</span><span class="va">var</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">level</span>, labels <span class="op">=</span> <span class="va">m</span><span class="op">[[</span><span class="va">var</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">label</span><span class="op">)</span></span>
-<span>      </span>
-<span>      <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
-<span>    <span class="op">}</span>,</span>
-<span>    <span class="va">m</span> <span class="op">&lt;-</span> <span class="va">codebook</span></span>
-<span>  <span class="op">)</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html">as_tibble</a></span><span class="op">(</span><span class="va">mapped_data</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="va">labels</span> <span class="op">&lt;-</span> <span class="fu">codebook</span><span class="op">(</span></span>
-<span>  <span class="fu">code</span><span class="op">(</span><span class="st">"SEX"</span>, </span>
-<span>       levels <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">1</span>, </span>
-<span>       labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span><span class="op">)</span><span class="op">)</span>, </span>
-<span>  <span class="fu">code</span><span class="op">(</span><span class="st">"STUDY"</span>, </span>
-<span>       levels <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, </span>
-<span>       labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"S1"</span>, <span class="st">"S2"</span>, <span class="st">"S3"</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span></span>
-<span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span></span>
-<span>  STUDY <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>,</span>
-<span>  SEX   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>,</span>
-<span>  AGE   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">32</span>, <span class="fl">18</span>, <span class="fl">64</span>, <span class="fl">52</span>, <span class="fl">26</span>, <span class="fl">80</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">encode</span><span class="op">(</span><span class="va">dataset</span>, <span class="va">labels</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 3
-  STUDY SEX      AGE
-  &lt;fct&gt; &lt;fct&gt;  &lt;dbl&gt;
-1 S1    Male      32
-2 S1    Male      18
-3 S1    Female    64
-4 S2    Female    52
-5 S2    Female    26
-6 S2    Male      80</code></pre>
-</div>
-</div>
-</section><section id="decode" class="level2" data-number="3.4"><h2 data-number="3.4" class="anchored" data-anchor-id="decode">
-<span class="header-section-number">3.4</span> Decode</h2>
-<div class="cell" data-layout-align="center">
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">decode</span> <span class="op">&lt;-</span> \<span class="op">(</span><span class="va">data</span>, <span class="va">codebook</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  </span>
-<span>  <span class="va">mapped_vars</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">codebook</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="va">mapped_data</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map2.html">map2</a></span><span class="op">(</span><span class="va">data</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span>, \<span class="op">(</span><span class="va">x</span>, <span class="va">var</span>, <span class="va">m</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    </span>
-<span>      <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="va">var</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="va">mapped_vars</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
-<span>    </span>
-<span>      <span class="va">x_chr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
-<span>      </span>
-<span>      <span class="va">x_lvl</span> <span class="op">&lt;-</span> <span class="va">m</span><span class="op">[[</span><span class="va">var</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">level</span></span>
-<span>      </span>
-<span>      <span class="va">x_lab</span> <span class="op">&lt;-</span> <span class="va">m</span><span class="op">[[</span><span class="va">var</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">label</span></span>
-<span>      </span>
-<span>      <span class="va">x</span> <span class="op">&lt;-</span> <span class="va">x_lvl</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/match.html">match</a></span><span class="op">(</span><span class="va">x_chr</span>, <span class="va">x_lab</span><span class="op">)</span><span class="op">]</span></span>
-<span>      </span>
-<span>      <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
-<span>    <span class="op">}</span>,</span>
-<span>    <span class="va">m</span> <span class="op">&lt;-</span> <span class="va">codebook</span></span>
-<span>  <span class="op">)</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html">as_tibble</a></span><span class="op">(</span><span class="va">mapped_data</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="va">labels</span> <span class="op">&lt;-</span> <span class="fu">codebook</span><span class="op">(</span></span>
-<span> <span class="fu">code</span><span class="op">(</span><span class="st">"SEX"</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span> <span class="fu">code</span><span class="op">(</span><span class="st">"STUDY"</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"S1"</span>, <span class="st">"S2"</span>, <span class="st">"S3"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span></span>
-<span>  STUDY <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"S1"</span>, <span class="st">"S1"</span>, <span class="st">"S1"</span>, <span class="st">"S2"</span>, <span class="st">"S2"</span>, <span class="st">"S2"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  SEX   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Male"</span>, <span class="st">"Female"</span>, <span class="st">"Female"</span>, <span class="st">"Female"</span>, <span class="st">"Male"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  AGE   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">32</span>, <span class="fl">18</span>, <span class="fl">64</span>, <span class="fl">52</span>, <span class="fl">26</span>, <span class="fl">80</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">decode</span><span class="op">(</span><span class="va">dataset</span>, <span class="va">labels</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 3
-  STUDY   SEX   AGE
-  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-1     1     0    32
-2     1     0    18
-3     1     1    64
-4     2     1    52
-5     2     1    26
-6     2     0    80</code></pre>
-</div>
-</div>
-<hr></section><section id="session-information" class="level2" data-number="3.5"><h2 data-number="3.5" class="anchored" data-anchor-id="session-information">
-<span class="header-section-number">3.5</span> Session Information</h2>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>url         <span class="op">=</span> <span class="st">"https://data.cms.gov/data.json"</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>title       <span class="op">=</span> <span class="st">"Medicare Inpatient Hospitals - by Provider and Service"</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>time_period <span class="op">=</span> <span class="st">"2017-01-01/2017-12-31"</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>response    <span class="op">=</span> requests.request(<span class="st">"GET"</span>, url)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> response.ok:</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    response <span class="op">=</span> response.json()</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    dataset <span class="op">=</span> response[<span class="st">'dataset'</span>]</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="bu">set</span> <span class="kw">in</span> dataset:</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> title <span class="op">==</span> <span class="bu">set</span>[<span class="st">'title'</span>]:</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> distro <span class="kw">in</span> <span class="bu">set</span>[<span class="st">'distribution'</span>]:</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="st">'format'</span> <span class="kw">in</span> distro.keys():</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">if</span> distro[<span class="st">'format'</span>] <span class="op">==</span> <span class="st">"API"</span> <span class="kw">and</span> distro[<span class="st">'temporal'</span>] <span class="op">==</span> time_period:</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>                        <span class="bu">print</span>(<span class="ss">f"API link for </span><span class="sc">{</span>title<span class="sc">}</span><span class="ss"> from </span><span class="sc">{</span>time_period<span class="sc">}</span><span class="ss"> is </span><span class="sc">{</span>distro[<span class="st">'accessURL'</span>]<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr></section><section id="session-information" class="level2" data-number="2.2"><h2 data-number="2.2" class="anchored" data-anchor-id="session-information">
+<span class="header-section-number">2.2</span> Session Information</h2>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
 <p><strong>R version 4.4.2 (2024-10-31 ucrt)</strong></p>
@@ -1265,7 +1102,7 @@ $STUDY
 <p><strong>locale:</strong> <em>LC_COLLATE=English_United States.utf8</em>, <em>LC_CTYPE=English_United States.utf8</em>, <em>LC_MONETARY=English_United States.utf8</em>, <em>LC_NUMERIC=C</em> and <em>LC_TIME=English_United States.utf8</em></p>
 <p><strong>attached base packages:</strong> <em>stats</em>, <em>graphics</em>, <em>grDevices</em>, <em>utils</em>, <em>datasets</em>, <em>methods</em> and <em>base</em></p>
 <p><strong>other attached packages:</strong> <em>pointblank(v.0.12.2)</em>, <em>httr2(v.1.0.7)</em>, <em>codex(v.0.0.1)</em>, <em>provider(v.0.0.1.9000)</em>, <em>collapse(v.2.0.18)</em>, <em>kit(v.0.0.19)</em>, <em>magrittr(v.2.0.3)</em>, <em>data.table(v.1.16.99)</em>, <em>fastverse(v.0.3.4)</em>, <em>lubridate(v.1.9.4)</em>, <em>forcats(v.1.0.0)</em>, <em>stringr(v.1.5.1)</em>, <em>dplyr(v.1.1.4)</em>, <em>purrr(v.1.0.2)</em>, <em>readr(v.2.1.5)</em>, <em>tidyr(v.1.3.1.9000)</em>, <em>tibble(v.3.2.1)</em>, <em>ggplot2(v.3.5.1)</em> and <em>tidyverse(v.2.0.0)</em></p>
-<p><strong>loaded via a namespace (and not attached):</strong> <em>gtable(v.0.3.6)</em>, <em>xfun(v.0.49)</em>, <em>htmlwidgets(v.1.6.4)</em>, <em>tzdb(v.0.4.0)</em>, <em>vctrs(v.0.6.5)</em>, <em>tools(v.4.4.2)</em>, <em>generics(v.0.1.3)</em>, <em>curl(v.6.0.1)</em>, <em>parallel(v.4.4.2)</em>, <em>fansi(v.1.0.6)</em>, <em>pkgconfig(v.2.0.3)</em>, <em>gt(v.0.11.1.9000)</em>, <em>lifecycle(v.1.0.4)</em>, <em>compiler(v.4.4.2)</em>, <em>cheapr(v.0.9.92)</em>, <em>textshaping(v.0.4.1)</em>, <em>munsell(v.0.5.1)</em>, <em>janitor(v.2.2.0)</em>, <em>snakecase(v.0.11.1)</em>, <em>htmltools(v.0.5.8.1)</em>, <em>sass(v.0.4.9)</em>, <em>yaml(v.2.3.10)</em>, <em>pillar(v.1.9.0)</em>, <em>crayon(v.1.5.3)</em>, <em>commonmark(v.1.9.2)</em>, <em>tidyselect(v.1.2.1)</em>, <em>digest(v.0.6.37)</em>, <em>stringi(v.1.8.4)</em>, <em>pander(v.0.6.5)</em>, <em>fuimus(v.0.0.5.9003)</em>, <em>fastmap(v.1.2.0)</em>, <em>grid(v.4.4.2)</em>, <em>blastula(v.0.3.5)</em>, <em>colorspace(v.2.1-1)</em>, <em>cli(v.3.6.3)</em>, <em>base64enc(v.0.1-3)</em>, <em>utf8(v.1.2.4)</em>, <em>withr(v.3.0.2)</em>, <em>scales(v.1.3.0)</em>, <em>rappdirs(v.0.3.3)</em>, <em>timechange(v.0.3.0)</em>, <em>rmarkdown(v.2.29)</em>, <em>ragg(v.1.3.3)</em>, <em>hms(v.1.1.3)</em>, <em>evaluate(v.1.0.1)</em>, <em>knitr(v.1.49)</em>, <em>markdown(v.1.13)</em>, <em>rlang(v.1.1.4)</em>, <em>Rcpp(v.1.0.13-1)</em>, <em>zeallot(v.0.1.0)</em>, <em>glue(v.1.8.0)</em>, <em>xml2(v.1.3.6)</em>, <em>rstudioapi(v.0.17.1)</em>, <em>jsonlite(v.1.8.9)</em>, <em>R6(v.2.5.1)</em> and <em>systemfonts(v.1.1.0)</em></p>
+<p><strong>loaded via a namespace (and not attached):</strong> <em>gtable(v.0.3.6)</em>, <em>xfun(v.0.49)</em>, <em>htmlwidgets(v.1.6.4)</em>, <em>tzdb(v.0.4.0)</em>, <em>vctrs(v.0.6.5)</em>, <em>tools(v.4.4.2)</em>, <em>generics(v.0.1.3)</em>, <em>curl(v.6.0.1)</em>, <em>parallel(v.4.4.2)</em>, <em>fansi(v.1.0.6)</em>, <em>pkgconfig(v.2.0.3)</em>, <em>gt(v.0.11.1.9000)</em>, <em>lifecycle(v.1.0.4)</em>, <em>compiler(v.4.4.2)</em>, <em>cheapr(v.0.9.92)</em>, <em>textshaping(v.0.4.1)</em>, <em>munsell(v.0.5.1)</em>, <em>janitor(v.2.2.0)</em>, <em>snakecase(v.0.11.1)</em>, <em>htmltools(v.0.5.8.1)</em>, <em>sass(v.0.4.9)</em>, <em>yaml(v.2.3.10)</em>, <em>pillar(v.1.9.0)</em>, <em>commonmark(v.1.9.2)</em>, <em>tidyselect(v.1.2.1)</em>, <em>digest(v.0.6.37)</em>, <em>stringi(v.1.8.4)</em>, <em>pander(v.0.6.5)</em>, <em>fuimus(v.0.0.5.9003)</em>, <em>fastmap(v.1.2.0)</em>, <em>grid(v.4.4.2)</em>, <em>blastula(v.0.3.5)</em>, <em>colorspace(v.2.1-1)</em>, <em>cli(v.3.6.3)</em>, <em>base64enc(v.0.1-3)</em>, <em>utf8(v.1.2.4)</em>, <em>withr(v.3.0.2)</em>, <em>scales(v.1.3.0)</em>, <em>rappdirs(v.0.3.3)</em>, <em>timechange(v.0.3.0)</em>, <em>rmarkdown(v.2.29)</em>, <em>ragg(v.1.3.3)</em>, <em>hms(v.1.1.3)</em>, <em>evaluate(v.1.0.1)</em>, <em>knitr(v.1.49)</em>, <em>markdown(v.1.13)</em>, <em>rlang(v.1.1.4)</em>, <em>Rcpp(v.1.0.13-1)</em>, <em>zeallot(v.0.1.0)</em>, <em>glue(v.1.8.0)</em>, <em>xml2(v.1.3.6)</em>, <em>rstudioapi(v.0.17.1)</em>, <em>jsonlite(v.1.8.9)</em>, <em>R6(v.2.5.1)</em> and <em>systemfonts(v.1.1.0)</em></p>
 </div>
 </div>
 
@@ -1750,347 +1587,227 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb18" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "provider: Metadata Caching"</span></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="co">    reference-location: block</span></span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="an">editor_options:</span><span class="co"> </span></span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="co">  chunk_output_type: console</span></span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="in">```{r setup}</span></span>
-<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="in">#| echo: false</span></span>
-<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a><span class="in">#| message: false</span></span>
-<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a><span class="in">#| warning: false</span></span>
-<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a><span class="in">knitr::opts_chunk$set(</span></span>
-<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a><span class="in">  dev = "ragg_png",</span></span>
-<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a><span class="in">  dpi = 320,</span></span>
-<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a><span class="in">  out.width = "100%",</span></span>
-<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a><span class="in">  fig.width = 8,</span></span>
-<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a><span class="in">  fig.asp = 0.818,</span></span>
-<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a><span class="in">  fig.retina = 2,</span></span>
-<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a><span class="in">  fig.align = "center",</span></span>
-<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a><span class="in">  fig.show = "hold"</span></span>
-<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a><span class="in">)</span></span>
-<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a><span class="in">options(scipen = 999, digits = 3)</span></span>
-<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a><span class="in">library(tidyverse)</span></span>
-<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a><span class="in">library(fastverse)</span></span>
-<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a><span class="in">library(provider)</span></span>
-<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a><span class="in">library(codex)</span></span>
-<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a><span class="in">library(httr2)</span></span>
-<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a><span class="in">na_if &lt;- fuimus:::na_if</span></span>
-<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a><span class="in">gelm &lt;- \(l, e, m = "re", ...) collapse::get_elem(l = l, elem = e, regex = ifelse(m == "re", TRUE, FALSE), DF.as.list = ifelse(m == "df", TRUE, FALSE), ...)</span></span>
-<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span><span class="co">[</span><span class="ot">Centers for Medicare &amp; Medicaid Services Data API</span><span class="co">](https://data.cms.gov/api-docs)</span></span>
-<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a>   = <span class="co">[</span><span class="ot">API FAQ for data.CMS.gov | OCTOBER 2024 - VERSION 1.6</span><span class="co">](https://data.cms.gov/sites/default/files/2024-10/7ef65521-65a4-41ed-b600-3a0011f8ec4b/API%20Guide%20Formatted%201_6.pdf)</span></span>
-<span id="cb18-39"><a href="#cb18-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-40"><a href="#cb18-40" aria-hidden="true" tabindex="-1"></a><span class="fu"># National Downloadable File</span></span>
-<span id="cb18-41"><a href="#cb18-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-42"><a href="#cb18-42" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;   **Previous Work**</span></span>
-<span id="cb18-43"><a href="#cb18-43" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;</span></span>
-<span id="cb18-44"><a href="#cb18-44" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;   * </span><span class="co">[</span><span class="ot">provider(gh issue #60) - version 1</span><span class="co">](https://github.com/andrewallenbruce/provider/issues/60#issue-2000723817)</span></span>
-<span id="cb18-45"><a href="#cb18-45" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;   * </span><span class="co">[</span><span class="ot">provider(gh issue #60) - version 2</span><span class="co">](https://github.com/andrewallenbruce/provider/issues/60#issuecomment-1820270391)</span></span>
-<span id="cb18-46"><a href="#cb18-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-49"><a href="#cb18-49" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb18-50"><a href="#cb18-50" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: ndf</span></span>
-<span id="cb18-51"><a href="#cb18-51" aria-hidden="true" tabindex="-1"></a>meta_ndf <span class="ot">&lt;-</span> \(fname) {</span>
-<span id="cb18-52"><a href="#cb18-52" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb18-53"><a href="#cb18-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(curl<span class="sc">::</span><span class="fu">has_internet</span>())</span>
-<span id="cb18-54"><a href="#cb18-54" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb18-55"><a href="#cb18-55" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">request</span>(</span>
-<span id="cb18-56"><a href="#cb18-56" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste0</span>(</span>
-<span id="cb18-57"><a href="#cb18-57" aria-hidden="true" tabindex="-1"></a>      <span class="st">"https://data.cms.gov/"</span>,</span>
-<span id="cb18-58"><a href="#cb18-58" aria-hidden="true" tabindex="-1"></a>      <span class="st">"provider-data/api/1/"</span>,</span>
-<span id="cb18-59"><a href="#cb18-59" aria-hidden="true" tabindex="-1"></a>      <span class="st">"metastore/schemas/"</span>,</span>
-<span id="cb18-60"><a href="#cb18-60" aria-hidden="true" tabindex="-1"></a>      <span class="st">"dataset/items/"</span>,</span>
-<span id="cb18-61"><a href="#cb18-61" aria-hidden="true" tabindex="-1"></a>      <span class="cf">switch</span>(fname, </span>
-<span id="cb18-62"><a href="#cb18-62" aria-hidden="true" tabindex="-1"></a>             <span class="at">affiliations =</span> <span class="st">"27ea-46a8"</span>, </span>
-<span id="cb18-63"><a href="#cb18-63" aria-hidden="true" tabindex="-1"></a>             <span class="at">clinicians   =</span> <span class="st">"mj5m-pzi6"</span>, </span>
-<span id="cb18-64"><a href="#cb18-64" aria-hidden="true" tabindex="-1"></a>             <span class="fu">stop</span>(<span class="st">"Invalid argument"</span>)),</span>
-<span id="cb18-65"><a href="#cb18-65" aria-hidden="true" tabindex="-1"></a>    <span class="st">"?show-reference-ids=true"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb18-66"><a href="#cb18-66" aria-hidden="true" tabindex="-1"></a>       <span class="fu">req_perform</span>() <span class="sc">|&gt;</span></span>
-<span id="cb18-67"><a href="#cb18-67" aria-hidden="true" tabindex="-1"></a>       <span class="fu">resp_body_json</span>(</span>
-<span id="cb18-68"><a href="#cb18-68" aria-hidden="true" tabindex="-1"></a>         <span class="at">check_type     =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb18-69"><a href="#cb18-69" aria-hidden="true" tabindex="-1"></a>         <span class="at">simplifyVector =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb18-70"><a href="#cb18-70" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb18-71"><a href="#cb18-71" aria-hidden="true" tabindex="-1"></a>  distro <span class="ot">&lt;-</span> <span class="fu">gelm</span>(</span>
-<span id="cb18-72"><a href="#cb18-72" aria-hidden="true" tabindex="-1"></a>    <span class="fu">gelm</span>(</span>
-<span id="cb18-73"><a href="#cb18-73" aria-hidden="true" tabindex="-1"></a>      x,</span>
-<span id="cb18-74"><a href="#cb18-74" aria-hidden="true" tabindex="-1"></a>      <span class="st">"distribution"</span>), </span>
-<span id="cb18-75"><a href="#cb18-75" aria-hidden="true" tabindex="-1"></a>    <span class="st">"identifier"</span>)</span>
-<span id="cb18-76"><a href="#cb18-76" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb18-77"><a href="#cb18-77" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> <span class="fu">request</span>(</span>
-<span id="cb18-78"><a href="#cb18-78" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste0</span>(</span>
-<span id="cb18-79"><a href="#cb18-79" aria-hidden="true" tabindex="-1"></a>    <span class="st">"https://data.cms.gov/"</span>, </span>
-<span id="cb18-80"><a href="#cb18-80" aria-hidden="true" tabindex="-1"></a>    <span class="st">"provider-data/api/1/"</span>,</span>
-<span id="cb18-81"><a href="#cb18-81" aria-hidden="true" tabindex="-1"></a>    <span class="st">"datastore/query/"</span>, </span>
-<span id="cb18-82"><a href="#cb18-82" aria-hidden="true" tabindex="-1"></a>    distro, </span>
-<span id="cb18-83"><a href="#cb18-83" aria-hidden="true" tabindex="-1"></a>    <span class="st">"?limit=1&amp;offset=100&amp;"</span>,</span>
-<span id="cb18-84"><a href="#cb18-84" aria-hidden="true" tabindex="-1"></a>    <span class="st">"count=true&amp;results=true&amp;"</span>, </span>
-<span id="cb18-85"><a href="#cb18-85" aria-hidden="true" tabindex="-1"></a>    <span class="st">"schema=true&amp;keys=true&amp;"</span>,</span>
-<span id="cb18-86"><a href="#cb18-86" aria-hidden="true" tabindex="-1"></a>    <span class="st">"format=json&amp;rowIds=true"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb18-87"><a href="#cb18-87" aria-hidden="true" tabindex="-1"></a>       <span class="fu">req_perform</span>() <span class="sc">|&gt;</span></span>
-<span id="cb18-88"><a href="#cb18-88" aria-hidden="true" tabindex="-1"></a>       <span class="fu">resp_body_json</span>(</span>
-<span id="cb18-89"><a href="#cb18-89" aria-hidden="true" tabindex="-1"></a>         <span class="at">check_type =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb18-90"><a href="#cb18-90" aria-hidden="true" tabindex="-1"></a>         <span class="at">simplifyVector =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb18-91"><a href="#cb18-91" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb18-92"><a href="#cb18-92" aria-hidden="true" tabindex="-1"></a>  z <span class="ot">&lt;-</span> <span class="fu">gelm</span>(<span class="fu">gelm</span>(<span class="fu">gelm</span>(</span>
-<span id="cb18-93"><a href="#cb18-93" aria-hidden="true" tabindex="-1"></a>        y, </span>
-<span id="cb18-94"><a href="#cb18-94" aria-hidden="true" tabindex="-1"></a>        <span class="st">"schema"</span>), </span>
-<span id="cb18-95"><a href="#cb18-95" aria-hidden="true" tabindex="-1"></a>      distro), </span>
-<span id="cb18-96"><a href="#cb18-96" aria-hidden="true" tabindex="-1"></a>    <span class="st">"fields"</span>)</span>
-<span id="cb18-97"><a href="#cb18-97" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb18-98"><a href="#cb18-98" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb18-99"><a href="#cb18-99" aria-hidden="true" tabindex="-1"></a>    <span class="at">title        =</span> <span class="fu">gelm</span>(x, <span class="st">"title"</span>),</span>
-<span id="cb18-100"><a href="#cb18-100" aria-hidden="true" tabindex="-1"></a>    <span class="at">description  =</span> <span class="fu">gelm</span>(x, <span class="st">"description"</span>),</span>
-<span id="cb18-101"><a href="#cb18-101" aria-hidden="true" tabindex="-1"></a>    <span class="at">identifier   =</span> <span class="fu">gelm</span>(<span class="fu">gelm</span>(x, <span class="st">"identifier"</span>), <span class="st">"identifier"</span>),</span>
-<span id="cb18-102"><a href="#cb18-102" aria-hidden="true" tabindex="-1"></a>    <span class="at">distribution =</span> distro,</span>
-<span id="cb18-103"><a href="#cb18-103" aria-hidden="true" tabindex="-1"></a>    <span class="at">issued       =</span> <span class="fu">gelm</span>(x, <span class="st">"issued"</span>), </span>
-<span id="cb18-104"><a href="#cb18-104" aria-hidden="true" tabindex="-1"></a>    <span class="at">modified     =</span> <span class="fu">gelm</span>(x, <span class="st">"modified"</span>)[[<span class="dv">1</span>]], </span>
-<span id="cb18-105"><a href="#cb18-105" aria-hidden="true" tabindex="-1"></a>    <span class="at">released     =</span> <span class="fu">gelm</span>(x, <span class="st">"released"</span>),</span>
-<span id="cb18-106"><a href="#cb18-106" aria-hidden="true" tabindex="-1"></a>    <span class="at">dimension    =</span> <span class="fu">str_glue</span>(<span class="st">'{gelm(gelm(y, "count"), is.numeric)} x {gelm(gelm(z, "record_number"), "length")}'</span>), </span>
-<span id="cb18-107"><a href="#cb18-107" aria-hidden="true" tabindex="-1"></a>    <span class="at">fields       =</span> <span class="fu">delist</span>(<span class="fu">getelem</span>(z[<span class="fu">names</span>(z)], <span class="st">"description"</span>)),</span>
-<span id="cb18-108"><a href="#cb18-108" aria-hidden="true" tabindex="-1"></a>    <span class="at">site         =</span> <span class="fu">gelm</span>(x, <span class="st">"landingPage"</span>),</span>
-<span id="cb18-109"><a href="#cb18-109" aria-hidden="true" tabindex="-1"></a>    <span class="at">csv          =</span> <span class="fu">gelm</span>(<span class="fu">gelm</span>(<span class="fu">gelm</span>(x, <span class="st">"distribution"</span>), <span class="st">"data"</span>), <span class="st">"downloadURL"</span>, <span class="at">m =</span> <span class="st">"df"</span>),</span>
-<span id="cb18-110"><a href="#cb18-110" aria-hidden="true" tabindex="-1"></a>    <span class="at">dictionary   =</span> <span class="fu">paste0</span>(<span class="st">"https://data.cms.gov/provider-data/sites/default/files/data_dictionaries/physician/DOC_Data_Dictionary.pdf"</span>))</span>
-<span id="cb18-111"><a href="#cb18-111" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb18-112"><a href="#cb18-112" aria-hidden="true" tabindex="-1"></a>  out</span>
-<span id="cb18-113"><a href="#cb18-113" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb18-114"><a href="#cb18-114" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-115"><a href="#cb18-115" aria-hidden="true" tabindex="-1"></a><span class="fu">meta_ndf</span>(<span class="st">"affiliations"</span>)</span>
-<span id="cb18-116"><a href="#cb18-116" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-117"><a href="#cb18-117" aria-hidden="true" tabindex="-1"></a><span class="fu">meta_ndf</span>(<span class="st">"clinicians"</span>)</span>
-<span id="cb18-118"><a href="#cb18-118" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb18-119"><a href="#cb18-119" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-120"><a href="#cb18-120" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-121"><a href="#cb18-121" aria-hidden="true" tabindex="-1"></a><span class="fu">## pointblank</span></span>
-<span id="cb18-122"><a href="#cb18-122" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-125"><a href="#cb18-125" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb18-126"><a href="#cb18-126" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: pointblank</span></span>
-<span id="cb18-127"><a href="#cb18-127" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-128"><a href="#cb18-128" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pointblank)</span>
-<span id="cb18-129"><a href="#cb18-129" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-130"><a href="#cb18-130" aria-hidden="true" tabindex="-1"></a>johnd <span class="ot">&lt;-</span> <span class="fu">affiliations</span>(<span class="at">npi =</span> <span class="dv">1558595660</span>, <span class="at">na.rm =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb18-131"><a href="#cb18-131" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-132"><a href="#cb18-132" aria-hidden="true" tabindex="-1"></a>johnd <span class="sc">|&gt;</span> </span>
-<span id="cb18-133"><a href="#cb18-133" aria-hidden="true" tabindex="-1"></a>  <span class="fu">create_informant</span>(</span>
-<span id="cb18-134"><a href="#cb18-134" aria-hidden="true" tabindex="-1"></a>    <span class="at">tbl_name =</span> <span class="cn">NULL</span>,</span>
-<span id="cb18-135"><a href="#cb18-135" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span> <span class="st">"Provider Facility Affiliations"</span></span>
-<span id="cb18-136"><a href="#cb18-136" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb18-137"><a href="#cb18-137" aria-hidden="true" tabindex="-1"></a>  <span class="fu">info_tabular</span>(</span>
-<span id="cb18-138"><a href="#cb18-138" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Row Definition</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"A row has randomized values."</span>,</span>
-<span id="cb18-139"><a href="#cb18-139" aria-hidden="true" tabindex="-1"></a>    <span class="at">Source =</span> <span class="fu">c</span>(</span>
-<span id="cb18-140"><a href="#cb18-140" aria-hidden="true" tabindex="-1"></a>      <span class="st">"- From the **pointblank** package."</span>,</span>
-<span id="cb18-141"><a href="#cb18-141" aria-hidden="true" tabindex="-1"></a>      <span class="st">"- [https://rstudio.github.io/pointblank/]()"</span></span>
-<span id="cb18-142"><a href="#cb18-142" aria-hidden="true" tabindex="-1"></a>     )</span>
-<span id="cb18-143"><a href="#cb18-143" aria-hidden="true" tabindex="-1"></a>   ) <span class="sc">|&gt;</span> </span>
-<span id="cb18-144"><a href="#cb18-144" aria-hidden="true" tabindex="-1"></a>  <span class="fu">info_columns</span>(</span>
-<span id="cb18-145"><a href="#cb18-145" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> npi,</span>
-<span id="cb18-146"><a href="#cb18-146" aria-hidden="true" tabindex="-1"></a>    <span class="at">info =</span> <span class="st">"10-digit National Provider Identifier."</span>) <span class="sc">|&gt;</span></span>
-<span id="cb18-147"><a href="#cb18-147" aria-hidden="true" tabindex="-1"></a>  <span class="fu">info_columns</span>(</span>
-<span id="cb18-148"><a href="#cb18-148" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> pac,</span>
-<span id="cb18-149"><a href="#cb18-149" aria-hidden="true" tabindex="-1"></a>    <span class="at">info =</span> <span class="st">"10-digit PECOS Associate Control ID."</span>) <span class="sc">|&gt;</span></span>
-<span id="cb18-150"><a href="#cb18-150" aria-hidden="true" tabindex="-1"></a>  <span class="fu">info_columns</span>(</span>
-<span id="cb18-151"><a href="#cb18-151" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">vars</span>(first, middle, last, suffix),</span>
-<span id="cb18-152"><a href="#cb18-152" aria-hidden="true" tabindex="-1"></a>    <span class="at">info =</span> <span class="st">"Individual Provider's Name."</span>) <span class="sc">|&gt;</span></span>
-<span id="cb18-153"><a href="#cb18-153" aria-hidden="true" tabindex="-1"></a>  <span class="fu">info_columns</span>(</span>
-<span id="cb18-154"><a href="#cb18-154" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> facility_type,</span>
-<span id="cb18-155"><a href="#cb18-155" aria-hidden="true" tabindex="-1"></a>    <span class="at">info =</span> <span class="st">"Individual Provider's Name."</span>) <span class="sc">|&gt;</span></span>
-<span id="cb18-156"><a href="#cb18-156" aria-hidden="true" tabindex="-1"></a>  <span class="fu">info_section</span>(</span>
-<span id="cb18-157"><a href="#cb18-157" aria-hidden="true" tabindex="-1"></a>    <span class="at">section_name =</span> <span class="st">"Notes"</span>,</span>
-<span id="cb18-158"><a href="#cb18-158" aria-hidden="true" tabindex="-1"></a>    <span class="at">usage =</span> <span class="st">"`affiliations(parent_ccn = '670055')`"</span>,</span>
-<span id="cb18-159"><a href="#cb18-159" aria-hidden="true" tabindex="-1"></a>    <span class="at">Source =</span> <span class="fu">c</span>(</span>
-<span id="cb18-160"><a href="#cb18-160" aria-hidden="true" tabindex="-1"></a>      <span class="st">"- From the **(provider)** package."</span>,</span>
-<span id="cb18-161"><a href="#cb18-161" aria-hidden="true" tabindex="-1"></a>      <span class="st">"- [CMS Affiliations API](https://data.cms.gov/provider-data/dataset/27ea-46a8)"</span></span>
-<span id="cb18-162"><a href="#cb18-162" aria-hidden="true" tabindex="-1"></a>    )) <span class="sc">|&gt;</span> </span>
-<span id="cb18-163"><a href="#cb18-163" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_informant_report</span>(</span>
-<span id="cb18-164"><a href="#cb18-164" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"**`affiliations()`** Data Dictionary"</span>,</span>
-<span id="cb18-165"><a href="#cb18-165" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="st">"standard"</span></span>
-<span id="cb18-166"><a href="#cb18-166" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb18-167"><a href="#cb18-167" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb18-168"><a href="#cb18-168" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-169"><a href="#cb18-169" aria-hidden="true" tabindex="-1"></a><span class="fu"># New API FAQ</span></span>
-<span id="cb18-170"><a href="#cb18-170" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-171"><a href="#cb18-171" aria-hidden="true" tabindex="-1"></a><span class="fu">## Finding Data</span></span>
-<span id="cb18-172"><a href="#cb18-172" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-173"><a href="#cb18-173" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Is there a catalog of available data?</span></span>
-<span id="cb18-174"><a href="#cb18-174" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-175"><a href="#cb18-175" aria-hidden="true" tabindex="-1"></a>Yes, the <span class="co">[</span><span class="ot">`data.json`</span><span class="co">](https://data.cms.gov/data.json)</span> file is an <span class="co">[</span><span class="ot">**Open Data**</span><span class="co">](https://resources.data.gov/resources/dcat-us/)</span> catalog containing the datasets available on our site. As new data is added, it is automatically updated to the **data.json**.</span>
-<span id="cb18-176"><a href="#cb18-176" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-177"><a href="#cb18-177" aria-hidden="true" tabindex="-1"></a>In the **data.json**, there is an array called **dataset**. You can search through this array using the title of your dataset, such as `"Payroll Based Journal Daily Nurse Staffing"`. Inside of the dataset, there is an array called **distribution** which will contain all the versions of the data in all available formats for each version. In this array there are a few different types of entries:</span>
-<span id="cb18-178"><a href="#cb18-178" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-179"><a href="#cb18-179" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span>The first entry (with a description of 'latest') will provide a URL that will always point to the latest data, even as new versions are published.</span>
-<span id="cb18-180"><a href="#cb18-180" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span>The remaining entries will provide references to the data at fixed points in time, listed in descending order by date. For example, `"https://data.cms.gov/data-api/v1/dataset/d10d792e-</span>
-<span id="cb18-181"><a href="#cb18-181" aria-hidden="true" tabindex="-1"></a>ea6e-4145-8512-34efbc1be04b/data"` will always point to the **Payroll Based Journal Daily Nurse Staffing** data from **Q2 2021**. Some datasets will have multiple historical versions available and some will only have the most recent data available.</span>
-<span id="cb18-182"><a href="#cb18-182" aria-hidden="true" tabindex="-1"></a><span class="ss">      * </span>The data with mediaType of "text/csv" is downloadable as a CSV file and data with mediaType of "application/zip" is downloadable as a ZIP file.</span>
-<span id="cb18-183"><a href="#cb18-183" aria-hidden="true" tabindex="-1"></a><span class="ss">      * </span>The data with a format of "API" will point to an API endpoint.</span>
-<span id="cb18-184"><a href="#cb18-184" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-185"><a href="#cb18-185" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; How can I get an earlier version of the data?</span></span>
-<span id="cb18-186"><a href="#cb18-186" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-187"><a href="#cb18-187" aria-hidden="true" tabindex="-1"></a>If your data has earlier versions available, there is a "temporal" field in the distribution section of the data.json file which will indicate the time period. An example is below.</span>
-<span id="cb18-188"><a href="#cb18-188" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-189"><a href="#cb18-189" aria-hidden="true" tabindex="-1"></a>Older Version Code Example in Python</span>
-<span id="cb18-190"><a href="#cb18-190" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-191"><a href="#cb18-191" aria-hidden="true" tabindex="-1"></a>Finds the API link for the 2017 Medicare Inpatient Hospitals - by Provider and Service Data</span>
-<span id="cb18-192"><a href="#cb18-192" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-193"><a href="#cb18-193" aria-hidden="true" tabindex="-1"></a>https://data.cms.gov/provider-summary-by-type-of-service/medicare-inpatient-hospitals/medicare-inpatient-hospitals-by-provider-and-service</span>
-<span id="cb18-194"><a href="#cb18-194" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-195"><a href="#cb18-195" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
-<span id="cb18-196"><a href="#cb18-196" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
-<span id="cb18-197"><a href="#cb18-197" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-198"><a href="#cb18-198" aria-hidden="true" tabindex="-1"></a>url         <span class="op">=</span> <span class="st">"https://data.cms.gov/data.json"</span></span>
-<span id="cb18-199"><a href="#cb18-199" aria-hidden="true" tabindex="-1"></a>title       <span class="op">=</span> <span class="st">"Medicare Inpatient Hospitals - by Provider and Service"</span></span>
-<span id="cb18-200"><a href="#cb18-200" aria-hidden="true" tabindex="-1"></a>time_period <span class="op">=</span> <span class="st">"2017-01-01/2017-12-31"</span></span>
-<span id="cb18-201"><a href="#cb18-201" aria-hidden="true" tabindex="-1"></a>response    <span class="op">=</span> requests.request(<span class="st">"GET"</span>, url)</span>
-<span id="cb18-202"><a href="#cb18-202" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-203"><a href="#cb18-203" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> response.ok:</span>
-<span id="cb18-204"><a href="#cb18-204" aria-hidden="true" tabindex="-1"></a>    response <span class="op">=</span> response.json()</span>
-<span id="cb18-205"><a href="#cb18-205" aria-hidden="true" tabindex="-1"></a>    dataset <span class="op">=</span> response[<span class="st">'dataset'</span>]</span>
-<span id="cb18-206"><a href="#cb18-206" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="bu">set</span> <span class="kw">in</span> dataset:</span>
-<span id="cb18-207"><a href="#cb18-207" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> title <span class="op">==</span> <span class="bu">set</span>[<span class="st">'title'</span>]:</span>
-<span id="cb18-208"><a href="#cb18-208" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> distro <span class="kw">in</span> <span class="bu">set</span>[<span class="st">'distribution'</span>]:</span>
-<span id="cb18-209"><a href="#cb18-209" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="st">'format'</span> <span class="kw">in</span> distro.keys():</span>
-<span id="cb18-210"><a href="#cb18-210" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">if</span> distro[<span class="st">'format'</span>] <span class="op">==</span> <span class="st">"API"</span> <span class="kw">and</span> distro[<span class="st">'temporal'</span>] <span class="op">==</span> time_period:</span>
-<span id="cb18-211"><a href="#cb18-211" aria-hidden="true" tabindex="-1"></a>                        <span class="bu">print</span>(<span class="ss">f"API link for </span><span class="sc">{</span>title<span class="sc">}</span><span class="ss"> from </span><span class="sc">{</span>time_period<span class="sc">}</span><span class="ss"> is </span><span class="sc">{</span>distro[<span class="st">'accessURL'</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb18-212"><a href="#cb18-212" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb18-213"><a href="#cb18-213" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-214"><a href="#cb18-214" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-215"><a href="#cb18-215" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-216"><a href="#cb18-216" aria-hidden="true" tabindex="-1"></a>--------------------------------------------------------------------------------</span>
-<span id="cb18-217"><a href="#cb18-217" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-218"><a href="#cb18-218" aria-hidden="true" tabindex="-1"></a><span class="fu"># Codebook</span></span>
-<span id="cb18-219"><a href="#cb18-219" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-220"><a href="#cb18-220" aria-hidden="true" tabindex="-1"></a><span class="fu">## Code</span></span>
-<span id="cb18-221"><a href="#cb18-221" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-224"><a href="#cb18-224" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb18-225"><a href="#cb18-225" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: code</span></span>
-<span id="cb18-226"><a href="#cb18-226" aria-hidden="true" tabindex="-1"></a>code <span class="ot">&lt;-</span> \(variable, levels, labels) {</span>
-<span id="cb18-227"><a href="#cb18-227" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">tibble</span>(</span>
-<span id="cb18-228"><a href="#cb18-228" aria-hidden="true" tabindex="-1"></a>    <span class="at">variable =</span> variable, </span>
-<span id="cb18-229"><a href="#cb18-229" aria-hidden="true" tabindex="-1"></a>    <span class="at">level =</span> levels, </span>
-<span id="cb18-230"><a href="#cb18-230" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span> labels)</span>
-<span id="cb18-231"><a href="#cb18-231" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb18-232"><a href="#cb18-232" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-233"><a href="#cb18-233" aria-hidden="true" tabindex="-1"></a><span class="fu">code</span>(</span>
-<span id="cb18-234"><a href="#cb18-234" aria-hidden="true" tabindex="-1"></a>  <span class="st">"SEX"</span>, </span>
-<span id="cb18-235"><a href="#cb18-235" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), </span>
-<span id="cb18-236"><a href="#cb18-236" aria-hidden="true" tabindex="-1"></a>  <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Male"</span>, <span class="st">"Female"</span>))</span>
-<span id="cb18-237"><a href="#cb18-237" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb18-238"><a href="#cb18-238" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-239"><a href="#cb18-239" aria-hidden="true" tabindex="-1"></a><span class="fu">## Codebook</span></span>
-<span id="cb18-240"><a href="#cb18-240" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-243"><a href="#cb18-243" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb18-244"><a href="#cb18-244" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: codebook</span></span>
-<span id="cb18-245"><a href="#cb18-245" aria-hidden="true" tabindex="-1"></a>codebook <span class="ot">&lt;-</span> \(...) {</span>
-<span id="cb18-246"><a href="#cb18-246" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb18-247"><a href="#cb18-247" aria-hidden="true" tabindex="-1"></a>  map <span class="ot">&lt;-</span> rlang<span class="sc">::</span><span class="fu">list2</span>(...)</span>
-<span id="cb18-248"><a href="#cb18-248" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb18-249"><a href="#cb18-249" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>(map) <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map_chr</span>(map, \(x) x<span class="sc">$</span>variable[<span class="dv">1</span>])</span>
-<span id="cb18-250"><a href="#cb18-250" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb18-251"><a href="#cb18-251" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(map)</span>
-<span id="cb18-252"><a href="#cb18-252" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb18-253"><a href="#cb18-253" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-254"><a href="#cb18-254" aria-hidden="true" tabindex="-1"></a><span class="fu">codebook</span>(</span>
-<span id="cb18-255"><a href="#cb18-255" aria-hidden="true" tabindex="-1"></a>  <span class="fu">code</span>(<span class="st">"SEX"</span>, </span>
-<span id="cb18-256"><a href="#cb18-256" aria-hidden="true" tabindex="-1"></a>       <span class="at">levels =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>, </span>
-<span id="cb18-257"><a href="#cb18-257" aria-hidden="true" tabindex="-1"></a>       <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Male"</span>, <span class="st">"Female"</span>)), </span>
-<span id="cb18-258"><a href="#cb18-258" aria-hidden="true" tabindex="-1"></a>  <span class="fu">code</span>(<span class="st">"STUDY"</span>, </span>
-<span id="cb18-259"><a href="#cb18-259" aria-hidden="true" tabindex="-1"></a>       <span class="at">levels =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, </span>
-<span id="cb18-260"><a href="#cb18-260" aria-hidden="true" tabindex="-1"></a>       <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"S1"</span>, <span class="st">"S2"</span>, <span class="st">"S3"</span>)))</span>
-<span id="cb18-261"><a href="#cb18-261" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb18-262"><a href="#cb18-262" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-263"><a href="#cb18-263" aria-hidden="true" tabindex="-1"></a><span class="fu">## Encode</span></span>
-<span id="cb18-264"><a href="#cb18-264" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-267"><a href="#cb18-267" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb18-268"><a href="#cb18-268" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: encode</span></span>
-<span id="cb18-269"><a href="#cb18-269" aria-hidden="true" tabindex="-1"></a>encode <span class="ot">&lt;-</span> \(data, codebook) {</span>
-<span id="cb18-270"><a href="#cb18-270" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb18-271"><a href="#cb18-271" aria-hidden="true" tabindex="-1"></a>  mapped_vars <span class="ot">&lt;-</span> <span class="fu">names</span>(codebook)</span>
-<span id="cb18-272"><a href="#cb18-272" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb18-273"><a href="#cb18-273" aria-hidden="true" tabindex="-1"></a>  mapped_data <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map2</span>(data, <span class="fu">names</span>(data), \(x, var, m) {</span>
-<span id="cb18-274"><a href="#cb18-274" aria-hidden="true" tabindex="-1"></a>      </span>
-<span id="cb18-275"><a href="#cb18-275" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="sc">!</span>var <span class="sc">%in%</span> mapped_vars) <span class="fu">return</span>(x)</span>
-<span id="cb18-276"><a href="#cb18-276" aria-hidden="true" tabindex="-1"></a>      </span>
-<span id="cb18-277"><a href="#cb18-277" aria-hidden="true" tabindex="-1"></a>      x <span class="ot">&lt;-</span> <span class="fu">factor</span>(x, <span class="at">levels =</span> m[[var]]<span class="sc">$</span>level, <span class="at">labels =</span> m[[var]]<span class="sc">$</span>label)</span>
-<span id="cb18-278"><a href="#cb18-278" aria-hidden="true" tabindex="-1"></a>      </span>
-<span id="cb18-279"><a href="#cb18-279" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(x)</span>
-<span id="cb18-280"><a href="#cb18-280" aria-hidden="true" tabindex="-1"></a>    },</span>
-<span id="cb18-281"><a href="#cb18-281" aria-hidden="true" tabindex="-1"></a>    m <span class="ot">&lt;-</span> codebook</span>
-<span id="cb18-282"><a href="#cb18-282" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb18-283"><a href="#cb18-283" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">as_tibble</span>(mapped_data)</span>
-<span id="cb18-284"><a href="#cb18-284" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb18-285"><a href="#cb18-285" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-286"><a href="#cb18-286" aria-hidden="true" tabindex="-1"></a>labels <span class="ot">&lt;-</span> <span class="fu">codebook</span>(</span>
-<span id="cb18-287"><a href="#cb18-287" aria-hidden="true" tabindex="-1"></a>  <span class="fu">code</span>(<span class="st">"SEX"</span>, </span>
-<span id="cb18-288"><a href="#cb18-288" aria-hidden="true" tabindex="-1"></a>       <span class="at">levels =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>, </span>
-<span id="cb18-289"><a href="#cb18-289" aria-hidden="true" tabindex="-1"></a>       <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Male"</span>, <span class="st">"Female"</span>)), </span>
-<span id="cb18-290"><a href="#cb18-290" aria-hidden="true" tabindex="-1"></a>  <span class="fu">code</span>(<span class="st">"STUDY"</span>, </span>
-<span id="cb18-291"><a href="#cb18-291" aria-hidden="true" tabindex="-1"></a>       <span class="at">levels =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, </span>
-<span id="cb18-292"><a href="#cb18-292" aria-hidden="true" tabindex="-1"></a>       <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"S1"</span>, <span class="st">"S2"</span>, <span class="st">"S3"</span>))</span>
-<span id="cb18-293"><a href="#cb18-293" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb18-294"><a href="#cb18-294" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-295"><a href="#cb18-295" aria-hidden="true" tabindex="-1"></a>dataset <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb18-296"><a href="#cb18-296" aria-hidden="true" tabindex="-1"></a>  <span class="at">STUDY =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span>),</span>
-<span id="cb18-297"><a href="#cb18-297" aria-hidden="true" tabindex="-1"></a>  <span class="at">SEX   =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>),</span>
-<span id="cb18-298"><a href="#cb18-298" aria-hidden="true" tabindex="-1"></a>  <span class="at">AGE   =</span> <span class="fu">c</span>(<span class="dv">32</span>, <span class="dv">18</span>, <span class="dv">64</span>, <span class="dv">52</span>, <span class="dv">26</span>, <span class="dv">80</span>)</span>
-<span id="cb18-299"><a href="#cb18-299" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb18-300"><a href="#cb18-300" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-301"><a href="#cb18-301" aria-hidden="true" tabindex="-1"></a><span class="fu">encode</span>(dataset, labels)</span>
-<span id="cb18-302"><a href="#cb18-302" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb18-303"><a href="#cb18-303" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-304"><a href="#cb18-304" aria-hidden="true" tabindex="-1"></a><span class="fu">## Decode</span></span>
-<span id="cb18-305"><a href="#cb18-305" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-308"><a href="#cb18-308" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb18-309"><a href="#cb18-309" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: decode</span></span>
-<span id="cb18-310"><a href="#cb18-310" aria-hidden="true" tabindex="-1"></a>decode <span class="ot">&lt;-</span> \(data, codebook) {</span>
-<span id="cb18-311"><a href="#cb18-311" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb18-312"><a href="#cb18-312" aria-hidden="true" tabindex="-1"></a>  mapped_vars <span class="ot">&lt;-</span> <span class="fu">names</span>(codebook)</span>
-<span id="cb18-313"><a href="#cb18-313" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb18-314"><a href="#cb18-314" aria-hidden="true" tabindex="-1"></a>  mapped_data <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map2</span>(data, <span class="fu">names</span>(data), \(x, var, m) {</span>
-<span id="cb18-315"><a href="#cb18-315" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb18-316"><a href="#cb18-316" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="sc">!</span>var <span class="sc">%in%</span> mapped_vars) <span class="fu">return</span>(x)</span>
-<span id="cb18-317"><a href="#cb18-317" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb18-318"><a href="#cb18-318" aria-hidden="true" tabindex="-1"></a>      x_chr <span class="ot">&lt;-</span> <span class="fu">as.character</span>(x)</span>
-<span id="cb18-319"><a href="#cb18-319" aria-hidden="true" tabindex="-1"></a>      </span>
-<span id="cb18-320"><a href="#cb18-320" aria-hidden="true" tabindex="-1"></a>      x_lvl <span class="ot">&lt;-</span> m[[var]]<span class="sc">$</span>level</span>
-<span id="cb18-321"><a href="#cb18-321" aria-hidden="true" tabindex="-1"></a>      </span>
-<span id="cb18-322"><a href="#cb18-322" aria-hidden="true" tabindex="-1"></a>      x_lab <span class="ot">&lt;-</span> m[[var]]<span class="sc">$</span>label</span>
-<span id="cb18-323"><a href="#cb18-323" aria-hidden="true" tabindex="-1"></a>      </span>
-<span id="cb18-324"><a href="#cb18-324" aria-hidden="true" tabindex="-1"></a>      x <span class="ot">&lt;-</span> x_lvl[<span class="fu">match</span>(x_chr, x_lab)]</span>
-<span id="cb18-325"><a href="#cb18-325" aria-hidden="true" tabindex="-1"></a>      </span>
-<span id="cb18-326"><a href="#cb18-326" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(x)</span>
-<span id="cb18-327"><a href="#cb18-327" aria-hidden="true" tabindex="-1"></a>    },</span>
-<span id="cb18-328"><a href="#cb18-328" aria-hidden="true" tabindex="-1"></a>    m <span class="ot">&lt;-</span> codebook</span>
-<span id="cb18-329"><a href="#cb18-329" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb18-330"><a href="#cb18-330" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">as_tibble</span>(mapped_data)</span>
-<span id="cb18-331"><a href="#cb18-331" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb18-332"><a href="#cb18-332" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-333"><a href="#cb18-333" aria-hidden="true" tabindex="-1"></a>labels <span class="ot">&lt;-</span> <span class="fu">codebook</span>(</span>
-<span id="cb18-334"><a href="#cb18-334" aria-hidden="true" tabindex="-1"></a> <span class="fu">code</span>(<span class="st">"SEX"</span>, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Male"</span>, <span class="st">"Female"</span>)),</span>
-<span id="cb18-335"><a href="#cb18-335" aria-hidden="true" tabindex="-1"></a> <span class="fu">code</span>(<span class="st">"STUDY"</span>, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"S1"</span>, <span class="st">"S2"</span>, <span class="st">"S3"</span>)))</span>
-<span id="cb18-336"><a href="#cb18-336" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-337"><a href="#cb18-337" aria-hidden="true" tabindex="-1"></a>dataset <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb18-338"><a href="#cb18-338" aria-hidden="true" tabindex="-1"></a>  <span class="at">STUDY =</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">"S1"</span>, <span class="st">"S1"</span>, <span class="st">"S1"</span>, <span class="st">"S2"</span>, <span class="st">"S2"</span>, <span class="st">"S2"</span>)),</span>
-<span id="cb18-339"><a href="#cb18-339" aria-hidden="true" tabindex="-1"></a>  <span class="at">SEX   =</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">"Male"</span>, <span class="st">"Male"</span>, <span class="st">"Female"</span>, <span class="st">"Female"</span>, <span class="st">"Female"</span>, <span class="st">"Male"</span>)),</span>
-<span id="cb18-340"><a href="#cb18-340" aria-hidden="true" tabindex="-1"></a>  <span class="at">AGE   =</span> <span class="fu">c</span>(<span class="dv">32</span>, <span class="dv">18</span>, <span class="dv">64</span>, <span class="dv">52</span>, <span class="dv">26</span>, <span class="dv">80</span>))</span>
-<span id="cb18-341"><a href="#cb18-341" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-342"><a href="#cb18-342" aria-hidden="true" tabindex="-1"></a><span class="fu">decode</span>(dataset, labels)</span>
-<span id="cb18-343"><a href="#cb18-343" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb18-344"><a href="#cb18-344" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-345"><a href="#cb18-345" aria-hidden="true" tabindex="-1"></a>--------------------------------------------------------------------------------</span>
-<span id="cb18-346"><a href="#cb18-346" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-347"><a href="#cb18-347" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-348"><a href="#cb18-348" aria-hidden="true" tabindex="-1"></a><span class="fu">## Session Information </span></span>
-<span id="cb18-349"><a href="#cb18-349" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-352"><a href="#cb18-352" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb18-353"><a href="#cb18-353" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
-<span id="cb18-354"><a href="#cb18-354" aria-hidden="true" tabindex="-1"></a>pander<span class="sc">::</span><span class="fu">pander</span>(<span class="fu">sessionInfo</span>())</span>
-<span id="cb18-355"><a href="#cb18-355" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<div class="sourceCode" id="cb13" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "provider: Metadata Caching"</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co">    reference-location: block</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="an">editor_options:</span><span class="co"> </span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co">  chunk_output_type: console</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="in">```{r setup}</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="in">#| echo: false</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="in">#| message: false</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="in">#| warning: false</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="in">knitr::opts_chunk$set(</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="in">  dev        = "ragg_png",</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="in">  dpi        = 320,</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="in">  out.width  = "100%",</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="in">  fig.width  = 8,</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="in">  fig.asp    = 0.818,</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="in">  fig.retina = 2,</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="in">  fig.align  = "center",</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="in">  fig.show   = "hold"</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="in">)</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="in">options(scipen = 999, digits = 3)</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a><span class="in">library(tidyverse)</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a><span class="in">library(fastverse)</span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a><span class="in">library(provider)</span></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a><span class="in">library(codex)</span></span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a><span class="in">library(httr2)</span></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a><span class="in">na_if &lt;- fuimus:::na_if</span></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a><span class="in">gelm  &lt;- fuimus:::gelm</span></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a><span class="fu"># National Downloadable File</span></span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;   **Previous Work**</span></span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;</span></span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;   * </span><span class="co">[</span><span class="ot">provider #60 - version 1</span><span class="co">](https://github.com/andrewallenbruce/provider/issues/60#issue-2000723817)</span></span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;   * </span><span class="co">[</span><span class="ot">provider #60 - version 2</span><span class="co">](https://github.com/andrewallenbruce/provider/issues/60#issuecomment-1820270391)</span></span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span><span class="co">[</span><span class="ot">Centers for Medicare &amp; Medicaid Services Data API</span><span class="co">](https://data.cms.gov/api-docs)</span></span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span><span class="co">[</span><span class="ot">API FAQ for data.CMS.gov | OCTOBER 2024 - VERSION 1.6</span><span class="co">](https://data.cms.gov/sites/default/files/2024-10/7ef65521-65a4-41ed-b600-3a0011f8ec4b/API%20Guide%20Formatted%201_6.pdf)</span></span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: ndf</span></span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a>meta_ndf <span class="ot">&lt;-</span> \(fname) {</span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(curl<span class="sc">::</span><span class="fu">has_internet</span>())</span>
+<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">request</span>(</span>
+<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste0</span>(</span>
+<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a>      <span class="st">"https://data.cms.gov/"</span>,</span>
+<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a>      <span class="st">"provider-data/api/1/"</span>,</span>
+<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a>      <span class="st">"metastore/schemas/"</span>,</span>
+<span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a>      <span class="st">"dataset/items/"</span>,</span>
+<span id="cb13-61"><a href="#cb13-61" aria-hidden="true" tabindex="-1"></a>      <span class="cf">switch</span>(fname, </span>
+<span id="cb13-62"><a href="#cb13-62" aria-hidden="true" tabindex="-1"></a>             <span class="at">affiliations =</span> <span class="st">"27ea-46a8"</span>, </span>
+<span id="cb13-63"><a href="#cb13-63" aria-hidden="true" tabindex="-1"></a>             <span class="at">clinicians   =</span> <span class="st">"mj5m-pzi6"</span>, </span>
+<span id="cb13-64"><a href="#cb13-64" aria-hidden="true" tabindex="-1"></a>             <span class="fu">stop</span>(<span class="st">"Invalid argument"</span>)),</span>
+<span id="cb13-65"><a href="#cb13-65" aria-hidden="true" tabindex="-1"></a>    <span class="st">"?show-reference-ids=true"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb13-66"><a href="#cb13-66" aria-hidden="true" tabindex="-1"></a>       <span class="fu">req_perform</span>() <span class="sc">|&gt;</span></span>
+<span id="cb13-67"><a href="#cb13-67" aria-hidden="true" tabindex="-1"></a>       <span class="fu">resp_body_json</span>(</span>
+<span id="cb13-68"><a href="#cb13-68" aria-hidden="true" tabindex="-1"></a>         <span class="at">check_type     =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb13-69"><a href="#cb13-69" aria-hidden="true" tabindex="-1"></a>         <span class="at">simplifyVector =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb13-70"><a href="#cb13-70" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb13-71"><a href="#cb13-71" aria-hidden="true" tabindex="-1"></a>  distro <span class="ot">&lt;-</span> <span class="fu">gelm</span>(<span class="fu">gelm</span>(x, <span class="st">"distribution"</span>), <span class="st">"identifier"</span>)</span>
+<span id="cb13-72"><a href="#cb13-72" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb13-73"><a href="#cb13-73" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> <span class="fu">request</span>(</span>
+<span id="cb13-74"><a href="#cb13-74" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste0</span>(</span>
+<span id="cb13-75"><a href="#cb13-75" aria-hidden="true" tabindex="-1"></a>    <span class="st">"https://data.cms.gov/"</span>, </span>
+<span id="cb13-76"><a href="#cb13-76" aria-hidden="true" tabindex="-1"></a>    <span class="st">"provider-data/api/1/"</span>,</span>
+<span id="cb13-77"><a href="#cb13-77" aria-hidden="true" tabindex="-1"></a>    <span class="st">"datastore/query/"</span>, </span>
+<span id="cb13-78"><a href="#cb13-78" aria-hidden="true" tabindex="-1"></a>    distro, </span>
+<span id="cb13-79"><a href="#cb13-79" aria-hidden="true" tabindex="-1"></a>    <span class="st">"?limit=1&amp;offset=100&amp;"</span>,</span>
+<span id="cb13-80"><a href="#cb13-80" aria-hidden="true" tabindex="-1"></a>    <span class="st">"count=true&amp;results=true&amp;"</span>, </span>
+<span id="cb13-81"><a href="#cb13-81" aria-hidden="true" tabindex="-1"></a>    <span class="st">"schema=true&amp;keys=true&amp;"</span>,</span>
+<span id="cb13-82"><a href="#cb13-82" aria-hidden="true" tabindex="-1"></a>    <span class="st">"format=json&amp;rowIds=true"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb13-83"><a href="#cb13-83" aria-hidden="true" tabindex="-1"></a>       <span class="fu">req_perform</span>() <span class="sc">|&gt;</span></span>
+<span id="cb13-84"><a href="#cb13-84" aria-hidden="true" tabindex="-1"></a>       <span class="fu">resp_body_json</span>(</span>
+<span id="cb13-85"><a href="#cb13-85" aria-hidden="true" tabindex="-1"></a>         <span class="at">check_type =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb13-86"><a href="#cb13-86" aria-hidden="true" tabindex="-1"></a>         <span class="at">simplifyVector =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb13-87"><a href="#cb13-87" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb13-88"><a href="#cb13-88" aria-hidden="true" tabindex="-1"></a>  z <span class="ot">&lt;-</span> <span class="fu">gelm</span>(<span class="fu">gelm</span>(<span class="fu">gelm</span>(y, <span class="st">"schema"</span>), distro), <span class="st">"fields"</span>)</span>
+<span id="cb13-89"><a href="#cb13-89" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb13-90"><a href="#cb13-90" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(</span>
+<span id="cb13-91"><a href="#cb13-91" aria-hidden="true" tabindex="-1"></a>    <span class="at">title        =</span> <span class="fu">gelm</span>(x, <span class="st">"title"</span>),</span>
+<span id="cb13-92"><a href="#cb13-92" aria-hidden="true" tabindex="-1"></a>    <span class="at">description  =</span> <span class="fu">gelm</span>(x, <span class="st">"description"</span>),</span>
+<span id="cb13-93"><a href="#cb13-93" aria-hidden="true" tabindex="-1"></a>    <span class="at">identifier   =</span> <span class="fu">gelm</span>(<span class="fu">gelm</span>(x, <span class="st">"identifier"</span>), <span class="st">"identifier"</span>),</span>
+<span id="cb13-94"><a href="#cb13-94" aria-hidden="true" tabindex="-1"></a>    <span class="at">distribution =</span> distro,</span>
+<span id="cb13-95"><a href="#cb13-95" aria-hidden="true" tabindex="-1"></a>    <span class="at">issued       =</span> <span class="fu">gelm</span>(x, <span class="st">"issued"</span>), </span>
+<span id="cb13-96"><a href="#cb13-96" aria-hidden="true" tabindex="-1"></a>    <span class="at">modified     =</span> <span class="fu">gelm</span>(x, <span class="st">"modified"</span>)[[<span class="dv">1</span>]], </span>
+<span id="cb13-97"><a href="#cb13-97" aria-hidden="true" tabindex="-1"></a>    <span class="at">released     =</span> <span class="fu">gelm</span>(x, <span class="st">"released"</span>),</span>
+<span id="cb13-98"><a href="#cb13-98" aria-hidden="true" tabindex="-1"></a>    <span class="at">dimensions   =</span> <span class="fu">paste0</span>(<span class="fu">gelm</span>(<span class="fu">gelm</span>(y, <span class="st">"count"</span>), is.numeric), <span class="st">" x "</span>, <span class="fu">gelm</span>(<span class="fu">gelm</span>(z, <span class="st">"record_number"</span>), <span class="st">"length"</span>)), </span>
+<span id="cb13-99"><a href="#cb13-99" aria-hidden="true" tabindex="-1"></a>    <span class="at">fields       =</span> <span class="fu">names</span>(z),</span>
+<span id="cb13-100"><a href="#cb13-100" aria-hidden="true" tabindex="-1"></a>    <span class="at">site         =</span> <span class="fu">gelm</span>(x, <span class="st">"landingPage"</span>),</span>
+<span id="cb13-101"><a href="#cb13-101" aria-hidden="true" tabindex="-1"></a>    <span class="at">csv          =</span> <span class="fu">gelm</span>(<span class="fu">gelm</span>(<span class="fu">gelm</span>(x, <span class="st">"distribution"</span>), <span class="st">"data"</span>), <span class="st">"downloadURL"</span>, <span class="at">m =</span> <span class="st">"df"</span>),</span>
+<span id="cb13-102"><a href="#cb13-102" aria-hidden="true" tabindex="-1"></a>    <span class="at">dictionary   =</span> <span class="fu">paste0</span>(<span class="st">"https://data.cms.gov/provider-data/sites/default/files/data_dictionaries/physician/DOC_Data_Dictionary.pdf"</span>))</span>
+<span id="cb13-103"><a href="#cb13-103" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb13-104"><a href="#cb13-104" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-105"><a href="#cb13-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-106"><a href="#cb13-106" aria-hidden="true" tabindex="-1"></a><span class="fu">### Field Comparison</span></span>
+<span id="cb13-107"><a href="#cb13-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-110"><a href="#cb13-110" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb13-111"><a href="#cb13-111" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: affcols</span></span>
+<span id="cb13-112"><a href="#cb13-112" aria-hidden="true" tabindex="-1"></a><span class="co">#| layout-ncol: 2</span></span>
+<span id="cb13-113"><a href="#cb13-113" aria-hidden="true" tabindex="-1"></a>aff <span class="ot">&lt;-</span> provider<span class="sc">::</span><span class="fu">affiliations</span>(<span class="at">npi =</span> <span class="dv">1558595660</span>, <span class="at">na.rm =</span> <span class="cn">FALSE</span>, <span class="at">tidy =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb13-114"><a href="#cb13-114" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(utils<span class="sc">::</span><span class="fu">formatOL</span>(<span class="fu">meta_ndf</span>(<span class="st">"affiliations"</span>)<span class="sc">$</span>fields, <span class="at">offset =</span> <span class="dv">0</span>), <span class="at">sep =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb13-115"><a href="#cb13-115" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(utils<span class="sc">::</span><span class="fu">formatOL</span>(<span class="fu">names</span>(aff), <span class="at">offset =</span> <span class="dv">0</span>), <span class="at">sep =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb13-116"><a href="#cb13-116" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-117"><a href="#cb13-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-120"><a href="#cb13-120" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb13-121"><a href="#cb13-121" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: clncols</span></span>
+<span id="cb13-122"><a href="#cb13-122" aria-hidden="true" tabindex="-1"></a><span class="co">#| layout-ncol: 2</span></span>
+<span id="cb13-123"><a href="#cb13-123" aria-hidden="true" tabindex="-1"></a>cln <span class="ot">&lt;-</span> provider<span class="sc">::</span><span class="fu">clinicians</span>(<span class="at">npi =</span> <span class="dv">1558595660</span>, <span class="at">na.rm =</span> <span class="cn">FALSE</span>, <span class="at">tidy =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb13-124"><a href="#cb13-124" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(utils<span class="sc">::</span><span class="fu">formatOL</span>(<span class="fu">meta_ndf</span>(<span class="st">"clinicians"</span>)<span class="sc">$</span>fields), <span class="at">sep =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb13-125"><a href="#cb13-125" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(utils<span class="sc">::</span><span class="fu">formatOL</span>(<span class="fu">names</span>(cln), <span class="at">offset =</span> <span class="dv">1</span>), <span class="at">sep =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb13-126"><a href="#cb13-126" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-127"><a href="#cb13-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-128"><a href="#cb13-128" aria-hidden="true" tabindex="-1"></a><span class="fu">## pointblank</span></span>
+<span id="cb13-129"><a href="#cb13-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-132"><a href="#cb13-132" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb13-133"><a href="#cb13-133" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: pointblank</span></span>
+<span id="cb13-134"><a href="#cb13-134" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pointblank)</span>
+<span id="cb13-135"><a href="#cb13-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-136"><a href="#cb13-136" aria-hidden="true" tabindex="-1"></a>johnd <span class="ot">&lt;-</span> <span class="fu">affiliations</span>(<span class="at">npi =</span> <span class="dv">1558595660</span>, <span class="at">na.rm =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb13-137"><a href="#cb13-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-138"><a href="#cb13-138" aria-hidden="true" tabindex="-1"></a>johnd <span class="sc">|&gt;</span> </span>
+<span id="cb13-139"><a href="#cb13-139" aria-hidden="true" tabindex="-1"></a>  <span class="fu">create_informant</span>(</span>
+<span id="cb13-140"><a href="#cb13-140" aria-hidden="true" tabindex="-1"></a>    <span class="at">tbl_name =</span> <span class="cn">NULL</span>,</span>
+<span id="cb13-141"><a href="#cb13-141" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span> <span class="st">"Provider Facility Affiliations"</span></span>
+<span id="cb13-142"><a href="#cb13-142" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb13-143"><a href="#cb13-143" aria-hidden="true" tabindex="-1"></a>  <span class="fu">info_tabular</span>(</span>
+<span id="cb13-144"><a href="#cb13-144" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Row Definition</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"A row has randomized values."</span>,</span>
+<span id="cb13-145"><a href="#cb13-145" aria-hidden="true" tabindex="-1"></a>    <span class="at">Source =</span> <span class="fu">c</span>(</span>
+<span id="cb13-146"><a href="#cb13-146" aria-hidden="true" tabindex="-1"></a>      <span class="st">"- From the **pointblank** package."</span>,</span>
+<span id="cb13-147"><a href="#cb13-147" aria-hidden="true" tabindex="-1"></a>      <span class="st">"- [https://rstudio.github.io/pointblank/]()"</span></span>
+<span id="cb13-148"><a href="#cb13-148" aria-hidden="true" tabindex="-1"></a>     )</span>
+<span id="cb13-149"><a href="#cb13-149" aria-hidden="true" tabindex="-1"></a>   ) <span class="sc">|&gt;</span> </span>
+<span id="cb13-150"><a href="#cb13-150" aria-hidden="true" tabindex="-1"></a>  <span class="fu">info_columns</span>(</span>
+<span id="cb13-151"><a href="#cb13-151" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> npi,</span>
+<span id="cb13-152"><a href="#cb13-152" aria-hidden="true" tabindex="-1"></a>    <span class="at">info =</span> <span class="st">"10-digit National Provider Identifier."</span>) <span class="sc">|&gt;</span></span>
+<span id="cb13-153"><a href="#cb13-153" aria-hidden="true" tabindex="-1"></a>  <span class="fu">info_columns</span>(</span>
+<span id="cb13-154"><a href="#cb13-154" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> pac,</span>
+<span id="cb13-155"><a href="#cb13-155" aria-hidden="true" tabindex="-1"></a>    <span class="at">info =</span> <span class="st">"10-digit PECOS Associate Control ID."</span>) <span class="sc">|&gt;</span></span>
+<span id="cb13-156"><a href="#cb13-156" aria-hidden="true" tabindex="-1"></a>  <span class="fu">info_columns</span>(</span>
+<span id="cb13-157"><a href="#cb13-157" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">vars</span>(first, middle, last, suffix),</span>
+<span id="cb13-158"><a href="#cb13-158" aria-hidden="true" tabindex="-1"></a>    <span class="at">info =</span> <span class="st">"Individual Provider's Name."</span>) <span class="sc">|&gt;</span></span>
+<span id="cb13-159"><a href="#cb13-159" aria-hidden="true" tabindex="-1"></a>  <span class="fu">info_columns</span>(</span>
+<span id="cb13-160"><a href="#cb13-160" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> facility_type,</span>
+<span id="cb13-161"><a href="#cb13-161" aria-hidden="true" tabindex="-1"></a>    <span class="at">info =</span> <span class="st">"Individual Provider's Name."</span>) <span class="sc">|&gt;</span></span>
+<span id="cb13-162"><a href="#cb13-162" aria-hidden="true" tabindex="-1"></a>  <span class="fu">info_section</span>(</span>
+<span id="cb13-163"><a href="#cb13-163" aria-hidden="true" tabindex="-1"></a>    <span class="at">section_name =</span> <span class="st">"Notes"</span>,</span>
+<span id="cb13-164"><a href="#cb13-164" aria-hidden="true" tabindex="-1"></a>    <span class="at">usage =</span> <span class="st">"`affiliations(parent_ccn = '670055')`"</span>,</span>
+<span id="cb13-165"><a href="#cb13-165" aria-hidden="true" tabindex="-1"></a>    <span class="at">Source =</span> <span class="fu">c</span>(</span>
+<span id="cb13-166"><a href="#cb13-166" aria-hidden="true" tabindex="-1"></a>      <span class="st">"- From the **(provider)** package."</span>,</span>
+<span id="cb13-167"><a href="#cb13-167" aria-hidden="true" tabindex="-1"></a>      <span class="st">"- [CMS Affiliations API](https://data.cms.gov/provider-data/dataset/27ea-46a8)"</span></span>
+<span id="cb13-168"><a href="#cb13-168" aria-hidden="true" tabindex="-1"></a>    )) <span class="sc">|&gt;</span> </span>
+<span id="cb13-169"><a href="#cb13-169" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_informant_report</span>(</span>
+<span id="cb13-170"><a href="#cb13-170" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"**`affiliations()`** Data Dictionary"</span>,</span>
+<span id="cb13-171"><a href="#cb13-171" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="st">"standard"</span></span>
+<span id="cb13-172"><a href="#cb13-172" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb13-173"><a href="#cb13-173" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-174"><a href="#cb13-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-175"><a href="#cb13-175" aria-hidden="true" tabindex="-1"></a>--------------------------------------------------------------------------------</span>
+<span id="cb13-176"><a href="#cb13-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-177"><a href="#cb13-177" aria-hidden="true" tabindex="-1"></a><span class="fu"># New API FAQ</span></span>
+<span id="cb13-178"><a href="#cb13-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-179"><a href="#cb13-179" aria-hidden="true" tabindex="-1"></a><span class="fu">## Finding Data</span></span>
+<span id="cb13-180"><a href="#cb13-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-181"><a href="#cb13-181" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Is there a catalog of available data?</span></span>
+<span id="cb13-182"><a href="#cb13-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-183"><a href="#cb13-183" aria-hidden="true" tabindex="-1"></a>Yes, the <span class="co">[</span><span class="ot">`data.json`</span><span class="co">](https://data.cms.gov/data.json)</span> file is an <span class="co">[</span><span class="ot">**Open Data**</span><span class="co">](https://resources.data.gov/resources/dcat-us/)</span> catalog containing the datasets available on our site. As new data is added, it is automatically updated to the **data.json**.</span>
+<span id="cb13-184"><a href="#cb13-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-185"><a href="#cb13-185" aria-hidden="true" tabindex="-1"></a>In the **data.json**, there is an array called **dataset**. You can search through this array using the title of your dataset, such as `"Payroll Based Journal Daily Nurse Staffing"`. Inside of the dataset, there is an array called **distribution** which will contain all the versions of the data in all available formats for each version. In this array there are a few different types of entries:</span>
+<span id="cb13-186"><a href="#cb13-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-187"><a href="#cb13-187" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span>The first entry (with a description of 'latest') will provide a URL that will always point to the latest data, even as new versions are published.</span>
+<span id="cb13-188"><a href="#cb13-188" aria-hidden="true" tabindex="-1"></a><span class="ss">   * </span>The remaining entries will provide references to the data at fixed points in time, listed in descending order by date. For example, `"https://data.cms.gov/data-api/v1/dataset/d10d792e-</span>
+<span id="cb13-189"><a href="#cb13-189" aria-hidden="true" tabindex="-1"></a>ea6e-4145-8512-34efbc1be04b/data"` will always point to the **Payroll Based Journal Daily Nurse Staffing** data from **Q2 2021**. Some datasets will have multiple historical versions available and some will only have the most recent data available.</span>
+<span id="cb13-190"><a href="#cb13-190" aria-hidden="true" tabindex="-1"></a><span class="ss">      * </span>The data with mediaType of "text/csv" is downloadable as a CSV file and data with mediaType of "application/zip" is downloadable as a ZIP file.</span>
+<span id="cb13-191"><a href="#cb13-191" aria-hidden="true" tabindex="-1"></a><span class="ss">      * </span>The data with a format of "API" will point to an API endpoint.</span>
+<span id="cb13-192"><a href="#cb13-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-193"><a href="#cb13-193" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; How can I get an earlier version of the data?</span></span>
+<span id="cb13-194"><a href="#cb13-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-195"><a href="#cb13-195" aria-hidden="true" tabindex="-1"></a>If your data has earlier versions available, there is a "temporal" field in the distribution section of the data.json file which will indicate the time period. An example is below.</span>
+<span id="cb13-196"><a href="#cb13-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-197"><a href="#cb13-197" aria-hidden="true" tabindex="-1"></a>Older Version Code Example in Python</span>
+<span id="cb13-198"><a href="#cb13-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-199"><a href="#cb13-199" aria-hidden="true" tabindex="-1"></a>Finds the API link for the 2017 Medicare Inpatient Hospitals - by Provider and Service Data</span>
+<span id="cb13-200"><a href="#cb13-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-201"><a href="#cb13-201" aria-hidden="true" tabindex="-1"></a>https://data.cms.gov/provider-summary-by-type-of-service/medicare-inpatient-hospitals/medicare-inpatient-hospitals-by-provider-and-service</span>
+<span id="cb13-202"><a href="#cb13-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-203"><a href="#cb13-203" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb13-204"><a href="#cb13-204" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
+<span id="cb13-205"><a href="#cb13-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-206"><a href="#cb13-206" aria-hidden="true" tabindex="-1"></a>url         <span class="op">=</span> <span class="st">"https://data.cms.gov/data.json"</span></span>
+<span id="cb13-207"><a href="#cb13-207" aria-hidden="true" tabindex="-1"></a>title       <span class="op">=</span> <span class="st">"Medicare Inpatient Hospitals - by Provider and Service"</span></span>
+<span id="cb13-208"><a href="#cb13-208" aria-hidden="true" tabindex="-1"></a>time_period <span class="op">=</span> <span class="st">"2017-01-01/2017-12-31"</span></span>
+<span id="cb13-209"><a href="#cb13-209" aria-hidden="true" tabindex="-1"></a>response    <span class="op">=</span> requests.request(<span class="st">"GET"</span>, url)</span>
+<span id="cb13-210"><a href="#cb13-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-211"><a href="#cb13-211" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> response.ok:</span>
+<span id="cb13-212"><a href="#cb13-212" aria-hidden="true" tabindex="-1"></a>    response <span class="op">=</span> response.json()</span>
+<span id="cb13-213"><a href="#cb13-213" aria-hidden="true" tabindex="-1"></a>    dataset <span class="op">=</span> response[<span class="st">'dataset'</span>]</span>
+<span id="cb13-214"><a href="#cb13-214" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="bu">set</span> <span class="kw">in</span> dataset:</span>
+<span id="cb13-215"><a href="#cb13-215" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> title <span class="op">==</span> <span class="bu">set</span>[<span class="st">'title'</span>]:</span>
+<span id="cb13-216"><a href="#cb13-216" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> distro <span class="kw">in</span> <span class="bu">set</span>[<span class="st">'distribution'</span>]:</span>
+<span id="cb13-217"><a href="#cb13-217" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="st">'format'</span> <span class="kw">in</span> distro.keys():</span>
+<span id="cb13-218"><a href="#cb13-218" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">if</span> distro[<span class="st">'format'</span>] <span class="op">==</span> <span class="st">"API"</span> <span class="kw">and</span> distro[<span class="st">'temporal'</span>] <span class="op">==</span> time_period:</span>
+<span id="cb13-219"><a href="#cb13-219" aria-hidden="true" tabindex="-1"></a>                        <span class="bu">print</span>(<span class="ss">f"API link for </span><span class="sc">{</span>title<span class="sc">}</span><span class="ss"> from </span><span class="sc">{</span>time_period<span class="sc">}</span><span class="ss"> is </span><span class="sc">{</span>distro[<span class="st">'accessURL'</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb13-220"><a href="#cb13-220" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-221"><a href="#cb13-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-222"><a href="#cb13-222" aria-hidden="true" tabindex="-1"></a>--------------------------------------------------------------------------------</span>
+<span id="cb13-223"><a href="#cb13-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-224"><a href="#cb13-224" aria-hidden="true" tabindex="-1"></a><span class="fu">## Session Information </span></span>
+<span id="cb13-225"><a href="#cb13-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-228"><a href="#cb13-228" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb13-229"><a href="#cb13-229" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb13-230"><a href="#cb13-230" aria-hidden="true" tabindex="-1"></a>pander<span class="sc">::</span><span class="fu">pander</span>(<span class="fu">sessionInfo</span>())</span>
+<span id="cb13-231"><a href="#cb13-231" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
