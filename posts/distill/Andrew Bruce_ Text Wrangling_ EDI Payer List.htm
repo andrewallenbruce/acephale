@@ -1,0 +1,973 @@
+Andrew Bruce <https://andrewbrucehimni.netlify.app/>
+
+Home <https://andrewbrucehimni.netlify.app/> Projects ▾ EHR UX/UI Mockup
+<https://andrewbrucehimni.netlify.app/flex_example/flexexample> Days in
+AR Shiny App <https://himni.shinyapps.io/darguide/> The Art of DAR
+<https://artofdar.netlify.app/> HIM & I <https://himni.info/>
+About <https://andrewbrucehimni.netlify.app/about> // <https://
+www.linkedin.com/in/andybruce1> // <https://twitter.com/aabrucehimni> //
+<https://www.behance.net/andybruce1> // <https://
+andrewbrucehimni.netlify.app/index.xml> // <https://github.com/
+andrewallenbruce> ☰ <javascript:void(0);>
+
+
+  Text Wrangling: EDI Payer List
+
+healthcare <https://andrewbrucehimni.netlify.app/#category:healthcare>
+EDI <https://andrewbrucehimni.netlify.app/#category:EDI> HL7 <https://
+andrewbrucehimni.netlify.app/#category:HL7> HIPAA <https://
+andrewbrucehimni.netlify.app/#category:HIPAA> rstats <https://
+andrewbrucehimni.netlify.app/#category:rstats> r-bloggers <https://
+andrewbrucehimni.netlify.app/#category:r-bloggers>
+
+Coding a more intuitive framework for an EDI Payer List from external
+sources for internal use.
+
+
+      Author
+
+
+      Affiliation
+
+Andrew Bruce <https://andrewbruce.netlify.app/> ORCID ID <https://
+orcid.org/0000-0001-5040-4327>
+
+ 
+
+
+      Published
+
+May 30, 2022
+
+
+      Citation
+
+Bruce, 2022 <#citation>
+
+
+      Contents
+
+  * Introduction <#introduction>
+      o Electronic Data Interchange (EDI) <#electronic-data-interchange-edi>
+      o ANSI X12, HIPAA & HL7 <#ansi-x12-hipaa-hl7>
+      o Payer ID <#payer-id>
+      o Packages <#packages>
+      o Dataset <#dataset>
+  * Data Cleaning & Wrangling <#data-cleaning-wrangling>
+      o Rename Columns <#rename-columns>
+      o Remove Unneeded Columns <#remove-unneeded-columns>
+      o |payername| Column <#payername-column>
+          + Split |payername| into two columns <#split-payername-into-two-columns>
+          + Replace NAs in |service_states| with “ALL” <#replace-nas-in-service_states-with-all>
+      o Split |avail_trans| and |enroll_req| into individual columns <#split-avail_trans-and-enroll_req-
+        into-individual-columns>
+          + Remove Duplicate Rows <#remove-duplicate-rows>
+          + Rename |avail_trans| Variables <#rename-avail_trans-variables>
+      o Building the Table <#building-the-table>
+          + Add Color Columns for {reactablefmtr} <#add-color-columns-
+            for-reactablefmtr>
+  * Final Table with {reactable} <#final-table-with-reactable>
+
+
+  Introduction
+
+
+    <#electronic-data-interchange-edi>Electronic Data Interchange (EDI)
+
+Electronic Data Interchange (EDI) is a technology that allows the
+exchange of commercial information between organizations in a structured
+digital form based on regulated message formats and standards. Any
+standard business document exchanged between companies can be
+transferred using the EDI standard.
+
+
+    <#ansi-x12-hipaa-hl7>ANSI X12, HIPAA & HL7
+
+These are all different standards to exchange electronic business
+documents. Some of these standards have been developed for use in a
+specific industry, according to its special needs. Other standards are
+developed and widely used, based on geography. For example, the EDI ANSI
+X12 standard is developed by the American National Standards Institute
+<https://www.ansi.org/> (ANSI). HIPAA <https://www.healthit.gov/topic/
+privacy-security-and-hipaa/hipaa-basics> (the Health Insurance
+Portability and Accountability Act of 1996) is designed specifically to
+comply with healthcare law. HL7 <https://www.hl7.org/> (Health Level 7)
+is the standard to exchange medical information.
+
+
+    <#payer-id>Payer ID
+
+The Payer ID or EDI is a unique ID assigned to each insurance company.
+It allows provider and payer systems to talk to one another to verify
+eligibility, benefits and submit claims. The payer ID is generally five
+(5) characters but it may be longer. It may also be alpha, numeric or a
+combination. The payer ID is often located on the back of the insurance
+card in the Provider or Claims Submission section. Below are some common
+examples. If you are unable to locate the payer ID, please enter NA or None.
+
+
+    <#packages>Packages
+
+|library <https://rdrr.io/r/base/library.html>(tidyverse <https://tidyverse.tidyverse.org/>)
+library <https://rdrr.io/r/base/library.html>(rmarkdown <https://github.com/rstudio/rmarkdown>)
+library <https://rdrr.io/r/base/library.html>(htmltools <https://github.com/rstudio/htmltools>)
+library <https://rdrr.io/r/base/library.html>(lubridate <https://lubridate.tidyverse.org/>)
+library <https://rdrr.io/r/base/library.html>(gdata)
+library <https://rdrr.io/r/base/library.html>(reactable <https://glin.github.io/reactable/>)
+library <https://rdrr.io/r/base/library.html>(reactablefmtr <https://kcuilla.github.io/reactablefmtr/>)
+|//
+
+
+    <#dataset>Dataset
+
+Data downloaded from url: https://payers.gatewayedi.com/payerlist/
+default.aspx <https://payers.gatewayedi.com/payerlist/default.aspx>
+
+|payer_preview <- head <https://rdrr.io/r/utils/head.html>(hcfa_payers, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(payer_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+ 
+ 
+	
+Payer Name
+<chr>
+	
+PayerId
+<chr>
+	
+1	1-888-OHIOCOMP\nServicing States: OH	R6845	
+2	1st Auto & Casualty\nServicing States: MN	J1585	
+3	1st Medical Network\nServicing States:ALL	29076	
+4	2020 Eyecare\nServicing States:ALL	2020E	
+5	21st Century Insurance\nServicing States:ALL	41556	
+6	22125 Roscoe Corp.\nServicing States:ALL	41556	
+7	360 Alliance - Gilsbar\nServicing States: LA	07205	
+8	3P Administrators\nServicing States:ALL	20413	
+9	6 Degrees Health Incorporated\nServicing States:ALL	20446	
+10	A & I Benefit Plan Administrators, Inc.\nServicing States:ALL	93044	
+
+1-10 of 10 rows | 1-3 of 8 columns
+
+
+  Data Cleaning & Wrangling
+
+
+    <#rename-columns>Rename Columns
+
+With column names like |Available \n Transactions|, we need to rename them to follow a tidy format:
+
+|hcfa_payers <- hcfa_payers |>
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(
+    payername = "Payer Name",
+    id = "PayerId",
+    avail_trans = "Available \n Transactions",
+    enroll_req = "Enrollment \n Required",
+    format = "Payer \n Format",
+    icd_vers = "Payer ICD Version",
+    transition_date = "Payer ICD \n Transition Date"
+  )
+
+payer_preview <- head <https://rdrr.io/r/utils/head.html>(hcfa_payers, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(payer_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+ 
+ 
+	
+payername
+<chr>
+	
+id
+<chr>
+	
+1	1-888-OHIOCOMP\nServicing States: OH	R6845	
+2	1st Auto & Casualty\nServicing States: MN	J1585	
+3	1st Medical Network\nServicing States:ALL	29076	
+4	2020 Eyecare\nServicing States:ALL	2020E	
+5	21st Century Insurance\nServicing States:ALL	41556	
+6	22125 Roscoe Corp.\nServicing States:ALL	41556	
+7	360 Alliance - Gilsbar\nServicing States: LA	07205	
+8	3P Administrators\nServicing States:ALL	20413	
+9	6 Degrees Health Incorporated\nServicing States:ALL	20446	
+10	A & I Benefit Plan Administrators, Inc.\nServicing States:ALL	93044	
+
+1-10 of 10 rows | 1-3 of 8 columns
+
+
+    <#remove-unneeded-columns>Remove Unneeded Columns
+
+We can remove three columns, for the following reasons:
+
+  *
+
+    |format|: *V5010* and *V4010* refer to the electronic claim format standard
+    developed by ANSI. Since all HIPAA-covered entities migrated to
+    V5010 by January 1, 2012, this information no longer applies.
+
+  *
+
+    |icd_vers|: indicates the version of the *International Classification of
+    Diseases, Clinical Modification* that the payer uses. Since all
+    payers now use the Tenth Revision, this information is no longer valid.
+
+  *
+
+    |transition_date|: refers to the date that the payer transitioned from ICD-9-CM to
+    ICD-10-CM, which is again no longer applicable.
+
+|hcfa_payers <- hcfa_payers |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(payername, id, avail_trans, enroll_req)
+
+payer_preview <- head <https://rdrr.io/r/utils/head.html>(hcfa_payers, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(payer_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+ 
+ 
+	
+payername
+<chr>
+	
+id
+<chr>
+	
+1	1-888-OHIOCOMP\nServicing States: OH	R6845	
+2	1st Auto & Casualty\nServicing States: MN	J1585	
+3	1st Medical Network\nServicing States:ALL	29076	
+4	2020 Eyecare\nServicing States:ALL	2020E	
+5	21st Century Insurance\nServicing States:ALL	41556	
+6	22125 Roscoe Corp.\nServicing States:ALL	41556	
+7	360 Alliance - Gilsbar\nServicing States: LA	07205	
+8	3P Administrators\nServicing States:ALL	20413	
+9	6 Degrees Health Incorporated\nServicing States:ALL	20446	
+10	A & I Benefit Plan Administrators, Inc.\nServicing States:ALL	93044	
+
+1-10 of 10 rows | 1-3 of 5 columns
+
+
+    <#payername-column>|payername| Column
+
+The |payername| column has the payer’s name and the states that the payer operates in.
+To make this information searchable in our data frame, we’ll need to do
+some data wrangling.
+
+
+      <#split-payername-into-two-columns>Split |payername| into two columns
+
+We’ll start by splitting it into two columns, |payer| and |service_states|, using the |str_detect()| and |str_match()| functions from the {stringr} package:
+
+|hcfa_payers <- hcfa_payers |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    payer = ifelse <https://rdrr.io/r/base/ifelse.html>(
+      str_detect <https://stringr.tidyverse.org/reference/str_detect.html>(
+        payername,
+        "\\sServicing States"
+      ),
+      str_match <https://stringr.tidyverse.org/reference/str_match.html>(
+        payername,
+        "(.*)\\sServicing States"
+      )[, 2],
+      payername
+    ),
+    service_states = str_match <https://stringr.tidyverse.org/reference/str_match.html>(
+      payername,
+      "Servicing States:\\s(.*)"
+    )[, 2]
+  ) |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(
+    payer,
+    service_states,
+    id,
+    avail_trans,
+    enroll_req
+  )
+
+payer_preview <- head <https://rdrr.io/r/utils/head.html>(hcfa_payers, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(payer_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+ 
+ 
+	
+payer
+<chr>
+	
+service_states
+<chr>
+	
+id
+<chr>
+	
+1	1-888-OHIOCOMP	OH	R6845	
+2	1st Auto & Casualty	MN	J1585	
+3	1st Medical Network	NA	29076	
+4	2020 Eyecare	NA	2020E	
+5	21st Century Insurance	NA	41556	
+6	22125 Roscoe Corp.	NA	41556	
+7	360 Alliance - Gilsbar	LA	07205	
+8	3P Administrators	NA	20413	
+9	6 Degrees Health Incorporated	NA	20446	
+10	A & I Benefit Plan Administrators, Inc.	NA	93044	
+
+1-10 of 10 rows | 1-4 of 6 columns
+
+
+      <#replace-nas-in-service_states-with-all>Replace NAs in |service_states| with “ALL”
+
+Payers designated as servicing all states were given an “NA” in the new |service_states| column because there was no space between the colon and “ALL” (i.e.,
+“States:ALL”) and the regex expression that I used indicated that there
+would be a space between the payer name and the state. We fix this by
+simply replacing all NAs with “ALL”:
+
+|hcfa_payers <- hcfa_payers |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(service_states = ifelse <https://rdrr.io/r/base/ifelse.html>(is.na <https://rdrr.io/r/base/NA.html>(service_states), "ALL", service_states))
+
+payer_preview <- head <https://rdrr.io/r/utils/head.html>(hcfa_payers, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(payer_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+ 
+ 
+	
+payer
+<chr>
+	
+service_states
+<chr>
+	
+id
+<chr>
+	
+1	1-888-OHIOCOMP	OH	R6845	
+2	1st Auto & Casualty	MN	J1585	
+3	1st Medical Network	ALL	29076	
+4	2020 Eyecare	ALL	2020E	
+5	21st Century Insurance	ALL	41556	
+6	22125 Roscoe Corp.	ALL	41556	
+7	360 Alliance - Gilsbar	LA	07205	
+8	3P Administrators	ALL	20413	
+9	6 Degrees Health Incorporated	ALL	20446	
+10	A & I Benefit Plan Administrators, Inc.	ALL	93044	
+
+1-10 of 10 rows | 1-4 of 6 columns
+
+
+    <#split-avail_trans-and-enroll_req-into-individual-columns>Split |avail_trans| and |enroll_req| into individual columns
+
+These two columns are a little bit trickier. We want each available
+transaction to correspond to whether or not enrollment is required to
+use them. I’ll use |str_match()| to split them one-by-one into a wide format, merge each pair together
+with {tidyr}’s |unite()| function, pivot to a longer format, and then perform some general
+cleanup to finish up.
+
+Here, I’m splitting each transaction available to it’s own column as
+well it’s corresponding enrollment required indicator. This may look
+like overkill (and I’m almost certain that it absolutely is) but I want
+to make sure I get every transaction. I can remove any duplicates later on.
+
+|hcfa_payers <- hcfa_payers |>
+  separate_rows <https://tidyr.tidyverse.org/reference/separate_rows.html>(avail_trans, enroll_req, sep = " \n ")
+
+payer_preview <- head <https://rdrr.io/r/utils/head.html>(hcfa_payers, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(payer_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+payer
+<chr>
+	
+service_states
+<chr>
+	
+id
+<chr>
+	
+avail_trans
+<chr>
+	
+enroll_req
+<chr>
+1-888-OHIOCOMP	OH	R6845	ProfessionalClaims	Yes
+1-888-OHIOCOMP	OH	R6845	Rtpa	NO
+1st Auto & Casualty	MN	J1585	ProfessionalClaims	NO
+1st Auto & Casualty	MN	J1585	ClaimAttachments	NO
+1st Auto & Casualty	MN	J1585	ElectronicRemits	NO
+1st Auto & Casualty	MN	J1585	Remits	NO
+1st Medical Network	ALL	29076	ProfessionalClaims	NO
+1st Medical Network	ALL	29076	InsuranceEligibilityDiscovery	NO
+1st Medical Network	ALL	29076	ClaimStatus	NO
+1st Medical Network	ALL	29076	ElectronicCob	NO
+
+1-10 of 10 rows
+
+
+      <#remove-duplicate-rows>Remove Duplicate Rows
+
+|hcfa_payers <- hcfa_payers |>
+  distinct <https://dplyr.tidyverse.org/reference/distinct.html>()
+
+payer_preview <- head <https://rdrr.io/r/utils/head.html>(hcfa_payers, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(payer_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+payer
+<chr>
+	
+service_states
+<chr>
+	
+id
+<chr>
+	
+avail_trans
+<chr>
+	
+enroll_req
+<chr>
+1-888-OHIOCOMP	OH	R6845	ProfessionalClaims	Yes
+1-888-OHIOCOMP	OH	R6845	Rtpa	NO
+1st Auto & Casualty	MN	J1585	ProfessionalClaims	NO
+1st Auto & Casualty	MN	J1585	ClaimAttachments	NO
+1st Auto & Casualty	MN	J1585	ElectronicRemits	NO
+1st Auto & Casualty	MN	J1585	Remits	NO
+1st Medical Network	ALL	29076	ProfessionalClaims	NO
+1st Medical Network	ALL	29076	InsuranceEligibilityDiscovery	NO
+1st Medical Network	ALL	29076	ClaimStatus	NO
+1st Medical Network	ALL	29076	ElectronicCob	NO
+
+1-10 of 10 rows
+
+
+      <#rename-avail_trans-variables>Rename |avail_trans| Variables
+
+|hcfa_payers <- hcfa_payers |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(avail_trans = case_when <https://dplyr.tidyverse.org/reference/case_when.html>(
+    avail_trans == "ProfessionalClaims" ~ "Professional Claims",
+    avail_trans == "Rtpa" ~ "RTPA",
+    avail_trans == "ClaimAttachments" ~ "Claim Attachments",
+    avail_trans == "ElectronicRemits" ~ "Electronic Remits",
+    avail_trans == "Remits" ~ "Remits",
+    avail_trans == "InsuranceEligibilityDiscovery" ~ "Insurance Eligibility Discovery",
+    avail_trans == "ClaimStatus" ~ "Claim Status",
+    avail_trans == "ElectronicCob" ~ "Electronic COB",
+    avail_trans == "Eligibility" ~ "Eligibility",
+    avail_trans == "InstitutionalClaims" ~ "Institutional Claims",
+    avail_trans == "AuthorizationAndReferrals" ~ "Authorization & Referrals",
+    avail_trans == "DentalClaims" ~ "Dental Claims",
+    TRUE ~ "Unknown"
+  ))
+
+payer_preview <- head <https://rdrr.io/r/utils/head.html>(hcfa_payers, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(payer_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+payer
+<chr>
+	
+service_states
+<chr>
+	
+id
+<chr>
+	
+avail_trans
+<chr>
+	
+enroll_req
+<chr>
+1-888-OHIOCOMP	OH	R6845	Professional Claims	Yes
+1-888-OHIOCOMP	OH	R6845	RTPA	NO
+1st Auto & Casualty	MN	J1585	Professional Claims	NO
+1st Auto & Casualty	MN	J1585	Claim Attachments	NO
+1st Auto & Casualty	MN	J1585	Electronic Remits	NO
+1st Auto & Casualty	MN	J1585	Remits	NO
+1st Medical Network	ALL	29076	Professional Claims	NO
+1st Medical Network	ALL	29076	Insurance Eligibility Discovery	NO
+1st Medical Network	ALL	29076	Claim Status	NO
+1st Medical Network	ALL	29076	Electronic COB	NO
+
+1-10 of 10 rows
+
+
+    <#building-the-table>Building the Table
+
+
+      <#add-color-columns-for-reactablefmtr>Add Color Columns for
+      {reactablefmtr}
+
+|hcfa_payers <- hcfa_payers |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    trans_colors = case_when <https://dplyr.tidyverse.org/reference/case_when.html>(
+      avail_trans == "Professional Claims" ~ "#FFACAC",
+      avail_trans == "RTPA" ~ "#A45746",
+      avail_trans == "Claim Attachments" ~ "#132F3C",
+      avail_trans == "Electronic Remits" ~ "#140E0F",
+      avail_trans == "Remits" ~ "#74AAEB",
+      avail_trans == "Insurance Eligibility Discovery" ~ "#1D4C62",
+      avail_trans == "Claim Status" ~ "#95A494",
+      avail_trans == "Electronic COB" ~ "#DBB592",
+      avail_trans == "Eligibility" ~ "#F6CCB0",
+      avail_trans == "Institutional Claims" ~ "#EBA42B",
+      avail_trans == "Authorization & Referrals" ~ "#E85569",
+      avail_trans == "Dental Claims" ~ "#5C2C2D",
+      TRUE ~ "Unknown"
+    ),
+    enroll_colors = case_when <https://dplyr.tidyverse.org/reference/case_when.html>(
+      enroll_req == "NO" ~ "#f0fff0",
+      enroll_req == "Yes" ~ "#C7662A",
+      TRUE ~ "Unknown"
+    )
+  )
+
+payer_preview <- head <https://rdrr.io/r/utils/head.html>(hcfa_payers, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(payer_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+payer
+<chr>
+	
+service_states
+<chr>
+	
+id
+<chr>
+	
+avail_trans
+<chr>
+	
+enroll_req
+<chr>
+	
+trans_colors
+<chr>
+	
+enroll_colors
+<chr>
+1-888-OHIOCOMP	OH	R6845	Professional Claims	Yes	#FFACAC	#C7662A
+1-888-OHIOCOMP	OH	R6845	RTPA	NO	#A45746	#f0fff0
+1st Auto & Casualty	MN	J1585	Professional Claims	NO	#FFACAC	#f0fff0
+1st Auto & Casualty	MN	J1585	Claim Attachments	NO	#132F3C	#f0fff0
+1st Auto & Casualty	MN	J1585	Electronic Remits	NO	#140E0F	#f0fff0
+1st Auto & Casualty	MN	J1585	Remits	NO	#74AAEB	#f0fff0
+1st Medical Network	ALL	29076	Professional Claims	NO	#FFACAC	#f0fff0
+1st Medical Network	ALL	29076	Insurance Eligibility Discovery	NO	
+#1D4C62	#f0fff0
+1st Medical Network	ALL	29076	Claim Status	NO	#95A494	#f0fff0
+1st Medical Network	ALL	29076	Electronic COB	NO	#DBB592	#f0fff0
+
+1-10 of 10 rows
+
+
+  Final Table with {reactable}
+
+Show code
+
+|reactable <https://glin.github.io/reactable/reference/reactable.html>(hcfa_payers,
+  filterable = TRUE,
+  striped = FALSE,
+  highlight = TRUE,
+  showPageSizeOptions = TRUE,
+  class = "packages-table",
+  onClick = "expand",
+  rowStyle = list <https://rdrr.io/r/base/list.html>(cursor = "pointer"),
+  paginationType = "simple",
+  groupBy = "payer",
+  defaultSorted = "payer",
+  defaultColDef = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+    headerClass = "col-header",
+    footerClass = "col-footer"
+  ),
+  columns = list <https://rdrr.io/r/base/list.html>(
+    payer = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      name = "Payer"
+    ),
+    service_states = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      name = "States",
+      width = 100,
+      aggregate = "unique"
+    ),
+    id = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      name = "Payer ID",
+      class = "number",
+      width = 100,
+      aggregate = "unique"
+    ),
+    avail_trans = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      name = "Available Transactions",
+      aggregate = "unique",
+      cell = pill_buttons <https://kcuilla.github.io/reactablefmtr/reference/pill_buttons.html>(
+        data = hcfa_payers,
+        color_ref = "trans_colors",
+        box_shadow = FALSE
+      )
+    ),
+    enroll_req = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      name = "Enrollment Required",
+      width = 200,
+      aggregate = "frequency",
+      cell = pill_buttons <https://kcuilla.github.io/reactablefmtr/reference/pill_buttons.html>(
+        data = hcfa_payers,
+        color_ref = "enroll_colors",
+        box_shadow = FALSE
+      )
+    ),
+    trans_colors = colDef <https://glin.github.io/reactable/reference/colDef.html>(show = FALSE),
+    enroll_colors = colDef <https://glin.github.io/reactable/reference/colDef.html>(show = FALSE)
+  )
+) |>
+  add_title <https://kcuilla.github.io/reactablefmtr/reference/add_title.html>(
+    title = "Insurance Payer Information",
+    margin = reactablefmtr::margin <https://kcuilla.github.io/reactablefmtr/reference/margin.html>(t = 10, r = 0, b = 15, l = 0)
+  ) |>
+  add_subtitle <https://kcuilla.github.io/reactablefmtr/reference/add_subtitle.html>(
+    subtitle = "For Electronic Data Interchange (EDI): Treatment, Payment, Operations (TPO)",
+    margin = reactablefmtr::margin <https://kcuilla.github.io/reactablefmtr/reference/margin.html>(t = 10, r = 0, b = 15, l = 0)
+  ) |>
+  add_source <https://kcuilla.github.io/reactablefmtr/reference/add_source.html>(
+    font_color = "#C8C8C8",
+    align = "right",
+    margin = reactablefmtr::margin <https://kcuilla.github.io/reactablefmtr/reference/margin.html>(t = 0, r = 10, b = 0, l = 0),
+    source = html <https://kcuilla.github.io/reactablefmtr/reference/html.html>("Table: <a href='https://twitter.com/aabrucehimni'>@aabrucehimni</a> | Data: <a href='https://payers.gatewayedi.com/payerlist/default.aspx'>Trizetto Gateway EDI</a> & <a href='http://www.healthdataservices.com/payerid/payerlist.htm'>Health Data Services, Inc.</a>")
+  )
+|//
+
+
+  Insurance Payer Information
+
+
+    For Electronic Data Interchange (EDI): Treatment, Payment,
+    Operations (TPO)
+
+Payer
+States
+Payer ID
+Available Transactions
+Enrollment Required
+​1-888-OHIOCOMP (2)
+OH
+R6845
+Professional Claims, RTPA
+Yes, NO
+​1st Auto & Casualty (4)
+MN
+J1585
+Professional Claims, Claim Attachments, Electronic Remits, Remits
+NO (4)
+​1st Medical Network (8)
+ALL
+29076
+Professional Claims, Insurance Eligibility Discovery, Claim Status,
+Electronic COB, Electronic Remits, Remits, Eligibility, RTPA
+NO (6), Yes (2)
+​2020 Eyecare (1)
+ALL
+2020E
+Professional Claims
+NO
+​21st Century Insurance (4)
+ALL
+41556
+Professional Claims, Claim Attachments, Electronic Remits, Remits
+NO (4)
+​22125 Roscoe Corp. (3)
+ALL
+41556
+Professional Claims, Claim Attachments, Remits
+NO (3)
+​360 Alliance - Gilsbar (5)
+LA
+07205
+Professional Claims, Claim Status, Electronic Remits, Remits, Eligibility
+NO (3), Yes (2)
+​3P Administrators (4)
+ALL
+20413
+Professional Claims, Electronic COB, Electronic Remits, Remits
+NO (2), Yes (2)
+​6 Degrees Health Incorporated (2)
+ALL
+20446
+Professional Claims, Electronic COB
+NO (2)
+​A & I Benefit Plan Administrators, Inc. (2)
+ALL
+93044
+Professional Claims, Electronic COB
+NO (2)
+1–10 of 8704 rows
+Show
+Previous1 of 871
+Next
+
+Table: @aabrucehimni <https://twitter.com/aabrucehimni> | Data: Trizetto
+Gateway EDI <https://payers.gatewayedi.com/payerlist/default.aspx> &
+Health Data Services, Inc. <http://www.healthdataservices.com/payerid/
+payerlist.htm>
+
+
+      Citations
+
+Package 	Version 	Citation
+base 	4.2.0 	R Core Team (2022 <#ref-base>)
+distill 	1.4 	Dervieux et al. (2022 <#ref-distill>)
+gdata 	2.18.0.1 	Warnes et al. (2022 <#ref-gdata>)
+grateful 	0.1.11 	Rodríguez-Sánchez, Jackson, and Hutchins (2022 <#ref-
+grateful>)
+htmltools 	0.5.2 	Cheng et al. (2021 <#ref-htmltools>)
+knitr 	1.39 	Xie (2014 <#ref-knitr2014>); Xie (2015 <#ref-knitr2015>);
+Xie (2022 <#ref-knitr2022>)
+reactable 	0.3.0 	Lin (2022 <#ref-reactable>)
+reactablefmtr 	2.0.0 	Cuilla (2022 <#ref-reactablefmtr>)
+rio 	0.5.29 	Chan et al. (2021 <#ref-rio>)
+rmarkdown 	2.14 	Xie, Allaire, and Grolemund (2018 <#ref-
+rmarkdown2018>); Xie, Dervieux, and Riederer (2020 <#ref-
+rmarkdown2020>); Allaire et al. (2022 <#ref-rmarkdown2022>)
+sessioninfo 	1.2.2 	Wickham et al. (2021 <#ref-sessioninfo>)
+tidyverse 	1.3.1 	Wickham et al. (2019 <#ref-tidyverse>)
+xaringanExtra 	0.5.5 	Aden-Buie and Warkentin (2022 <#ref-xaringanExtra>)
+
+
+      Last updated on
+
+|[1] "2022-06-02 01:38:09 EDT"|//
+
+
+      Session Info
+
+|sessioninfo::session_info <https://r-lib.github.io/sessioninfo/reference/session_info.html>()
+|//
+
+|─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
+ setting  value
+ version  R version 4.2.0 (2022-04-22 ucrt)
+ os       Windows 10 x64 (build 25126)
+ system   x86_64, mingw32
+ ui       RTerm
+ language (EN)
+ collate  English_United States.utf8
+ ctype    English_United States.utf8
+ tz       America/New_York
+ date     2022-06-02
+ pandoc   2.17.1.1 @ C:/Program Files/RStudio/bin/quarto/bin/ (via rmarkdown)
+
+─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+ package       * version  date (UTC) lib source
+ assertthat      0.2.1    2019-03-21 [1] CRAN (R 4.2.0)
+ backports       1.4.1    2021-12-13 [1] CRAN (R 4.2.0)
+ broom           0.8.0    2022-04-13 [1] CRAN (R 4.2.0)
+ bslib           0.3.1    2021-10-06 [1] CRAN (R 4.2.0)
+ cachem          1.0.6    2021-08-19 [1] CRAN (R 4.2.0)
+ cellranger      1.1.0    2016-07-27 [1] CRAN (R 4.2.0)
+ cli             3.3.0    2022-04-25 [1] CRAN (R 4.2.0)
+ colorspace      2.0-3    2022-02-21 [1] CRAN (R 4.2.0)
+ crayon          1.5.1    2022-03-26 [1] CRAN (R 4.2.0)
+ crosstalk       1.2.0    2021-11-04 [1] CRAN (R 4.2.0)
+ curl            4.3.2    2021-06-23 [1] CRAN (R 4.2.0)
+ data.table      1.14.2   2021-09-27 [1] CRAN (R 4.2.0)
+ DBI             1.1.2    2021-12-20 [1] CRAN (R 4.2.0)
+ dbplyr          2.1.1    2021-04-06 [1] CRAN (R 4.2.0)
+ digest          0.6.29   2021-12-01 [1] CRAN (R 4.2.0)
+ distill         1.4      2022-05-12 [1] CRAN (R 4.2.0)
+ downlit         0.4.0    2021-10-29 [1] CRAN (R 4.2.0)
+ dplyr         * 1.0.9    2022-04-28 [1] CRAN (R 4.2.0)
+ ellipsis        0.3.2    2021-04-29 [1] CRAN (R 4.2.0)
+ evaluate        0.15     2022-02-18 [1] CRAN (R 4.2.0)
+ fansi           1.0.3    2022-03-24 [1] CRAN (R 4.2.0)
+ fastmap         1.1.0    2021-01-25 [1] CRAN (R 4.2.0)
+ forcats       * 0.5.1    2021-01-27 [1] CRAN (R 4.2.0)
+ foreign         0.8-82   2022-01-16 [2] CRAN (R 4.2.0)
+ fs              1.5.2    2021-12-08 [1] CRAN (R 4.2.0)
+ gdata         * 2.18.0.1 2022-05-10 [1] CRAN (R 4.2.0)
+ generics        0.1.2    2022-01-31 [1] CRAN (R 4.2.0)
+ ggplot2       * 3.3.6    2022-05-03 [1] CRAN (R 4.2.0)
+ glue            1.6.2    2022-02-24 [1] CRAN (R 4.2.0)
+ grateful      * 0.1.11   2022-05-07 [1] Github (Pakillo/grateful@ba9b003)
+ gtable          0.3.0    2019-03-25 [1] CRAN (R 4.2.0)
+ gtools          3.9.2.1  2022-05-23 [1] CRAN (R 4.2.0)
+ haven           2.5.0    2022-04-15 [1] CRAN (R 4.2.0)
+ highr           0.9      2021-04-16 [1] CRAN (R 4.2.0)
+ hms             1.1.1    2021-09-26 [1] CRAN (R 4.2.0)
+ htmltools     * 0.5.2    2021-08-25 [1] CRAN (R 4.2.0)
+ htmlwidgets     1.5.4    2021-09-08 [1] CRAN (R 4.2.0)
+ httr            1.4.3    2022-05-04 [1] CRAN (R 4.2.0)
+ jquerylib       0.1.4    2021-04-26 [1] CRAN (R 4.2.0)
+ jsonlite        1.8.0    2022-02-22 [1] CRAN (R 4.2.0)
+ knitr         * 1.39     2022-04-26 [1] CRAN (R 4.2.0)
+ lifecycle       1.0.1    2021-09-24 [1] CRAN (R 4.2.0)
+ lubridate     * 1.8.0    2021-10-07 [1] CRAN (R 4.2.0)
+ magrittr        2.0.3    2022-03-30 [1] CRAN (R 4.2.0)
+ memoise         2.0.1    2021-11-26 [1] CRAN (R 4.2.0)
+ modelr          0.1.8    2020-05-19 [1] CRAN (R 4.2.0)
+ munsell         0.5.0    2018-06-12 [1] CRAN (R 4.2.0)
+ openxlsx        4.2.5    2021-12-14 [1] CRAN (R 4.2.0)
+ pillar          1.7.0    2022-02-01 [1] CRAN (R 4.2.0)
+ pkgconfig       2.0.3    2019-09-22 [1] CRAN (R 4.2.0)
+ purrr         * 0.3.4    2020-04-17 [1] CRAN (R 4.2.0)
+ R.cache         0.15.0   2021-04-30 [1] CRAN (R 4.2.0)
+ R.methodsS3     1.8.1    2020-08-26 [1] CRAN (R 4.2.0)
+ R.oo            1.24.0   2020-08-26 [1] CRAN (R 4.2.0)
+ R.utils         2.11.0   2021-09-26 [1] CRAN (R 4.2.0)
+ R6              2.5.1    2021-08-19 [1] CRAN (R 4.2.0)
+ Rcpp            1.0.8.3  2022-03-17 [1] CRAN (R 4.2.0)
+ reactable     * 0.3.0    2022-05-26 [1] CRAN (R 4.2.0)
+ reactablefmtr * 2.0.0    2022-03-16 [1] CRAN (R 4.2.0)
+ reactR          0.4.4    2021-02-22 [1] CRAN (R 4.2.0)
+ readr         * 2.1.2    2022-01-30 [1] CRAN (R 4.2.0)
+ readxl          1.4.0    2022-03-28 [1] CRAN (R 4.2.0)
+ renv            0.15.5   2022-05-26 [1] CRAN (R 4.2.0)
+ reprex          2.0.1    2021-08-05 [1] CRAN (R 4.2.0)
+ rio             0.5.29   2021-11-22 [1] CRAN (R 4.2.0)
+ rlang           1.0.2    2022-03-04 [1] CRAN (R 4.2.0)
+ rmarkdown     * 2.14     2022-04-25 [1] CRAN (R 4.2.0)
+ rstudioapi      0.13     2020-11-12 [1] CRAN (R 4.2.0)
+ rvest           1.0.2    2021-10-16 [1] CRAN (R 4.2.0)
+ sass            0.4.1    2022-03-23 [1] CRAN (R 4.2.0)
+ scales          1.2.0    2022-04-13 [1] CRAN (R 4.2.0)
+ sessioninfo     1.2.2    2021-12-06 [1] CRAN (R 4.2.0)
+ stringi         1.7.6    2021-11-29 [1] CRAN (R 4.2.0)
+ stringr       * 1.4.0    2019-02-10 [1] CRAN (R 4.2.0)
+ styler          1.7.0    2022-03-13 [1] CRAN (R 4.2.0)
+ tibble        * 3.1.7    2022-05-03 [1] CRAN (R 4.2.0)
+ tidyr         * 1.2.0    2022-02-01 [1] CRAN (R 4.2.0)
+ tidyselect      1.1.2    2022-02-21 [1] CRAN (R 4.2.0)
+ tidyverse     * 1.3.1    2021-04-15 [1] CRAN (R 4.2.0)
+ tzdb            0.3.0    2022-03-28 [1] CRAN (R 4.2.0)
+ utf8            1.2.2    2021-07-24 [1] CRAN (R 4.2.0)
+ uuid            1.1-0    2022-04-19 [1] CRAN (R 4.2.0)
+ vctrs           0.4.1    2022-04-13 [1] CRAN (R 4.2.0)
+ withr           2.5.0    2022-03-03 [1] CRAN (R 4.2.0)
+ xaringanExtra   0.5.5    2022-04-26 [1] Github (gadenbuie/xaringanExtra@ee5092d)
+ xfun            0.31     2022-05-10 [1] CRAN (R 4.2.0)
+ xml2            1.3.3    2021-11-30 [1] CRAN (R 4.2.0)
+ yaml            2.3.5    2022-02-21 [1] CRAN (R 4.2.0)
+ zip             2.2.0    2021-05-31 [1] CRAN (R 4.2.0)
+
+ [1] C:/Users/andyb/AppData/Local/R/win-library/4.2
+ [2] C:/Program Files/R/R-4.2.0/library
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────|//
+
+//   0 Comments Share:   // <https://twitter.com/share?
+text=Text%20Wrangling%3A%20EDI%20Payer%20List&url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Ftext-wrangling-edi-payer-list%2F> // <https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Ftext-wrangling-edi-payer-list%2F&title=Text%20Wrangling%3A%20EDI%20Payer%20List> // <https://www.facebook.com/sharer/sharer.php?s=100&p[url]=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Ftext-wrangling-edi-payer-list%2F> // <https://pinterest.com/pin/create/link/?url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Ftext-wrangling-edi-payer-list%2F&description=Text%20Wrangling%3A%20EDI%20Payer%20List>
+
+Enjoy this blog? Get notified of new posts via email:
+
+
+      Footnotes
+
+
+      References
+
+Aden-Buie, Garrick, and Matthew T. Warkentin. 2022. /xaringanExtra:
+Extras and Extensions for Xaringan Slides/. https://github.com/
+gadenbuie/xaringanExtra <https://github.com/gadenbuie/xaringanExtra>.
+Allaire, JJ, Yihui Xie, Jonathan McPherson, Javier Luraschi, Kevin
+Ushey, Aron Atkins, Hadley Wickham, Joe Cheng, Winston Chang, and
+Richard Iannone. 2022. /Rmarkdown: Dynamic Documents for r/. https://
+github.com/rstudio/rmarkdown <https://github.com/rstudio/rmarkdown>.
+Chan, Chung-hong, Geoffrey CH Chan, Thomas J. Leeper, and Jason Becker.
+2021. /Rio: A Swiss-Army Knife for Data File i/o/.
+Cheng, Joe, Carson Sievert, Barret Schloerke, Winston Chang, Yihui Xie,
+and Jeff Allen. 2021. /Htmltools: Tools for HTML/. https://CRAN.R-
+project.org/package=htmltools <https://cran.r-project.org/
+package=htmltools>.
+Cuilla, Kyle. 2022. /Reactablefmtr: Streamlined Table Styling and
+Formatting for Reactable/. https://CRAN.R-project.org/
+package=reactablefmtr <https://cran.r-project.org/package=reactablefmtr>.
+Dervieux, Christophe, JJ Allaire, Rich Iannone, Alison Presmanes Hill,
+and Yihui Xie. 2022. /Distill: ’R Markdown’ Format for Scientific and
+Technical Writing/. https://CRAN.R-project.org/package=distill <https://
+cran.r-project.org/package=distill>.
+Lin, Greg. 2022. /Reactable: Interactive Data Tables Based on ’React
+Table’/. https://CRAN.R-project.org/package=reactable <https://cran.r-
+project.org/package=reactable>.
+R Core Team. 2022. /R: A Language and Environment for Statistical
+Computing/. Vienna, Austria: R Foundation for Statistical Computing.
+https://www.R-project.org/ <https://www.r-project.org/>.
+Rodríguez-Sánchez, Francisco, Connor P. Jackson, and Shaurita D.
+Hutchins. 2022. /Grateful: Facilitate Citation of r Packages/. https://
+github.com/Pakillo/grateful <https://github.com/Pakillo/grateful>.
+Warnes, Gregory R., Ben Bolker, Gregor Gorjanc, Gabor Grothendieck, Ales
+Korosec, Thomas Lumley, Don MacQueen, Arni Magnusson, Jim Rogers, et al.
+2022. /Gdata: Various r Programming Tools for Data Manipulation/.
+https://CRAN.R-project.org/package=gdata <https://cran.r-project.org/
+package=gdata>.
+Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy
+D’Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019.
+“Welcome to the tidyverse.” /Journal of Open Source Software/ 4 (43):
+1686. https://doi.org/10.21105/joss.01686 <https://doi.org/10.21105/
+joss.01686>.
+Wickham, Hadley, Winston Chang, Robert Flight, Kirill Müller, and Jim
+Hester. 2021. /Sessioninfo: R Session Information/. https://CRAN.R-
+project.org/package=sessioninfo <https://cran.r-project.org/
+package=sessioninfo>.
+Xie, Yihui. 2014. “Knitr: A Comprehensive Tool for Reproducible Research
+in R.” In /Implementing Reproducible Computational Research/, edited by
+Victoria Stodden, Friedrich Leisch, and Roger D. Peng. Chapman; Hall/
+CRC. http://www.crcpress.com/product/isbn/9781466561595 <http://
+www.crcpress.com/product/isbn/9781466561595>.
+———. 2015. /Dynamic Documents with R and Knitr/. 2nd ed. Boca Raton,
+Florida: Chapman; Hall/CRC. https://yihui.org/knitr/ <https://yihui.org/
+knitr/>.
+———. 2022. /Knitr: A General-Purpose Package for Dynamic Report
+Generation in r/. https://yihui.org/knitr/ <https://yihui.org/knitr/>.
+Xie, Yihui, J. J. Allaire, and Garrett Grolemund. 2018. /R Markdown: The
+Definitive Guide/. Boca Raton, Florida: Chapman; Hall/CRC. https://
+bookdown.org/yihui/rmarkdown <https://bookdown.org/yihui/rmarkdown>.
+Xie, Yihui, Christophe Dervieux, and Emily Riederer. 2020. /R Markdown
+Cookbook/. Boca Raton, Florida: Chapman; Hall/CRC. https://bookdown.org/
+yihui/rmarkdown-cookbook <https://bookdown.org/yihui/rmarkdown-cookbook>.
+
+
+      Corrections
+
+If you see mistakes or want to suggest changes, please create an issue
+<https://github.com/andrewallenbruce/issues/new> on the source repository.
+
+
+      Reuse
+
+Text and figures are licensed under Creative Commons Attribution CC BY
+4.0 <https://creativecommons.org/licenses/by/4.0/>. Source code is
+available at https://github.com/andrewallenbruce <https://github.com/
+andrewallenbruce>, unless otherwise noted. The figures that have been
+reused from other sources don't fall under this license and can be
+recognized by a note in their caption: "Figure from ...".
+
+
+      Citation
+
+For attribution, please cite this work as
+
+Bruce (2022, May 30). Andrew Bruce: Text Wrangling: EDI Payer List. Retrieved from https://andrewbruce.netlify.app/posts/text-wrangling-edi-payer-list///
+
+BibTeX citation
+
+@misc{bruce2022text,
+  author = {Bruce, Andrew},
+  title = {Andrew Bruce: Text Wrangling: EDI Payer List},
+  url = {https://andrewbruce.netlify.app/posts/text-wrangling-edi-payer-list/},
+  year = {2022}
+}//
+
+Andrew A. Bruce - 2024 - made with , and {distill} <https://
+rstudio.github.io/distill/>
+

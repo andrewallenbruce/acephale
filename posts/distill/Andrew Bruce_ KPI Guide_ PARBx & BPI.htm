@@ -1,0 +1,1296 @@
+Andrew Bruce <https://andrewbrucehimni.netlify.app/>
+
+Home <https://andrewbrucehimni.netlify.app/> Projects ▾ EHR UX/UI Mockup
+<https://andrewbrucehimni.netlify.app/flex_example/flexexample> Days in
+AR Shiny App <https://himni.shinyapps.io/darguide/> The Art of DAR
+<https://artofdar.netlify.app/> HIM & I <https://himni.info/>
+About <https://andrewbrucehimni.netlify.app/about> // <https://
+www.linkedin.com/in/andybruce1> // <https://twitter.com/aabrucehimni> //
+<https://www.behance.net/andybruce1> // <https://
+andrewbrucehimni.netlify.app/index.xml> // <https://github.com/
+andrewallenbruce> ☰ <javascript:void(0);>
+
+
+  KPI Guide: PARBx & BPI
+
+KPI <https://andrewbrucehimni.netlify.app/#category:KPI> Lirov <https://
+andrewbrucehimni.netlify.app/#category:Lirov> PARBx <https://
+andrewbrucehimni.netlify.app/#category:PARBx>
+
+An overview of Lirov’s Percentage of Accounts Receivable Beyond X Days
+and Billing Performance Index
+
+
+      Author
+
+
+      Affiliation
+
+Andrew Bruce <https://twitter.com/aabrucehimni> ORCID ID <https://
+orcid.org/0000-0001-5040-4327>
+
+Healthcare Analytics in R <https://andrewbruce.netlify.app/about>
+
+
+      Published
+
+March 24, 2022
+
+
+      Citation
+
+Bruce, 2022 <#citation>
+
+
+      Contents
+
+  * Introduction <#introduction>
+  * PARBxx <#parbx>
+  * Billing Performance Index (BPI) <#billing-performance-index-bpi>
+      o Monthly BPI Ranking <#monthly-bpi-ranking>
+          + Slopegraph <#slopegraph>
+          + Weighting Payers by Proportion of Total AR > 120 Days
+            <#weighting-payers-by-proportion-of-total-ar-120-days>
+          + Normal vs. Weighted Comparisons <#normal-vs.-weighted-
+            comparisons>
+      o Annual BPI Summary <#annual-bpi-summary>
+
+
+  Introduction
+
+Yuval Lirov <https://www.crunchbase.com/person/yuval-lirov> is a very
+interesting figure in the medical billing field. I was first introduced
+to Dr. Lirov while combing through the Amazon reviews for a book on the
+financial management of physician practices. Scrolling through, one
+happened to catch my attention:
+
+Dr. Lirov's review from amazon.com
+
+(#fig:class=external)Dr. Lirov’s review from amazon.com
+
+I might be going out on a limb here, but an Amazon review is not
+typically as thorough and opinionated. Needless to say, I made two
+purchases that day. I have probably read /Medical Billing Networks and
+Processes/ <https://www.amazon.com/Medical-Billing-Networks-Processes-
+Profitable/dp/0979610133> twice now and continue to use it as a reference.
+
+Healthcare reimbursement is an incredibly complex field and has a steep
+learning curve. Whether because of that complexity or the esoteric
+nature of the healthcare economic model in the US, finding sources of
+quality knowledge can be daunting.
+
+The signal-to-noise ratio usually favors hearing loss. Talking a lot
+without saying much. Dr. Lirov’s book was the first I’d come across
+where the reverse held true.
+
+His book has some very interesting medical billing-related metrics,
+several of which he developed himself. I’d like to go over two of them,
+*PARB*xx and *BPI*. I’ve yet to see them in use and I believe they could
+be valuable tools in healthcare revenue cycle management.
+
+------------------------------------------------------------------------
+
+
+  PARBxx
+
+PARBxx, or /Percentage of Accounts Receivable Beyond/ xx Days, is
+exactly what it sounds like: monitoring the percentage of your AR
+balances as they age, in what are commonly referred to as aging
+“buckets” or “bins.” This idea, in and of itself, is not revolutionary,
+other than his suggestion to use PARBxx to resolve Days in AR’s
+inability to highlight the overall behavior of Accounts Receivable. The
+innovation comes in the form of using the PARBxx data to create an index
+that tracks a payer’s performance month-to-month and annually:
+
+    PARBxx data can then be used to calculate a BPI, or Billing
+    Performance Index. BPI is a key billing performance characteristic
+    because it’s an indicator of claims that are never paid. Obviously,
+    the lower the index, the better the billing performance. But this
+    statistic is meaningful only when considered in the context of the
+    relative performance of other payers. Lirov (2009 <#ref-lirov2009>)
+
+
+  Billing Performance Index (BPI)
+
+Lirov’s /Billing Performance Index/ was inspired by a Wall Street
+benchmarking technique called a /payment performance index/. He
+emphasizes the advantage of a “context-driven, rule-based approach to
+relative benchmarking”:
+
+    The advantage of rule-driven indexing is that participation is
+    dynamically determined at a point in time, reflecting the dynamic
+    nature of the entire market. Today’s top 10 list of index performers
+    may not include the same names next week…A financial instrument’s
+    specific performance is recomputed every time the index itself is
+    computed, reflecting the dynamic nature of performance relative to
+    the market itself. Lirov (2009 <#ref-lirov2009>)
+
+Applying this indexing method to payers allows providers to track the
+ease/difficulty of the reimbursement process with each payer. Inclusion
+in the monthly index indicates that the percentage of AR older than 120
+days belonging to a payer ranks among the lowest in a provider’s payer mix.
+
+This results in a provider being able to focus his or her AR management
+resources on more problematic payers. Lirov does suggest several
+criteria that should be considered before a payer is elligible for
+inclusion such as a minimum threshold of claims submitted and total
+gross charges processed.
+
+
+    <#monthly-bpi-ranking>Monthly BPI Ranking
+
+For this example, I’ve put the mock data provided by Dr. Lirov into a
+data frame. The data ranks (or indexes) the payers with the top 10
+lowest PARBxx percentages by the most recent month’s (December) figures,
+including November’s figures as well. December’s rankings appear
+alongside a *Rank Change* column indicating the number of places each
+payer rose or fell from November to December. Using {reactable} and
+{reactablefmtr} I can create an interactive table of the data:
+
+Show code
+
+|# Data frame
+bpi_mon <- data.frame <https://rdrr.io/r/base/data.frame.html>(
+  payer = c <https://rdrr.io/r/base/c.html>(
+    "Medicare Illinois",
+    "BCBS Illinois",
+    "Cigna",
+    "Horizon BCBS NJ",
+    "Aetna",
+    "UnitedHealthcare",
+    "Medicare NJ",
+    "GEICO",
+    "BCBS Pennsylvania",
+    "BCBS Georgia"
+  ),
+  rank_change = c <https://rdrr.io/r/base/c.html>(0, 0, 1, 3, 1, -4, -1, 1, -2, 1),
+  nov_rank = c <https://rdrr.io/r/base/c.html>(1, 2, 4, 7, 6, 3, 5, 9, 8, 10),
+  nov_parbx = c <https://rdrr.io/r/base/c.html>(5.8, 7.9, 15.7, 20.7, 20, 15, 19.4, 36.2, 30.5, 39.9),
+  dec_rank = c <https://rdrr.io/r/base/c.html>(1, 2, 3, 4, 5, 7, 6, 8, 10, 9),
+  dec_parbx = c <https://rdrr.io/r/base/c.html>(6.8, 8.1, 10.7, 13.9, 14.8, 21.2, 18.8, 35.2, 43.4, 43.3)
+)
+
+# Reactable code
+bpi_mon_tbl <- reactable <https://glin.github.io/reactable/reference/reactable.html>(
+  bpi_mon,
+  pagination = FALSE,
+  outlined = TRUE,
+  showSortable = TRUE,
+  defaultColDef = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+    footerStyle = list <https://rdrr.io/r/base/list.html>(fontWeight = "bold"),
+    headerClass = "col-header",
+    footerClass = "col-footer",
+    align = "left"
+  ),
+  columnGroups = list <https://rdrr.io/r/base/list.html>(
+    colGroup <https://glin.github.io/reactable/reference/colGroup.html>(
+      name = "December",
+      columns = c <https://rdrr.io/r/base/c.html>(
+        "dec_rank",
+        "dec_parbx"
+      )
+    ),
+    colGroup <https://glin.github.io/reactable/reference/colGroup.html>(
+      name = "November",
+      columns = c <https://rdrr.io/r/base/c.html>(
+        "nov_rank",
+        "nov_parbx"
+      )
+    )
+  ),
+  columns = list <https://rdrr.io/r/base/list.html>(
+    dec_rank = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      name = "Rank",
+      align = "center",
+      width = 90
+    ),
+    dec_parbx = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      footer = function(values) sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+      name = "PARBx",
+      width = 90,
+      format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        digits = 1
+      ),
+      defaultSortOrder = "desc",
+      align = "center",
+      style = color_scales <https://kcuilla.github.io/reactablefmtr/reference/color_scales.html>(bpi_mon)
+    ),
+    nov_rank = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      name = "Rank",
+      align = "center",
+      width = 90
+    ),
+    nov_parbx = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      footer = function(values) sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+      name = "PARBx",
+      width = 90,
+      format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        digits = 1
+      ),
+      align = "center",
+      style = color_scales <https://kcuilla.github.io/reactablefmtr/reference/color_scales.html>(bpi_mon)
+    ),
+    payer = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      name = "Payer",
+      sortable = FALSE,
+      align = "right",
+      footer = "PARBx Averages"
+    ),
+    rank_change = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      name = "Change",
+      width = 100,
+      format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        digits = 0
+      ),
+      show = TRUE,
+      align = "center",
+      cell = function(value) {
+        value <- format <https://rdrr.io/r/base/format.html>(
+          value,
+          big.mark = ","
+        )
+        if (value > 0) {
+          paste0 <https://rdrr.io/r/base/paste.html>("+", value)
+        } else {
+          value
+        }
+      },
+      style = function(value) {
+        color <- if (value > 0) {
+          "black"
+        } else if (value < 0) {
+          "#ef4035"
+        }
+        list <https://rdrr.io/r/base/list.html>(fontWeight = 600, color = color)
+      }
+    ),
+    html = TRUE
+  ),
+  defaultSorted = "dec_rank",
+  compact = FALSE,
+  class = "rcm-tbl"
+) |>
+  add_title <https://kcuilla.github.io/reactablefmtr/reference/add_title.html>("Billing Performance Index: November to December 2021", align = "left", font_color = "black", font_size = 24) |>
+  add_subtitle <https://kcuilla.github.io/reactablefmtr/reference/add_subtitle.html>("Top 10 Payers with the Lowest Percentage of AR Beyond 120 Days", align = "left", font_color = "black", font_size = 18, font_weight = "normal")
+
+div <https://rdrr.io/pkg/htmltools/man/builder.html>(class = "rcm-analysis", bpi_mon_tbl)|//
+
+
+  Billing Performance Index: November to December 2021
+
+
+    Top 10 Payers with the Lowest Percentage of AR Beyond 120 Days
+
+​
+November
+December
+Payer
+Change
+Rank
+PARBx
+Rank
+PARBx
+Medicare Illinois
+0
+1
+5.8
+1
+6.8
+BCBS Illinois
+0
+2
+7.9
+2
+8.1
+Cigna
++1
+4
+15.7
+3
+10.7
+Horizon BCBS NJ
++3
+7
+20.7
+4
+13.9
+Aetna
++1
+6
+20.0
+5
+14.8
+Medicare NJ
+-1
+5
+19.4
+6
+18.8
+UnitedHealthcare
+-4
+3
+15.0
+7
+21.2
+GEICO
++1
+9
+36.2
+8
+35.2
+BCBS Georgia
++1
+10
+39.9
+9
+43.3
+BCBS Pennsylvania
+-2
+8
+30.5
+10
+43.4
+PARBx Averages
+​
+​
+21.11
+​
+21.62
+
+In terms of visualization, a slopegraph <https://www.edwardtufte.com/
+bboard/q-and-a-fetch-msg?msg_id=0003nk> would be effective for
+displaying month-to-month ranking changes by PARBxx percentages. Before
+I can begin any visualizations, I need to pivot my data into a “long”
+format with {tidyr}:
+
+|bpi_mon_long <- bpi_mon |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(payer, nov_parbx, dec_parbx) |>
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(November = nov_parbx, December = dec_parbx) |>
+  tidyr::pivot_longer <https://tidyr.tidyverse.org/reference/pivot_longer.html>(!payer, names_to = "month", values_to = "parbx")
+head <https://rdrr.io/r/utils/head.html>(bpi_mon_long, 10)|//
+
+payer 	month 	parbx
+Medicare Illinois 	November 	5.8
+Medicare Illinois 	December 	6.8
+BCBS Illinois 	November 	7.9
+BCBS Illinois 	December 	8.1
+Cigna 	November 	15.7
+Cigna 	December 	10.7
+Horizon BCBS NJ 	November 	20.7
+Horizon BCBS NJ 	December 	13.9
+Aetna 	November 	20.0
+Aetna 	December 	14.8
+
+
+      <#slopegraph>Slopegraph
+
+The interactive slopegraph with the {highcharter} package produces an
+effective presentation of data in this form. The viewer can intuitively
+understand each payer’s monthly ranking change and the PARBxx percentage
+associated with that change:
+
+Show code
+
+|parbx_hc1 <- bpi_mon_long |>
+  hchart <https://jkunst.com/highcharter/reference/hchart.html>("line", hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(x = month, y = parbx, group = payer),
+    dataLabels = list <https://rdrr.io/r/base/list.html>(
+      enabled = TRUE,
+      formatter = JS <https://rdrr.io/pkg/htmlwidgets/man/JS.html>("function(){return(this.point.payer + ' ' + this.y + '%')}")
+    ),
+    style = list <https://rdrr.io/r/base/list.html>(fontSize = "16px", color = "#000000")
+  ) |>
+  hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+    gridLineWidth = 0,
+    title = list <https://rdrr.io/r/base/list.html>(
+      text = " ",
+      align = "high",
+      margin = 10
+    ),
+    labels = list <https://rdrr.io/r/base/list.html>(format = "{value}")
+  ) |>
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(text = NULL),
+    opposite = TRUE,
+    labels = list <https://rdrr.io/r/base/list.html>(format = "{value}"),
+    crosshair = list <https://rdrr.io/r/base/list.html>(
+      snap = TRUE,
+      width = 2,
+      zIndex = 0
+    )
+  ) |>
+  hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(
+    text = "PARBx: November to December 2021",
+    align = "left",
+    style = list <https://rdrr.io/r/base/list.html>(fontSize = "18", color = "#000000", fontWeight = "bold")
+  ) |>
+  hc_subtitle <https://jkunst.com/highcharter/reference/hc_subtitle.html>(
+    text = "Top 10 Payers with the Lowest Percentage of AR Beyond 120 Days",
+    align = "left",
+    style = list <https://rdrr.io/r/base/list.html>(fontSize = "14px", color = "#000000")
+  ) |>
+  hc_plotOptions <https://jkunst.com/highcharter/reference/hc_plotOptions.html>(
+    line = list <https://rdrr.io/r/base/list.html>(
+      marker = list <https://rdrr.io/r/base/list.html>(
+        symbol = "circle",
+        lineWidth = 2,
+        radius = 5
+      )
+    )
+  ) |>
+  hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    crosshairs = TRUE,
+    backgroundColor = "#F0F0F0",
+    borderWidth = 1,
+    sort = TRUE
+  ) |>
+  hc_legend <https://jkunst.com/highcharter/reference/hc_legend.html>(enabled = FALSE) |>
+  hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 800, width = 800) |>
+  hc_chart <https://jkunst.com/highcharter/reference/hc_chart.html>(style = list <https://rdrr.io/r/base/list.html>(fontFamily = "Karla")) |>
+  hc_chart <https://jkunst.com/highcharter/reference/hc_chart.html>(zoomType = "xy") |>
+  hc_exporting <https://jkunst.com/highcharter/reference/hc_exporting.html>(enabled = TRUE, filename = "chart")
+
+parbx_hc1|//
+
+Created with Highcharts 9.3.1Chart context menuPARBx: November to
+December 2021Top 10 Payers with the Lowest Percentage of AR Beyond 120
+DaysAetna 20%​Aetna 20%Aetna 14.8%​Aetna 14.8%BCBS Georgia 39.9%​BCBS
+Georgia 39.9%BCBS Georgia 43.3%​BCBS Georgia 43.3%BCBS Illinois 7.9%​
+BCBS Illinois 7.9%BCBS Illinois 8.1%​BCBS Illinois 8.1%BCBS Pennsylvania
+30.5%​BCBS Pennsylvania 30.5%BCBS Pennsylvania 43.4%​BCBS Pennsylvania
+43.4%Cigna 15.7%​Cigna 15.7%Cigna 10.7%​Cigna 10.7%GEICO 36.2%​GEICO
+36.2%GEICO 35.2%​GEICO 35.2%Horizon BCBS NJ 20.7%​Horizon BCBS NJ
+20.7%Horizon BCBS NJ 13.9%​Horizon BCBS NJ 13.9%Medicare Illinois 5.8%​
+Medicare Illinois 5.8%Medicare Illinois 6.8%​Medicare Illinois
+6.8%Medicare NJ 19.4%​Medicare NJ 19.4%Medicare NJ 18.8%​Medicare NJ
+18.8%UnitedHealthcare 15%​UnitedHealthcare 15%UnitedHealthcare 21.2%​
+UnitedHealthcare 21.2%NovemberDecember05101520253035404550
+
+
+      <#weighting-payers-by-proportion-of-total-ar-120-days>Weighting
+      Payers by Proportion of Total AR > 120 Days
+
+There’s one step we can take to give us further insight into each
+payer’s relative performance: weighting their PARBxx figures by the
+percentage of total AR older than 120 days that belongs to each. Keep in
+mind, the figures above represent a percentage of the AR belonging only
+to that payer.
+
+
+        <#generate-random-weights>Generate Random Weights
+
+I’ll generate some random weights to add to each month. The |probs()| function from the |wakefield| package will generate a set of xx numbers, the sum of which will be
+equal to one.
+
+I’ll put these into a new data frame, merge the two data frames, then
+create a new “Weighted PARBxx” column:
+
+Show code
+
+|library <https://rdrr.io/r/base/library.html>(wakefield <https://github.com/trinker/wakefield>)
+set.seed <https://rdrr.io/r/base/Random.html>(1234)
+a <- probs <https://rdrr.io/pkg/wakefield/man/probs.html>(10)
+b <- probs <https://rdrr.io/pkg/wakefield/man/probs.html>(10)
+
+# Create data frame with new data
+props <- data.frame <https://rdrr.io/r/base/data.frame.html>(
+  payer = c <https://rdrr.io/r/base/c.html>(
+    "Medicare Illinois",
+    "BCBS Illinois",
+    "Cigna",
+    "Horizon BCBS NJ",
+    "Aetna",
+    "UnitedHealthcare",
+    "Medicare NJ",
+    "GEICO",
+    "BCBS Pennsylvania",
+    "BCBS Georgia"
+  ),
+  nov_pct = a,
+  dec_pct = b
+)
+
+# Merge the two data frames
+bpi_mon_wt <- merge <https://rdrr.io/r/base/merge.html>(bpi_mon, props, by = "payer")
+
+# Create new "Weighted PARBx" columns
+# Remove "Rank" columns as they no longer apply
+bpi_mon_wt <- bpi_mon_wt |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    nov_parbx_wt = round <https://rdrr.io/r/base/Round.html>(nov_parbx * nov_pct, 2),
+    dec_parbx_wt = round <https://rdrr.io/r/base/Round.html>(dec_parbx * dec_pct, 2),
+    nov_pct = round <https://rdrr.io/r/base/Round.html>(nov_pct * 100, 2),
+    dec_pct = round <https://rdrr.io/r/base/Round.html>(dec_pct * 100, 2)
+  ) |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(
+    payer,
+    nov_parbx,
+    nov_pct,
+    nov_parbx_wt,
+    dec_parbx,
+    dec_pct,
+    dec_parbx_wt
+  )
+
+# Reactable
+bpi_mon_wt_tbl <- reactable <https://glin.github.io/reactable/reference/reactable.html>(
+  bpi_mon_wt,
+  pagination = FALSE,
+  showSortable = TRUE,
+  outlined = TRUE,
+  defaultColDef = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+    footerStyle = list <https://rdrr.io/r/base/list.html>(fontWeight = "bold"),
+    headerClass = "col-header",
+    footerClass = "col-footer",
+    align = "left"
+  ),
+  columnGroups = list <https://rdrr.io/r/base/list.html>(
+    colGroup <https://glin.github.io/reactable/reference/colGroup.html>(
+      name = "December",
+      columns = c <https://rdrr.io/r/base/c.html>(
+        "dec_parbx",
+        "dec_pct",
+        "dec_parbx_wt"
+      )
+    ),
+    colGroup <https://glin.github.io/reactable/reference/colGroup.html>(
+      name = "November",
+      columns = c <https://rdrr.io/r/base/c.html>(
+        "nov_parbx",
+        "nov_pct",
+        "nov_parbx_wt"
+      )
+    )
+  ),
+  columns = list <https://rdrr.io/r/base/list.html>(
+    dec_parbx_wt = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      footer = function(values) sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+      name = "PARBx (wt)",
+      # width = 70,
+      format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        digits = 1
+      ),
+      defaultSortOrder = "desc",
+      align = "center",
+      style = color_scales <https://kcuilla.github.io/reactablefmtr/reference/color_scales.html>(bpi_mon_wt)
+    ),
+    dec_pct = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      footer = function(values) sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+      name = "Weight",
+      # width = 100,
+      format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        digits = 2
+      ),
+      show = TRUE,
+      align = "center"
+    ),
+    dec_parbx = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      footer = function(values) sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+      name = "PARBx",
+      # width = 70,
+      format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        digits = 1
+      ),
+      defaultSortOrder = "desc",
+      align = "center",
+      style = color_scales <https://kcuilla.github.io/reactablefmtr/reference/color_scales.html>(bpi_mon_wt)
+    ),
+    nov_parbx_wt = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      footer = function(values) sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+      name = "PARBx (wt)",
+      # width = 70,
+      format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        digits = 1
+      ),
+      defaultSortOrder = "desc",
+      align = "center",
+      style = color_scales <https://kcuilla.github.io/reactablefmtr/reference/color_scales.html>(bpi_mon_wt)
+    ),
+    nov_pct = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      footer = function(values) sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+      name = "Weight",
+      # width = 100,
+      format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        digits = 2
+      ),
+      show = TRUE,
+      align = "center"
+    ),
+    nov_parbx = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      footer = function(values) sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+      name = "PARBx",
+      format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        digits = 1
+      ),
+      defaultSortOrder = "desc",
+      align = "center",
+      style = color_scales <https://kcuilla.github.io/reactablefmtr/reference/color_scales.html>(bpi_mon_wt)
+    ),
+    payer = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      name = "Payer",
+      width = 200,
+      align = "right",
+      footer = "Averages"
+    ),
+    html = TRUE
+  ),
+  defaultSorted = "dec_parbx_wt",
+  compact = FALSE,
+  class = "rcm-tbl"
+) |>
+  add_title <https://kcuilla.github.io/reactablefmtr/reference/add_title.html>("Weighted Billing Performance Index: November to December 2021", align = "left", font_color = "black", font_size = 24) |>
+  add_subtitle <https://kcuilla.github.io/reactablefmtr/reference/add_subtitle.html>("Top 10 Payers with the Lowest Percentage of AR Beyond 120 Days, Weighted by Proportion of Total Client AR Beyond 120 Days", align = "left", font_color = "black", font_size = 14, font_weight = "normal")
+
+div <https://rdrr.io/pkg/htmltools/man/builder.html>(class = "rcm-analysis", bpi_mon_wt_tbl)|//
+
+
+  Weighted Billing Performance Index: November to December 2021
+
+
+    Top 10 Payers with the Lowest Percentage of AR Beyond 120 Days,
+    Weighted by Proportion of Total Client AR Beyond 120 Days
+
+​
+November
+December
+Payer
+PARBx
+Weight
+PARBx (wt)
+PARBx
+Weight
+PARBx (wt)
+BCBS Pennsylvania
+30.5
+15.72
+4.8
+43.4
+18.64
+8.1
+BCBS Georgia
+39.9
+15.80
+6.3
+43.3
+10.33
+4.5
+UnitedHealthcare
+15.0
+2.28
+0.3
+21.2
+19.59
+4.2
+Medicare NJ
+19.4
+6.93
+1.4
+18.8
+17.23
+3.2
+GEICO
+36.2
+6.26
+2.3
+35.2
+5.75
+2.0
+Cigna
+15.7
+5.51
+0.9
+10.7
+6.64
+0.7
+Medicare Illinois
+5.8
+13.80
+0.8
+6.8
+9.51
+0.7
+Horizon BCBS NJ
+20.7
+16.90
+3.5
+13.9
+4.11
+0.6
+Aetna
+20.0
+5.36
+1.1
+14.8
+3.06
+0.5
+BCBS Illinois
+7.9
+11.43
+0.9
+8.1
+5.15
+0.4
+Averages
+21.11
+10.00
+2.22
+21.62
+10.00
+2.48
+
+Now we have a more accurate picture of each payer’s performance. I’ll
+pivot the data and create the new slopegraph:
+
+|bpi_mon_long_wt <- bpi_mon_wt |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(payer, nov_parbx_wt, dec_parbx_wt) |>
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(November = nov_parbx_wt, December = dec_parbx_wt) |>
+  tidyr::pivot_longer <https://tidyr.tidyverse.org/reference/pivot_longer.html>(!payer, names_to = "month", values_to = "parbx_wt")
+head <https://rdrr.io/r/utils/head.html>(bpi_mon_long_wt)|//
+
+payer 	month 	parbx_wt
+Aetna 	November 	1.07
+Aetna 	December 	0.45
+BCBS Georgia 	November 	6.30
+BCBS Georgia 	December 	4.47
+BCBS Illinois 	November 	0.90
+BCBS Illinois 	December 	0.42
+
+
+        <#weighted-slopegraph>Weighted Slopegraph
+
+Show code
+
+|parbx_hc2 <- bpi_mon_long_wt |>
+  hchart <https://jkunst.com/highcharter/reference/hchart.html>("line", hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(x = month, y = parbx_wt, group = payer),
+    dataLabels = list <https://rdrr.io/r/base/list.html>(
+      enabled = TRUE,
+      formatter = JS <https://rdrr.io/pkg/htmlwidgets/man/JS.html>(
+        "
+        function(){return(this.point.payer + ' ' + this.y)}
+        "
+      )
+    )
+  ) |>
+  hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+    gridLineWidth = 0,
+    title = list <https://rdrr.io/r/base/list.html>(
+      text = " ",
+      align = "high",
+      margin = 10
+    ),
+    labels = list <https://rdrr.io/r/base/list.html>(format = "{value}")
+  ) |>
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(text = NULL),
+    opposite = TRUE,
+    labels = list <https://rdrr.io/r/base/list.html>(format = "{value}"),
+    crosshair = list <https://rdrr.io/r/base/list.html>(
+      snap = TRUE,
+      width = 2,
+      zIndex = 0
+    )
+  ) |>
+  hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(
+    text = "Weighted PARBx: November to December 2021",
+    align = "left",
+    style = list <https://rdrr.io/r/base/list.html>(fontSize = "18", color = "#000000", fontWeight = "bold")
+  ) |>
+  hc_subtitle <https://jkunst.com/highcharter/reference/hc_subtitle.html>(
+    text = "Top 10 Payers with the Lowest Percentage of AR Beyond 120 Days",
+    align = "left",
+    style = list <https://rdrr.io/r/base/list.html>(fontSize = "14", color = "#000000", fontWeight = "normal")
+  ) |>
+  hc_plotOptions <https://jkunst.com/highcharter/reference/hc_plotOptions.html>(
+    line = list <https://rdrr.io/r/base/list.html>(
+      marker = list <https://rdrr.io/r/base/list.html>(
+        symbol = "circle",
+        lineWidth = 2,
+        radius = 5
+      )
+    )
+  ) |>
+  hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    crosshairs = TRUE,
+    backgroundColor = "#F0F0F0",
+    borderWidth = 1,
+    sort = TRUE
+  ) |>
+  hc_legend <https://jkunst.com/highcharter/reference/hc_legend.html>(
+    enabled = FALSE
+  ) |>
+  hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 800, width = 800) |>
+  hc_chart <https://jkunst.com/highcharter/reference/hc_chart.html>(
+    style = list <https://rdrr.io/r/base/list.html>(
+      fontFamily = "Karla"
+    )
+  ) |>
+  hc_chart <https://jkunst.com/highcharter/reference/hc_chart.html>(zoomType = "xy") |>
+  hc_exporting <https://jkunst.com/highcharter/reference/hc_exporting.html>(enabled = TRUE, filename = "chart")
+
+parbx_hc2|//
+
+Created with Highcharts 9.3.1Chart context menuWeighted PARBx: November
+to December 2021Top 10 Payers with the Lowest Percentage of AR Beyond
+120 DaysAetna 1.07​Aetna 1.07Aetna 0.45​Aetna 0.45BCBS Georgia 6.3​BCBS
+Georgia 6.3BCBS Georgia 4.47​BCBS Georgia 4.47BCBS Illinois 0.9​BCBS
+Illinois 0.9BCBS Illinois 0.42​BCBS Illinois 0.42BCBS Pennsylvania 4.79​
+BCBS Pennsylvania 4.79BCBS Pennsylvania 8.09​BCBS Pennsylvania 8.09Cigna
+0.87​Cigna 0.87Cigna 0.71​Cigna 0.71GEICO 2.26​GEICO 2.26GEICO 2.02​
+GEICO 2.02Horizon BCBS NJ 3.5​Horizon BCBS NJ 3.5Horizon BCBS NJ 0.57​
+Horizon BCBS NJ 0.57Medicare Illinois 0.8​Medicare Illinois 0.8Medicare
+Illinois 0.65​Medicare Illinois 0.65Medicare NJ 1.35​Medicare NJ
+1.35Medicare NJ 3.24​Medicare NJ 3.24UnitedHealthcare 0.34​
+UnitedHealthcare 0.34UnitedHealthcare 4.15​UnitedHealthcare
+4.15NovemberDecember0123456789
+
+
+      <#normal-vs.-weighted-comparisons>Normal vs. Weighted Comparisons
+
+We can see the dramatic change between the normal rankings and the
+weighted rankings by placing both pairs of slopegraphs side-by-side:
+
+Created with Highcharts 9.3.1Chart context menuPARBx: November to
+December 2021Top 10 Payers with the Lowest Percentage of AR Beyond 120
+DaysAetna 20%​Aetna 20%Aetna 14.8%​Aetna 14.8%BCBS Georgia 39.9%​BCBS
+Georgia 39.9%BCBS Georgia 43.3%​BCBS Georgia 43.3%BCBS Illinois 7.9%​
+BCBS Illinois 7.9%BCBS Illinois 8.1%​BCBS Illinois 8.1%BCBS Pennsylvania
+30.5%​BCBS Pennsylvania 30.5%BCBS Pennsylvania 43.4%​BCBS Pennsylvania
+43.4%Cigna 15.7%​Cigna 15.7%Cigna 10.7%​Cigna 10.7%GEICO 36.2%​GEICO
+36.2%GEICO 35.2%​GEICO 35.2%Horizon BCBS NJ 20.7%​Horizon BCBS NJ
+20.7%Horizon BCBS NJ 13.9%​Horizon BCBS NJ 13.9%Medicare Illinois 5.8%​
+Medicare Illinois 5.8%Medicare Illinois 6.8%​Medicare Illinois
+6.8%Medicare NJ 19.4%​Medicare NJ 19.4%Medicare NJ 18.8%​Medicare NJ
+18.8%UnitedHealthcare 15%​UnitedHealthcare 15%UnitedHealthcare 21.2%​
+UnitedHealthcare 21.2%NovemberDecember05101520253035404550
+Created with Highcharts 9.3.1Chart context menuWeighted PARBx: November
+to December 2021Top 10 Payers with the Lowest Percentage of AR Beyond
+120 DaysAetna 1.07​Aetna 1.07Aetna 0.45​Aetna 0.45BCBS Georgia 6.3​BCBS
+Georgia 6.3BCBS Georgia 4.47​BCBS Georgia 4.47BCBS Illinois 0.9​BCBS
+Illinois 0.9BCBS Illinois 0.42​BCBS Illinois 0.42BCBS Pennsylvania 4.79​
+BCBS Pennsylvania 4.79BCBS Pennsylvania 8.09​BCBS Pennsylvania 8.09Cigna
+0.87​Cigna 0.87Cigna 0.71​Cigna 0.71GEICO 2.26​GEICO 2.26GEICO 2.02​
+GEICO 2.02Horizon BCBS NJ 3.5​Horizon BCBS NJ 3.5Horizon BCBS NJ 0.57​
+Horizon BCBS NJ 0.57Medicare Illinois 0.8​Medicare Illinois 0.8Medicare
+Illinois 0.65​Medicare Illinois 0.65Medicare NJ 1.35​Medicare NJ
+1.35Medicare NJ 3.24​Medicare NJ 3.24UnitedHealthcare 0.34​
+UnitedHealthcare 0.34UnitedHealthcare 4.15​UnitedHealthcare
+4.15NovemberDecember0123456789
+------------------------------------------------------------------------
+
+
+    <#annual-bpi-summary>Annual BPI Summary
+
+The final destination for all of this data is the annual summary of the
+monthly Billing Performance Index. The Annual BPI is simply a list of
+the payers who participated in the Monthly BPI, ranked by the number of
+times that they made the top 10 that year. Also included are each
+payer’s mean, minimum, and maximum BPI for the year. Lirov sums up the
+importance of the annual summary:
+
+    A low percentage of accounts receivable beyond 120 days is critical
+    to being included in the billing index. However, the frequency of
+    inclusion in the index is a more robust performance metric, because
+    it measures billing performance consistency over a longer time
+    period. The following example table lists the insurance companies
+    that made the BPI listing for 20xx, along with their average, low,
+    and high billing index for the year. Lirov (2009 <#ref-lirov2009>)
+
+/Note: In the following example, I’ve broken any ties in ranking between
+payers by giving the payer with the lower average BPI the higher rank./
+
+Show code
+
+|# Data frame
+bpi_ann <- data.frame <https://rdrr.io/r/base/data.frame.html>(
+  rank = 1:15,
+  mon = c <https://rdrr.io/r/base/c.html>(
+    12, 11, 11, 10, 10,
+    7, 7, 7, 5, 4, 3,
+    3, 3, 2, 2
+  ),
+  payer = c <https://rdrr.io/r/base/c.html>(
+    "BCBS Illinois", "Cigna",
+    "Medicare New Jersey",
+    "Aetna", "UnitedHealthcare",
+    "Medicare Illinois", "Horizon BCBS New Jersey",
+    "BCBS Pennsylvania", "BCBS Georgia",
+    "Anthem BCBS Colorado",
+    "BCBS Michigan", "BCBS Texas", "GEICO",
+    "Anthem BCBS Colorado", "Humana"
+  ),
+  avg = c <https://rdrr.io/r/base/c.html>(
+    10.9, 13.4, 15.7, 16.6, 17.2,
+    14, 18, 23.5, 34.1, 19.1, 6.8,
+    15.2, 34.9, 9.6, 9.9
+  ),
+  low = c <https://rdrr.io/r/base/c.html>(
+    7.1, 8.9, 7.5, 8.8, 11.3,
+    5.8, 13.9, 12.4, 22.9, 12.4,
+    3.2, 10.3, 33.4, 6.8, 7.9
+  ),
+  high = c <https://rdrr.io/r/base/c.html>(
+    16, 24.1, 20.5, 22.1, 23.2,
+    30.4, 24.3, 43.4, 43.3, 34.1,
+    13.6, 20, 36.2, 12.3, 11.8
+  )
+)
+
+# Reactable
+bpi_ann_tbl <- reactable <https://glin.github.io/reactable/reference/reactable.html>(
+  bpi_ann,
+  pagination = FALSE,
+  outlined = TRUE,
+  defaultColDef = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+    footerStyle = list <https://rdrr.io/r/base/list.html>(fontWeight = "bold"),
+    headerClass = "col-header",
+    footerClass = "col-footer",
+    align = "left"
+  ),
+  columnGroups = list <https://rdrr.io/r/base/list.html>(
+    colGroup <https://glin.github.io/reactable/reference/colGroup.html>(
+      name = "Percentage of AR Beyond 120 Days",
+      columns = c <https://rdrr.io/r/base/c.html>("avg", "low", "high")
+    )
+  ),
+  columns = list <https://rdrr.io/r/base/list.html>(
+    rank = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      name = "Rank",
+      align = "center",
+      width = 80
+    ),
+    mon = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      name = "Months Included",
+      align = "center",
+      width = 110
+    ),
+    payer = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      name = "Payer",
+      align = "left",
+      footer = "PARBx Averages"
+    ),
+    avg = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      footer = function(values) sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+      name = "Avg",
+      width = 100,
+      format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(digits = 1),
+      align = "center",
+      style = color_scales <https://kcuilla.github.io/reactablefmtr/reference/color_scales.html>(bpi_ann)
+    ),
+    low = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      footer = function(values) sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+      name = "Low",
+      width = 100,
+      format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(digits = 1),
+      align = "center",
+      style = color_scales <https://kcuilla.github.io/reactablefmtr/reference/color_scales.html>(bpi_ann)
+    ),
+    high = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      footer = function(values) sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+      name = "High",
+      width = 100,
+      format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(digits = 1),
+      align = "center",
+      style = color_scales <https://kcuilla.github.io/reactablefmtr/reference/color_scales.html>(bpi_ann)
+    ),
+    html = TRUE
+  ),
+  compact = FALSE,
+  class = "rcm-tbl"
+) |>
+  add_title <https://kcuilla.github.io/reactablefmtr/reference/add_title.html>("2021 Annual Billing Performance Index", align = "left", font_color = "black", font_size = 24) |>
+  add_subtitle <https://kcuilla.github.io/reactablefmtr/reference/add_subtitle.html>("Top 15 Payers Ranked by Number of Months Included in the Monthly BPI", align = "left", font_color = "black", font_size = 18, font_weight = "normal")
+
+div <https://rdrr.io/pkg/htmltools/man/builder.html>(class = "rcm-analysis", bpi_ann_tbl)|//
+
+
+  2021 Annual Billing Performance Index
+
+
+    Top 15 Payers Ranked by Number of Months Included in the Monthly BPI
+
+​
+Percentage of AR Beyond 120 Days
+Rank
+Months Included
+Payer
+Avg
+Low
+High
+1
+12
+BCBS Illinois
+10.9
+7.1
+16.0
+2
+11
+Cigna
+13.4
+8.9
+24.1
+3
+11
+Medicare New Jersey
+15.7
+7.5
+20.5
+4
+10
+Aetna
+16.6
+8.8
+22.1
+5
+10
+UnitedHealthcare
+17.2
+11.3
+23.2
+6
+7
+Medicare Illinois
+14.0
+5.8
+30.4
+7
+7
+Horizon BCBS New Jersey
+18.0
+13.9
+24.3
+8
+7
+BCBS Pennsylvania
+23.5
+12.4
+43.4
+9
+5
+BCBS Georgia
+34.1
+22.9
+43.3
+10
+4
+Anthem BCBS Colorado
+19.1
+12.4
+34.1
+11
+3
+BCBS Michigan
+6.8
+3.2
+13.6
+12
+3
+BCBS Texas
+15.2
+10.3
+20.0
+13
+3
+GEICO
+34.9
+33.4
+36.2
+14
+2
+Anthem BCBS Colorado
+9.6
+6.8
+12.3
+15
+2
+Humana
+9.9
+7.9
+11.8
+​
+​
+PARBx Averages
+17.26
+11.51
+25.02
+
+As with the monthly BPI, the annual figures would be more representative
+if weighted by percentage of total AR older than 120 days, but the
+general idea is there. So there we are, two interesting medical billing
+KPIs from Dr. Yuval Lirov. I think there’s tremendous potential value in
+these and would be interested to see real-world use cases.
+
+
+      Last updated on
+
+|# [1] "2022-07-12 11:55:03 EDT"|//
+
+
+      Session Info
+
+Session Info
+
+|session|//
+
+|# ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+#  setting  value
+#  version  R version 4.2.1 (2022-06-23 ucrt)
+#  os       Windows 10 x64 (build 25151)
+#  system   x86_64, mingw32
+#  ui       RTerm
+#  language (EN)
+#  collate  English_United States.utf8
+#  ctype    English_United States.utf8
+#  tz       America/New_York
+#  date     2022-07-12
+#  pandoc   2.17.1.1 @ C:/Program Files/RStudio/bin/quarto/bin/ (via rmarkdown)
+# 
+# ─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+#  package       * version date (UTC) lib source
+#  assertthat      0.2.1   2019-03-21 [1] CRAN (R 4.2.0)
+#  backports       1.4.1   2021-12-13 [1] CRAN (R 4.2.0)
+#  broom           1.0.0   2022-07-01 [1] CRAN (R 4.2.1)
+#  bslib           0.3.1   2021-10-06 [1] CRAN (R 4.2.0)
+#  cachem          1.0.6   2021-08-19 [1] CRAN (R 4.2.0)
+#  cellranger      1.1.0   2016-07-27 [1] CRAN (R 4.2.0)
+#  cli             3.3.0   2022-04-25 [1] CRAN (R 4.2.0)
+#  colorspace      2.0-3   2022-02-21 [1] CRAN (R 4.2.0)
+#  crayon          1.5.1   2022-03-26 [1] CRAN (R 4.2.0)
+#  crosstalk       1.2.0   2021-11-04 [1] CRAN (R 4.2.0)
+#  curl            4.3.2   2021-06-23 [1] CRAN (R 4.2.0)
+#  data.table      1.14.2  2021-09-27 [1] CRAN (R 4.2.0)
+#  DBI             1.1.3   2022-06-18 [1] CRAN (R 4.2.0)
+#  dbplyr          2.2.1   2022-06-27 [1] CRAN (R 4.2.0)
+#  digest          0.6.29  2021-12-01 [1] CRAN (R 4.2.0)
+#  distill         1.4     2022-05-12 [1] CRAN (R 4.2.0)
+#  downlit         0.4.2   2022-07-05 [1] CRAN (R 4.2.0)
+#  dplyr         * 1.0.9   2022-04-28 [1] CRAN (R 4.2.0)
+#  ellipsis        0.3.2   2021-04-29 [1] CRAN (R 4.2.0)
+#  evaluate        0.15    2022-02-18 [1] CRAN (R 4.2.0)
+#  fansi           1.0.3   2022-03-24 [1] CRAN (R 4.2.0)
+#  fastmap         1.1.0   2021-01-25 [1] CRAN (R 4.2.0)
+#  forcats       * 0.5.1   2021-01-27 [1] CRAN (R 4.2.0)
+#  fs              1.5.2   2021-12-08 [1] CRAN (R 4.2.0)
+#  generics        0.1.3   2022-07-05 [1] CRAN (R 4.2.0)
+#  ggplot2       * 3.3.6   2022-05-03 [1] CRAN (R 4.2.0)
+#  glue            1.6.2   2022-02-24 [1] CRAN (R 4.2.0)
+#  gtable          0.3.0   2019-03-25 [1] CRAN (R 4.2.0)
+#  haven           2.5.0   2022-04-15 [1] CRAN (R 4.2.0)
+#  highcharter   * 0.9.4   2022-01-03 [1] CRAN (R 4.2.0)
+#  highr           0.9     2021-04-16 [1] CRAN (R 4.2.0)
+#  hms             1.1.1   2021-09-26 [1] CRAN (R 4.2.0)
+#  htmltools     * 0.5.2   2021-08-25 [1] CRAN (R 4.2.0)
+#  htmlwidgets     1.5.4   2021-09-08 [1] CRAN (R 4.2.0)
+#  httr            1.4.3   2022-05-04 [1] CRAN (R 4.2.0)
+#  igraph          1.3.2   2022-06-13 [1] CRAN (R 4.2.0)
+#  jquerylib       0.1.4   2021-04-26 [1] CRAN (R 4.2.0)
+#  jsonlite        1.8.0   2022-02-22 [1] CRAN (R 4.2.0)
+#  knitr           1.39    2022-04-26 [1] CRAN (R 4.2.0)
+#  lattice         0.20-45 2021-09-22 [2] CRAN (R 4.2.1)
+#  lifecycle       1.0.1   2021-09-24 [1] CRAN (R 4.2.0)
+#  lubridate     * 1.8.0   2021-10-07 [1] CRAN (R 4.2.0)
+#  magrittr        2.0.3   2022-03-30 [1] CRAN (R 4.2.0)
+#  memoise         2.0.1   2021-11-26 [1] CRAN (R 4.2.0)
+#  modelr          0.1.8   2020-05-19 [1] CRAN (R 4.2.0)
+#  munsell         0.5.0   2018-06-12 [1] CRAN (R 4.2.0)
+#  pillar          1.7.0   2022-02-01 [1] CRAN (R 4.2.0)
+#  pkgconfig       2.0.3   2019-09-22 [1] CRAN (R 4.2.0)
+#  printr        * 0.2     2021-09-27 [1] CRAN (R 4.2.0)
+#  purrr         * 0.3.4   2020-04-17 [1] CRAN (R 4.2.0)
+#  quantmod        0.4.20  2022-04-29 [1] CRAN (R 4.2.0)
+#  R.cache         0.15.0  2021-04-30 [1] CRAN (R 4.2.0)
+#  R.methodsS3     1.8.2   2022-06-13 [1] CRAN (R 4.2.0)
+#  R.oo            1.25.0  2022-06-12 [1] CRAN (R 4.2.0)
+#  R.utils         2.12.0  2022-06-28 [1] CRAN (R 4.2.0)
+#  R6              2.5.1   2021-08-19 [1] CRAN (R 4.2.0)
+#  reactable     * 0.3.0   2022-05-26 [1] CRAN (R 4.2.0)
+#  reactablefmtr * 2.0.0   2022-03-16 [1] CRAN (R 4.2.0)
+#  reactR          0.4.4   2021-02-22 [1] CRAN (R 4.2.0)
+#  readr         * 2.1.2   2022-01-30 [1] CRAN (R 4.2.0)
+#  readxl          1.4.0   2022-03-28 [1] CRAN (R 4.2.0)
+#  rematch2        2.1.2   2020-05-01 [1] CRAN (R 4.2.0)
+#  reprex          2.0.1   2021-08-05 [1] CRAN (R 4.2.0)
+#  rlang           1.0.2   2022-03-04 [1] CRAN (R 4.2.0)
+#  rlist           0.4.6.2 2021-09-03 [1] CRAN (R 4.2.0)
+#  rmarkdown       2.14    2022-04-25 [1] CRAN (R 4.2.0)
+#  rstudioapi      0.13    2020-11-12 [1] CRAN (R 4.2.0)
+#  rvest           1.0.2   2021-10-16 [1] CRAN (R 4.2.0)
+#  sass            0.4.1   2022-03-23 [1] CRAN (R 4.2.0)
+#  scales          1.2.0   2022-04-13 [1] CRAN (R 4.2.0)
+#  sessioninfo     1.2.2   2021-12-06 [1] CRAN (R 4.2.0)
+#  stringi         1.7.6   2021-11-29 [1] CRAN (R 4.2.0)
+#  stringr       * 1.4.0   2019-02-10 [1] CRAN (R 4.2.0)
+#  styler          1.7.0   2022-03-13 [1] CRAN (R 4.2.0)
+#  tibble        * 3.1.7   2022-05-03 [1] CRAN (R 4.2.0)
+#  tidyr         * 1.2.0   2022-02-01 [1] CRAN (R 4.2.0)
+#  tidyselect      1.1.2   2022-02-21 [1] CRAN (R 4.2.0)
+#  tidyverse     * 1.3.1   2021-04-15 [1] CRAN (R 4.2.0)
+#  TTR             0.24.3  2021-12-12 [1] CRAN (R 4.2.0)
+#  tzdb            0.3.0   2022-03-28 [1] CRAN (R 4.2.0)
+#  utf8            1.2.2   2021-07-24 [1] CRAN (R 4.2.0)
+#  uuid            1.1-0   2022-04-19 [1] CRAN (R 4.2.0)
+#  vctrs           0.4.1   2022-04-13 [1] CRAN (R 4.2.0)
+#  wakefield     * 0.3.6   2020-09-13 [1] CRAN (R 4.2.0)
+#  withr           2.5.0   2022-03-03 [1] CRAN (R 4.2.0)
+#  xaringanExtra   0.6.0   2022-06-07 [1] CRAN (R 4.2.0)
+#  xfun            0.31    2022-05-10 [1] CRAN (R 4.2.0)
+#  xml2            1.3.3   2021-11-30 [1] CRAN (R 4.2.0)
+#  xts             0.12.1  2020-09-09 [1] CRAN (R 4.2.0)
+#  yaml            2.3.5   2022-02-21 [1] CRAN (R 4.2.0)
+#  zoo             1.8-10  2022-04-15 [1] CRAN (R 4.2.0)
+# 
+#  [1] C:/Users/andyb/AppData/Local/R/win-library/4.2
+#  [2] C:/Program Files/R/R-4.2.1/library
+# 
+# ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────|//
+
+//   0 Comments Share:   // <https://twitter.com/share?
+text=KPI%20Guide%3A%20PARBx%20%26%20BPI&url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fkpi-parbx-bpi%2F> // <https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fkpi-parbx-bpi%2F&title=KPI%20Guide%3A%20PARBx%20%26%20BPI> // <https://www.facebook.com/sharer/sharer.php?s=100&p[url]=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fkpi-parbx-bpi%2F> // <https://pinterest.com/pin/create/link/?url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fkpi-parbx-bpi%2F&description=KPI%20Guide%3A%20PARBx%20%26%20BPI>
+
+Enjoy this blog? Get notified of new posts via email:
+
+
+      Footnotes
+
+
+      References
+
+Lirov, Yuval. 2009. /Medical Billing Networks and Processes: Profitable
+and Compliant Revenue Cycle Management in the Internet Age/. Marlboro,
+N.J.: Affinity Billing.
+
+
+      Corrections
+
+If you see mistakes or want to suggest changes, please create an issue
+<https://github.com/andrewallenbruce/issues/new> on the source repository.
+
+
+      Reuse
+
+Text and figures are licensed under Creative Commons Attribution CC BY
+4.0 <https://creativecommons.org/licenses/by/4.0/>. Source code is
+available at https://github.com/andrewallenbruce <https://github.com/
+andrewallenbruce>, unless otherwise noted. The figures that have been
+reused from other sources don't fall under this license and can be
+recognized by a note in their caption: "Figure from ...".
+
+
+      Citation
+
+For attribution, please cite this work as
+
+Bruce (2022, March 24). Andrew Bruce: KPI Guide: PARBx & BPI. Retrieved from https://andrewbruce.netlify.app/posts/kpi-parbx-bpi///
+
+BibTeX citation
+
+@misc{bruce2022kpi,
+  author = {Bruce, Andrew},
+  title = {Andrew Bruce: KPI Guide: PARBx & BPI},
+  url = {https://andrewbruce.netlify.app/posts/kpi-parbx-bpi/},
+  year = {2022}
+}//
+
+Andrew A. Bruce - 2024 - made with , and {distill} <https://
+rstudio.github.io/distill/>
+

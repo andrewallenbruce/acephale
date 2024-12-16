@@ -1,0 +1,1442 @@
+Andrew Bruce <https://andrewbrucehimni.netlify.app/>
+
+Home <https://andrewbrucehimni.netlify.app/> Projects ▾ EHR UX/UI Mockup
+<https://andrewbrucehimni.netlify.app/flex_example/flexexample> Days in
+AR Shiny App <https://himni.shinyapps.io/darguide/> The Art of DAR
+<https://artofdar.netlify.app/> HIM & I <https://himni.info/>
+About <https://andrewbrucehimni.netlify.app/about> // <https://
+www.linkedin.com/in/andybruce1> // <https://twitter.com/aabrucehimni> //
+<https://www.behance.net/andybruce1> // <https://
+andrewbrucehimni.netlify.app/index.xml> // <https://github.com/
+andrewallenbruce> ☰ <javascript:void(0);>
+
+
+  Drill-Down Tables: Medicare Physician & Other Practitioners Dataset
+
+medicare <https://andrewbrucehimni.netlify.app/#category:medicare> data-
+analytics <https://andrewbrucehimni.netlify.app/#category:data-
+analytics> reactable <https://andrewbrucehimni.netlify.app/
+#category:reactable> reactablefmtr <https://
+andrewbrucehimni.netlify.app/#category:reactablefmtr> rstats <https://
+andrewbrucehimni.netlify.app/#category:rstats> r-bloggers <https://
+andrewbrucehimni.netlify.app/#category:r-bloggers>
+
+Create interactive drill-down tables for more effective data analysis.
+
+
+      Author
+
+
+      Affiliation
+
+Andrew Bruce <https://andrewbruce.netlify.app/> ORCID ID <https://
+orcid.org/0000-0001-5040-4327>
+
+ 
+
+
+      Published
+
+May 11, 2022
+
+
+      Citation
+
+Bruce, 2022 <#citation>
+
+
+      Contents
+
+  * Introduction <#introduction>
+      o Packages <#packages>
+      o Dataset <#dataset>
+  * Data Cleaning <#data-cleaning>
+      o Rename Columns <#rename-columns>
+      o Subset Data Frame <#subset-data-frame>
+      o Zipcode Dataset <#zipcode-dataset>
+      o Left-Join |mpfs_ga_lab| & |ga_zip| Datasets <#left-join-mpfs_ga_lab-ga_zip-datasets>
+      o Remove Rows with P.O. Boxes & NAs (|npi| & |hcpcs|) <#remove-rows-with-p.o.-boxes-nas-npi-hcpcs>
+      o Remove “County” Text from |county| column <#remove-county-text-from-county-column>
+      o Remove Unneeded Columns <#remove-unneeded-columns>
+      o Correct |npi|, |fips|, & |ruca| Data Types <#correct-npi-fips-ruca-data-types>
+  * {reactable} Drill-Down Table <#reactable-drill-down-table>
+      o Create Top-level Table <#create-top-level-table>
+      o Create Second-level Table <#create-second-level-table>
+      o Create Drill-Down Table <#create-drill-down-table>
+
+
+  Introduction
+
+This is intended to be a step-by-step guide for data analysis of large,
+publicly available datasets. I’ll be working with a Medicare dataset
+named *Medicare Physician & Other Practitioners - by Provider and
+Service* that can be downloaded here <https://data.cms.gov/provider-
+summary-by-type-of-service/medicare-physician-other-practitioners/
+medicare-physician-other-practitioners-by-provider-and-service>. /Note:
+You can currently get this dataset with data going all the way back to
+2013 (21 GB), but, in the interest of filesize, I’m only going to be
+working with the most recent data, from 2019 (3 GB)./
+
+
+    <#packages>Packages
+
+|library <https://rdrr.io/r/base/library.html>(tidyverse <https://tidyverse.tidyverse.org/>)
+library <https://rdrr.io/r/base/library.html>(rio <https://github.com/leeper/rio>)
+library <https://rdrr.io/r/base/library.html>(rmarkdown <https://github.com/rstudio/rmarkdown>)
+library <https://rdrr.io/r/base/library.html>(htmltools <https://github.com/rstudio/htmltools>)
+library <https://rdrr.io/r/base/library.html>(reactable <https://glin.github.io/reactable/>)
+library <https://rdrr.io/r/base/library.html>(reactablefmtr <https://kcuilla.github.io/reactablefmtr/>)
+|//
+
+
+    <#dataset>Dataset
+
+The *Medicare Physician & Other Practitioners by Provider and Service*
+dataset provides information on use, payments, and submitted charges
+organized by National Provider Identifier (NPI), Healthcare Common
+Procedure Coding System (HCPCS) code, and place of service. This dataset
+is based on information gathered from CMS administrative claims data for
+Original Medicare Part B beneficiaries available from the CMS Chronic
+Conditions Data Warehouse.
+
+A pdf document of the data dictionary is provided for further
+explanation, which you can view here <https://data.cms.gov/resources/
+medicare-physician-other-practitioners-by-provider-and-service-data-
+dictionary>, but in the interest of brevity, I’ll sum up the definitions
+relevant to this walkthrough (this is important as well, because I’ll be
+renaming the variables for ease of use in writing the code):
+
+Variable 	Term 	Notes
+|npi| 	National Provider Identifier 	Numeric identifier registered in NPPES
+<https://npiregistry.cms.hhs.gov/> of rendering provider on claim.
+|last| 	Provider’s last name 	Org name for providers registered as an
+organization
+|first| 	Provider’s first name 	Blank for providers registered as an organization
+|cred| 	Provider’s credentials 	Blank for providers registered as an
+organization
+|gender| 	Provider’s gender 	As reported in NPPES
+|entity| 	Provider entity type 	*I*: providers registered as individuals
+*O*: providers registered as organizations
+|street| 	Provider’s street address 	As reported in NPPES
+|city| 	Provider’s city 	As reported in NPPES
+|state| 	Provider’s state 	As reported in NPPES
+|fips| 	Provider’s state FIPS code 	/Federal Information Processing System/
+codes uniquely identify geographic areas
+|zip| 	Provider’s zip code 	As reported in NPPES
+|ruca| 	Provider’s RUCA code 	/Rural-Urban Commuting Area Codes/ characterize
+the nation’s Census tracts regarding their rural and urban status and
+relationships
+|ruca_desc| 	RUCA code description 	
+|country| 	Provider’s country 	As reported in NPPES
+|ptype| 	Provider’s specialty type 	Provider specialty code reported claim.
+For providers that reported several specialty codes, this is the
+specialty associated with the most services.
+|par| 	Medicare Participation Indicator 	Identifies whether provider
+participates in Medicare and/or accepts assignment of allowed amounts.
+Non-PAR providers may accept allowed amounts for some services and not
+for other services.
+|hcpcs| 	HCPCS code 	Code used to identify the specific medical service
+furnished by the provider
+|hcpcs_desc| 	HCPCS description 	Description of HCPCS code
+|hcpcs_drug| 	HCPCS drug indicator 	Identifies whether the HCPCS code is listed on
+the Medicare Part B Drug Average Sales Price (ASP) File.
+|pos| 	Place of Service 	Identifies whether place of service submitted on
+claim is a facility (F) or non-facility (O)
+|pts| 	Number of Medicare beneficiaries 	Number of distinct Medicare
+beneficiaries receiving the service for each |npi|, |hcpcs|, and |pos|.
+|proc| 	Number of services provided 	Note: metrics used to count the number
+provided can vary from service to service
+|avg_sub| 	Average Submitted Charge Amount 	Average of charges provider
+submitted for the service
+|avg_allow| 	Average Medicare Allowed Amount 	Average of allowed amount for
+service; the sum of the amount Medicare pays, the deductible and
+coinsurance the beneficiary is responsible for paying, and any amounts a
+third party is responsible for paying.
+|avg_pymt| 	Average Medicare Payment Amount 	Average amount Medicare paid after
+deductible and coinsurance amounts were deducted for service
+|avg_stand| 	Average Medicare Standardized Payment Amount 	Standardization removes
+geographic differences in payment rates for individual services, such as
+those that account for local wages or input prices and makes Medicare
+payments across geographic areas comparable, so that differences reflect
+variation in factors such as physicians’ practice patterns and
+beneficiaries’ ability and willingness to obtain care.
+
+
+  Data Cleaning
+
+Let’s take a look at our initial data frame:
+
+|mpfs_preview <- head <https://rdrr.io/r/utils/head.html>(mpfs, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(mpfs_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+ 
+ 
+	
+Rndrng_NPI
+<int>
+	
+Rndrng_Prvdr_Last_Org_Name
+<chr>
+	
+Rndrng_Prvdr_First_Name
+<chr>
+	
+Rndrng_Prvdr_MI
+<chr>
+	
+1	1003000126	Enkeshafi	Ardalan		
+2	1003000126	Enkeshafi	Ardalan		
+3	1003000126	Enkeshafi	Ardalan		
+4	1003000126	Enkeshafi	Ardalan		
+5	1003000126	Enkeshafi	Ardalan		
+6	1003000126	Enkeshafi	Ardalan		
+7	1003000126	Enkeshafi	Ardalan		
+8	1003000126	Enkeshafi	Ardalan		
+9	1003000126	Enkeshafi	Ardalan		
+10	1003000134	Cibull	Thomas	L	
+
+1-10 of 10 rows | 1-5 of 30 columns
+
+
+    <#rename-columns>Rename Columns
+
+The column names are looking pretty long and unwieldy:
+
+|names <https://rdrr.io/r/base/names.html>(mpfs)
+|//
+
+|   [1] "Rndrng_NPI"                    "Rndrng_Prvdr_Last_Org_Name"    "Rndrng_Prvdr_First_Name"      
+   [4] "Rndrng_Prvdr_MI"               "Rndrng_Prvdr_Crdntls"          "Rndrng_Prvdr_Gndr"            
+   [7] "Rndrng_Prvdr_Ent_Cd"           "Rndrng_Prvdr_St1"              "Rndrng_Prvdr_St2"             
+  [10] "Rndrng_Prvdr_City"             "Rndrng_Prvdr_State_Abrvtn"     "Rndrng_Prvdr_State_FIPS"      
+  [13] "Rndrng_Prvdr_Zip5"             "Rndrng_Prvdr_RUCA"             "Rndrng_Prvdr_RUCA_Desc"       
+  [16] "Rndrng_Prvdr_Cntry"            "Rndrng_Prvdr_Type"             "Rndrng_Prvdr_Mdcr_Prtcptg_Ind"
+  [19] "HCPCS_Cd"                      "HCPCS_Desc"                    "HCPCS_Drug_Ind"               
+  [22] "Place_Of_Srvc"                 "Tot_Benes"                     "Tot_Srvcs"                    
+  [25] "Tot_Bene_Day_Srvcs"            "Avg_Sbmtd_Chrg"                "Avg_Mdcr_Alowd_Amt"           
+  [28] "Avg_Mdcr_Pymt_Amt"             "Avg_Mdcr_Stdzd_Amt"|//
+
+I’ll go ahead and rename them:
+
+|mpfs <- mpfs |>
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(
+    npi = Rndrng_NPI,
+    last = Rndrng_Prvdr_Last_Org_Name,
+    first = Rndrng_Prvdr_First_Name,
+    mid = Rndrng_Prvdr_MI,
+    cred = Rndrng_Prvdr_Crdntls,
+    gender = Rndrng_Prvdr_Gndr,
+    entity = Rndrng_Prvdr_Ent_Cd,
+    street = Rndrng_Prvdr_St1,
+    street2 = Rndrng_Prvdr_St2,
+    city = Rndrng_Prvdr_City,
+    state = Rndrng_Prvdr_State_Abrvtn,
+    fips = Rndrng_Prvdr_State_FIPS,
+    zip = Rndrng_Prvdr_Zip5,
+    ruca = Rndrng_Prvdr_RUCA,
+    ruca_desc = Rndrng_Prvdr_RUCA_Desc,
+    country = Rndrng_Prvdr_Cntry,
+    ptype = Rndrng_Prvdr_Type,
+    par = Rndrng_Prvdr_Mdcr_Prtcptg_Ind,
+    hcpcs = HCPCS_Cd,
+    hcpcs_desc = HCPCS_Desc,
+    hcpcs_drug = HCPCS_Drug_Ind,
+    pos = Place_Of_Srvc,
+    pts = Tot_Benes,
+    proc = Tot_Srvcs,
+    proc_day = Tot_Bene_Day_Srvcs,
+    avg_sub = Avg_Sbmtd_Chrg,
+    avg_allow = Avg_Mdcr_Alowd_Amt,
+    avg_pymt = Avg_Mdcr_Pymt_Amt,
+    avg_stand = Avg_Mdcr_Stdzd_Amt
+  )
+
+names <https://rdrr.io/r/base/names.html>(mpfs)
+|//
+
+|   [1] "npi"        "last"       "first"      "mid"        "cred"       "gender"     "entity"    
+   [8] "street"     "street2"    "city"       "state"      "fips"       "zip"        "ruca"      
+  [15] "ruca_desc"  "country"    "ptype"      "par"        "hcpcs"      "hcpcs_desc" "hcpcs_drug"
+  [22] "pos"        "pts"        "proc"       "proc_day"   "avg_sub"    "avg_allow"  "avg_pymt"  
+  [29] "avg_stand"|//
+
+
+    <#subset-data-frame>Subset Data Frame
+
+To cut down on the file size for this example, I want to subset this
+data frame for two conditions - *Clinical Laboratories* in the state of
+*Georgia*:
+
+|mpfs_ga_lab <- mpfs |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(
+    state == "GA" & ptype == "Clinical Laboratory"
+  )
+
+mpfs_ga_lab_preview <- head <https://rdrr.io/r/utils/head.html>(mpfs_ga_lab, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(mpfs_ga_lab_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+ 
+ 
+	
+npi
+<int>
+	
+last
+<chr>
+	
+first
+<chr>
+	
+mid
+<chr>
+	
+cred
+<chr>
+	
+gender
+<chr>
+	
+entity
+<chr>
+	
+street
+<chr>
+	
+1	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+2	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+3	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+4	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+5	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+6	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+7	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+8	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+9	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+10	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+
+1-10 of 10 rows | 1-9 of 30 columns
+
+
+    <#zipcode-dataset>Zipcode Dataset
+
+I’d like to include some other information that isn’t included in this
+dataset, such as the county name. I came across a zip code dataset
+online that I’ll use:
+
+|zip_code_database_preview <- head <https://rdrr.io/r/utils/head.html>(zip_code_database, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(zip_code_database_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+ 
+ 
+	
+zip
+<int>
+	
+type
+<chr>
+	
+decommissioned
+<int>
+	
+primary_city
+<chr>
+	
+acceptable_cities
+<chr>
+	
+1	501	UNIQUE	0	Holtsville		
+2	544	UNIQUE	0	Holtsville		
+3	601	STANDARD	0	Adjuntas		
+4	602	STANDARD	0	Aguada		
+5	603	STANDARD	0	Aguadilla	Ramey	
+6	604	PO BOX	0	Aguadilla	Ramey	
+7	605	PO BOX	0	Aguadilla		
+8	606	STANDARD	0	Maricao		
+9	610	STANDARD	0	Anasco		
+10	611	PO BOX	0	Angeles		
+
+1-10 of 10 rows | 1-6 of 16 columns
+
+I’ll subset it for Georgia:
+
+|ga_zip <- zip_code_database |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(state == "GA")
+
+ga_zip_preview <- head <https://rdrr.io/r/utils/head.html>(ga_zip, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(ga_zip_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+ 
+ 
+	
+zip
+<int>
+	
+type
+<chr>
+	
+decommissioned
+<int>
+	
+primary_city
+<chr>
+	
+acceptable_cities
+<chr>
+	
+1	30002	STANDARD	0	Avondale Estates	Avondale Est	
+2	30003	PO BOX	0	Norcross		
+3	30004	STANDARD	0	Alpharetta	Milton	
+4	30005	STANDARD	0	Alpharetta	Johns Creek	
+5	30006	PO BOX	0	Marietta		
+6	30007	PO BOX	0	Marietta		
+7	30008	STANDARD	0	Marietta		
+8	30009	STANDARD	0	Alpharetta	Milton	
+9	30010	PO BOX	0	Norcross	Peachtree Cor, Peachtree Corners	
+10	30011	STANDARD	0	Auburn	Carl	
+
+1-10 of 10 rows | 1-6 of 16 columns
+
+
+    <#left-join-mpfs_ga_lab-ga_zip-datasets>Left-Join |mpfs_ga_lab| & |ga_zip| Datasets
+
+|ga_zip$zip <- as.character <https://rdrr.io/r/base/character.html>(ga_zip$zip)
+
+combined_df <- left_join <https://dplyr.tidyverse.org/reference/mutate-joins.html>(mpfs_ga_lab, ga_zip, by = "zip")
+
+combined_df_preview <- head <https://rdrr.io/r/utils/head.html>(combined_df, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(combined_df_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+ 
+ 
+	
+npi
+<int>
+	
+last
+<chr>
+	
+first
+<chr>
+	
+mid
+<chr>
+	
+cred
+<chr>
+	
+gender
+<chr>
+	
+entity
+<chr>
+	
+street
+<chr>
+	
+1	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+2	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+3	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+4	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+5	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+6	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+7	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+8	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+9	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+10	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+
+1-10 of 10 rows | 1-9 of 44 columns
+
+
+    <#remove-rows-with-p.o.-boxes-nas-npi-hcpcs>Remove Rows with P.O.
+    Boxes & NAs (|npi| & |hcpcs|)
+
+|mpfs_ga_lab <- combined_df |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(type != "PO BOX" & !is.na <https://rdrr.io/r/base/NA.html>(npi) & !is.na <https://rdrr.io/r/base/NA.html>(hcpcs))
+
+mpfs_ga_lab_preview <- head <https://rdrr.io/r/utils/head.html>(mpfs_ga_lab, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(mpfs_ga_lab_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+ 
+ 
+	
+npi
+<int>
+	
+last
+<chr>
+	
+first
+<chr>
+	
+mid
+<chr>
+	
+cred
+<chr>
+	
+gender
+<chr>
+	
+entity
+<chr>
+	
+street
+<chr>
+	
+1	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+2	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+3	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+4	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+5	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+6	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+7	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+8	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+9	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+10	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+
+1-10 of 10 rows | 1-9 of 44 columns
+
+
+    <#remove-county-text-from-county-column>Remove “County” Text from |county| column
+
+|mpfs_ga_lab$county <- gsub <https://rdrr.io/r/base/grep.html>(" County", "", as.character <https://rdrr.io/r/base/character.html>(mpfs_ga_lab$county))
+
+mpfs_ga_lab_preview <- head <https://rdrr.io/r/utils/head.html>(mpfs_ga_lab, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(mpfs_ga_lab_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+ 
+ 
+	
+npi
+<int>
+	
+last
+<chr>
+	
+first
+<chr>
+	
+mid
+<chr>
+	
+cred
+<chr>
+	
+gender
+<chr>
+	
+entity
+<chr>
+	
+street
+<chr>
+	
+1	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+2	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+3	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+4	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+5	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+6	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+7	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+8	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+9	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+10	1003221904	National Premier Laboratories Inc					O	210 Medical Blvd	
+
+1-10 of 10 rows | 1-9 of 44 columns
+
+
+    <#remove-unneeded-columns>Remove Unneeded Columns
+
+  * |first|, |mid|, |cred|, |gender|, |street2|, (all are empty)
+  * |country.x|, |country.y| (all are US)
+  * |state.x|, |state.y| (all are GA)
+  * |entity| (all are Organizations)
+  * |par| (all are participating)
+  * |ptype| (all are Clinical Laboratories)
+  * |hcpcs_drug| (no drug codes, all are diagnostic tests)
+  * |proc_day| (no difference between procedures and procedures per day)
+  * |type| (all are standard)
+  * |decommissioned|, |primary_city|, |acceptable_cities|, |unacceptable_cities|, |timezone|, |area_codes|, |world_region| (unneeded)
+  * |avg_stand| (negligible difference between payments and standardized payments)
+
+|mpfs_ga_lab <- mpfs_ga_lab |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(-(first:entity)) |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(-street2, -state.x) |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(-(country.x:par)) |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(-hcpcs_drug, -proc_day) |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(-(type:state.y)) |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(-(timezone:country.y)) |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(-avg_stand)
+
+mpfs_ga_lab_preview <- head <https://rdrr.io/r/utils/head.html>(mpfs_ga_lab, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(mpfs_ga_lab_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+ 
+ 
+	
+npi
+<int>
+	
+last
+<chr>
+	
+street
+<chr>
+	
+city
+<chr>
+	
+fips
+<int>
+	
+zip
+<chr>
+	
+ruca
+<dbl>
+	
+1	1003221904	National Premier Laboratories Inc	210 Medical Blvd	
+Stockbridge	13	30281	1	
+2	1003221904	National Premier Laboratories Inc	210 Medical Blvd	
+Stockbridge	13	30281	1	
+3	1003221904	National Premier Laboratories Inc	210 Medical Blvd	
+Stockbridge	13	30281	1	
+4	1003221904	National Premier Laboratories Inc	210 Medical Blvd	
+Stockbridge	13	30281	1	
+5	1003221904	National Premier Laboratories Inc	210 Medical Blvd	
+Stockbridge	13	30281	1	
+6	1003221904	National Premier Laboratories Inc	210 Medical Blvd	
+Stockbridge	13	30281	1	
+7	1003221904	National Premier Laboratories Inc	210 Medical Blvd	
+Stockbridge	13	30281	1	
+8	1003221904	National Premier Laboratories Inc	210 Medical Blvd	
+Stockbridge	13	30281	1	
+9	1003221904	National Premier Laboratories Inc	210 Medical Blvd	
+Stockbridge	13	30281	1	
+10	1003221904	National Premier Laboratories Inc	210 Medical Blvd	
+Stockbridge	13	30281	1	
+
+1-10 of 10 rows | 1-8 of 21 columns
+
+
+    <#correct-npi-fips-ruca-data-types>Correct |npi|, |fips|, & |ruca| Data Types
+
+The |npi|, |fips|, and |ruca| columns are numeric data types when we need them to be character
+types. We can go ahead and fix those:
+
+|mpfs_ga_lab$npi <- as.character <https://rdrr.io/r/base/character.html>(mpfs_ga_lab$npi)
+mpfs_ga_lab$fips <- as.character <https://rdrr.io/r/base/character.html>(mpfs_ga_lab$fips)
+mpfs_ga_lab$ruca <- as.character <https://rdrr.io/r/base/character.html>(mpfs_ga_lab$ruca)
+
+mpfs_ga_lab_preview <- head <https://rdrr.io/r/utils/head.html>(mpfs_ga_lab, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(mpfs_ga_lab_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+ 
+ 
+	
+npi
+<chr>
+	
+last
+<chr>
+	
+street
+<chr>
+	
+city
+<chr>
+	
+fips
+<chr>
+	
+zip
+<chr>
+	
+ruca
+<chr>
+	
+1	1003221904	National Premier Laboratories Inc	210 Medical Blvd	
+Stockbridge	13	30281	1	
+2	1003221904	National Premier Laboratories Inc	210 Medical Blvd	
+Stockbridge	13	30281	1	
+3	1003221904	National Premier Laboratories Inc	210 Medical Blvd	
+Stockbridge	13	30281	1	
+4	1003221904	National Premier Laboratories Inc	210 Medical Blvd	
+Stockbridge	13	30281	1	
+5	1003221904	National Premier Laboratories Inc	210 Medical Blvd	
+Stockbridge	13	30281	1	
+6	1003221904	National Premier Laboratories Inc	210 Medical Blvd	
+Stockbridge	13	30281	1	
+7	1003221904	National Premier Laboratories Inc	210 Medical Blvd	
+Stockbridge	13	30281	1	
+8	1003221904	National Premier Laboratories Inc	210 Medical Blvd	
+Stockbridge	13	30281	1	
+9	1003221904	National Premier Laboratories Inc	210 Medical Blvd	
+Stockbridge	13	30281	1	
+10	1003221904	National Premier Laboratories Inc	210 Medical Blvd	
+Stockbridge	13	30281	1	
+
+1-10 of 10 rows | 1-8 of 21 columns
+
+
+  {reactable} Drill-Down Table
+
+With {reactable}, we’ll create the drill-down table. To do this we need
+2 separate tables. The top-level table will have summary-level
+information and the second-level table (accessible by clicking the arrow
+to the left of the lab’s name) will have a breakdown of the summary data.
+
+
+    <#create-top-level-table>Create Top-level Table
+
+|mpfs_ga_lab_top_level <- mpfs_ga_lab |>
+  count <https://dplyr.tidyverse.org/reference/count.html>(npi, last, city,
+    county, zip,
+    avg_sub, avg_allow,
+    avg_pymt, pts, proc,
+    name = "n_hcpcs"
+  ) |>
+  group_by <https://dplyr.tidyverse.org/reference/group_by.html>(npi, last, city, county, zip) |>
+  summarise <https://dplyr.tidyverse.org/reference/summarise.html>(
+    n_hcpcs                     = sum <https://rdrr.io/r/base/sum.html>(n_hcpcs),
+    pts                         = sum <https://rdrr.io/r/base/sum.html>(pts),
+    proc                        = round <https://rdrr.io/r/base/Round.html>(sum <https://rdrr.io/r/base/sum.html>(proc)),
+    avg_sub                     = round <https://rdrr.io/r/base/Round.html>(mean <https://rdrr.io/r/base/mean.html>(avg_sub), 2),
+    avg_allow                   = round <https://rdrr.io/r/base/Round.html>(mean <https://rdrr.io/r/base/mean.html>(avg_allow), 2),
+    avg_pymt                    = round <https://rdrr.io/r/base/Round.html>(mean <https://rdrr.io/r/base/mean.html>(avg_pymt), 2),
+    .groups                     = "drop"
+  ) |>
+  arrange <https://dplyr.tidyverse.org/reference/arrange.html>(desc <https://dplyr.tidyverse.org/reference/desc.html>(proc))
+
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(mpfs_ga_lab_top_level, options = list <https://rdrr.io/r/base/list.html>(max.print = 10))
+|//
+
+ABCDEFGHIJ0123456789
+
+npi
+<chr>
+	
+last
+<chr>
+	
+city
+<chr>
+	
+county
+<chr>
+	
+zip
+<chr>
+	
+n_hcpcs
+<int>
+	
+1932166386	Quest Diagnostics Clinical Laboratories Inc	Tucker	DeKalb	
+30084	555	
+1760579825	Clinical Laboratory Services, Inc.	Winder	Barrow	30680	131	
+1750636676	Genova Diagnostics Inc	Duluth	Gwinnett	30096	34	
+1609273317	Lifebrite Laboratories, Llc	Brookhaven	DeKalb	30329	70	
+1275971707	Labsolutions Llc	Atlanta	Fulton	30318	127	
+1497175905	Ispm Labs, Llc	Atlanta	Fulton	30350	19	
+1679580286	Cytometry Specialists, Inc.	Alpharetta	Fulton	30004	77	
+1811379001	Diagnostic Solutions Laboratory, Llc	Alpharetta	Fulton	30005	8	
+1336413418	Luminus Diagnostics, Llc	Tifton	Tift	31793	119	
+1497755649	Finan Dermatopathology Laboratory, P.C.	Atlanta	Fulton	30328	6	
+
+1-10 of 10 rows | 1-6 of 11 columns
+
+
+    <#create-second-level-table>Create Second-level Table
+
+|mpfs_ga_lab_sec_level <- mpfs_ga_lab |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(
+    npi, hcpcs, hcpcs_desc,
+    pos, pts, proc, avg_sub,
+    avg_allow, avg_pymt
+  ) |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    avg_sub = round <https://rdrr.io/r/base/Round.html>(avg_sub, 2),
+    avg_allow = round <https://rdrr.io/r/base/Round.html>(avg_allow, 2),
+    avg_pymt = round <https://rdrr.io/r/base/Round.html>(avg_pymt, 2),
+    pct_inc = ((avg_sub - avg_pymt) / avg_pymt) * 100,
+    pct_diff = ((avg_sub - avg_pymt) / ((avg_sub + avg_pymt) / 2)) * 100,
+    proc = round <https://rdrr.io/r/base/Round.html>(proc)
+  ) |>
+  arrange <https://dplyr.tidyverse.org/reference/arrange.html>(desc <https://dplyr.tidyverse.org/reference/desc.html>(proc))
+
+# Rename POS levels for clarity
+mpfs_ga_lab_sec_level <- mpfs_ga_lab_sec_level |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(pos = case_when <https://dplyr.tidyverse.org/reference/case_when.html>(
+    pos == "F" ~ "Facility",
+    pos == "O" ~ "Non-Facility"
+  ))
+
+mpfs_ga_lab_sec_level_preview <- head <https://rdrr.io/r/utils/head.html>(mpfs_ga_lab_sec_level, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(mpfs_ga_lab_sec_level_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+ 
+ 
+	
+npi
+<chr>
+	
+hcpcs
+<chr>
+	
+1	1760579825	P9603	
+2	1932166386	80053	
+3	1932166386	36415	
+4	1760579825	P9603	
+5	1932166386	85025	
+6	1932166386	80061	
+7	1932166386	84443	
+8	1932166386	83036	
+9	1760579825	G0471	
+10	1932166386	87086	
+
+1-10 of 10 rows | 1-3 of 12 columns
+
+
+    <#create-drill-down-table>Create Drill-Down Table
+
+Show code
+
+|drilldown_tbl <- reactable <https://glin.github.io/reactable/reference/reactable.html>(
+  data = mpfs_ga_lab_top_level,
+  pagination = TRUE,
+  highlight = TRUE,
+  striped = TRUE,
+  filterable = TRUE,
+  compact = TRUE,
+  paginationType = "simple",
+  showPageSizeOptions = TRUE,
+  onClick = "expand",
+  class = "packages-table",
+  rowStyle = list <https://rdrr.io/r/base/list.html>(cursor = "pointer"),
+  theme = reactableTheme <https://glin.github.io/reactable/reference/reactableTheme.html>(cellPadding = "8px 12px"),
+  defaultSorted = "proc",
+  defaultSortOrder = "desc",
+  defaultColDef = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+    footerStyle = list <https://rdrr.io/r/base/list.html>(fontWeight = "italic"),
+    headerClass = "col-header",
+    footerClass = "col-footer",
+    align = "left"
+  ),
+  columns = list <https://rdrr.io/r/base/list.html>(
+    npi = colDef <https://glin.github.io/reactable/reference/colDef.html>(show = F),
+    last = colDef <https://glin.github.io/reactable/reference/colDef.html>(name = "Clinical Laboratory", width = 400),
+    city = colDef <https://glin.github.io/reactable/reference/colDef.html>(name = "City"),
+    county = colDef <https://glin.github.io/reactable/reference/colDef.html>(name = "County"),
+    zip = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      name = "Zip", width = 120,
+      footer = "Averages",
+      class = "number",
+    ),
+    n_hcpcs = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      name = "HCPCS",
+      filterable = TRUE,
+      footer = function(values) sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+      cell = color_tiles <https://kcuilla.github.io/reactablefmtr/reference/color_tiles.html>(mpfs_ga_lab_top_level,
+        number_fmt = scales::comma <https://scales.r-lib.org/reference/comma.html>
+      )
+    ),
+    pts = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      name = "Patients",
+      filterable = TRUE,
+      footer = function(values) sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+      cell = color_tiles <https://kcuilla.github.io/reactablefmtr/reference/color_tiles.html>(mpfs_ga_lab_top_level,
+        number_fmt = scales::comma <https://scales.r-lib.org/reference/comma.html>
+      )
+    ),
+    proc = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      name = "Procedures",
+      filterable = TRUE,
+      footer = function(values) sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+      cell = color_tiles <https://kcuilla.github.io/reactablefmtr/reference/color_tiles.html>(mpfs_ga_lab_top_level,
+        number_fmt = scales::comma <https://scales.r-lib.org/reference/comma.html>
+      )
+    ),
+    avg_sub = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      name = "Avg Charge",
+      class = "number",
+      filterable = TRUE,
+      footer = function(values) sprintf <https://rdrr.io/r/base/sprintf.html>("$%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+      cell = data_bars <https://kcuilla.github.io/reactablefmtr/reference/data_bars.html>(mpfs_ga_lab_top_level,
+        fill_color = c <https://rdrr.io/r/base/c.html>("#15607A", "orange"),
+        align_bars = "left",
+        text_position = "above",
+        number_fmt = scales::number_format <https://scales.r-lib.org/reference/comma.html>(
+          accuracy      = 0.01,
+          big.mark      = ",",
+          trim          = "FALSE"
+        ),
+        round_edges = TRUE
+      )
+    ),
+    avg_allow = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      name = "Avg Allowed",
+      class = "number",
+      filterable = TRUE,
+      footer = function(values) sprintf <https://rdrr.io/r/base/sprintf.html>("$%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+      cell = data_bars <https://kcuilla.github.io/reactablefmtr/reference/data_bars.html>(mpfs_ga_lab_top_level,
+        fill_color = c <https://rdrr.io/r/base/c.html>("#15607A", "orange"),
+        align_bars = "left",
+        text_position = "above",
+        number_fmt = scales::number_format <https://scales.r-lib.org/reference/comma.html>(
+          accuracy      = 0.01,
+          big.mark      = ",",
+          trim          = "FALSE"
+        ),
+        round_edges = TRUE
+      )
+    ),
+    avg_pymt = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      name = "Avg Payment",
+      class = "number",
+      filterable = TRUE,
+      footer = function(values) sprintf <https://rdrr.io/r/base/sprintf.html>("$%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+      cell = data_bars <https://kcuilla.github.io/reactablefmtr/reference/data_bars.html>(mpfs_ga_lab_top_level,
+        fill_color = c <https://rdrr.io/r/base/c.html>("#15607A", "orange"),
+        align_bars = "left",
+        text_position = "above",
+        number_fmt = scales::number_format <https://scales.r-lib.org/reference/comma.html>(
+          accuracy      = 0.01,
+          big.mark      = ",",
+          trim          = "FALSE"
+        ),
+        round_edges = TRUE
+      )
+    )
+  ),
+  details = function(index) {
+    sec_lvl <- mpfs_ga_lab_sec_level[mpfs_ga_lab_sec_level$npi == mpfs_ga_lab_top_level$npi[index], ]
+    reactable <https://glin.github.io/reactable/reference/reactable.html>(
+      data = sec_lvl,
+      pagination = TRUE,
+      highlight = TRUE,
+      striped = FALSE,
+      filterable = TRUE,
+      outlined = TRUE,
+      compact = TRUE,
+      paginationType = "simple",
+      showPageSizeOptions = TRUE,
+      defaultSorted = "proc",
+      defaultSortOrder = "desc",
+      defaultColDef = colDef <https://glin.github.io/reactable/reference/colDef.html>(headerClass = "header", align = "left"),
+      columns = list <https://rdrr.io/r/base/list.html>(
+        npi = colDef <https://glin.github.io/reactable/reference/colDef.html>(show = F),
+        pos = colDef <https://glin.github.io/reactable/reference/colDef.html>(name = "POS"),
+        hcpcs = colDef <https://glin.github.io/reactable/reference/colDef.html>(name = "HCPCS", class = "number"),
+        hcpcs_desc = colDef <https://glin.github.io/reactable/reference/colDef.html>(name = "HCPCS Description", width = 650),
+        avg_sub = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+          name = "Avg. Charge",
+          class = "number",
+          cell = data_bars <https://kcuilla.github.io/reactablefmtr/reference/data_bars.html>(sec_lvl,
+            fill_color = c <https://rdrr.io/r/base/c.html>("#15607A", "orange"),
+            align_bars = "left",
+            text_position = "above",
+            number_fmt = scales::number_format <https://scales.r-lib.org/reference/comma.html>(
+              accuracy      = 0.01,
+              big.mark      = ",",
+              trim          = "FALSE"
+            ),
+            round_edges = TRUE
+          )
+        ),
+        avg_allow = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+          name = "Avg. Allowed",
+          class = "number",
+          cell = data_bars <https://kcuilla.github.io/reactablefmtr/reference/data_bars.html>(sec_lvl,
+            fill_color = c <https://rdrr.io/r/base/c.html>("#15607A", "orange"),
+            align_bars = "left",
+            text_position = "above",
+            number_fmt = scales::number_format <https://scales.r-lib.org/reference/comma.html>(
+              accuracy      = 0.01,
+              big.mark      = ",",
+              trim          = "FALSE"
+            ),
+            round_edges = TRUE
+          )
+        ),
+        avg_pymt = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+          name = "Avg. Payment",
+          class = "number",
+          cell = data_bars <https://kcuilla.github.io/reactablefmtr/reference/data_bars.html>(sec_lvl,
+            fill_color = c <https://rdrr.io/r/base/c.html>("#15607A", "orange"),
+            align_bars = "left",
+            text_position = "above",
+            number_fmt = scales::number_format <https://scales.r-lib.org/reference/comma.html>(
+              accuracy      = 0.01,
+              big.mark      = ",",
+              trim          = "FALSE"
+            ),
+            round_edges = TRUE
+          )
+        ),
+        pct_inc = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+          name = "% Increase",
+          class = "number",
+          cell = data_bars <https://kcuilla.github.io/reactablefmtr/reference/data_bars.html>(sec_lvl,
+            fill_color = c <https://rdrr.io/r/base/c.html>("#15607A", "orange"),
+            align_bars = "left",
+            text_position = "above",
+            number_fmt = scales::number_format <https://scales.r-lib.org/reference/comma.html>(
+              accuracy      = 0.01,
+              big.mark      = ",",
+              suffix        = "%",
+              trim          = "FALSE"
+            ),
+            round_edges = TRUE
+          )
+        ),
+        pct_diff = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+          name = "% Difference",
+          class = "number",
+          cell = data_bars <https://kcuilla.github.io/reactablefmtr/reference/data_bars.html>(sec_lvl,
+            fill_color = c <https://rdrr.io/r/base/c.html>("#15607A", "orange"),
+            align_bars = "left",
+            text_position = "above",
+            number_fmt = scales::number_format <https://scales.r-lib.org/reference/comma.html>(
+              accuracy      = 0.01,
+              big.mark      = ",",
+              suffix        = "%",
+              trim          = "FALSE"
+            ),
+            round_edges = TRUE
+          )
+        ),
+        pts = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+          name = "Patients",
+          cell = color_tiles <https://kcuilla.github.io/reactablefmtr/reference/color_tiles.html>(
+            sec_lvl,
+            number_fmt = scales::comma <https://scales.r-lib.org/reference/comma.html>
+          )
+        ),
+        proc = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+          name = "Procedures",
+          cell = color_tiles <https://kcuilla.github.io/reactablefmtr/reference/color_tiles.html>(
+            sec_lvl,
+            number_fmt = scales::comma <https://scales.r-lib.org/reference/comma.html>
+          )
+        )
+      )
+    )
+  }
+)
+
+div <https://rdrr.io/pkg/htmltools/man/builder.html>(
+  class = "rcm-analysis",
+  h3 <https://rdrr.io/pkg/htmltools/man/builder.html>(class = "packages-title", "Medicare Physician & Other Practitioners 2019: Clinical Laboratories in Georgia"),
+  drilldown_tbl,
+  tags$span(style = "color:#C8C8C8", "Table: @aabrucehimni | Data: data.cms.gov")
+)
+|//
+
+
+      Medicare Physician & Other Practitioners 2019: Clinical
+      Laboratories in Georgia
+
+Clinical Laboratory
+City
+County
+Zip
+HCPCS
+Patients
+Procedures
+Avg Charge
+Avg Allowed
+Avg Payment
+•​
+Quest Diagnostics Clinical Laboratories Inc
+Tucker
+DeKalb
+30084
+555
+2,980,662
+4,359,607
+154.97
+25.85
+25.46
+•​
+Clinical Laboratory Services, Inc.
+Winder
+Barrow
+30680
+131
+216,033
+2,850,989
+57.25
+13.90
+13.90
+•​
+Genova Diagnostics Inc
+Duluth
+Gwinnett
+30096
+34
+83,883
+163,984
+50.65
+19.10
+19.10
+•​
+Lifebrite Laboratories, Llc
+Brookhaven
+DeKalb
+30329
+70
+87,284
+130,277
+154.67
+73.75
+73.75
+•​
+Labsolutions Llc
+Atlanta
+Fulton
+30318
+127
+53,075
+67,191
+119.51
+100.56
+100.56
+•​
+Ispm Labs, Llc
+Atlanta
+Fulton
+30350
+19
+16,640
+55,146
+526.86
+165.51
+165.51
+•​
+Cytometry Specialists, Inc.
+Alpharetta
+Fulton
+30004
+77
+17,737
+44,525
+306.96
+108.73
+99.63
+•​
+Diagnostic Solutions Laboratory, Llc
+Alpharetta
+Fulton
+30005
+8
+22,457
+42,782
+49.69
+27.36
+27.36
+•​
+Luminus Diagnostics, Llc
+Tifton
+Tift
+31793
+119
+19,637
+36,021
+54.57
+29.26
+29.26
+•​
+Finan Dermatopathology Laboratory, P.C.
+Atlanta
+Fulton
+30328
+6
+17,460
+32,683
+74.99
+71.89
+56.03
+Averages
+30.67
+61303.08
+134583.65
+$224.98
+$68.28
+$66.08
+1–10 of 60 rows
+Show
+Previous1 of 6
+Next
+Table: @aabrucehimni | Data: data.cms.gov
+
+
+      Citations
+
+Package 	Version 	Citation
+base 	4.2.0 	R Core Team (2022 <#ref-base>)
+distill 	1.4 	Dervieux et al. (2022 <#ref-distill>)
+grateful 	0.1.11 	Rodríguez-Sánchez, Jackson, and Hutchins (2022 <#ref-
+grateful>)
+htmltools 	0.5.2 	Cheng et al. (2021 <#ref-htmltools>)
+knitr 	1.39 	Xie (2014 <#ref-knitr2014>); Xie (2015 <#ref-knitr2015>);
+Xie (2022 <#ref-knitr2022>)
+reactable 	0.2.3 	Lin (2020 <#ref-reactable>)
+reactablefmtr 	2.0.0 	Cuilla (2022 <#ref-reactablefmtr>)
+rio 	0.5.29 	Chan et al. (2021 <#ref-rio>)
+rmarkdown 	2.14 	Xie, Allaire, and Grolemund (2018 <#ref-
+rmarkdown2018>); Xie, Dervieux, and Riederer (2020 <#ref-
+rmarkdown2020>); Allaire et al. (2022 <#ref-rmarkdown2022>)
+scales 	1.2.0 	Wickham and Seidel (2022 <#ref-scales>)
+sessioninfo 	1.2.2 	Wickham et al. (2021 <#ref-sessioninfo>)
+tidyverse 	1.3.1 	Wickham et al. (2019 <#ref-tidyverse>)
+xaringanExtra 	0.5.5 	Aden-Buie and Warkentin (2022 <#ref-xaringanExtra>)
+
+
+      Last updated on
+
+|  [1] "2022-05-19 13:51:26 EDT"|//
+
+
+      Session Info
+
+|  ─ Session info ───────────────────────────────────────────────────────────────────────────────────
+   setting  value
+   version  R version 4.2.0 (2022-04-22 ucrt)
+   os       Windows 10 x64 (build 25120)
+   system   x86_64, mingw32
+   ui       RTerm
+   language (EN)
+   collate  English_United States.utf8
+   ctype    English_United States.utf8
+   tz       America/New_York
+   date     2022-05-19
+   pandoc   2.17.1.1 @ C:/Program Files/RStudio/bin/quarto/bin/ (via rmarkdown)
+  
+  ─ Packages ───────────────────────────────────────────────────────────────────────────────────────
+   package       * version date (UTC) lib source
+   assertthat      0.2.1   2019-03-21 [1] CRAN (R 4.2.0)
+   backports       1.4.1   2021-12-13 [1] CRAN (R 4.2.0)
+   broom           0.8.0   2022-04-13 [1] CRAN (R 4.2.0)
+   bslib           0.3.1   2021-10-06 [1] CRAN (R 4.2.0)
+   cachem          1.0.6   2021-08-19 [1] CRAN (R 4.2.0)
+   cellranger      1.1.0   2016-07-27 [1] CRAN (R 4.2.0)
+   cli             3.3.0   2022-04-25 [1] CRAN (R 4.2.0)
+   colorspace      2.0-3   2022-02-21 [1] CRAN (R 4.2.0)
+   crayon          1.5.1   2022-03-26 [1] CRAN (R 4.2.0)
+   crosstalk       1.2.0   2021-11-04 [1] CRAN (R 4.2.0)
+   curl            4.3.2   2021-06-23 [1] CRAN (R 4.2.0)
+   data.table      1.14.2  2021-09-27 [1] CRAN (R 4.2.0)
+   DBI             1.1.2   2021-12-20 [1] CRAN (R 4.2.0)
+   dbplyr          2.1.1   2021-04-06 [1] CRAN (R 4.2.0)
+   digest          0.6.29  2021-12-01 [1] CRAN (R 4.2.0)
+   distill         1.4     2022-05-12 [1] CRAN (R 4.2.0)
+   downlit         0.4.0   2021-10-29 [1] CRAN (R 4.2.0)
+   dplyr         * 1.0.9   2022-04-28 [1] CRAN (R 4.2.0)
+   ellipsis        0.3.2   2021-04-29 [1] CRAN (R 4.2.0)
+   evaluate        0.15    2022-02-18 [1] CRAN (R 4.2.0)
+   fansi           1.0.3   2022-03-24 [1] CRAN (R 4.2.0)
+   fastmap         1.1.0   2021-01-25 [1] CRAN (R 4.2.0)
+   forcats       * 0.5.1   2021-01-27 [1] CRAN (R 4.2.0)
+   foreign         0.8-82  2022-01-16 [2] CRAN (R 4.2.0)
+   fs              1.5.2   2021-12-08 [1] CRAN (R 4.2.0)
+   generics        0.1.2   2022-01-31 [1] CRAN (R 4.2.0)
+   ggplot2       * 3.3.6   2022-05-03 [1] CRAN (R 4.2.0)
+   glue            1.6.2   2022-02-24 [1] CRAN (R 4.2.0)
+   grateful      * 0.1.11  2022-05-07 [1] Github (Pakillo/grateful@ba9b003)
+   gtable          0.3.0   2019-03-25 [1] CRAN (R 4.2.0)
+   haven           2.5.0   2022-04-15 [1] CRAN (R 4.2.0)
+   highr           0.9     2021-04-16 [1] CRAN (R 4.2.0)
+   hms             1.1.1   2021-09-26 [1] CRAN (R 4.2.0)
+   htmltools     * 0.5.2   2021-08-25 [1] CRAN (R 4.2.0)
+   htmlwidgets     1.5.4   2021-09-08 [1] CRAN (R 4.2.0)
+   httr            1.4.3   2022-05-04 [1] CRAN (R 4.2.0)
+   jquerylib       0.1.4   2021-04-26 [1] CRAN (R 4.2.0)
+   jsonlite        1.8.0   2022-02-22 [1] CRAN (R 4.2.0)
+   knitr         * 1.39    2022-04-26 [1] CRAN (R 4.2.0)
+   lifecycle       1.0.1   2021-09-24 [1] CRAN (R 4.2.0)
+   lubridate       1.8.0   2021-10-07 [1] CRAN (R 4.2.0)
+   magrittr        2.0.3   2022-03-30 [1] CRAN (R 4.2.0)
+   memoise         2.0.1   2021-11-26 [1] CRAN (R 4.2.0)
+   modelr          0.1.8   2020-05-19 [1] CRAN (R 4.2.0)
+   munsell         0.5.0   2018-06-12 [1] CRAN (R 4.2.0)
+   openxlsx        4.2.5   2021-12-14 [1] CRAN (R 4.2.0)
+   pillar          1.7.0   2022-02-01 [1] CRAN (R 4.2.0)
+   pkgconfig       2.0.3   2019-09-22 [1] CRAN (R 4.2.0)
+   purrr         * 0.3.4   2020-04-17 [1] CRAN (R 4.2.0)
+   R.cache         0.15.0  2021-04-30 [1] CRAN (R 4.2.0)
+   R.methodsS3     1.8.1   2020-08-26 [1] CRAN (R 4.2.0)
+   R.oo            1.24.0  2020-08-26 [1] CRAN (R 4.2.0)
+   R.utils         2.11.0  2021-09-26 [1] CRAN (R 4.2.0)
+   R6              2.5.1   2021-08-19 [1] CRAN (R 4.2.0)
+   Rcpp            1.0.8.3 2022-03-17 [1] CRAN (R 4.2.0)
+   reactable     * 0.2.3   2020-10-04 [1] CRAN (R 4.2.0)
+   reactablefmtr * 2.0.0   2022-03-16 [1] CRAN (R 4.2.0)
+   reactR          0.4.4   2021-02-22 [1] CRAN (R 4.2.0)
+   readr         * 2.1.2   2022-01-30 [1] CRAN (R 4.2.0)
+   readxl          1.4.0   2022-03-28 [1] CRAN (R 4.2.0)
+   renv            0.15.4  2022-03-03 [1] CRAN (R 4.2.0)
+   reprex          2.0.1   2021-08-05 [1] CRAN (R 4.2.0)
+   rio           * 0.5.29  2021-11-22 [1] CRAN (R 4.2.0)
+   rlang           1.0.2   2022-03-04 [1] CRAN (R 4.2.0)
+   rmarkdown     * 2.14    2022-04-25 [1] CRAN (R 4.2.0)
+   rstudioapi      0.13    2020-11-12 [1] CRAN (R 4.2.0)
+   rvest           1.0.2   2021-10-16 [1] CRAN (R 4.2.0)
+   sass            0.4.1   2022-03-23 [1] CRAN (R 4.2.0)
+   scales          1.2.0   2022-04-13 [1] CRAN (R 4.2.0)
+   sessioninfo     1.2.2   2021-12-06 [1] CRAN (R 4.2.0)
+   stringi         1.7.6   2021-11-29 [1] CRAN (R 4.2.0)
+   stringr       * 1.4.0   2019-02-10 [1] CRAN (R 4.2.0)
+   styler          1.7.0   2022-03-13 [1] CRAN (R 4.2.0)
+   tibble        * 3.1.7   2022-05-03 [1] CRAN (R 4.2.0)
+   tidyr         * 1.2.0   2022-02-01 [1] CRAN (R 4.2.0)
+   tidyselect      1.1.2   2022-02-21 [1] CRAN (R 4.2.0)
+   tidyverse     * 1.3.1   2021-04-15 [1] CRAN (R 4.2.0)
+   tzdb            0.3.0   2022-03-28 [1] CRAN (R 4.2.0)
+   utf8            1.2.2   2021-07-24 [1] CRAN (R 4.2.0)
+   uuid            1.1-0   2022-04-19 [1] CRAN (R 4.2.0)
+   vctrs           0.4.1   2022-04-13 [1] CRAN (R 4.2.0)
+   withr           2.5.0   2022-03-03 [1] CRAN (R 4.2.0)
+   xaringanExtra   0.5.5   2022-04-26 [1] Github (gadenbuie/xaringanExtra@ee5092d)
+   xfun            0.31    2022-05-10 [1] CRAN (R 4.2.0)
+   xml2            1.3.3   2021-11-30 [1] CRAN (R 4.2.0)
+   yaml            2.3.5   2022-02-21 [1] CRAN (R 4.2.0)
+   zip             2.2.0   2021-05-31 [1] CRAN (R 4.2.0)
+  
+   [1] C:/Users/andyb/AppData/Local/R/win-library/4.2
+   [2] C:/Program Files/R/R-4.2.0/library
+  
+  ──────────────────────────────────────────────────────────────────────────────────────────────────|//
+
+//   0 Comments Share:   // <https://twitter.com/share?text=Drill-
+Down%20Tables%3A%20Medicare%20Physician%20%26%20Other%20Practitioners%20Dataset&url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fdrilldowns-medicare-physician-other-practitioners%2F> // <https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fdrilldowns-medicare-physician-other-practitioners%2F&title=Drill-Down%20Tables%3A%20Medicare%20Physician%20%26%20Other%20Practitioners%20Dataset> // <https://www.facebook.com/sharer/sharer.php?s=100&p[url]=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fdrilldowns-medicare-physician-other-practitioners%2F> // <https://pinterest.com/pin/create/link/?url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fdrilldowns-medicare-physician-other-practitioners%2F&description=Drill-Down%20Tables%3A%20Medicare%20Physician%20%26%20Other%20Practitioners%20Dataset>
+
+Enjoy this blog? Get notified of new posts via email:
+
+
+      Footnotes
+
+
+      References
+
+Aden-Buie, Garrick, and Matthew T. Warkentin. 2022. /xaringanExtra:
+Extras and Extensions for Xaringan Slides/. https://github.com/
+gadenbuie/xaringanExtra <https://github.com/gadenbuie/xaringanExtra>.
+Allaire, JJ, Yihui Xie, Jonathan McPherson, Javier Luraschi, Kevin
+Ushey, Aron Atkins, Hadley Wickham, Joe Cheng, Winston Chang, and
+Richard Iannone. 2022. /Rmarkdown: Dynamic Documents for r/. https://
+github.com/rstudio/rmarkdown <https://github.com/rstudio/rmarkdown>.
+Chan, Chung-hong, Geoffrey CH Chan, Thomas J. Leeper, and Jason Becker.
+2021. /Rio: A Swiss-Army Knife for Data File i/o/.
+Cheng, Joe, Carson Sievert, Barret Schloerke, Winston Chang, Yihui Xie,
+and Jeff Allen. 2021. /Htmltools: Tools for HTML/. https://CRAN.R-
+project.org/package=htmltools <https://cran.r-project.org/
+package=htmltools>.
+Cuilla, Kyle. 2022. /Reactablefmtr: Streamlined Table Styling and
+Formatting for Reactable/. https://CRAN.R-project.org/
+package=reactablefmtr <https://cran.r-project.org/package=reactablefmtr>.
+Dervieux, Christophe, JJ Allaire, Rich Iannone, Alison Presmanes Hill,
+and Yihui Xie. 2022. /Distill: ’R Markdown’ Format for Scientific and
+Technical Writing/. https://CRAN.R-project.org/package=distill <https://
+cran.r-project.org/package=distill>.
+Lin, Greg. 2020. /Reactable: Interactive Data Tables Based on ’React
+Table’/. https://CRAN.R-project.org/package=reactable <https://cran.r-
+project.org/package=reactable>.
+R Core Team. 2022. /R: A Language and Environment for Statistical
+Computing/. Vienna, Austria: R Foundation for Statistical Computing.
+https://www.R-project.org/ <https://www.r-project.org/>.
+Rodríguez-Sánchez, Francisco, Connor P. Jackson, and Shaurita D.
+Hutchins. 2022. /Grateful: Facilitate Citation of r Packages/. https://
+github.com/Pakillo/grateful <https://github.com/Pakillo/grateful>.
+Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy
+D’Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019.
+“Welcome to the tidyverse.” /Journal of Open Source Software/ 4 (43):
+1686. https://doi.org/10.21105/joss.01686 <https://doi.org/10.21105/
+joss.01686>.
+Wickham, Hadley, Winston Chang, Robert Flight, Kirill Müller, and Jim
+Hester. 2021. /Sessioninfo: R Session Information/. https://CRAN.R-
+project.org/package=sessioninfo <https://cran.r-project.org/
+package=sessioninfo>.
+Wickham, Hadley, and Dana Seidel. 2022. /Scales: Scale Functions for
+Visualization/. https://CRAN.R-project.org/package=scales <https://
+cran.r-project.org/package=scales>.
+Xie, Yihui. 2014. “Knitr: A Comprehensive Tool for Reproducible Research
+in R.” In /Implementing Reproducible Computational Research/, edited by
+Victoria Stodden, Friedrich Leisch, and Roger D. Peng. Chapman; Hall/
+CRC. http://www.crcpress.com/product/isbn/9781466561595 <http://
+www.crcpress.com/product/isbn/9781466561595>.
+———. 2015. /Dynamic Documents with R and Knitr/. 2nd ed. Boca Raton,
+Florida: Chapman; Hall/CRC. https://yihui.org/knitr/ <https://yihui.org/
+knitr/>.
+———. 2022. /Knitr: A General-Purpose Package for Dynamic Report
+Generation in r/. https://yihui.org/knitr/ <https://yihui.org/knitr/>.
+Xie, Yihui, J. J. Allaire, and Garrett Grolemund. 2018. /R Markdown: The
+Definitive Guide/. Boca Raton, Florida: Chapman; Hall/CRC. https://
+bookdown.org/yihui/rmarkdown <https://bookdown.org/yihui/rmarkdown>.
+Xie, Yihui, Christophe Dervieux, and Emily Riederer. 2020. /R Markdown
+Cookbook/. Boca Raton, Florida: Chapman; Hall/CRC. https://bookdown.org/
+yihui/rmarkdown-cookbook <https://bookdown.org/yihui/rmarkdown-cookbook>.
+
+
+      Corrections
+
+If you see mistakes or want to suggest changes, please create an issue
+<https://github.com/andrewallenbruce/issues/new> on the source repository.
+
+
+      Reuse
+
+Text and figures are licensed under Creative Commons Attribution CC BY
+4.0 <https://creativecommons.org/licenses/by/4.0/>. Source code is
+available at https://github.com/andrewallenbruce <https://github.com/
+andrewallenbruce>, unless otherwise noted. The figures that have been
+reused from other sources don't fall under this license and can be
+recognized by a note in their caption: "Figure from ...".
+
+
+      Citation
+
+For attribution, please cite this work as
+
+Bruce (2022, May 11). Andrew Bruce: Drill-Down Tables: Medicare Physician & Other Practitioners Dataset. Retrieved from https://andrewbruce.netlify.app/posts/drilldowns-medicare-physician-other-practitioners///
+
+BibTeX citation
+
+@misc{bruce2022drill-down,
+  author = {Bruce, Andrew},
+  title = {Andrew Bruce: Drill-Down Tables: Medicare Physician & Other Practitioners Dataset},
+  url = {https://andrewbruce.netlify.app/posts/drilldowns-medicare-physician-other-practitioners/},
+  year = {2022}
+}//
+
+Andrew A. Bruce - 2024 - made with , and {distill} <https://
+rstudio.github.io/distill/>
+

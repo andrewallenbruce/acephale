@@ -1,0 +1,1198 @@
+Andrew Bruce <https://andrewbrucehimni.netlify.app/>
+
+Home <https://andrewbrucehimni.netlify.app/> Projects ▾ EHR UX/UI Mockup
+<https://andrewbrucehimni.netlify.app/flex_example/flexexample> Days in
+AR Shiny App <https://himni.shinyapps.io/darguide/> The Art of DAR
+<https://artofdar.netlify.app/> HIM & I <https://himni.info/>
+About <https://andrewbrucehimni.netlify.app/about> // <https://
+www.linkedin.com/in/andybruce1> // <https://twitter.com/aabrucehimni> //
+<https://www.behance.net/andybruce1> // <https://
+andrewbrucehimni.netlify.app/index.xml> // <https://github.com/
+andrewallenbruce> ☰ <javascript:void(0);>
+
+
+  R Cookbook: Aging of Accounts
+
+medical-billing <https://andrewbrucehimni.netlify.app/#category:medical-
+billing> medical-coding <https://andrewbrucehimni.netlify.app/
+#category:medical-coding> data-analytics <https://
+andrewbrucehimni.netlify.app/#category:data-analytics>
+
+Personal R code cookbook for common RCM Aging analyses.
+
+
+      Author
+
+
+      Affiliation
+
+Andrew Bruce <https://andrewbruce.netlify.app/> ORCID ID <https://
+orcid.org/0000-0001-5040-4327>
+
+ 
+
+
+      Published
+
+June 22, 2022
+
+
+      Citation
+
+Bruce, 2022 <#citation>
+
+
+      Contents
+
+  * Introduction <#introduction>
+      o Packages <#packages>
+  * Data <#data>
+  * Visualizations <#visualizations>
+      o Bar/Column Charts <#barcolumn-charts>
+      o Linear Regression Plots <#linear-regression-plots>
+  * Relationship Visualizations <#relationship-visualizations>
+      o Sankey Diagram <#sankey-diagram>
+      o Dependency Wheel <#dependency-wheel>
+  * Vtree Visualizations <#vtree-visualizations>
+  * Misc Visualizations <#misc-visualizations>
+      o Sunburst Chart <#sunburst-chart>
+      o Drilldown Piechart <#drilldown-piechart>
+      o Sankey Diagram <#sankey-diagram-1>
+
+
+  Introduction
+
+This post is simply a sandbox/cookbook of R code I’m exploring for
+common healthcare aging of accounts-related analyses.
+
+
+    <#packages>Packages
+
+|library <https://rdrr.io/r/base/library.html>(tidyverse <https://tidyverse.tidyverse.org/>)
+library <https://rdrr.io/r/base/library.html>(tidytable <https://github.com/markfairbanks/tidytable>)
+library <https://rdrr.io/r/base/library.html>(highcharter <https://jkunst.com/highcharter/>)
+library <https://rdrr.io/r/base/library.html>(rmarkdown <https://github.com/rstudio/rmarkdown>)
+library <https://rdrr.io/r/base/library.html>(lubridate <https://lubridate.tidyverse.org/>)
+library <https://rdrr.io/r/base/library.html>(htmltools <https://github.com/rstudio/htmltools>)
+library <https://rdrr.io/r/base/library.html>(htmlwidgets <https://github.com/ramnathv/htmlwidgets>)
+library <https://rdrr.io/r/base/library.html>(googlesheets4 <https://googlesheets4.tidyverse.org/>)
+library <https://rdrr.io/r/base/library.html>(splot <https://miserman.github.io/splot/>)|//
+
+
+  Data
+
+|# Sheet is public and shareable
+gs4_deauth <https://googlesheets4.tidyverse.org/reference/gs4_deauth.html>()
+
+# Google Sheet ID
+id_aging <- "1Td3_6sYOEVwSOdaWdBeUl8yLUp7ztFu8tesZ6LcLlv4"
+
+# Read in Google Sheet
+google_aging <- read_sheet <https://googlesheets4.tidyverse.org/reference/range_read.html>(ss = id_aging, sheet = "Sheet1")
+
+# Convert Date of Service column to date object
+google_aging$dos <- as.Date <https://rdrr.io/r/base/as.Date.html>(google_aging$dos, "%m/%d/%Y")
+
+# Print head of data
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(google_aging)|//
+
+ABCDEFGHIJ0123456789
+
+dos
+<date>
+	
+amt
+<dbl>
+	
+payer
+<chr>
+	
+payer_type
+<chr>
+	
+state
+<chr>
+	
+referring_phys
+<chr>
+	
+location
+<chr>
+	
+provider
+<chr>
+	
+patient
+<chr>
+2021-12-27	389.70	Medicare	Primary	NM	Frier	Houston	Bailey	Griffin, Alvin
+2021-12-27	172.72	Patient	Patient	NV	Burroughs	Tennessee	Forrest	
+Hoffman, Roosevelt
+2021-12-27	246.46	Blue Cross	Primary	AZ	Chaney	Jacksonville	Timothy	
+Brady, Belinda
+2021-12-27	507.45	AETNA	Primary	CA	Copeland	Indianapolis	James	Sandoval,
+Luther
+2021-12-27	483.09	Blue Cross	Primary	CA	Moore	Jacksonville	Forrest	
+Cohen, Myron
+2021-12-27	398.64	AETNA	Secondary	CA	Burroughs	Tennessee	James	Delgado,
+Katie
+2021-12-27	849.50	Patient	Patient	CA	Chaney	Indianapolis	Forrest	Lawson,
+Wilbur
+2021-12-27	351.40	Medicare	Primary	AZ	Spell	Indianapolis	James	Ford, Lucas
+2021-12-27	523.20	Blue Cross	Secondary	CA	Ramirez	Indianapolis	Bailey	
+Willis, Willie
+2021-12-27	893.57	Patient	Patient	AZ	Moore	Indianapolis	Timothy	Chapman,
+Edgar
+
+Next
+123456...
+262
+Previous
+1-10 of 2,618 rows
+
+|# Add Age Column
+google_aging <- google_aging |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(age = days <https://lubridate.tidyverse.org/reference/period.html>(Sys.Date <https://rdrr.io/r/base/Sys.time.html>()) - days <https://lubridate.tidyverse.org/reference/period.html>(dos))
+
+google_aging$age <- as.numeric <https://rdrr.io/r/base/numeric.html>(google_aging$age, "hours")
+
+google_aging <- google_aging |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(age = age / 24)
+
+# Add Bucket Column
+google_aging <- google_aging |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(bucket = case_when <https://dplyr.tidyverse.org/reference/case_when.html>(
+    age < 31 ~ "0-30",
+    age >= 31 & age < 61 ~ "31-60",
+    age >= 61 & age < 91 ~ "61-90",
+    age >= 91 & age < 121 ~ "91-120",
+    age >= 121 & age < 151 ~ "121-150",
+    age >= 151 & age < 181 ~ "151-180",
+    age >= 181 ~ "181+",
+    TRUE ~ "UNKNOWN"
+  ))
+
+google_aging$bucket <- factor <https://rdrr.io/r/base/factor.html>(google_aging$bucket,
+  levels = c <https://rdrr.io/r/base/c.html>(
+    "0-30", "31-60", "61-90",
+    "91-120", "121-150", "151-180",
+    "181+", "UNKNOWN"
+  ),
+  ordered = is.ordered <https://rdrr.io/r/base/factor.html>(google_aging$bucket)
+)
+
+# Print head of data
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(google_aging)|//
+
+ABCDEFGHIJ0123456789
+
+dos
+<date>
+	
+amt
+<dbl>
+	
+payer
+<chr>
+	
+payer_type
+<chr>
+	
+state
+<chr>
+	
+referring_phys
+<chr>
+	
+location
+<chr>
+	
+provider
+<chr>
+	
+patient
+<chr>
+	
+age
+<dbl>
+	
+2021-12-27	389.70	Medicare	Primary	NM	Frier	Houston	Bailey	Griffin,
+Alvin	204	
+2021-12-27	172.72	Patient	Patient	NV	Burroughs	Tennessee	Forrest	
+Hoffman, Roosevelt	204	
+2021-12-27	246.46	Blue Cross	Primary	AZ	Chaney	Jacksonville	Timothy	
+Brady, Belinda	204	
+2021-12-27	507.45	AETNA	Primary	CA	Copeland	Indianapolis	James	Sandoval,
+Luther	204	
+2021-12-27	483.09	Blue Cross	Primary	CA	Moore	Jacksonville	Forrest	
+Cohen, Myron	204	
+2021-12-27	398.64	AETNA	Secondary	CA	Burroughs	Tennessee	James	Delgado,
+Katie	204	
+2021-12-27	849.50	Patient	Patient	CA	Chaney	Indianapolis	Forrest	Lawson,
+Wilbur	204	
+2021-12-27	351.40	Medicare	Primary	AZ	Spell	Indianapolis	James	Ford,
+Lucas	204	
+2021-12-27	523.20	Blue Cross	Secondary	CA	Ramirez	Indianapolis	Bailey	
+Willis, Willie	204	
+2021-12-27	893.57	Patient	Patient	AZ	Moore	Indianapolis	Timothy	Chapman,
+Edgar	204	
+
+Next
+123456...
+262
+Previous
+1-10 of 2,618 rows | 1-10 of 11 columns
+
+|# Add 'filelimit' Column
+google_aging <- google_aging |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(filelimit = case_when <https://dplyr.tidyverse.org/reference/case_when.html>(
+    payer == "AETNA" ~ "180",
+    payer == "Ambetter" ~ "180",
+    payer == "Blue Cross" ~ "365",
+    payer == "CIGNA" ~ "90",
+    payer == "Coventry" ~ "180",
+    payer == "Humana" ~ "90",
+    payer == "Medicaid" ~ "180",
+    payer == "Medicare" ~ "365",
+    payer == "Meritain" ~ "90",
+    payer == "UHC" ~ "90",
+    payer == "Patient" ~ "0",
+    TRUE ~ "Other"
+  ))
+
+## Convert 'filelimit' Column to Numeric
+google_aging$filelimit <- as.numeric <https://rdrr.io/r/base/numeric.html>(google_aging$filelimit)
+
+## Add 'filelimdate' Column - Age of Claim
+google_aging <- google_aging |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(filelimdate = case_when <https://dplyr.tidyverse.org/reference/case_when.html>(
+    filelimit > 0 ~ as.Date <https://rdrr.io/r/base/as.Date.html>(dos) + days <https://lubridate.tidyverse.org/reference/period.html>(filelimit),
+    TRUE ~ as.Date <https://rdrr.io/r/base/as.Date.html>(dos)
+  ))
+
+## Add 'filelimdays' Column - Age of Claim
+google_aging <- google_aging |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(filelimdays = case_when <https://dplyr.tidyverse.org/reference/case_when.html>(
+    filelimit > 0 ~ filelimit - age,
+    TRUE ~ 5000 # dummy variable for Patient Class
+  ))
+
+# Print head of data
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(google_aging)|//
+
+ABCDEFGHIJ0123456789
+
+dos
+<date>
+	
+amt
+<dbl>
+	
+payer
+<chr>
+	
+payer_type
+<chr>
+	
+state
+<chr>
+	
+referring_phys
+<chr>
+	
+location
+<chr>
+	
+provider
+<chr>
+	
+patient
+<chr>
+	
+age
+<dbl>
+	
+2021-12-27	389.70	Medicare	Primary	NM	Frier	Houston	Bailey	Griffin,
+Alvin	204	
+2021-12-27	172.72	Patient	Patient	NV	Burroughs	Tennessee	Forrest	
+Hoffman, Roosevelt	204	
+2021-12-27	246.46	Blue Cross	Primary	AZ	Chaney	Jacksonville	Timothy	
+Brady, Belinda	204	
+2021-12-27	507.45	AETNA	Primary	CA	Copeland	Indianapolis	James	Sandoval,
+Luther	204	
+2021-12-27	483.09	Blue Cross	Primary	CA	Moore	Jacksonville	Forrest	
+Cohen, Myron	204	
+2021-12-27	398.64	AETNA	Secondary	CA	Burroughs	Tennessee	James	Delgado,
+Katie	204	
+2021-12-27	849.50	Patient	Patient	CA	Chaney	Indianapolis	Forrest	Lawson,
+Wilbur	204	
+2021-12-27	351.40	Medicare	Primary	AZ	Spell	Indianapolis	James	Ford,
+Lucas	204	
+2021-12-27	523.20	Blue Cross	Secondary	CA	Ramirez	Indianapolis	Bailey	
+Willis, Willie	204	
+2021-12-27	893.57	Patient	Patient	AZ	Moore	Indianapolis	Timothy	Chapman,
+Edgar	204	
+
+Next
+123456...
+262
+Previous
+1-10 of 2,618 rows | 1-10 of 14 columns
+
+
+  Visualizations
+
+
+    <#barcolumn-charts>Bar/Column Charts
+
+Code
+
+|google_aging |>
+  group_by <https://dplyr.tidyverse.org/reference/group_by.html>(bucket) |>
+  summarise <https://dplyr.tidyverse.org/reference/summarise.html>(
+    total = sum <https://rdrr.io/r/base/sum.html>(amt),
+    encounters = n <https://dplyr.tidyverse.org/reference/context.html>()
+  ) |>
+  hchart <https://jkunst.com/highcharter/reference/hchart.html>(
+    "column",
+    hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(bucket, round <https://rdrr.io/r/base/Round.html>(encounters, 0), color = bucket)
+  ) |>
+  hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+    gridLineWidth = 0,
+    labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color = "#000000")),
+    title = list <https://rdrr.io/r/base/list.html>(text = " ", style = list <https://rdrr.io/r/base/list.html>(color = "#000000"))
+  ) |>
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+    labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color = "#000000")),
+    title = list <https://rdrr.io/r/base/list.html>(text = " "),
+    lineWidth = 0,
+    tickWidth = 0
+  ) |>
+  hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "Number of Encounters by Bucket") |>
+  hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_smpl <https://jkunst.com/highcharter/reference/hc_theme_smpl.html>()) |>
+  hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE
+  ) |>
+  hc_plotOptions <https://jkunst.com/highcharter/reference/hc_plotOptions.html>(
+    column = list <https://rdrr.io/r/base/list.html>(
+      dataLabels = list <https://rdrr.io/r/base/list.html>(
+        valueDecimals = 0,
+        enabled = TRUE
+      )
+    )
+  ) |>
+  hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 400, width = 800)|//
+
+Created with Highcharts 9.3.1Number of Encounters by Bucket179​179414​
+414444​444385​385470​470416​416310​
+3100-3031-6061-9091-120121-150151-180181+0100200300400500
+Code
+
+|google_aging |>
+  group_by <https://dplyr.tidyverse.org/reference/group_by.html>(bucket, payer) |>
+  summarise <https://dplyr.tidyverse.org/reference/summarise.html>(
+    total = sum <https://rdrr.io/r/base/sum.html>(amt),
+    encounters = n <https://dplyr.tidyverse.org/reference/context.html>()
+  ) |>
+  hchart <https://jkunst.com/highcharter/reference/hchart.html>(
+    "column",
+    hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(bucket, round <https://rdrr.io/r/base/Round.html>(encounters, 0), group = payer, color = payer)
+  ) |>
+  hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+    gridLineWidth = 0,
+    labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color = "#000000")),
+    title = list <https://rdrr.io/r/base/list.html>(text = " ", style = list <https://rdrr.io/r/base/list.html>(color = "#000000"))
+  ) |>
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+    labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color = "#000000")),
+    title = list <https://rdrr.io/r/base/list.html>(text = " "),
+    lineWidth = 0,
+    tickWidth = 0
+  ) |>
+  hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "Number of Encounters Per Payer by Bucket") |>
+  hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_smpl <https://jkunst.com/highcharter/reference/hc_theme_smpl.html>()) |>
+  hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE
+  ) |>
+  hc_plotOptions <https://jkunst.com/highcharter/reference/hc_plotOptions.html>(
+    column = list <https://rdrr.io/r/base/list.html>(
+      dataLabels = list <https://rdrr.io/r/base/list.html>(
+        valueDecimals = 0,
+        enabled = TRUE
+      )
+    )
+  ) |>
+  hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 400, width = 800)|//
+
+Created with Highcharts 9.3.1Number of Encounters Per Payer by Bucket8​
+843​4333​3334​3453​5353​5330​3045​4580​8091​9184​8493​9373​7369​6917​
+1750​5052​5238​3852​5231​3139​393​35​53​34​48​86​61​141​4180​8073​7373​
+7385​8587​8758​5865​65156​156192​192152​152179​179166​166113​
+113AETNABlue
+CrossCIGNACoventryMedicarePatient0-3031-6061-9091-120121-150151-180181+050100150200250
+Code
+
+|google_aging |>
+  group_by <https://dplyr.tidyverse.org/reference/group_by.html>(payer, bucket) |>
+  summarise <https://dplyr.tidyverse.org/reference/summarise.html>(
+    total = sum <https://rdrr.io/r/base/sum.html>(amt),
+    encounters = n <https://dplyr.tidyverse.org/reference/context.html>()
+  ) |>
+  hchart <https://jkunst.com/highcharter/reference/hchart.html>(
+    "bar",
+    hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(bucket, round <https://rdrr.io/r/base/Round.html>(total, 0), group = payer)
+  ) |>
+  hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+    gridLineWidth = 0,
+    labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color = "#000000")),
+    title = list <https://rdrr.io/r/base/list.html>(text = " ", style = list <https://rdrr.io/r/base/list.html>(color = "#000000"))
+  ) |>
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+    labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color = "#000000")),
+    title = list <https://rdrr.io/r/base/list.html>(text = " "),
+    lineWidth = 0,
+    tickWidth = 0
+  ) |>
+  hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "Dollar Amount by Bucket Per Payer") |>
+  hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_smpl <https://jkunst.com/highcharter/reference/hc_theme_smpl.html>()) |>
+  hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE
+  ) |>
+  hc_plotOptions <https://jkunst.com/highcharter/reference/hc_plotOptions.html>(
+    column = list <https://rdrr.io/r/base/list.html>(
+      dataLabels = list <https://rdrr.io/r/base/list.html>(
+        valueDecimals = 0,
+        enabled = TRUE
+      )
+    )
+  ) |>
+  hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 600, width = 800)|//
+
+Created with Highcharts 9.3.1Dollar Amount by Bucket Per PayerAETNABlue
+CrossCIGNACoventryMedicarePatient0-3031-6061-9091-120121-150151-180181+010k20k30k40k50k60k70k80k90k100k5k15k25k35k45k55k65k75k85k95k105k1…
+
+
+    <#linear-regression-plots>Linear Regression Plots
+
+|aging_bailey <- google_aging |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(provider == "Bailey")
+
+splot <https://rdrr.io/pkg/splot/man/splot.html>(amt ~ age * payer * referring_phys, aging_bailey)|//
+
+Code
+
+|hchart <https://jkunst.com/highcharter/reference/hchart.html>(
+  aging_bailey,
+  "scatter",
+  hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(x = age, y = amt, group = payer),
+  regression = TRUE
+) |>
+  hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_smpl <https://jkunst.com/highcharter/reference/hc_theme_smpl.html>()) |>
+  hc_add_dependency <https://jkunst.com/highcharter/reference/hc_add_dependency.html>("plugins/highcharts-regression.js") |>
+  hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 1000)|//
+
+Created with Highcharts 9.3.1ageamtAETNABlue
+CrossCIGNACoventryMedicarePatientEquation = y = 1.35x + 387.23Equation =
+y = -0.09x + 512.19Equation = y = 0.07x + 467.54Equation = y = 2.23x +
+431.78Equation = y = -0.84x + 539.28Equation = y = 0.21x +
+500.7120406080100120140160180200010020030040050060070080090010001100
+Code
+
+|hchart <https://jkunst.com/highcharter/reference/hchart.html>(google_aging, "scatter",
+  hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(x = age, y = amt, group = provider),
+  regression = TRUE
+) |>
+  hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_smpl <https://jkunst.com/highcharter/reference/hc_theme_smpl.html>()) |>
+  hc_add_dependency <https://jkunst.com/highcharter/reference/hc_add_dependency.html>("plugins/highcharts-regression.js") |>
+  hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 1000, width = 800)|//
+
+Created with Highcharts
+9.3.1ageamtAllenBaileyForrestJamesTimothyEquation = y = 0.7x +
+435.34Equation = y = 0.08x + 495.55Equation = y = -0.01x +
+487.51Equation = y = 0.1x + 482.45Equation = y = 0.38x +
+459.2310020020406080120140160180010020030040050060070080090010001100
+
+
+  Relationship Visualizations
+
+|refer2prov <- google_aging |>
+  dplyr::group_by <https://dplyr.tidyverse.org/reference/group_by.html>(referring_phys, provider) |>
+  dplyr::summarise <https://dplyr.tidyverse.org/reference/summarise.html>(count = n <https://dplyr.tidyverse.org/reference/context.html>()) |>
+  dplyr::arrange <https://dplyr.tidyverse.org/reference/arrange.html>(desc <https://dplyr.tidyverse.org/reference/desc.html>(count)) |>
+  ungroup <https://dplyr.tidyverse.org/reference/group_by.html>() |>
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(from = referring_phys, to = provider, weight = count)
+refer2prov|//
+
+|# # A tibble: 65 × 3
+#    from        to      weight
+#    <chr>       <chr>    <int>
+#  1 Ramirez     James      177
+#  2 Ramirez     Forrest    131
+#  3 Ramirez     Timothy    117
+#  4 Blankenship James       76
+#  5 Burroughs   James       75
+#  6 Ramirez     Bailey      70
+#  7 Frier       James       69
+#  8 Page        James       66
+#  9 Burroughs   Forrest     65
+# 10 Ramirez     Allen       64
+# # … with 55 more rows
+# # ℹ Use `print(n = ...)` to see more rows|//
+
+|prov2payer <- google_aging |>
+  dplyr::group_by <https://dplyr.tidyverse.org/reference/group_by.html>(provider, payer) |>
+  dplyr::summarise <https://dplyr.tidyverse.org/reference/summarise.html>(count = n <https://dplyr.tidyverse.org/reference/context.html>()) |>
+  dplyr::arrange <https://dplyr.tidyverse.org/reference/arrange.html>(desc <https://dplyr.tidyverse.org/reference/desc.html>(count)) |>
+  ungroup <https://dplyr.tidyverse.org/reference/group_by.html>() |>
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(from = provider, to = payer, weight = count)
+prov2payer|//
+
+|# # A tibble: 30 × 3
+#    from    to         weight
+#    <chr>   <chr>       <int>
+#  1 James   Patient       308
+#  2 Forrest Patient       268
+#  3 Timothy Patient       206
+#  4 James   Blue Cross    170
+#  5 James   Medicare      156
+#  6 Forrest Blue Cross    133
+#  7 Bailey  Patient       128
+#  8 Forrest Medicare      126
+#  9 Allen   Patient       113
+# 10 Timothy Blue Cross    113
+# # … with 20 more rows
+# # ℹ Use `print(n = ...)` to see more rows|//
+
+|ref2prov2pay <- rbind <https://rdrr.io/r/base/cbind.html>(refer2prov, prov2payer)
+ref2prov2pay|//
+
+|# # A tibble: 95 × 3
+#    from        to      weight
+#    <chr>       <chr>    <int>
+#  1 Ramirez     James      177
+#  2 Ramirez     Forrest    131
+#  3 Ramirez     Timothy    117
+#  4 Blankenship James       76
+#  5 Burroughs   James       75
+#  6 Ramirez     Bailey      70
+#  7 Frier       James       69
+#  8 Page        James       66
+#  9 Burroughs   Forrest     65
+# 10 Ramirez     Allen       64
+# # … with 85 more rows
+# # ℹ Use `print(n = ...)` to see more rows|//
+
+
+    <#sankey-diagram>Sankey Diagram
+
+Code
+
+|hchart <https://jkunst.com/highcharter/reference/hchart.html>(
+  ref2prov2pay, "sankey",
+  hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(from = from, to = to, weight = weight)
+) |>
+  hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 600, width = 800)|//
+
+Created with Highcharts 9.3.1Ramirez​RamirezBlankenship​
+BlankenshipBurroughs​BurroughsFrier​FrierPage​PageFriedlander​
+FriedlanderMoore​MooreAdams​AdamsCopeland​CopelandChaney​ChaneyTaylor​
+TaylorSpell​SpellStevens​StevensJames​JamesForrest​ForrestTimothy​
+TimothyBailey​BaileyAllen​AllenPatient​PatientBlue Cross​Blue
+CrossMedicare​MedicareCIGNA​CIGNAAETNA​AETNACoventry​Coventry
+
+
+    <#dependency-wheel>Dependency Wheel
+
+Code
+
+|hchart <https://jkunst.com/highcharter/reference/hchart.html>(
+  ref2prov2pay, "dependencywheel",
+  hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(from = from, to = to, weight = weight)
+) |>
+  hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 800, width = 800)|//
+
+Created with Highcharts 9.3.1Ramirez​RamirezJames​JamesForrest​
+ForrestTimothy​TimothyBlankenship​BlankenshipBurroughs​BurroughsBailey​
+BaileyFrier​FrierPage​PageAllen​AllenFriedlander​FriedlanderMoore​
+MooreAdams​AdamsCopeland​CopelandChaney​ChaneyTaylor​TaylorSpell​
+SpellStevens​StevensPatient​PatientBlue Cross​Blue CrossMedicare​
+MedicareCIGNA​CIGNAAETNA​AETNACoventry​Coventry
+
+
+  Vtree Visualizations
+
+|library <https://rdrr.io/r/base/library.html>(vtree <https://github.com/nbarrowman/vtree>)
+
+vtree <https://rdrr.io/pkg/vtree/man/vtree.html>(
+  google_aging,
+  "provider payer",
+  horiz = FALSE,
+  title = "Encounters",
+  # imageheight = "15in",
+  # imagewidth = "8in",
+  height = "50%",
+  width = "100%",
+  rounded = FALSE,
+  showvarnames = FALSE,
+  pngknit = FALSE,
+  sameline = FALSE,
+  Venn = FALSE,
+  seq = TRUE,
+  pattern = TRUE
+)|//
+
+vtree Node_2 308 (12%) Node_32 James Node_2->Node_32 Node_33 Patient
+Node_32->Node_33 Node_3 268 (10%) Node_34 Forrest Node_3->Node_34
+Node_35 Patient Node_34->Node_35 Node_4 206 (8%) Node_36 Timothy Node_4-
+>Node_36 Node_37 Patient Node_36->Node_37 Node_5 170 (6%) Node_38 James
+Node_5->Node_38 Node_39 Blue Cross Node_38->Node_39 Node_6 156 (6%)
+Node_40 James Node_6->Node_40 Node_41 Medicare Node_40->Node_41 Node_7
+133 (5%) Node_42 Forrest Node_7->Node_42 Node_43 Blue Cross Node_42-
+>Node_43 Node_8 128 (5%) Node_44 Bailey Node_8->Node_44 Node_45 Patient
+Node_44->Node_45 Node_9 126 (5%) Node_46 Forrest Node_9->Node_46 Node_47
+Medicare Node_46->Node_47 Node_10 113 (4%) Node_48 Timothy Node_10-
+>Node_48 Node_49 Blue Cross Node_48->Node_49 Node_11 113 (4%) Node_50
+Allen Node_11->Node_50 Node_51 Patient Node_50->Node_51 Node_12 105 (4%)
+Node_52 Timothy Node_12->Node_52 Node_53 Medicare Node_52->Node_53
+Node_13 87 (3%) Node_54 James Node_13->Node_54 Node_55 CIGNA Node_54-
+>Node_55 Node_14 78 (3%) Node_56 James Node_14->Node_56 Node_57 AETNA
+Node_56->Node_57 Node_15 72 (3%) Node_58 Forrest Node_15->Node_58
+Node_59 CIGNA Node_58->Node_59 Node_16 65 (2%) Node_60 Bailey Node_16-
+>Node_60 Node_61 Blue Cross Node_60->Node_61 Node_17 63 (2%) Node_62
+Bailey Node_17->Node_62 Node_63 Medicare Node_62->Node_63 Node_18 59
+(2%) Node_64 Timothy Node_18->Node_64 Node_65 CIGNA Node_64->Node_65
+Node_19 59 (2%) Node_66 Timothy Node_19->Node_66 Node_67 AETNA Node_66-
+>Node_67 Node_20 59 (2%) Node_68 Forrest Node_20->Node_68 Node_69 AETNA
+Node_68->Node_69 Node_21 54 (2%) Node_70 Allen Node_21->Node_70 Node_71
+Blue Cross Node_70->Node_71 Node_22 47 (2%) Node_72 Allen Node_22-
+>Node_72 Node_73 Medicare Node_72->Node_73 Node_23 38 (1%) Node_74
+Bailey Node_23->Node_74 Node_75 AETNA Node_74->Node_75 Node_24 31 (1%)
+Node_76 Bailey Node_24->Node_76 Node_77 CIGNA Node_76->Node_77 Node_25
+30 (1%) Node_78 Allen Node_25->Node_78 Node_79 CIGNA Node_78->Node_79
+Node_26 20 (1%) Node_80 Allen Node_26->Node_80 Node_81 AETNA Node_80-
+>Node_81 Node_27 13 (0%) Node_82 Timothy Node_27->Node_82 Node_83
+Coventry Node_82->Node_83 Node_28  7 (0%) Node_84 Forrest Node_28-
+>Node_84 Node_85 Coventry Node_84->Node_85 Node_29  6 (0%) Node_86 James
+Node_29->Node_86 Node_87 Coventry Node_86->Node_87 Node_30  2 (0%)
+Node_88 Bailey Node_30->Node_88 Node_89 Coventry Node_88->Node_89
+Node_31  2 (0%) Node_90 Allen Node_31->Node_90 Node_91 Coventry Node_90-
+>Node_91
+
+|vtree <https://rdrr.io/pkg/vtree/man/vtree.html>(
+  google_aging,
+  "referring_phys",
+  horiz = FALSE,
+  title = "Encounters",
+  height = "50%",
+  width = "100%",
+  rounded = FALSE,
+  showvarnames = FALSE,
+  pngknit = FALSE,
+  pattern = FALSE
+)|//
+
+vtree Node_1 Encounters 2618 Node_2 Adams 188 (7%) Node_1->Node_2 Node_3
+Blankenship 222 (8%) Node_1->Node_3 Node_4 Burroughs 244 (9%) Node_1-
+>Node_4 Node_5 Chaney 177 (7%) Node_1->Node_5 Node_6 Copeland 192 (7%)
+Node_1->Node_6 Node_7 Friedlander 175 (7%) Node_1->Node_7 Node_8 Frier
+232 (9%) Node_1->Node_8 Node_9 Moore 193 (7%) Node_1->Node_9 Node_10
+Page 189 (7%) Node_1->Node_10 Node_11 Ramirez 559 (21%) Node_1->Node_11
+Node_12 Spell 54 (2%) Node_1->Node_12 Node_13 Stevens 27 (1%) Node_1-
+>Node_13 Node_14 Taylor 166 (6%) Node_1->Node_14
+
+
+  Misc Visualizations
+
+
+    <#sunburst-chart>Sunburst Chart
+
+with {sunburstR} <http://timelyportfolio.github.io/sunburstR/reference/
+sunburst.html>
+
+Code
+
+|aging_df <- data.frame <https://rdrr.io/r/base/data.frame.html>(
+  level1 = rep <https://rdrr.io/r/base/rep.html>(c <https://rdrr.io/r/base/c.html>("Primary", "Secondary"), each = 7),
+  level2 = rep <https://rdrr.io/r/base/rep.html>(c <https://rdrr.io/r/base/c.html>(
+    "Cigna",
+    "BCBS",
+    "Medicare",
+    "Aetna",
+    "Humana",
+    "UHC",
+    "Medicaid"
+  ), 2),
+  size = c <https://rdrr.io/r/base/c.html>(
+    101586.44, 813932.10, 244682.06,
+    315442.09, 338892.56, 692951.00,
+    172394.44, 30869.21, 75555.29,
+    12601.41, 39003.59, 27713.18,
+    14384.15, 222480.09
+  ),
+  stringsAsFactors = FALSE
+)
+aging_df|//
+
+|#       level1   level2      size
+# 1    Primary    Cigna 101586.44
+# 2    Primary     BCBS 813932.10
+# 3    Primary Medicare 244682.06
+# 4    Primary    Aetna 315442.09
+# 5    Primary   Humana 338892.56
+# 6    Primary      UHC 692951.00
+# 7    Primary Medicaid 172394.44
+# 8  Secondary    Cigna  30869.21
+# 9  Secondary     BCBS  75555.29
+# 10 Secondary Medicare  12601.41
+# 11 Secondary    Aetna  39003.59
+# 12 Secondary   Humana  27713.18
+# 13 Secondary      UHC  14384.15
+# 14 Secondary Medicaid 222480.09|//
+
+|library <https://rdrr.io/r/base/library.html>(d3r <https://github.com/timelyportfolio/d3r>)
+
+tree <- d3_nest <https://rdrr.io/pkg/d3r/man/d3_nest.html>(aging_df, value_cols = "size")
+
+str <https://rdrr.io/r/utils/str.html>(tree)|//
+
+|#  'json' chr "{\"children\":[{\"name\":\"Primary\",\"children\":[{\"name\":\"Cigna\",\"size\":101586.44,\"colname\":\"level2\"| __truncated__|//
+
+Code
+
+|library <https://rdrr.io/r/base/library.html>(sunburstR <https://github.com/timelyportfolio/sunburstR>)
+
+sb1 <- sunburst <https://rdrr.io/pkg/sunburstR/man/sunburst.html>(tree, width = "100%", height = 600)
+
+sb3 <- sund2b <https://rdrr.io/pkg/sunburstR/man/sund2b.html>(
+  tree,
+  width = "100%",
+  height = 600,
+  rootLabel = "Aging",
+  showLabels = T,
+  breadcrumbs = sund2bBreadcrumb <https://rdrr.io/pkg/sunburstR/man/sund2bBreadcrumb.html>(enabled = T),
+  colors = list <https://rdrr.io/r/base/list.html>(range = RColorBrewer::brewer.pal <https://rdrr.io/pkg/RColorBrewer/man/ColorBrewer.html>(9, "Paired"))
+)
+
+div <https://rdrr.io/pkg/htmltools/man/builder.html>(
+  style = "display: flex; align-items:center;",
+  div <https://rdrr.io/pkg/htmltools/man/builder.html>(style = "width:50%; border:1px solid #ccc;", sb1),
+  div <https://rdrr.io/pkg/htmltools/man/builder.html>(style = "width:50%; border:1px solid #ccc;", sb3)
+)|//
+
+Legend
+PrimarySecondaryCignaBCBSMedicareAetnaHumanaUHCMedicaid
+root
+3,102,488
+100.0%
+rootPrimaryCignaBCBSMedicareAetnaHumanaUHCMedicaidSecondaryCignaBCBSMedicareAetnaHumanaUHCMedicaid
+
+
+    <#drilldown-piechart>Drilldown Piechart
+
+with {echarts4r}
+
+Code
+
+|aging_df2 <- data.frame <https://rdrr.io/r/base/data.frame.html>(
+  parents = c <https://rdrr.io/r/base/c.html>(
+    "",
+    "Primary", "Primary",
+    "Primary", "Primary",
+    "Primary", "Primary", "Primary",
+    "Secondary", "Secondary",
+    "Secondary", "Secondary",
+    "Secondary", "Secondary", "Secondary",
+    "Everything", "Everything"
+  ),
+  labels = c <https://rdrr.io/r/base/c.html>(
+    "Everything",
+    "Cigna", "BCBS", "Medicare",
+    "Aetna", "Humana", "UHC",
+    "Medicaid", "Cigna", "BCBS",
+    "Medicare", "Aetna", "Humana",
+    "UHC", "Medicaid",
+    "Primary", "Secondary"
+  ),
+  value = c <https://rdrr.io/r/base/c.html>(
+    0,
+    101586.44, 813932.10, 244682.06,
+    315442.09, 338892.56, 692951.00,
+    172394.44, 30869.21, 75555.29,
+    12601.41, 39003.59, 27713.18,
+    14384.15, 222480.09, 2679880.7,
+    422606.9
+  )
+)
+
+aging_df2|//
+
+|#       parents     labels      value
+# 1             Everything       0.00
+# 2     Primary      Cigna  101586.44
+# 3     Primary       BCBS  813932.10
+# 4     Primary   Medicare  244682.06
+# 5     Primary      Aetna  315442.09
+# 6     Primary     Humana  338892.56
+# 7     Primary        UHC  692951.00
+# 8     Primary   Medicaid  172394.44
+# 9   Secondary      Cigna   30869.21
+# 10  Secondary       BCBS   75555.29
+# 11  Secondary   Medicare   12601.41
+# 12  Secondary      Aetna   39003.59
+# 13  Secondary     Humana   27713.18
+# 14  Secondary        UHC   14384.15
+# 15  Secondary   Medicaid  222480.09
+# 16 Everything    Primary 2679880.70
+# 17 Everything  Secondary  422606.90|//
+
+|# create a tree object
+etree <- data.tree::FromDataFrameNetwork <https://rdrr.io/pkg/data.tree/man/as.Node.data.frame.html>(aging_df2)
+
+etree|//
+
+|#               levelName
+# 1                      
+# 2   °--Everything      
+# 3       ¦--Primary     
+# 4       ¦   ¦--Cigna   
+# 5       ¦   ¦--BCBS    
+# 6       ¦   ¦--Medicare
+# 7       ¦   ¦--Aetna   
+# 8       ¦   ¦--Humana  
+# 9       ¦   ¦--UHC     
+# 10      ¦   °--Medicaid
+# 11      °--Secondary   
+# 12          ¦--Cigna   
+# 13          ¦--BCBS    
+# 14          ¦--Medicare
+# 15          ¦--Aetna   
+# 16          ¦--Humana  
+# 17          ¦--UHC     
+# 18          °--Medicaid|//
+
+Code
+
+|library <https://rdrr.io/r/base/library.html>(echarts4r <https://echarts4r.john-coene.com/>)
+
+etree |>
+  e_charts <http://echarts4r.john-coene.com/reference/init.html>(
+    width = "100%",
+    height = 700
+  ) |>
+  e_sunburst <http://echarts4r.john-coene.com/reference/e_sunburst.html>() |>
+  e_tooltip <http://echarts4r.john-coene.com/reference/e-tooltip.html>(style = "currency", locale = "US") |>
+  e_title <http://echarts4r.john-coene.com/reference/e_title.html>("Primary & Secondary Aging") |>
+  e_theme <http://echarts4r.john-coene.com/reference/theme.html>("dark")|//
+
+
+    <#sankey-diagram-1>Sankey Diagram
+
+in {echarts4r}
+
+Code
+
+|aging_df |>
+  e_charts <http://echarts4r.john-coene.com/reference/init.html>() |>
+  e_sankey <http://echarts4r.john-coene.com/reference/e_sankey.html>(level1, level2, size) |>
+  e_title <http://echarts4r.john-coene.com/reference/e_title.html>("Aging & Payer Mix") |>
+  e_theme <http://echarts4r.john-coene.com/reference/theme.html>("macarons2") |>
+  e_tooltip <http://echarts4r.john-coene.com/reference/e-tooltip.html>()|//
+
+
+      Citations
+
+Package 	Version 	Citation
+base 	4.2.1 	R Core Team (2022 <#ref-base>)
+d3r 	1.0.0 	Bostock, Russell, et al. (2021 <#ref-d3r>)
+data.tree 	1.0.0 	Glur (2020 <#ref-datatree>)
+distill 	1.4 	Dervieux et al. (2022 <#ref-distill>)
+echarts4r 	0.4.4 	Coene (2022 <#ref-echarts4r>)
+grateful 	0.1.11 	Rodríguez-Sánchez, Jackson, and Hutchins (2022 <#ref-
+grateful>)
+highcharter 	0.9.4 	Kunst (2022 <#ref-highcharter>)
+htmltools 	0.5.2 	Cheng et al. (2021 <#ref-htmltools>)
+htmlwidgets 	1.5.4 	Vaidyanathan et al. (2021 <#ref-htmlwidgets>)
+knitr 	1.39 	Xie (2014 <#ref-knitr2014>); Xie (2015 <#ref-knitr2015>);
+Xie (2022 <#ref-knitr2022>)
+RColorBrewer 	1.1.3 	Neuwirth (2022 <#ref-RColorBrewer>)
+rmarkdown 	2.14 	Xie, Allaire, and Grolemund (2018 <#ref-
+rmarkdown2018>); Xie, Dervieux, and Riederer (2020 <#ref-
+rmarkdown2020>); Allaire et al. (2022 <#ref-rmarkdown2022>)
+sessioninfo 	1.2.2 	Wickham et al. (2021 <#ref-sessioninfo>)
+splot 	0.5.2 	Iserman (2022 <#ref-splot>)
+sunburstR 	2.1.6 	Bostock, Rodden, et al. (2021 <#ref-sunburstR>)
+tidytable 	0.8.0 	Fairbanks (2022 <#ref-tidytable>)
+tidyverse 	1.3.1 	Wickham et al. (2019 <#ref-tidyverse>)
+vtree 	5.4.6 	frame) (2021 <#ref-vtree>)
+xaringanExtra 	0.7.0 	Aden-Buie and Warkentin (2022 <#ref-xaringanExtra>)
+
+
+      Last updated on
+
+|# [1] "2022-07-19 12:14:07 EDT"|//
+
+
+      Session Info
+
+|sessioninfo::session_info <https://r-lib.github.io/sessioninfo/reference/session_info.html>()|//
+
+|# ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+#  setting  value
+#  version  R version 4.2.1 (2022-06-23 ucrt)
+#  os       Windows 10 x64 (build 25158)
+#  system   x86_64, mingw32
+#  ui       RTerm
+#  language (EN)
+#  collate  English_United States.utf8
+#  ctype    English_United States.utf8
+#  tz       America/New_York
+#  date     2022-07-19
+#  pandoc   2.17.1.1 @ C:/Program Files/RStudio/bin/quarto/bin/ (via rmarkdown)
+# 
+# ─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+#  package       * version    date (UTC) lib source
+#  assertthat      0.2.1      2019-03-21 [1] CRAN (R 4.2.0)
+#  backports       1.4.1      2021-12-13 [1] CRAN (R 4.2.0)
+#  broom           1.0.0      2022-07-01 [1] CRAN (R 4.2.1)
+#  bslib           0.4.0      2022-07-16 [1] CRAN (R 4.2.1)
+#  cachem          1.0.6      2021-08-19 [1] CRAN (R 4.2.0)
+#  cellranger      1.1.0      2016-07-27 [1] CRAN (R 4.2.0)
+#  cli             3.3.0      2022-04-25 [1] CRAN (R 4.2.0)
+#  colorspace      2.0-3      2022-02-21 [1] CRAN (R 4.2.0)
+#  crayon          1.5.1      2022-03-26 [1] CRAN (R 4.2.0)
+#  curl            4.3.2      2021-06-23 [1] CRAN (R 4.2.0)
+#  d3r           * 1.0.0      2022-04-26 [1] Github (timelyportfolio/d3r@f77d0a0)
+#  data.table      1.14.2     2021-09-27 [1] CRAN (R 4.2.0)
+#  data.tree       1.0.0      2020-08-03 [1] CRAN (R 4.2.1)
+#  DBI             1.1.3      2022-06-18 [1] CRAN (R 4.2.0)
+#  dbplyr          2.2.1      2022-06-27 [1] CRAN (R 4.2.0)
+#  DiagrammeR      1.0.9      2022-03-05 [1] CRAN (R 4.2.0)
+#  digest          0.6.29     2021-12-01 [1] CRAN (R 4.2.0)
+#  distill         1.4        2022-05-12 [1] CRAN (R 4.2.0)
+#  downlit         0.4.2      2022-07-05 [1] CRAN (R 4.2.0)
+#  dplyr         * 1.0.9      2022-04-28 [1] CRAN (R 4.2.0)
+#  echarts4r     * 0.4.4      2022-05-28 [1] CRAN (R 4.2.0)
+#  ellipsis        0.3.2      2021-04-29 [1] CRAN (R 4.2.0)
+#  evaluate        0.15       2022-02-18 [1] CRAN (R 4.2.0)
+#  fansi           1.0.3      2022-03-24 [1] CRAN (R 4.2.0)
+#  fastmap         1.1.0      2021-01-25 [1] CRAN (R 4.2.0)
+#  forcats       * 0.5.1      2021-01-27 [1] CRAN (R 4.2.0)
+#  fs              1.5.2      2021-12-08 [1] CRAN (R 4.2.0)
+#  gargle          1.2.0.9002 2022-06-05 [1] Github (r-lib/gargle@1e67aa0)
+#  generics        0.1.3      2022-07-05 [1] CRAN (R 4.2.0)
+#  ggplot2       * 3.3.6      2022-05-03 [1] CRAN (R 4.2.0)
+#  glue            1.6.2      2022-02-24 [1] CRAN (R 4.2.0)
+#  googledrive     2.0.0      2021-07-08 [1] CRAN (R 4.2.0)
+#  googlesheets4 * 1.0.0      2021-07-21 [1] CRAN (R 4.2.0)
+#  grateful      * 0.1.11     2022-05-07 [1] Github (Pakillo/grateful@ba9b003)
+#  gtable          0.3.0      2019-03-25 [1] CRAN (R 4.2.0)
+#  haven           2.5.0      2022-04-15 [1] CRAN (R 4.2.0)
+#  highcharter   * 0.9.4      2022-01-03 [1] CRAN (R 4.2.0)
+#  highr           0.9        2021-04-16 [1] CRAN (R 4.2.0)
+#  hms             1.1.1      2021-09-26 [1] CRAN (R 4.2.0)
+#  htmltools     * 0.5.2      2021-08-25 [1] CRAN (R 4.2.0)
+#  htmlwidgets   * 1.5.4      2021-09-08 [1] CRAN (R 4.2.0)
+#  httpuv          1.6.5      2022-01-05 [1] CRAN (R 4.2.0)
+#  httr            1.4.3      2022-05-04 [1] CRAN (R 4.2.0)
+#  igraph          1.3.2      2022-06-13 [1] CRAN (R 4.2.1)
+#  jquerylib       0.1.4      2021-04-26 [1] CRAN (R 4.2.0)
+#  jsonlite        1.8.0      2022-02-22 [1] CRAN (R 4.2.0)
+#  knitr         * 1.39       2022-04-26 [1] CRAN (R 4.2.0)
+#  later           1.3.0      2021-08-18 [1] CRAN (R 4.2.0)
+#  lattice         0.20-45    2021-09-22 [2] CRAN (R 4.2.1)
+#  lifecycle       1.0.1      2021-09-24 [1] CRAN (R 4.2.0)
+#  lubridate     * 1.8.0      2021-10-07 [1] CRAN (R 4.2.0)
+#  magrittr        2.0.3      2022-03-30 [1] CRAN (R 4.2.0)
+#  memoise         2.0.1      2021-11-26 [1] CRAN (R 4.2.0)
+#  mime            0.12       2021-09-28 [1] CRAN (R 4.2.0)
+#  modelr          0.1.8      2020-05-19 [1] CRAN (R 4.2.0)
+#  munsell         0.5.0      2018-06-12 [1] CRAN (R 4.2.0)
+#  pillar          1.8.0      2022-07-18 [1] CRAN (R 4.2.1)
+#  pkgconfig       2.0.3      2019-09-22 [1] CRAN (R 4.2.0)
+#  promises        1.2.0.1    2021-02-11 [1] CRAN (R 4.2.0)
+#  purrr         * 0.3.4      2020-04-17 [1] CRAN (R 4.2.0)
+#  quantmod        0.4.20     2022-04-29 [1] CRAN (R 4.2.0)
+#  R.cache         0.15.0     2021-04-30 [1] CRAN (R 4.2.0)
+#  R.methodsS3     1.8.2      2022-06-13 [1] CRAN (R 4.2.0)
+#  R.oo            1.25.0     2022-06-12 [1] CRAN (R 4.2.0)
+#  R.utils         2.12.0     2022-06-28 [1] CRAN (R 4.2.0)
+#  R6              2.5.1      2021-08-19 [1] CRAN (R 4.2.0)
+#  RColorBrewer    1.1-3      2022-04-03 [1] CRAN (R 4.2.0)
+#  Rcpp            1.0.9      2022-07-08 [1] CRAN (R 4.2.1)
+#  readr         * 2.1.2      2022-01-30 [1] CRAN (R 4.2.0)
+#  readxl          1.4.0      2022-03-28 [1] CRAN (R 4.2.0)
+#  rematch2        2.1.2      2020-05-01 [1] CRAN (R 4.2.0)
+#  renv            0.15.5     2022-05-26 [1] CRAN (R 4.2.0)
+#  reprex          2.0.1      2021-08-05 [1] CRAN (R 4.2.0)
+#  rlang           1.0.3      2022-06-27 [1] CRAN (R 4.2.1)
+#  rlist           0.4.6.2    2021-09-03 [1] CRAN (R 4.2.0)
+#  rmarkdown     * 2.14       2022-04-25 [1] CRAN (R 4.2.0)
+#  rstudioapi      0.13       2020-11-12 [1] CRAN (R 4.2.0)
+#  rvest           1.0.2      2021-10-16 [1] CRAN (R 4.2.0)
+#  sass            0.4.1      2022-03-23 [1] CRAN (R 4.2.0)
+#  scales          1.2.0      2022-04-13 [1] CRAN (R 4.2.0)
+#  sessioninfo     1.2.2      2021-12-06 [1] CRAN (R 4.2.0)
+#  shiny           1.7.1      2021-10-02 [1] CRAN (R 4.2.0)
+#  splot         * 0.5.2      2022-01-30 [1] CRAN (R 4.2.0)
+#  stringi         1.7.8      2022-07-11 [1] CRAN (R 4.2.1)
+#  stringr       * 1.4.0      2019-02-10 [1] CRAN (R 4.2.0)
+#  styler          1.7.0      2022-03-13 [1] CRAN (R 4.2.0)
+#  sunburstR     * 2.1.6      2022-04-26 [1] Github (timelyportfolio/sunburstR@9f47439)
+#  tibble        * 3.1.7      2022-05-03 [1] CRAN (R 4.2.0)
+#  tidyr         * 1.2.0      2022-02-01 [1] CRAN (R 4.2.0)
+#  tidyselect      1.1.2      2022-02-21 [1] CRAN (R 4.2.0)
+#  tidytable     * 0.8.0      2022-06-14 [1] Github (markfairbanks/tidytable@13c9b1d)
+#  tidyverse     * 1.3.1      2021-04-15 [1] CRAN (R 4.2.0)
+#  TTR             0.24.3     2021-12-12 [1] CRAN (R 4.2.0)
+#  tzdb            0.3.0      2022-03-28 [1] CRAN (R 4.2.0)
+#  utf8            1.2.2      2021-07-24 [1] CRAN (R 4.2.0)
+#  uuid            1.1-0      2022-04-19 [1] CRAN (R 4.2.0)
+#  vctrs           0.4.1      2022-04-13 [1] CRAN (R 4.2.0)
+#  visNetwork      2.1.0      2021-09-29 [1] CRAN (R 4.2.0)
+#  vtree         * 5.4.6      2021-10-03 [1] CRAN (R 4.2.0)
+#  withr           2.5.0      2022-03-03 [1] CRAN (R 4.2.0)
+#  xaringanExtra   0.7.0      2022-07-16 [1] CRAN (R 4.2.1)
+#  xfun            0.31       2022-05-10 [1] CRAN (R 4.2.0)
+#  xml2            1.3.3      2021-11-30 [1] CRAN (R 4.2.0)
+#  xtable          1.8-4      2019-04-21 [1] CRAN (R 4.2.0)
+#  xts             0.12.1     2020-09-09 [1] CRAN (R 4.2.0)
+#  yaml            2.3.5      2022-02-21 [1] CRAN (R 4.2.0)
+#  zoo             1.8-10     2022-04-15 [1] CRAN (R 4.2.0)
+# 
+#  [1] C:/Users/andyb/AppData/Local/R/win-library/4.2
+#  [2] C:/Program Files/R/R-4.2.1/library
+# 
+# ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────|//
+
+//   0 Comments Share:   // <https://twitter.com/share?
+text=R%20Cookbook%3A%20Aging%20of%20Accounts&url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fr-cookbook-aging%2F> // <https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fr-cookbook-aging%2F&title=R%20Cookbook%3A%20Aging%20of%20Accounts> // <https://www.facebook.com/sharer/sharer.php?s=100&p[url]=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fr-cookbook-aging%2F> // <https://pinterest.com/pin/create/link/?url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fr-cookbook-aging%2F&description=R%20Cookbook%3A%20Aging%20of%20Accounts>
+
+Enjoy this blog? Get notified of new posts via email:
+
+
+      Footnotes
+
+
+      References
+
+Aden-Buie, Garrick, and Matthew T. Warkentin. 2022. /xaringanExtra:
+Extras and Extensions for ’Xaringan’ Slides/. https://CRAN.R-
+project.org/package=xaringanExtra <https://cran.r-project.org/
+package=xaringanExtra>.
+Allaire, JJ, Yihui Xie, Jonathan McPherson, Javier Luraschi, Kevin
+Ushey, Aron Atkins, Hadley Wickham, Joe Cheng, Winston Chang, and
+Richard Iannone. 2022. /Rmarkdown: Dynamic Documents for r/. https://
+github.com/rstudio/rmarkdown <https://github.com/rstudio/rmarkdown>.
+Bostock, Mike, Kerry Rodden, Kevin Warne, and Kent Russell. 2021. /
+sunburstR: Sunburst ’Htmlwidget’/. https://github.com/timelyportfolio/
+sunburstR <https://github.com/timelyportfolio/sunburstR>.
+Bostock, Mike, Kent Russell, Gregor Aisch, and Adam Pearce. 2021. /D3r:
+’D3.js’ Utilities for r/. https://github.com/timelyportfolio/d3r
+<https://github.com/timelyportfolio/d3r>.
+Cheng, Joe, Carson Sievert, Barret Schloerke, Winston Chang, Yihui Xie,
+and Jeff Allen. 2021. /Htmltools: Tools for HTML/. https://CRAN.R-
+project.org/package=htmltools <https://cran.r-project.org/
+package=htmltools>.
+Coene, John. 2022. /Echarts4r: Create Interactive Graphs with ’Echarts
+JavaScript’ Version 5/. https://CRAN.R-project.org/package=echarts4r
+<https://cran.r-project.org/package=echarts4r>.
+Dervieux, Christophe, JJ Allaire, Rich Iannone, Alison Presmanes Hill,
+and Yihui Xie. 2022. /Distill: ’R Markdown’ Format for Scientific and
+Technical Writing/. https://CRAN.R-project.org/package=distill <https://
+cran.r-project.org/package=distill>.
+Fairbanks, Mark. 2022. /Tidytable: Tidy Interface to ’Data.table’/.
+https://github.com/markfairbanks/tidytable <https://github.com/
+markfairbanks/tidytable>.
+frame), Nick Barrowman (the.matrix data. 2021. /Vtree: Display
+Information about Nested Subsets of a Data Frame/. https://CRAN.R-
+project.org/package=vtree <https://cran.r-project.org/package=vtree>.
+Glur, Christoph. 2020. /Data.tree: General Purpose Hierarchical Data
+Structure/. https://CRAN.R-project.org/package=data.tree <https://
+cran.r-project.org/package=data.tree>.
+Iserman, Micah. 2022. /Splot: Split Plot/. https://CRAN.R-project.org/
+package=splot <https://cran.r-project.org/package=splot>.
+Kunst, Joshua. 2022. /Highcharter: A Wrapper for the ’Highcharts’
+Library/. https://CRAN.R-project.org/package=highcharter <https://
+cran.r-project.org/package=highcharter>.
+Neuwirth, Erich. 2022. /RColorBrewer: ColorBrewer Palettes/. https://
+CRAN.R-project.org/package=RColorBrewer <https://cran.r-project.org/
+package=RColorBrewer>.
+R Core Team. 2022. /R: A Language and Environment for Statistical
+Computing/. Vienna, Austria: R Foundation for Statistical Computing.
+https://www.R-project.org/ <https://www.r-project.org/>.
+Rodríguez-Sánchez, Francisco, Connor P. Jackson, and Shaurita D.
+Hutchins. 2022. /Grateful: Facilitate Citation of r Packages/. https://
+github.com/Pakillo/grateful <https://github.com/Pakillo/grateful>.
+Vaidyanathan, Ramnath, Yihui Xie, JJ Allaire, Joe Cheng, Carson Sievert,
+and Kenton Russell. 2021. /Htmlwidgets: HTML Widgets for r/. https://
+CRAN.R-project.org/package=htmlwidgets <https://cran.r-project.org/
+package=htmlwidgets>.
+Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy
+D’Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019.
+“Welcome to the tidyverse.” /Journal of Open Source Software/ 4 (43):
+1686. https://doi.org/10.21105/joss.01686 <https://doi.org/10.21105/
+joss.01686>.
+Wickham, Hadley, Winston Chang, Robert Flight, Kirill Müller, and Jim
+Hester. 2021. /Sessioninfo: R Session Information/. https://CRAN.R-
+project.org/package=sessioninfo <https://cran.r-project.org/
+package=sessioninfo>.
+Xie, Yihui. 2014. “Knitr: A Comprehensive Tool for Reproducible Research
+in R.” In /Implementing Reproducible Computational Research/, edited by
+Victoria Stodden, Friedrich Leisch, and Roger D. Peng. Chapman; Hall/
+CRC. http://www.crcpress.com/product/isbn/9781466561595 <http://
+www.crcpress.com/product/isbn/9781466561595>.
+———. 2015. /Dynamic Documents with R and Knitr/. 2nd ed. Boca Raton,
+Florida: Chapman; Hall/CRC. https://yihui.org/knitr/ <https://yihui.org/
+knitr/>.
+———. 2022. /Knitr: A General-Purpose Package for Dynamic Report
+Generation in r/. https://yihui.org/knitr/ <https://yihui.org/knitr/>.
+Xie, Yihui, J. J. Allaire, and Garrett Grolemund. 2018. /R Markdown: The
+Definitive Guide/. Boca Raton, Florida: Chapman; Hall/CRC. https://
+bookdown.org/yihui/rmarkdown <https://bookdown.org/yihui/rmarkdown>.
+Xie, Yihui, Christophe Dervieux, and Emily Riederer. 2020. /R Markdown
+Cookbook/. Boca Raton, Florida: Chapman; Hall/CRC. https://bookdown.org/
+yihui/rmarkdown-cookbook <https://bookdown.org/yihui/rmarkdown-cookbook>.
+
+
+      Corrections
+
+If you see mistakes or want to suggest changes, please create an issue
+<https://github.com/andrewallenbruce/issues/new> on the source repository.
+
+
+      Reuse
+
+Text and figures are licensed under Creative Commons Attribution CC BY
+4.0 <https://creativecommons.org/licenses/by/4.0/>. Source code is
+available at https://github.com/andrewallenbruce <https://github.com/
+andrewallenbruce>, unless otherwise noted. The figures that have been
+reused from other sources don't fall under this license and can be
+recognized by a note in their caption: "Figure from ...".
+
+
+      Citation
+
+For attribution, please cite this work as
+
+Bruce (2022, June 22). Andrew Bruce: R Cookbook: Aging of Accounts. Retrieved from https://andrewbruce.netlify.app/posts/r-cookbook-aging///
+
+BibTeX citation
+
+@misc{bruce2022r,
+  author = {Bruce, Andrew},
+  title = {Andrew Bruce: R Cookbook: Aging of Accounts},
+  url = {https://andrewbruce.netlify.app/posts/r-cookbook-aging/},
+  year = {2022}
+}//
+
+Andrew A. Bruce - 2024 - made with , and {distill} <https://
+rstudio.github.io/distill/>
+

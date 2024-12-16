@@ -1,0 +1,1939 @@
+Andrew Bruce <https://andrewbrucehimni.netlify.app/>
+
+Home <https://andrewbrucehimni.netlify.app/> Projects ▾ EHR UX/UI Mockup
+<https://andrewbrucehimni.netlify.app/flex_example/flexexample> Days in
+AR Shiny App <https://himni.shinyapps.io/darguide/> The Art of DAR
+<https://artofdar.netlify.app/> HIM & I <https://himni.info/>
+About <https://andrewbrucehimni.netlify.app/about> // <https://
+www.linkedin.com/in/andybruce1> // <https://twitter.com/aabrucehimni> //
+<https://www.behance.net/andybruce1> // <https://
+andrewbrucehimni.netlify.app/index.xml> // <https://github.com/
+andrewallenbruce> ☰ <javascript:void(0);>
+
+
+  R Cookbook: Medical Billing
+
+medical-billing <https://andrewbrucehimni.netlify.app/#category:medical-
+billing> medical-coding <https://andrewbrucehimni.netlify.app/
+#category:medical-coding> data-analytics <https://
+andrewbrucehimni.netlify.app/#category:data-analytics>
+
+Personal R code cookbook for common Medical Billing performance analyses.
+
+
+      Author
+
+
+      Affiliation
+
+Andrew Bruce <https://twitter.com/aabrucehimni> ORCID ID <https://
+orcid.org/0000-0001-5040-4327>
+
+Healthcare Analytics in R <https://andrewbruce.netlify.app/about>
+
+
+      Published
+
+April 6, 2022
+
+
+      Citation
+
+Bruce, 2022 <#citation>
+
+
+      Contents
+
+  * Introduction <#introduction>
+      o Packages <#packages>
+      o Data <#data>
+  * Performance Targets <#performance-targets>
+      o Rejection Rate <#rejection-rate>
+      o Claims Per Hour <#claims-per-hour>
+  * Declare Target Variables <#declare-target-variables>
+  * Cleaning & Calculations <#cleaning-calculations>
+  * Iterating Over the Data <#iterating-over-the-data>
+  * One Number to Rule Them All <#one-number-to-rule-them-all>
+      o Biller Quality Index (BQI) <#biller-quality-index-bqi>
+      o Biller Quality Rating (BQR) <#biller-quality-rating-bqr>
+      o Billing Performance Score (BPS) <#billing-performance-score-bps>
+          + Monthly Rank #1 <#monthly-rank-1>
+          + Monthly Rank #2 <#monthly-rank-2>
+      o Potential Drawbacks <#potential-drawbacks>
+
+Updates
+
+    *Updated 2021-09-21:* Added paragraph about the actual .htaccess file.
+
+
+  Introduction
+
+This post is simply a sandbox/cookbook of R code I’m exploring for
+common Medical Billing analyses.
+
+
+    <#packages>Packages
+
+Load Packages
+
+|library <https://rdrr.io/r/base/library.html>(tidyverse <https://tidyverse.tidyverse.org/>)
+library <https://rdrr.io/r/base/library.html>(tidytable <https://github.com/markfairbanks/tidytable>)
+library <https://rdrr.io/r/base/library.html>(rmarkdown <https://github.com/rstudio/rmarkdown>)
+library <https://rdrr.io/r/base/library.html>(lubridate <https://lubridate.tidyverse.org/>)
+library <https://rdrr.io/r/base/library.html>(htmltools <https://github.com/rstudio/htmltools>)
+library <https://rdrr.io/r/base/library.html>(tidymetrics)
+library <https://rdrr.io/r/base/library.html>(googlesheets4 <https://googlesheets4.tidyverse.org/>)
+library <https://rdrr.io/r/base/library.html>(janitor <https://github.com/sfirke/janitor>)
+library <https://rdrr.io/r/base/library.html>(skimr <https://docs.ropensci.org/skimr/>)
+library <https://rdrr.io/r/base/library.html>(tidycharts <https://mi2datalab.github.io/tidycharts/>)|//
+
+
+    <#data>Data
+
+I’m using a mock data set I’ve created and uploaded to Google Drive
+(which you can copy and download here <https://docs.google.com/
+spreadsheets/d/1Qt65n2a4_M-tlXRdPB5mgqJ9zO4JeXMTks5a0PvLL38/edit?
+usp=sharing>) using the {randomNames <https://
+centerforassessment.github.io/randomNames/>} package for creating biller
+and client names, the {fixtuRes <https://github.com/jakubnowicki/
+fixtuRes>} package to generate claim volumes, claim rejections, and
+number of hours worked:
+
+Load Data
+
+|# Sheet is public and shareable
+gs4_deauth <https://googlesheets4.tidyverse.org/reference/gs4_deauth.html>()
+
+# Google Sheet ID
+id_billdata <- "1Qt65n2a4_M-tlXRdPB5mgqJ9zO4JeXMTks5a0PvLL38"
+
+# Read in Google Sheet
+google_billdata <- read_sheet <https://googlesheets4.tidyverse.org/reference/range_read.html>(ss = id_billdata, sheet = "billing_data")
+
+# Convert date column
+google_billdata$date <- as.Date <https://rdrr.io/r/base/as.Date.html>(google_billdata$date, "%m/%d/%Y")
+
+# Convert client/biller columns to factors
+google_billdata$client <- as.factor <https://rdrr.io/r/base/factor.html>(google_billdata$client)
+google_billdata$biller_last <- as.factor <https://rdrr.io/r/base/factor.html>(google_billdata$biller_last)
+
+# Print head of data
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(google_billdata)|//
+
+ABCDEFGHIJ0123456789
+
+date
+<date>
+	
+client
+<fct>
+	
+biller_last
+<fct>
+	
+biller_first
+<chr>
+	
+hrs
+<dbl>
+	
+claim
+<dbl>
+	
+reject
+<dbl>
+2021-12-20	Tupper	Patterson	Dominique	26.00000	997	27
+2021-11-08	Tupper	Patterson	Dominique	26.00000	973	19
+2021-10-25	Brown	Legrand	Brandi	26.00000	965	14
+2021-06-21	Burnett	Lattimore	Victoria	26.00000	888	17
+2021-09-06	Jones-Malone	Lattimore	Victoria	26.00000	788	18
+2021-07-12	Jones-Malone	Lattimore	Victoria	26.00000	767	18
+2021-08-16	Figgs III	Bryant	Essence	26.00000	763	25
+2021-02-08	Mcclendon	Patterson	Dominique	26.00000	758	13
+2021-01-18	Jones-Malone	Lattimore	Victoria	26.00000	704	18
+2021-03-01	Mcclendon	Patterson	Dominique	26.00000	704	5
+
+Next
+123456...
+52
+Previous
+1-10 of 515 rows
+
+
+  Performance Targets
+
+I’m just looking to build a sort of proof of concept so I’ll only be
+looking at *Rejection Rate* and *Claims Submitted Per Hour*, and then
+analysing by time period, client, and biller.
+
+
+    <#rejection-rate>Rejection Rate
+
+Rejection Rate is a medical billing /effectiveness/ measurement that is
+calculated by dividing the number of claims submitted by the number of
+rejections. There’s normally an internal benchmark that billers are
+required to keep their rejection rate under. I’ll be using 3%3% in this
+example.
+
+    *Rejected* healthcare claims are those that are submitted to a
+    clearinghouse but are not sent on to a payer (i.e., not entered into
+    their computer systems). This generally occurs because the claim has
+    missing, incomplete, outdated, or incorrect information. Conversely,
+    *denied* claims are received and processed by the payer who, after
+    completing the adjudication process, determine the claim to be
+    unpayable.
+
+    *A denial can be appealed whereas a rejection cannot.* It simply
+    needs to be corrected and resubmitted. The time lost correcting and
+    resubmitting a claim is what makes the Rejection Rate a vital
+    performance measurement.
+
+
+    <#claims-per-hour>Claims Per Hour
+
+Number of claims submitted per hour is a medical billing /efficiency/
+metric, calculated by dividing the total number of claims submitted by
+the number of hours worked. Again, there’s normally an internal
+benchmark set that billers need to meet or exceed. Current industry
+standards tend to fluctuate anywhere between 30 to 40 claims per hour.
+I’ll be using 3535 claims per hour in this example.
+
+    An additional efficiency metric is the number of claims submitted
+    per day. In this context, “day” means 8 hours, i.e. the average work
+    day. The first step of the calculation consists of dividing the
+    number of hours worked by 8. Divide the total number of claims
+    submitted by the result in the first step for the final figure.
+
+
+  Declare Target Variables
+
+|# Rejection Rate Target
+rr_trg <- 0.03
+
+# Claims Per Hour Target
+clmph_trg <- 35|//
+
+Measure 	Type 	Target 	Formula
+Rejection Rate 	Effectiveness 	<3%<3% 	(Rejections ÷÷ Claims Submitted)
+×× 100
+Claims Per Hour 	Efficiency 	≥35≥35 	Claims Submitted ÷÷ Hours Worked
+
+
+  Cleaning & Calculations
+
+|# Convert data frame to tibble
+google_billdata <- google_billdata |>
+  as_tibble <https://tibble.tidyverse.org/reference/as_tibble.html>()
+
+billdata_cross <- google_billdata |>
+  tidymetrics::cross_by_periods <https://rdrr.io/pkg/tidymetrics/man/cross_by_periods.html>() |>
+  tidymetrics::cross_by_dimensions <https://rdrr.io/pkg/tidymetrics/man/cross_by_dimensions.html>(biller_last, client) |>
+  summarise <https://dplyr.tidyverse.org/reference/summarise.html>(
+    hrs = sum <https://rdrr.io/r/base/sum.html>(hrs),
+    claim = sum <https://rdrr.io/r/base/sum.html>(claim),
+    reject = sum <https://rdrr.io/r/base/sum.html>(reject), .groups = "drop"
+  ) |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    rejrate = reject / claim,
+    clmphr = claim / hrs,
+    days = hrs / 8,
+    clmpday = claim / days,
+    rr_pass = case_when <https://dplyr.tidyverse.org/reference/case_when.html>(rejrate < rr_trg ~ as.logical <https://rdrr.io/r/base/logical.html>(1), TRUE ~ as.logical <https://rdrr.io/r/base/logical.html>(0)),
+    clmphr_pass = case_when <https://dplyr.tidyverse.org/reference/case_when.html>(clmphr >= clmph_trg ~ as.logical <https://rdrr.io/r/base/logical.html>(1), TRUE ~ as.logical <https://rdrr.io/r/base/logical.html>(0)),
+    nmon = as.ordered <https://rdrr.io/r/base/factor.html>(lubridate::month <https://lubridate.tidyverse.org/reference/month.html>(date, label = FALSE)),
+    month = lubridate::month <https://lubridate.tidyverse.org/reference/month.html>(date, label = TRUE, abbr = FALSE),
+    dqtr = paste0 <https://rdrr.io/r/base/paste.html>(lubridate::quarter <https://lubridate.tidyverse.org/reference/quarter.html>(date), "Q", format <https://rdrr.io/r/base/format.html>(date, "%y"))
+  ) |>
+  relocate <https://dplyr.tidyverse.org/reference/relocate.html>(nmon:dqtr, .after = date)
+
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(billdata_cross)|//
+
+ABCDEFGHIJ0123456789
+
+period
+<chr>
+	
+date
+<date>
+	
+nmon
+<ord>
+	
+month
+<ord>
+	
+dqtr
+<chr>
+	
+biller_last
+<chr>
+	
+client
+<chr>
+	
+hrs
+<dbl>
+	
+claim
+<dbl>
+	
+reject
+<dbl>
+	
+month	2021-01-01	1	January	1Q21	All	All	767.00000	27017	638	
+month	2021-01-01	1	January	1Q21	All	Brown	66.00000	2424	69	
+month	2021-01-01	1	January	1Q21	All	Burnett	77.00000	3358	96	
+month	2021-01-01	1	January	1Q21	All	Cooke	74.00000	2497	39	
+month	2021-01-01	1	January	1Q21	All	Cunningham	65.88500	2147	30	
+month	2021-01-01	1	January	1Q21	All	Figgs III	71.00000	2796	49	
+month	2021-01-01	1	January	1Q21	All	Jones-Malone	80.00000	2280	65	
+month	2021-01-01	1	January	1Q21	All	Mcclendon	89.00000	2647	70	
+month	2021-01-01	1	January	1Q21	All	Sowell	94.11500	3342	74	
+month	2021-01-01	1	January	1Q21	All	Tupper	76.00000	2582	59	
+
+Next
+123456...
+176
+Previous
+1-10 of 1,756 rows | 1-10 of 16 columns
+------------------------------------------------------------------------
+
+
+  Iterating Over the Data
+
+  * Overall <https://andrewbrucehimni.netlify.app/posts/r-cookbook-
+    medical-billing/?panelset=overall#panelset_overall>
+  * Client <https://andrewbrucehimni.netlify.app/posts/r-cookbook-
+    medical-billing/?panelset=client#panelset_client>
+  * Mcintyre, Kaila <https://andrewbrucehimni.netlify.app/posts/r-
+    cookbook-medical-billing/?panelset=mcintyre%2C-
+    kaila#panelset_mcintyre%2C-kaila>
+  * Lattimore, Victoria <https://andrewbrucehimni.netlify.app/posts/r-
+    cookbook-medical-billing/?panelset=lattimore%2C-
+    victoria#panelset_lattimore%2C-victoria>
+  * Legrand, Brandi <https://andrewbrucehimni.netlify.app/posts/r-
+    cookbook-medical-billing/?panelset=legrand%2C-
+    brandi#panelset_legrand%2C-brandi>
+  * Bryant, Essence <https://andrewbrucehimni.netlify.app/posts/r-
+    cookbook-medical-billing/?panelset=bryant%2C-
+    essence#panelset_bryant%2C-essence>
+  * Patterson, Dominique <https://andrewbrucehimni.netlify.app/posts/r-
+    cookbook-medical-billing/?panelset=patterson%2C-
+    dominique#panelset_patterson%2C-dominique>
+
+|bill_all_period <- billdata_cross |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(biller_last == "All", client == "All") |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!(biller_last:client)) |>
+  group_split. <https://rdrr.io/pkg/tidytable/man/group_split..html>(period, .keep = FALSE, .named = TRUE)|//
+
+
+      WEEKLY
+
+|paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(bill_all_period$week) |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!c <https://rdrr.io/r/base/c.html>(nmon:dqtr)) |>
+  gt::gt <https://gt.rstudio.com/reference/gt.html>()|//
+
+date 	hrs 	claim 	reject 	rejrate 	clmphr 	days 	clmpday 	rr_pass 	
+clmphr_pass
+2021-01-04 	191.0000 	6858 	167 	0.02435112 	35.90576 	23.87500 	
+287.2461 	TRUE 	TRUE
+2021-01-11 	215.0000 	6771 	160 	0.02363019 	31.49302 	26.87500 	
+251.9442 	TRUE 	FALSE
+2021-01-18 	188.0000 	6881 	159 	0.02310711 	36.60106 	23.50000 	
+292.8085 	TRUE 	TRUE
+2021-01-25 	173.0000 	6507 	152 	0.02335946 	37.61272 	21.62500 	
+300.9017 	TRUE 	TRUE
+2021-02-01 	191.2000 	7006 	147 	0.02098202 	36.64226 	23.90000 	
+293.1381 	TRUE 	TRUE
+2021-02-08 	187.0000 	7504 	135 	0.01799041 	40.12834 	23.37500 	
+321.0267 	TRUE 	TRUE
+2021-02-15 	185.8000 	6912 	185 	0.02676505 	37.20129 	23.22500 	
+297.6103 	TRUE 	TRUE
+2021-02-22 	198.0600 	6179 	173 	0.02799806 	31.19762 	24.75750 	
+249.5809 	TRUE 	FALSE
+2021-03-01 	185.9360 	7143 	142 	0.01987960 	38.41644 	23.24200 	
+307.3315 	TRUE 	TRUE
+2021-03-08 	186.3480 	7722 	144 	0.01864802 	41.43859 	23.29350 	
+331.5087 	TRUE 	TRUE
+2021-03-15 	209.4601 	6966 	140 	0.02009762 	33.25693 	26.18251 	
+266.0554 	TRUE 	FALSE
+2021-03-22 	192.3288 	7710 	172 	0.02230869 	40.08759 	24.04110 	
+320.7007 	TRUE 	TRUE
+2021-03-29 	168.5533 	7311 	148 	0.02024347 	43.37501 	21.06916 	
+347.0001 	TRUE 	TRUE
+2021-04-05 	168.0000 	7514 	204 	0.02714932 	44.72619 	21.00000 	
+357.8095 	TRUE 	TRUE
+2021-04-12 	181.0000 	6527 	170 	0.02604566 	36.06077 	22.62500 	
+288.4862 	TRUE 	TRUE
+2021-04-19 	191.0000 	7678 	188 	0.02448554 	40.19895 	23.87500 	
+321.5916 	TRUE 	TRUE
+2021-04-26 	190.0000 	6991 	153 	0.02188528 	36.79474 	23.75000 	
+294.3579 	TRUE 	TRUE
+2021-05-03 	167.8617 	6574 	124 	0.01886218 	39.16320 	20.98271 	
+313.3056 	TRUE 	TRUE
+2021-05-10 	156.2158 	6139 	152 	0.02475973 	39.29820 	19.52697 	
+314.3856 	TRUE 	TRUE
+2021-05-17 	147.2380 	6119 	158 	0.02582121 	41.55857 	18.40475 	
+332.4686 	TRUE 	TRUE
+2021-05-24 	164.9611 	6600 	112 	0.01696970 	40.00943 	20.62014 	
+320.0754 	TRUE 	TRUE
+2021-05-31 	158.0802 	5788 	137 	0.02366966 	36.61433 	19.76002 	
+292.9147 	TRUE 	TRUE
+2021-06-07 	192.5475 	7571 	179 	0.02364285 	39.32017 	24.06843 	
+314.5614 	TRUE 	TRUE
+2021-06-14 	171.3322 	7239 	156 	0.02154994 	42.25125 	21.41653 	
+338.0100 	TRUE 	TRUE
+2021-06-21 	185.0221 	7252 	184 	0.02537231 	39.19531 	23.12777 	
+313.5625 	TRUE 	TRUE
+2021-06-28 	181.2527 	7785 	132 	0.01695568 	42.95108 	22.65659 	
+343.6086 	TRUE 	TRUE
+2021-07-05 	175.3389 	6531 	194 	0.02970449 	37.24786 	21.91737 	
+297.9829 	TRUE 	TRUE
+2021-07-12 	192.6335 	7634 	188 	0.02462667 	39.62966 	24.07919 	
+317.0373 	TRUE 	TRUE
+2021-07-19 	182.9111 	6522 	133 	0.02039252 	35.65667 	22.86389 	
+285.2533 	TRUE 	TRUE
+2021-07-26 	152.0756 	7689 	178 	0.02314995 	50.56038 	19.00945 	
+404.4830 	TRUE 	TRUE
+2021-08-02 	187.2944 	7908 	168 	0.02124431 	42.22229 	23.41180 	
+337.7783 	TRUE 	TRUE
+2021-08-09 	166.4899 	7516 	142 	0.01889303 	45.14388 	20.81124 	
+361.1511 	TRUE 	TRUE
+2021-08-16 	195.7025 	7150 	197 	0.02755245 	36.53506 	24.46281 	
+292.2804 	TRUE 	TRUE
+2021-08-23 	197.4479 	6217 	158 	0.02541419 	31.48678 	24.68099 	
+251.8942 	TRUE 	FALSE
+2021-08-30 	192.6048 	6770 	168 	0.02481536 	35.14970 	24.07560 	
+281.1976 	TRUE 	TRUE
+2021-09-06 	193.8058 	7346 	187 	0.02545603 	37.90391 	24.22573 	
+303.2313 	TRUE 	TRUE
+2021-09-13 	186.2775 	6595 	159 	0.02410917 	35.40416 	23.28469 	
+283.2333 	TRUE 	TRUE
+2021-09-20 	192.8024 	6890 	137 	0.01988389 	35.73606 	24.10030 	
+285.8885 	TRUE 	TRUE
+2021-09-27 	201.3381 	7497 	112 	0.01493931 	37.23588 	25.16726 	
+297.8871 	TRUE 	TRUE
+2021-10-04 	167.5738 	7160 	112 	0.01564246 	42.72744 	20.94673 	
+341.8195 	TRUE 	TRUE
+2021-10-11 	185.7447 	6855 	218 	0.03180160 	36.90549 	23.21809 	
+295.2439 	FALSE 	TRUE
+2021-10-18 	201.1810 	6494 	156 	0.02402217 	32.27940 	25.14762 	
+258.2352 	TRUE 	FALSE
+2021-10-25 	233.1546 	6914 	132 	0.01909170 	29.65415 	29.14432 	
+237.2332 	TRUE 	FALSE
+2021-11-01 	173.5787 	7077 	170 	0.02402148 	40.77114 	21.69734 	
+326.1691 	TRUE 	TRUE
+2021-11-08 	208.1927 	7990 	135 	0.01689612 	38.37790 	26.02409 	
+307.0232 	TRUE 	TRUE
+2021-11-15 	198.6563 	6398 	161 	0.02516411 	32.20638 	24.83203 	
+257.6511 	TRUE 	FALSE
+2021-11-22 	182.7476 	7564 	149 	0.01969857 	41.39042 	22.84345 	
+331.1234 	TRUE 	TRUE
+2021-11-29 	176.1145 	7527 	168 	0.02231965 	42.73924 	22.01432 	
+341.9139 	TRUE 	TRUE
+2021-12-06 	185.4985 	6685 	178 	0.02662678 	36.03803 	23.18731 	
+288.3042 	TRUE 	TRUE
+2021-12-13 	178.6310 	7361 	182 	0.02472490 	41.20786 	22.32887 	
+329.6628 	TRUE 	TRUE
+2021-12-20 	184.8027 	6679 	171 	0.02560264 	36.14125 	23.10034 	
+289.1300 	TRUE 	TRUE
+2021-12-27 	195.8858 	6878 	161 	0.02340797 	35.11229 	24.48573 	
+280.8983 	TRUE 	TRUE
+
+
+        Weekly Summary Stats
+
+|bill_all_period$week |>
+  skim <https://docs.ropensci.org/skimr/reference/skim.html>() |>
+  yank <https://docs.ropensci.org/skimr/reference/partition.html>("numeric") |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!(n_missing:complete_rate)) |>
+  gt::gt <https://gt.rstudio.com/reference/gt.html>()|//
+
+skim_variable 	mean 	sd 	p0 	p25 	p50 	p75 	p100 	hist
+hrs 	184.89772858 	15.861464585 	147.23797094 	174.89887670 	
+186.10677910 	192.67573986 	233.1545701 	▁▃▇▂▁
+claim 	7021.03846154 	523.446270874 	5788.00000000 	6598.75000000 	
+6978.50000000 	7506.50000000 	7990.0000000 	▂▅▇▇▅
+reject 	159.36538462 	23.615406110 	112.00000000 	142.00000000 	
+159.00000000 	174.25000000 	218.0000000 	▃▆▇▅▁
+rejrate 	0.02280253 	0.003610842 	0.01493931 	0.02004419 	0.02351908 	
+0.02521616 	0.0318016 	▂▆▇▅▁
+clmphr 	38.21080979 	4.004769056 	29.65414744 	36.00496107 	37.75831582
+	40.88031533 	50.5603786 	▃▇▆▃▁
+days 	23.11221607 	1.982683073 	18.40474637 	21.86235959 	23.26334739 	
+24.08446748 	29.1443213 	▁▃▇▂▁
+clmpday 	305.68647836 	32.038152447 	237.23317955 	288.03968860 	
+302.06652655 	327.04252263 	404.4830287 	▃▇▆▃▁
+
+
+        Weekly Targets
+
+|# Rejection Rate Pass/Fail - Weekly
+rr_week <- bill_all_period$week |>
+  janitor::tabyl <https://rdrr.io/pkg/janitor/man/tabyl.html>(rr_pass) |>
+  adorn_pct_formatting <https://rdrr.io/pkg/janitor/man/adorn_pct_formatting.html>(digits = 2, affix_sign = TRUE) |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(rr_pass = case_when <https://dplyr.tidyverse.org/reference/case_when.html>(rr_pass == "FALSE" ~ "Fail", TRUE ~ "Pass")) |>
+  rename <https://dplyr.tidyverse.org/reference/rename.html>("Result" = rr_pass, Weeks = n, Percentage = percent)|//
+
+|rr_week |>
+  gt::gt <https://gt.rstudio.com/reference/gt.html>() |>
+  gtExtras::gt_theme_nytimes <https://jthomasmock.github.io/gtExtras/reference/gt_theme_nytimes.html>() |>
+  gt::tab_header <https://gt.rstudio.com/reference/tab_header.html>(title = "Rejection Rate by Week") |>
+  gt::opt_table_lines <https://gt.rstudio.com/reference/opt_table_lines.html>()|//
+
+Rejection Rate by Week
+Result 	Weeks 	Percentage
+Fail 	1 	1.92%
+Pass 	51 	98.08%
+
+|# Claims Per Hour Pass/Fail - Weekly
+clmphr_week <- bill_all_period$week |>
+  janitor::tabyl <https://rdrr.io/pkg/janitor/man/tabyl.html>(clmphr_pass) |>
+  adorn_pct_formatting <https://rdrr.io/pkg/janitor/man/adorn_pct_formatting.html>(digits = 2, affix_sign = TRUE) |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(clmphr_pass = case_when <https://dplyr.tidyverse.org/reference/case_when.html>(clmphr_pass == "FALSE" ~ "Fail", TRUE ~ "Pass")) |>
+  rename <https://dplyr.tidyverse.org/reference/rename.html>("Result" = clmphr_pass, Weeks = n, Percentage = percent)|//
+
+|clmphr_week |>
+  gt::gt <https://gt.rstudio.com/reference/gt.html>() |>
+  gtExtras::gt_theme_nytimes <https://jthomasmock.github.io/gtExtras/reference/gt_theme_nytimes.html>() |>
+  gt::tab_header <https://gt.rstudio.com/reference/tab_header.html>(title = "Claims Per Hour by Week") |>
+  gt::opt_table_lines <https://gt.rstudio.com/reference/opt_table_lines.html>()|//
+
+Claims Per Hour by Week
+Result 	Weeks 	Percentage
+Fail 	7 	13.46%
+Pass 	45 	86.54%
+
+|(week_targets_cross <- SmartEDA::ExpCustomStat <https://daya6489.github.io/SmartEDA/reference/ExpCustomStat.html>(bill_all_period$week, Cvar = c <https://rdrr.io/r/base/c.html>("rr_pass", "clmphr_pass"), gpby = TRUE))|//
+
+|#    rr_pass clmphr_pass Count  Prop
+# 1:    TRUE        TRUE    44 84.62
+# 2:    TRUE       FALSE     7 13.46
+# 3:   FALSE        TRUE     1  1.92|//
+
+|# Crosstable - Monthly
+SmartEDA::ExpCustomStat <https://daya6489.github.io/SmartEDA/reference/ExpCustomStat.html>(bill_all_period$week, Cvar = c <https://rdrr.io/r/base/c.html>("rr_pass", "clmphr_pass"), gpby = TRUE, filt = NULL) |>
+  gt::gt <https://gt.rstudio.com/reference/gt.html>() |>
+  gtExtras::gt_theme_nytimes <https://jthomasmock.github.io/gtExtras/reference/gt_theme_nytimes.html>() |>
+  gt::tab_header <https://gt.rstudio.com/reference/tab_header.html>(title = "Weekly Targets") |>
+  gt::opt_table_lines <https://gt.rstudio.com/reference/opt_table_lines.html>() |>
+  gtExtras::fmt_symbol_first <https://jthomasmock.github.io/gtExtras/reference/fmt_symbol_first.html>(column = Prop, suffix = "%")|//
+
+Weekly Targets
+rr_pass 	clmphr_pass 	Count 	Prop
+TRUE 	TRUE 	44 	84.62%
+TRUE 	FALSE 	7 	13.46 
+FALSE 	TRUE 	1 	1.92 
+
+
+      MONTHLY
+
+|bill_all_period$month |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!c <https://rdrr.io/r/base/c.html>(date:nmon, dqtr)) |>
+  gt::gt <https://gt.rstudio.com/reference/gt.html>()|//
+
+month 	hrs 	claim 	reject 	rejrate 	clmphr 	days 	clmpday 	rr_pass 	
+clmphr_pass
+January 	767.0000 	27017 	638 	0.02361476 	35.22425 	95.87500 	281.7940
+	TRUE 	TRUE
+February 	762.0600 	27601 	640 	0.02318757 	36.21893 	95.25750 	289.7515
+	TRUE 	TRUE
+March 	942.6263 	36852 	746 	0.02024313 	39.09503 	117.82828 	312.7602 	
+TRUE 	TRUE
+April 	730.0000 	28710 	715 	0.02490421 	39.32877 	91.25000 	314.6301 	
+TRUE 	TRUE
+May 	794.3567 	31220 	683 	0.02187700 	39.30224 	99.29459 	314.4179 	
+TRUE 	TRUE
+June 	730.1545 	29847 	651 	0.02181124 	40.87765 	91.26932 	327.0212 	
+TRUE 	TRUE
+July 	702.9592 	28376 	693 	0.02442205 	40.36650 	87.86989 	322.9320 	
+TRUE 	TRUE
+August 	939.5395 	35561 	833 	0.02342454 	37.84939 	117.44244 	302.7951
+	TRUE 	TRUE
+September 	774.2239 	28328 	595 	0.02100395 	36.58890 	96.77798 	
+292.7112 	TRUE 	TRUE
+October 	787.6541 	27423 	618 	0.02253583 	34.81605 	98.45676 	278.5284
+	TRUE 	FALSE
+November 	939.2898 	36556 	783 	0.02141919 	38.91877 	117.41123 	
+311.3501 	TRUE 	TRUE
+December 	744.8180 	27603 	692 	0.02506974 	37.06006 	93.10225 	296.4805
+	TRUE 	TRUE
+
+
+        Monthly Summary Stats
+
+|bill_all_period$month |>
+  skim <https://docs.ropensci.org/skimr/reference/skim.html>() |>
+  yank <https://docs.ropensci.org/skimr/reference/partition.html>("numeric") |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!(n_missing:complete_rate)) |>
+  gt::gt <https://gt.rstudio.com/reference/gt.html>()|//
+
+skim_variable 	mean 	sd 	p0 	p25 	p50 	p75 	p100 	hist
+hrs 	801.22349050 	87.809036714 	702.95915455 	741.15213342 	770.6119294
+	830.58999023 	942.62625724 	▆▇▁▁▅
+claim 	30424.50000000 	3745.812874519 	27017.00000000 	27602.50000000 	
+28543.0000000 	32305.25000000 	36852.00000000 	▇▁▁▁▃
+reject 	690.58333333 	69.968120446 	595.00000000 	639.50000000 	
+687.5000000 	722.75000000 	833.00000000 	▇▃▆▃▂
+rejrate 	0.02279277 	0.001566213 	0.02024313 	0.02171323 	0.0228617 	
+0.02381658 	0.02506974 	▅▇▂▇▇
+clmphr 	37.97054447 	1.983737379 	34.81604607 	36.49640886 	38.3840796 	
+39.30887333 	40.87764765 	▃▆▂▇▃
+days 	100.15293631 	10.976129589 	87.86989432 	92.64401668 	96.3264912 	
+103.82374878 	117.82828215 	▆▇▁▁▅
+clmpday 	303.76435580 	15.869899035 	278.52836852 	291.97127087 	
+307.0726370 	314.47098661 	327.02118121 	▃▆▂▇▃
+
+
+      QUARTERLY
+
+|bill_all_period$quarter |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!c <https://rdrr.io/r/base/c.html>(date:month))|//
+
+|# # A tidytable: 4 × 10
+#   dqtr    hrs claim reject rejrate clmphr  days clmpday rr_pass clmphr_pass
+#   <chr> <dbl> <dbl>  <dbl>   <dbl>  <dbl> <dbl>   <dbl> <lgl>   <lgl>      
+# 1 1Q21  2472. 91470   2024  0.0221   37.0  309.    296. TRUE    TRUE       
+# 2 2Q21  2255. 89777   2049  0.0228   39.8  282.    319. TRUE    TRUE       
+# 3 3Q21  2417. 92265   2121  0.0230   38.2  302.    305. TRUE    TRUE       
+# 4 4Q21  2472. 91582   2093  0.0229   37.1  309.    296. TRUE    TRUE|//
+
+
+        Quarterly Summary Stats
+
+|bill_all_period$quarter |>
+  skim <https://docs.ropensci.org/skimr/reference/skim.html>() |>
+  yank <https://docs.ropensci.org/skimr/reference/partition.html>("numeric") |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!(n_missing:complete_rate))|//
+
+*Variable type: numeric*
+
+skim_variable 	mean 	sd 	p0 	p25 	p50 	p75 	p100 	hist
+hrs 	2403.67 	102.76 	2254.51 	2376.17 	2444.20 	2471.71 	2471.76 	▃▁▁▃▇
+claim 	91273.50 	1057.73 	89777.00 	91046.75 	91526.00 	91752.75 	
+92265.00 	▃▁▁▇▃
+reject 	2071.75 	43.49 	2024.00 	2042.75 	2071.00 	2100.00 	2121.00 	▇▇▁▇▇
+rejrate 	0.02 	0.00 	0.02 	0.02 	0.02 	0.02 	0.02 	▂▁▁▁▇
+clmphr 	38.01 	1.32 	37.01 	37.04 	37.61 	38.59 	39.82 	▇▁▃▁▃
+days 	300.46 	12.85 	281.81 	297.02 	305.53 	308.96 	308.97 	▃▁▁▃▇
+clmpday 	304.11 	10.57 	296.06 	296.32 	300.92 	308.71 	318.57 	▇▁▃▁▃
+
+|bill_client_period <- billdata_cross |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(biller_last == "All", client != "All") |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!(biller_last)) |>
+  group_split. <https://rdrr.io/pkg/tidytable/man/group_split..html>(period, .keep = FALSE, .named = TRUE)|//
+
+
+      WEEKLY
+
+|paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(bill_client_period$week) |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!c <https://rdrr.io/r/base/c.html>(nmon:dqtr))|//
+
+ABCDEFGHIJ0123456789
+
+date
+<date>
+	
+client
+<chr>
+	
+hrs
+<dbl>
+	
+claim
+<dbl>
+	
+reject
+<dbl>
+	
+2021-01-04	Brown	17.00000	813	25	
+2021-01-04	Burnett	24.00000	867	26	
+2021-01-04	Cooke	16.00000	972	14	
+2021-01-04	Cunningham	16.20000	513	11	
+2021-01-04	Figgs III	14.00000	748	19	
+2021-01-04	Jones-Malone	19.00000	430	14	
+2021-01-04	Mcclendon	25.00000	704	17	
+2021-01-04	Sowell	23.80000	887	22	
+2021-01-04	Tupper	18.00000	494	8	
+2021-01-04	Wilson	18.00000	430	11	
+
+Next
+123456...
+52
+Previous
+1-10 of 515 rows | 1-5 of 11 columns
+
+
+        Weekly Summary Stats
+
+|bill_client_period$week |>
+  skim <https://docs.ropensci.org/skimr/reference/skim.html>() |>
+  yank <https://docs.ropensci.org/skimr/reference/partition.html>("numeric") |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!(n_missing:complete_rate))|//
+
+*Variable type: numeric*
+
+skim_variable 	mean 	sd 	p0 	p25 	p50 	p75 	p100 	hist
+hrs 	18.67 	4.15 	12.00 	15.00 	18.08 	22.00 	26.00 	▇▇▇▇▆
+claim 	708.92 	173.12 	403.00 	559.50 	714.00 	861.00 	1015.00 	▇▇▇▇▇
+reject 	16.09 	7.58 	2.00 	10.00 	16.00 	23.00 	32.00 	▇▇▇▇▃
+rejrate 	0.02 	0.01 	0.00 	0.01 	0.02 	0.03 	0.06 	▇▇▆▂▁
+clmphr 	39.77 	13.13 	16.68 	30.69 	37.58 	45.86 	83.17 	▅▇▃▂▁
+days 	2.33 	0.52 	1.50 	1.88 	2.26 	2.75 	3.25 	▇▇▇▇▆
+clmpday 	318.16 	105.06 	133.44 	245.52 	300.67 	366.89 	665.33 	▅▇▃▂▁
+
+
+        Weekly Targets
+
+|# Rejection Rate Pass
+bill_client_period$week |>
+  janitor::tabyl <https://rdrr.io/pkg/janitor/man/tabyl.html>(rr_pass) |>
+  adorn_pct_formatting <https://rdrr.io/pkg/janitor/man/adorn_pct_formatting.html>(digits = 2, affix_sign = TRUE)|//
+
+|#  rr_pass   n percent
+#    FALSE 147  28.54%
+#     TRUE 368  71.46%|//
+
+|# Claims Per Hour Pass
+bill_client_period$week |>
+  janitor::tabyl <https://rdrr.io/pkg/janitor/man/tabyl.html>(clmphr_pass) |>
+  adorn_pct_formatting <https://rdrr.io/pkg/janitor/man/adorn_pct_formatting.html>(digits = 2, affix_sign = TRUE)|//
+
+|#  clmphr_pass   n percent
+#        FALSE 207  40.19%
+#         TRUE 308  59.81%|//
+
+|# Crosstable
+SmartEDA::ExpCustomStat <https://daya6489.github.io/SmartEDA/reference/ExpCustomStat.html>(bill_client_period$week, Cvar = c <https://rdrr.io/r/base/c.html>("rr_pass", "clmphr_pass"), gpby = TRUE, filt = NULL)|//
+
+|#    rr_pass clmphr_pass Count  Prop
+# 1:   FALSE        TRUE    76 14.76
+# 2:    TRUE        TRUE   232 45.05
+# 3:    TRUE       FALSE   136 26.41
+# 4:   FALSE       FALSE    71 13.79|//
+
+
+      MONTHLY
+
+|paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(bill_client_period$month) |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!c <https://rdrr.io/r/base/c.html>(date:nmon, dqtr))|//
+
+ABCDEFGHIJ0123456789
+
+month
+<ord>
+	
+client
+<chr>
+	
+hrs
+<dbl>
+	
+claim
+<dbl>
+	
+reject
+<dbl>
+	
+January	Brown	66.00000	2424	69	
+January	Burnett	77.00000	3358	96	
+January	Cooke	74.00000	2497	39	
+January	Cunningham	65.88500	2147	30	
+January	Figgs III	71.00000	2796	49	
+January	Jones-Malone	80.00000	2280	65	
+January	Mcclendon	89.00000	2647	70	
+January	Sowell	94.11500	3342	74	
+January	Tupper	76.00000	2582	59	
+January	Wilson	74.00000	2944	87	
+
+Next
+123456...
+12
+Previous
+1-10 of 119 rows | 1-5 of 11 columns
+
+
+        Monthly Summary Stats
+
+|bill_client_period$month |>
+  skim <https://docs.ropensci.org/skimr/reference/skim.html>() |>
+  yank <https://docs.ropensci.org/skimr/reference/partition.html>("numeric") |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!(n_missing:complete_rate))|//
+
+*Variable type: numeric*
+
+skim_variable 	mean 	sd 	p0 	p25 	p50 	p75 	p100 	hist
+hrs 	80.80 	12.44 	58.00 	71.00 	80.00 	88.90 	111.27 	▅▇▇▅▂
+claim 	3068.02 	554.51 	2037.00 	2612.50 	3051.00 	3513.50 	4438.00 	▅▇▆▅▂
+reject 	69.64 	18.33 	30.00 	56.00 	69.00 	84.00 	122.00 	▃▇▇▅▁
+rejrate 	0.02 	0.01 	0.01 	0.02 	0.02 	0.03 	0.04 	▂▇▆▂▁
+clmphr 	38.20 	5.53 	22.15 	34.83 	37.75 	41.06 	55.17 	▁▅▇▂▁
+days 	10.10 	1.56 	7.25 	8.88 	10.00 	11.11 	13.91 	▅▇▇▅▂
+clmpday 	305.62 	44.22 	177.20 	278.66 	301.96 	328.52 	441.35 	▁▅▇▂▁
+
+
+        Monthly Targets
+
+|# Rejection Rate Pass
+bill_client_period$month |>
+  janitor::tabyl <https://rdrr.io/pkg/janitor/man/tabyl.html>(rr_pass) |>
+  adorn_pct_formatting <https://rdrr.io/pkg/janitor/man/adorn_pct_formatting.html>(digits = 2, affix_sign = TRUE)|//
+
+|#  rr_pass   n percent
+#    FALSE  16  13.45%
+#     TRUE 103  86.55%|//
+
+|# Claims Per Hour Pass
+bill_client_period$month |>
+  janitor::tabyl <https://rdrr.io/pkg/janitor/man/tabyl.html>(clmphr_pass) |>
+  adorn_pct_formatting <https://rdrr.io/pkg/janitor/man/adorn_pct_formatting.html>(digits = 2, affix_sign = TRUE)|//
+
+|#  clmphr_pass  n percent
+#        FALSE 32  26.89%
+#         TRUE 87  73.11%|//
+
+|# Crosstable
+SmartEDA::ExpCustomStat <https://daya6489.github.io/SmartEDA/reference/ExpCustomStat.html>(bill_client_period$month, Cvar = c <https://rdrr.io/r/base/c.html>("rr_pass", "clmphr_pass"), gpby = TRUE, filt = NULL)|//
+
+|#    rr_pass clmphr_pass Count  Prop
+# 1:    TRUE        TRUE    79 66.39
+# 2:    TRUE       FALSE    24 20.17
+# 3:   FALSE       FALSE     8  6.72
+# 4:   FALSE        TRUE     8  6.72|//
+
+
+      QUARTERLY
+
+|paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(bill_client_period$quarter) |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!c <https://rdrr.io/r/base/c.html>(date:month))|//
+
+ABCDEFGHIJ0123456789
+
+dqtr
+<chr>
+	
+client
+<chr>
+	
+hrs
+<dbl>
+	
+claim
+<dbl>
+	
+reject
+<dbl>
+	
+1Q21	Brown	226.0000	9033	248	
+1Q21	Burnett	263.0000	10180	177	
+1Q21	Cooke	242.0000	7854	163	
+1Q21	Cunningham	214.3417	7586	138	
+1Q21	Figgs III	260.0000	9205	208	
+1Q21	Jones-Malone	232.0000	8926	257	
+1Q21	Mcclendon	270.0000	8896	182	
+1Q21	Sowell	286.3445	10852	191	
+1Q21	Tupper	242.0000	9327	183	
+1Q21	Wilson	236.0000	9611	277	
+
+Next
+1234
+Previous
+1-10 of 40 rows | 1-5 of 11 columns
+
+
+        Quarterly Summary Stats
+
+|bill_client_period$quarter |>
+  skim <https://docs.ropensci.org/skimr/reference/skim.html>() |>
+  yank <https://docs.ropensci.org/skimr/reference/partition.html>("numeric") |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!(n_missing:complete_rate))|//
+
+*Variable type: numeric*
+
+skim_variable 	mean 	sd 	p0 	p25 	p50 	p75 	p100 	hist
+hrs 	240.37 	23.26 	167.47 	228.75 	236.00 	248.25 	299.20 	▁▁▇▂▁
+claim 	9127.35 	977.60 	6689.00 	8541.50 	9085.00 	9457.50 	11595.00 	▁▃▇▂▂
+reject 	207.18 	37.72 	119.00 	181.75 	205.00 	233.25 	277.00 	▂▆▇▇▆
+rejrate 	0.02 	0.00 	0.02 	0.02 	0.02 	0.03 	0.03 	▆▇▃▅▆
+clmphr 	38.06 	2.99 	28.58 	36.57 	38.27 	40.06 	44.90 	▁▂▇▇▂
+days 	30.05 	2.91 	20.93 	28.59 	29.50 	31.03 	37.40 	▁▁▇▂▁
+clmpday 	304.47 	23.90 	228.60 	292.57 	306.12 	320.47 	359.17 	▁▂▇▇▂
+
+
+        Quarterly Targets
+
+|# Rejection Rate Pass
+bill_client_period$quarter |>
+  janitor::tabyl <https://rdrr.io/pkg/janitor/man/tabyl.html>(rr_pass) |>
+  adorn_pct_formatting <https://rdrr.io/pkg/janitor/man/adorn_pct_formatting.html>(digits = 2, affix_sign = TRUE)|//
+
+|#  rr_pass  n percent
+#     TRUE 40 100.00%|//
+
+|# Claims Per Hour Pass
+bill_client_period$quarter |>
+  janitor::tabyl <https://rdrr.io/pkg/janitor/man/tabyl.html>(clmphr_pass) |>
+  adorn_pct_formatting <https://rdrr.io/pkg/janitor/man/adorn_pct_formatting.html>(digits = 2, affix_sign = TRUE)|//
+
+|#  clmphr_pass  n percent
+#        FALSE  5  12.50%
+#         TRUE 35  87.50%|//
+
+|# Crosstable
+SmartEDA::ExpCustomStat <https://daya6489.github.io/SmartEDA/reference/ExpCustomStat.html>(bill_client_period$quarter, Cvar = c <https://rdrr.io/r/base/c.html>("rr_pass", "clmphr_pass"), gpby = TRUE, filt = NULL)|//
+
+|#    rr_pass clmphr_pass Count Prop
+# 1:    TRUE        TRUE    35 87.5
+# 2:    TRUE       FALSE     5 12.5|//
+
+|bill_Mcintyre <- billdata_cross |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(biller_last == "Mcintyre") |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!(biller_last)) |>
+  group_split. <https://rdrr.io/pkg/tidytable/man/group_split..html>(period, client, .keep = FALSE, .named = TRUE)|//
+
+
+      WEEKLY
+
+|bill_Mcintyre$week_All |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!c <https://rdrr.io/r/base/c.html>(nmon:dqtr))|//
+
+|# # A tidytable: 52 × 10
+#    date         hrs claim reject rejrate clmphr  days clmpday rr_pass clmphr_pass
+#    <date>     <dbl> <dbl>  <dbl>   <dbl>  <dbl> <dbl>   <dbl> <lgl>   <lgl>      
+#  1 2021-01-04  40    1400     33 0.0236    35    5       280  TRUE    TRUE       
+#  2 2021-01-11  40    1335     22 0.0165    33.4  5       267  TRUE    FALSE      
+#  3 2021-01-18  40    1498     27 0.0180    37.4  5       300. TRUE    TRUE       
+#  4 2021-01-25  40    1256     22 0.0175    31.4  5       251. TRUE    FALSE      
+#  5 2021-02-01  32.2  1588     13 0.00819   49.3  4.03    395. TRUE    TRUE       
+#  6 2021-02-08  37    1356     24 0.0177    36.6  4.62    293. TRUE    TRUE       
+#  7 2021-02-15  37.8  1281     34 0.0265    33.9  4.72    271. TRUE    FALSE      
+#  8 2021-02-22  38.1  1228     25 0.0204    32.3  4.76    258. TRUE    FALSE      
+#  9 2021-03-01  37.9  1428     28 0.0196    37.6  4.74    301. TRUE    TRUE       
+# 10 2021-03-08  38.3  1472     31 0.0211    38.4  4.79    307. TRUE    TRUE       
+# # … with 42 more rows
+# # ℹ Use `print(n = ...)` to see more rows|//
+
+
+        Target Metrics Performance
+
+|# Rejection Rate Pass/Fail - Weekly
+bill_Mcintyre$week_All |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!c <https://rdrr.io/r/base/c.html>(nmon:dqtr)) |>
+  janitor::tabyl <https://rdrr.io/pkg/janitor/man/tabyl.html>(rr_pass) |>
+  adorn_pct_formatting <https://rdrr.io/pkg/janitor/man/adorn_pct_formatting.html>(digits = 2, affix_sign = TRUE)|//
+
+|#  rr_pass  n percent
+#    FALSE  3   5.77%
+#     TRUE 49  94.23%|//
+
+|# Claims Per Hour Pass/Fail - Weekly
+bill_Mcintyre$week_All |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!c <https://rdrr.io/r/base/c.html>(nmon:dqtr)) |>
+  janitor::tabyl <https://rdrr.io/pkg/janitor/man/tabyl.html>(clmphr_pass) |>
+  adorn_pct_formatting <https://rdrr.io/pkg/janitor/man/adorn_pct_formatting.html>(digits = 2, affix_sign = TRUE)|//
+
+|#  clmphr_pass  n percent
+#        FALSE 13  25.00%
+#         TRUE 39  75.00%|//
+
+|# Crosstable - Monthly
+SmartEDA::ExpCustomStat <https://daya6489.github.io/SmartEDA/reference/ExpCustomStat.html>(bill_Mcintyre$week_All, Cvar = c <https://rdrr.io/r/base/c.html>("rr_pass", "clmphr_pass"), gpby = TRUE, filt = NULL)|//
+
+|#    rr_pass clmphr_pass Count  Prop
+# 1:    TRUE        TRUE    36 69.23
+# 2:    TRUE       FALSE    13 25.00
+# 3:   FALSE        TRUE     3  5.77|//
+
+
+      Monthly
+
+|bill_Mcintyre$month_All |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!c <https://rdrr.io/r/base/c.html>(date:nmon, dqtr))|//
+
+|# # A tidytable: 12 × 10
+#    month       hrs claim reject rejrate clmphr  days clmpday rr_pass clmphr_pass
+#    <ord>     <dbl> <dbl>  <dbl>   <dbl>  <dbl> <dbl>   <dbl> <lgl>   <lgl>      
+#  1 January   160    5489    104  0.0189   34.3  20      274. TRUE    FALSE      
+#  2 February  145.   5453     96  0.0176   37.6  18.1    301. TRUE    TRUE       
+#  3 March     196.   7496    129  0.0172   38.3  24.5    307. TRUE    TRUE       
+#  4 April     160    6875    123  0.0179   43.0  20      344. TRUE    TRUE       
+#  5 May        84.4  3108     44  0.0142   36.8  10.5    295. TRUE    TRUE       
+#  6 June      162.   6137    109  0.0178   37.8  20.3    303. TRUE    TRUE       
+#  7 July      151.   6170    135  0.0219   40.9  18.9    327. TRUE    TRUE       
+#  8 August    195.   7560    126  0.0167   38.9  24.3    311. TRUE    TRUE       
+#  9 September 162.   6224    101  0.0162   38.4  20.3    307. TRUE    TRUE       
+# 10 October   173.   6030    108  0.0179   34.9  21.6    279. TRUE    FALSE      
+# 11 November  197.   8026    150  0.0187   40.7  24.7    325. TRUE    TRUE       
+# 12 December  176.   6024    101  0.0168   34.3  22.0    274. TRUE    FALSE|//
+
+
+        Target Metrics Performance
+
+|# Rejection Rate Pass/Fail - Monthly
+bill_Mcintyre$month_All |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!c <https://rdrr.io/r/base/c.html>(date:nmon, dqtr)) |>
+  janitor::tabyl <https://rdrr.io/pkg/janitor/man/tabyl.html>(rr_pass) |>
+  adorn_pct_formatting <https://rdrr.io/pkg/janitor/man/adorn_pct_formatting.html>(digits = 2, affix_sign = TRUE)|//
+
+|#  rr_pass  n percent
+#     TRUE 12 100.00%|//
+
+|# Claims Per Hour Pass/Fail - Monthly
+bill_Mcintyre$month_All |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!c <https://rdrr.io/r/base/c.html>(date:nmon, dqtr)) |>
+  janitor::tabyl <https://rdrr.io/pkg/janitor/man/tabyl.html>(clmphr_pass) |>
+  adorn_pct_formatting <https://rdrr.io/pkg/janitor/man/adorn_pct_formatting.html>(digits = 2, affix_sign = TRUE)|//
+
+|#  clmphr_pass n percent
+#        FALSE 3  25.00%
+#         TRUE 9  75.00%|//
+
+|# Crosstable - Monthly
+SmartEDA::ExpCustomStat <https://daya6489.github.io/SmartEDA/reference/ExpCustomStat.html>(bill_Mcintyre$month_All, Cvar = c <https://rdrr.io/r/base/c.html>("rr_pass", "clmphr_pass"), gpby = TRUE, filt = NULL)|//
+
+|#    rr_pass clmphr_pass Count Prop
+# 1:    TRUE       FALSE     3   25
+# 2:    TRUE        TRUE     9   75|//
+
+
+      Quarterly
+
+|bill_Mcintyre$quarter_All |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!(date:month))|//
+
+|# # A tidytable: 4 × 10
+#   dqtr    hrs claim reject rejrate clmphr  days clmpday rr_pass clmphr_pass
+#   <chr> <dbl> <dbl>  <dbl>   <dbl>  <dbl> <dbl>   <dbl> <lgl>   <lgl>      
+# 1 1Q21   501. 18438    329  0.0178   36.8  62.6    295. TRUE    TRUE       
+# 2 2Q21   407. 16120    276  0.0171   39.7  50.8    317. TRUE    TRUE       
+# 3 3Q21   508. 19954    362  0.0181   39.3  63.5    314. TRUE    TRUE       
+# 4 4Q21   546. 20080    359  0.0179   36.8  68.2    294. TRUE    TRUE|//
+
+|bill_Lattimore <- billdata_cross |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(biller_last == "Lattimore") |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!(biller_last)) |>
+  group_split. <https://rdrr.io/pkg/tidytable/man/group_split..html>(period, client, .keep = FALSE, .named = TRUE)
+
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(bill_Lattimore$month_All)|//
+
+ABCDEFGHIJ0123456789
+
+date
+<date>
+	
+nmon
+<ord>
+	
+month
+<ord>
+	
+dqtr
+<chr>
+	
+hrs
+<dbl>
+	
+2021-01-01	1	January	1Q21	157	
+2021-02-01	2	February	1Q21	152	
+2021-03-01	3	March	1Q21	186	
+2021-04-01	4	April	2Q21	136	
+2021-05-01	5	May	2Q21	179	
+2021-06-01	6	June	2Q21	163	
+2021-07-01	7	July	3Q21	144	
+2021-08-01	8	August	3Q21	187	
+2021-09-01	9	September	3Q21	169	
+2021-10-01	10	October	4Q21	145	
+
+Next
+12
+Previous
+1-10 of 12 rows | 1-5 of 13 columns
+
+|bill_Legrand <- billdata_cross |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(biller_last == "Legrand") |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!(biller_last)) |>
+  group_split. <https://rdrr.io/pkg/tidytable/man/group_split..html>(period, client, .keep = FALSE, .named = TRUE)
+
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(bill_Legrand$month_All)|//
+
+ABCDEFGHIJ0123456789
+
+date
+<date>
+	
+nmon
+<ord>
+	
+month
+<ord>
+	
+dqtr
+<chr>
+	
+hrs
+<dbl>
+	
+2021-01-01	1	January	1Q21	140	
+2021-02-01	2	February	1Q21	149	
+2021-03-01	3	March	1Q21	179	
+2021-04-01	4	April	2Q21	152	
+2021-05-01	5	May	2Q21	183	
+2021-06-01	6	June	2Q21	142	
+2021-07-01	7	July	3Q21	141	
+2021-08-01	8	August	3Q21	177	
+2021-09-01	9	September	3Q21	160	
+2021-10-01	10	October	4Q21	167	
+
+Next
+12
+Previous
+1-10 of 12 rows | 1-5 of 13 columns
+
+|bill_Bryant <- billdata_cross |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(biller_last == "Bryant") |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!(biller_last)) |>
+  group_split. <https://rdrr.io/pkg/tidytable/man/group_split..html>(period, client, .keep = FALSE, .named = TRUE)
+
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(bill_Bryant$month_All)|//
+
+ABCDEFGHIJ0123456789
+
+date
+<date>
+	
+nmon
+<ord>
+	
+month
+<ord>
+	
+dqtr
+<chr>
+	
+hrs
+<dbl>
+	
+2021-01-01	1	January	1Q21	145	
+2021-02-01	2	February	1Q21	164	
+2021-03-01	3	March	1Q21	187	
+2021-04-01	4	April	2Q21	122	
+2021-05-01	5	May	2Q21	181	
+2021-06-01	6	June	2Q21	129	
+2021-07-01	7	July	3Q21	116	
+2021-08-01	8	August	3Q21	198	
+2021-09-01	9	September	3Q21	142	
+2021-10-01	10	October	4Q21	159	
+
+Next
+12
+Previous
+1-10 of 12 rows | 1-5 of 13 columns
+
+|bill_Patterson <- billdata_cross |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(biller_last == "Patterson") |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!(biller_last)) |>
+  group_split. <https://rdrr.io/pkg/tidytable/man/group_split..html>(period, client, .keep = FALSE, .named = TRUE)
+
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(bill_Patterson$month_All)|//
+
+ABCDEFGHIJ0123456789
+
+date
+<date>
+	
+nmon
+<ord>
+	
+month
+<ord>
+	
+dqtr
+<chr>
+	
+hrs
+<dbl>
+	
+2021-01-01	1	January	1Q21	165	
+2021-02-01	2	February	1Q21	152	
+2021-03-01	3	March	1Q21	195	
+2021-04-01	4	April	2Q21	160	
+2021-05-01	5	May	2Q21	167	
+2021-06-01	6	June	2Q21	134	
+2021-07-01	7	July	3Q21	151	
+2021-08-01	8	August	3Q21	183	
+2021-09-01	9	September	3Q21	141	
+2021-10-01	10	October	4Q21	144	
+
+Next
+12
+Previous
+1-10 of 12 rows | 1-5 of 13 columns
+------------------------------------------------------------------------
+
+
+  One Number to Rule Them All
+
+These are my attempts at what’s come to be known as a “North Star
+Metric” which you can read more about here <https://mixpanel.com/blog/
+north-star-metric/
+#:~:text=A%20North%20Star%20metric%20is,customer%20value%2C%20and%20measure%20progress.>. Ideally, by combining as many measurements as is reasonable, you can monitor one number instead of six. The legitimacy of the number/score can be difficult to parse if one does not take great care when creating the calculation. It might take a lot of testing to make sure the final score is accurately reflecting performance.
+
+
+    <#biller-quality-index-bqi>Biller Quality Index (BQI)
+
+This measure is simply indexing (i.e. counting) the number of weeks that
+a biller’s
+
+ 1. Claims Per Hour is *ABOVE* the target (35)
+ 2. Rejection Rate is *BELOW* the target (3%)
+
+|billdata_cross |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(biller_last != "All" & client == "All" & rr_pass == 1 & period == "week") |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(biller_last, rr_pass) |>
+  SmartEDA::ExpCustomStat <https://daya6489.github.io/SmartEDA/reference/ExpCustomStat.html>(
+    Cvar = c <https://rdrr.io/r/base/c.html>("biller_last", "rr_pass"),
+    stat = c <https://rdrr.io/r/base/c.html>("Count", "Prop"),
+    gpby = TRUE, filt = NULL
+  ) |>
+  arrange <https://dplyr.tidyverse.org/reference/arrange.html>(desc <https://dplyr.tidyverse.org/reference/desc.html>(Count))|//
+
+|#    biller_last rr_pass Count  Prop
+# 1:    Mcintyre    TRUE    49 23.67
+# 2:   Patterson    TRUE    41 19.81
+# 3:      Bryant    TRUE    40 19.32
+# 4:     Legrand    TRUE    40 19.32
+# 5:   Lattimore    TRUE    37 17.87|//
+
+|billdata_cross |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(biller_last != "All" & client == "All" & clmphr_pass == 1 & period == "week") |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(biller_last, clmphr_pass) |>
+  SmartEDA::ExpCustomStat <https://daya6489.github.io/SmartEDA/reference/ExpCustomStat.html>(
+    Cvar = c <https://rdrr.io/r/base/c.html>("biller_last", "clmphr_pass"),
+    stat = c <https://rdrr.io/r/base/c.html>("Count", "Prop"),
+    gpby = TRUE, filt = NULL
+  ) |>
+  arrange <https://dplyr.tidyverse.org/reference/arrange.html>(desc <https://dplyr.tidyverse.org/reference/desc.html>(Count))|//
+
+|#    biller_last clmphr_pass Count  Prop
+# 1:    Mcintyre        TRUE    39 22.67
+# 2:      Bryant        TRUE    35 20.35
+# 3:   Patterson        TRUE    35 20.35
+# 4:   Lattimore        TRUE    32 18.60
+# 5:     Legrand        TRUE    31 18.02|//
+
+|# Crosstable of Rejection Rate & Claims Per Hour Pass/Fail Combinations
+billdata_cross |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(biller_last != "All" & client == "All" & period == "week") |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(biller_last, rr_pass, clmphr_pass) |>
+  SmartEDA::ExpCustomStat <https://daya6489.github.io/SmartEDA/reference/ExpCustomStat.html>(
+    Cvar = c <https://rdrr.io/r/base/c.html>("biller_last", "rr_pass", "clmphr_pass"),
+    stat = c <https://rdrr.io/r/base/c.html>("Count", "Prop"),
+    gpby = TRUE, filt = NULL
+  ) |>
+  arrange <https://dplyr.tidyverse.org/reference/arrange.html>(desc <https://dplyr.tidyverse.org/reference/desc.html>(Count))|//
+
+|#     biller_last rr_pass clmphr_pass Count  Prop
+#  1:    Mcintyre    TRUE        TRUE    36 13.85
+#  2:      Bryant    TRUE        TRUE    31 11.92
+#  3:     Legrand    TRUE        TRUE    29 11.15
+#  4:   Patterson    TRUE        TRUE    28 10.77
+#  5:   Lattimore    TRUE        TRUE    25  9.62
+#  6:   Patterson    TRUE       FALSE    13  5.00
+#  7:    Mcintyre    TRUE       FALSE    13  5.00
+#  8:   Lattimore    TRUE       FALSE    12  4.62
+#  9:     Legrand    TRUE       FALSE    11  4.23
+# 10:     Legrand   FALSE       FALSE    10  3.85
+# 11:      Bryant    TRUE       FALSE     9  3.46
+# 12:   Lattimore   FALSE       FALSE     8  3.08
+# 13:      Bryant   FALSE       FALSE     8  3.08
+# 14:   Lattimore   FALSE        TRUE     7  2.69
+# 15:   Patterson   FALSE        TRUE     7  2.69
+# 16:   Patterson   FALSE       FALSE     4  1.54
+# 17:      Bryant   FALSE        TRUE     4  1.54
+# 18:    Mcintyre   FALSE        TRUE     3  1.15
+# 19:     Legrand   FALSE        TRUE     2  0.77|//
+
+The drawback to this measure is that it only tells you how many times a
+biller met the organization’s internal benchmarks. It doesn’t tell you
+how well they met those benchmarks, obscuring the quality of their work.
+
+
+    <#biller-quality-rating-bqr>Biller Quality Rating (BQR)
+
+A rating score might better represent the quality of a biller’s output,
+measuring his or her’s effectiveness and efficiency by incorporating as
+many individual metrics as is reasonable.
+
+The *higher* the rating, the better:
+
+The way this calculation works is that the biller’s score is penalized for:
+
+  * a /LOWER/ Average Claims Per Hour
+  * a /HIGHER/ Rejection Rate
+
+As an example, let’s compare two billers with the following stats:
+
+    *Biller 1*: Claims Per Hour = 29, Rejection Rate = 4%
+
+|# Rejection Rate / Claims Per Hour
+0.04 / 29|//
+
+|# [1] 0.00137931|//
+
+    *Biller 2*: Claims Per Hour = 37, Rejection Rate = 1.5%
+
+|# Rejection Rate / Claims Per Hour
+0.015 / 37|//
+
+|# [1] 0.0004054054|//
+
+*Biller 2* has a much higher (better) score because she had a /higher/
+Claims Per Hour and a /lower/ Rejection Rate than *Biller 1*.
+
+    *Biller 1*: Claims Per Hour = 29, Rejection Rate = 1.5%
+
+|# Rejection Rate / Claims Per Hour
+0.015 / 29|//
+
+|# [1] 0.0005172414|//
+
+    *Biller 2*: Claims Per Hour = 37, Rejection Rate = 4%
+
+|# Rejection Rate / Claims Per Hour
+0.04 / 37|//
+
+|# [1] 0.001081081|//
+
+Comparing the three ratings shows the effects of adjusting and
+accounting for different variables.
+
+While Kaila Mcintyre is in third place in the Biller Quality Index, she
+is in the top-ranked position in both of the Quality Ratings. Brandi
+Legrand is in second place across all three measures, but Dominque
+Patterson rises to third place in both Quality Ratings.
+
+The changes in ranking hopefully illustrate the need for more robust
+productivity measurements, i.e., just because a biller didn’t meet all
+three of the internal benchmarks xx number of times does not mean that
+their overall performance is not of a high caliber:
+
+
+    <#billing-performance-score-bps>Billing Performance Score (BPS)
+
+
+      <#monthly-rank-1>Monthly Rank #1
+
+|# Add the individually scaled monthly scores
+billdata_cross_month <- billdata_cross |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(
+    period == "month",
+    biller_last != "All",
+    client != "All"
+  ) |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    rr_scale = scale <https://rdrr.io/r/base/scale.html>(rejrate),
+    cph_scale = scale <https://rdrr.io/r/base/scale.html>(clmphr)
+  )
+
+# Calculate the quantiles for Claims Per Hour
+cph_curve <- quantile <https://rdrr.io/r/stats/quantile.html>(billdata_cross_month$cph_scale, c <https://rdrr.io/r/base/c.html>(.95, .9, .85, .8, .75, .7, .65, .6, .55, .5))
+
+# Recode percentile ranks into Claims Per Hour Score
+billdata_cross_month$cph_score[billdata_cross_month$cph_scale >= cph_curve[1]] <- 95
+billdata_cross_month$cph_score[billdata_cross_month$cph_scale < cph_curve[1] & billdata_cross_month$cph_scale >= cph_curve[2]] <- 90
+billdata_cross_month$cph_score[billdata_cross_month$cph_scale < cph_curve[2] & billdata_cross_month$cph_scale >= cph_curve[3]] <- 85
+billdata_cross_month$cph_score[billdata_cross_month$cph_scale < cph_curve[3] & billdata_cross_month$cph_scale >= cph_curve[4]] <- 80
+billdata_cross_month$cph_score[billdata_cross_month$cph_scale < cph_curve[4] & billdata_cross_month$cph_scale >= cph_curve[5]] <- 75
+billdata_cross_month$cph_score[billdata_cross_month$cph_scale < cph_curve[5] & billdata_cross_month$cph_scale >= cph_curve[6]] <- 70
+billdata_cross_month$cph_score[billdata_cross_month$cph_scale < cph_curve[6] & billdata_cross_month$cph_scale >= cph_curve[7]] <- 65
+billdata_cross_month$cph_score[billdata_cross_month$cph_scale < cph_curve[7] & billdata_cross_month$cph_scale >= cph_curve[8]] <- 60
+billdata_cross_month$cph_score[billdata_cross_month$cph_scale < cph_curve[8] & billdata_cross_month$cph_scale >= cph_curve[9]] <- 55
+billdata_cross_month$cph_score[billdata_cross_month$cph_scale < cph_curve[9] & billdata_cross_month$cph_scale >= cph_curve[10]] <- 50
+billdata_cross_month$cph_score[billdata_cross_month$cph_scale < cph_curve[10]] <- 45
+
+# Calculate the quantiles for Rejection Rate
+rr_curve <- quantile <https://rdrr.io/r/stats/quantile.html>(billdata_cross_month$rr_scale, c <https://rdrr.io/r/base/c.html>(.95, .9, .85, .8, .75, .7, .65, .6, .55, .5))
+
+# Recode percentile ranks into Rejection Rate Score
+billdata_cross_month$rr_score[billdata_cross_month$rr_scale <= rr_curve[10]] <- 95
+billdata_cross_month$rr_score[billdata_cross_month$rr_scale > rr_curve[10] & billdata_cross_month$rr_scale <= rr_curve[9]] <- 90
+billdata_cross_month$rr_score[billdata_cross_month$rr_scale > rr_curve[9] & billdata_cross_month$rr_scale <= rr_curve[8]] <- 85
+billdata_cross_month$rr_score[billdata_cross_month$rr_scale > rr_curve[8] & billdata_cross_month$rr_scale <= rr_curve[7]] <- 80
+billdata_cross_month$rr_score[billdata_cross_month$rr_scale > rr_curve[7] & billdata_cross_month$rr_scale <= rr_curve[6]] <- 75
+billdata_cross_month$rr_score[billdata_cross_month$rr_scale > rr_curve[6] & billdata_cross_month$rr_scale <= rr_curve[5]] <- 70
+billdata_cross_month$rr_score[billdata_cross_month$rr_scale > rr_curve[5] & billdata_cross_month$rr_scale <= rr_curve[4]] <- 65
+billdata_cross_month$rr_score[billdata_cross_month$rr_scale > rr_curve[4] & billdata_cross_month$rr_scale <= rr_curve[3]] <- 60
+billdata_cross_month$rr_score[billdata_cross_month$rr_scale > rr_curve[3] & billdata_cross_month$rr_scale <= rr_curve[2]] <- 55
+billdata_cross_month$rr_score[billdata_cross_month$rr_scale > rr_curve[2] & billdata_cross_month$rr_scale <= rr_curve[1]] <- 50
+billdata_cross_month$rr_score[billdata_cross_month$rr_scale > rr_curve[1]] <- 45
+
+# Calculate the mean of the scores
+billdata_cross_month <- billdata_cross_month |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    total_score = cph_score + rr_score,
+    avg_score = total_score / 2
+  )
+
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(billdata_cross_month)|//
+
+ABCDEFGHIJ0123456789
+
+period
+<chr>
+	
+date
+<date>
+	
+nmon
+<ord>
+	
+month
+<ord>
+	
+dqtr
+<chr>
+	
+biller_last
+<chr>
+	
+client
+<chr>
+	
+hrs
+<dbl>
+	
+claim
+<dbl>
+	
+reject
+<dbl>
+	
+month	2021-01-01	1	January	1Q21	Bryant	Figgs III	71.00000	2796	49	
+month	2021-01-01	1	January	1Q21	Bryant	Wilson	74.00000	2944	87	
+month	2021-01-01	1	January	1Q21	Lattimore	Burnett	77.00000	3358	96	
+month	2021-01-01	1	January	1Q21	Lattimore	Jones-Malone	80.00000	2280	65	
+month	2021-01-01	1	January	1Q21	Legrand	Brown	66.00000	2424	69	
+month	2021-01-01	1	January	1Q21	Legrand	Cooke	74.00000	2497	39	
+month	2021-01-01	1	January	1Q21	Mcintyre	Cunningham	65.88500	2147	30	
+month	2021-01-01	1	January	1Q21	Mcintyre	Sowell	94.11500	3342	74	
+month	2021-01-01	1	January	1Q21	Patterson	Mcclendon	89.00000	2647	70	
+month	2021-01-01	1	January	1Q21	Patterson	Tupper	76.00000	2582	59	
+
+Next
+123456...
+12
+Previous
+1-10 of 119 rows | 1-10 of 22 columns
+
+|billdata_month_rank <- billdata_cross_month |>
+  group_by <https://dplyr.tidyverse.org/reference/group_by.html>(month, biller_last) |>
+  summarise <https://dplyr.tidyverse.org/reference/summarise.html>(avg_score = mean <https://rdrr.io/r/base/mean.html>(avg_score, 3)) |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(rank = rank <https://rdrr.io/r/base/rank.html>(desc <https://dplyr.tidyverse.org/reference/desc.html>(avg_score), ties.method = "min"))
+
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(billdata_month_rank)|//
+
+ABCDEFGHIJ0123456789
+
+month
+<ord>
+	
+biller_last
+<chr>
+	
+avg_score
+<dbl>
+	
+rank
+<int>
+	
+January	Bryant	68.75	2	
+January	Lattimore	63.75	3	
+January	Legrand	62.50	4	
+January	Mcintyre	70.00	1	
+January	Patterson	62.50	4	
+February	Bryant	51.25	4	
+February	Lattimore	77.50	2	
+February	Legrand	46.25	5	
+February	Mcintyre	72.50	3	
+February	Patterson	82.50	1	
+
+Next
+123456
+Previous
+1-10 of 60 rows
+
+
+      <#monthly-rank-2>Monthly Rank #2
+
+|# Add the individually scaled monthly scores
+billdata_cross_month2 <- billdata_cross |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(
+    period == "month",
+    biller_last != "All",
+    client == "All"
+  ) |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    rr_scale = scale <https://rdrr.io/r/base/scale.html>(rejrate),
+    cph_scale = scale <https://rdrr.io/r/base/scale.html>(clmphr)
+  )
+
+# Calculate the quantiles for Claims Per Hour
+cph_curve2 <- quantile <https://rdrr.io/r/stats/quantile.html>(billdata_cross_month2$cph_scale, c <https://rdrr.io/r/base/c.html>(.95, .9, .85, .8, .75, .7, .65, .6, .55, .5))
+
+# Recode percentile ranks into Claims Per Hour Score
+billdata_cross_month2$cph_score[billdata_cross_month2$cph_scale >= cph_curve2[1]] <- 95
+billdata_cross_month2$cph_score[billdata_cross_month2$cph_scale < cph_curve2[1] & billdata_cross_month2$cph_scale >= cph_curve2[2]] <- 90
+billdata_cross_month2$cph_score[billdata_cross_month2$cph_scale < cph_curve2[2] & billdata_cross_month2$cph_scale >= cph_curve2[3]] <- 85
+billdata_cross_month2$cph_score[billdata_cross_month2$cph_scale < cph_curve2[3] & billdata_cross_month2$cph_scale >= cph_curve2[4]] <- 80
+billdata_cross_month2$cph_score[billdata_cross_month2$cph_scale < cph_curve2[4] & billdata_cross_month2$cph_scale >= cph_curve2[5]] <- 75
+billdata_cross_month2$cph_score[billdata_cross_month2$cph_scale < cph_curve2[5] & billdata_cross_month2$cph_scale >= cph_curve2[6]] <- 70
+billdata_cross_month2$cph_score[billdata_cross_month2$cph_scale < cph_curve2[6] & billdata_cross_month2$cph_scale >= cph_curve2[7]] <- 65
+billdata_cross_month2$cph_score[billdata_cross_month2$cph_scale < cph_curve2[7] & billdata_cross_month2$cph_scale >= cph_curve2[8]] <- 60
+billdata_cross_month2$cph_score[billdata_cross_month2$cph_scale < cph_curve2[8] & billdata_cross_month2$cph_scale >= cph_curve2[9]] <- 55
+billdata_cross_month2$cph_score[billdata_cross_month2$cph_scale < cph_curve2[9] & billdata_cross_month2$cph_scale >= cph_curve2[10]] <- 50
+billdata_cross_month2$cph_score[billdata_cross_month2$cph_scale < cph_curve2[10]] <- 45
+
+# Calculate the quantiles for Rejection Rate
+rr_curve2 <- quantile <https://rdrr.io/r/stats/quantile.html>(billdata_cross_month2$rr_scale, c <https://rdrr.io/r/base/c.html>(.95, .9, .85, .8, .75, .7, .65, .6, .55, .5))
+
+# Recode percentile ranks into Rejection Rate Score
+billdata_cross_month2$rr_score[billdata_cross_month2$rr_scale <= rr_curve2[10]] <- 95
+billdata_cross_month2$rr_score[billdata_cross_month2$rr_scale > rr_curve2[10] & billdata_cross_month2$rr_scale <= rr_curve2[9]] <- 90
+billdata_cross_month2$rr_score[billdata_cross_month2$rr_scale > rr_curve2[9] & billdata_cross_month2$rr_scale <= rr_curve2[8]] <- 85
+billdata_cross_month2$rr_score[billdata_cross_month2$rr_scale > rr_curve2[8] & billdata_cross_month2$rr_scale <= rr_curve2[7]] <- 80
+billdata_cross_month2$rr_score[billdata_cross_month2$rr_scale > rr_curve2[7] & billdata_cross_month2$rr_scale <= rr_curve2[6]] <- 75
+billdata_cross_month2$rr_score[billdata_cross_month2$rr_scale > rr_curve2[6] & billdata_cross_month2$rr_scale <= rr_curve2[5]] <- 70
+billdata_cross_month2$rr_score[billdata_cross_month2$rr_scale > rr_curve2[5] & billdata_cross_month2$rr_scale <= rr_curve2[4]] <- 65
+billdata_cross_month2$rr_score[billdata_cross_month2$rr_scale > rr_curve2[4] & billdata_cross_month2$rr_scale <= rr_curve2[3]] <- 60
+billdata_cross_month2$rr_score[billdata_cross_month2$rr_scale > rr_curve2[3] & billdata_cross_month2$rr_scale <= rr_curve2[2]] <- 55
+billdata_cross_month2$rr_score[billdata_cross_month2$rr_scale > rr_curve2[2] & billdata_cross_month2$rr_scale <= rr_curve2[1]] <- 50
+billdata_cross_month2$rr_score[billdata_cross_month2$rr_scale > rr_curve2[1]] <- 45
+
+# Calculate the mean of the scores
+billdata_cross_month2 <- billdata_cross_month2 |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    total_score = cph_score + rr_score,
+    avg_score = total_score / 2
+  )
+
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(billdata_cross_month2)|//
+
+ABCDEFGHIJ0123456789
+
+period
+<chr>
+	
+date
+<date>
+	
+nmon
+<ord>
+	
+month
+<ord>
+	
+dqtr
+<chr>
+	
+biller_last
+<chr>
+	
+client
+<chr>
+	
+hrs
+<dbl>
+	
+claim
+<dbl>
+	
+reject
+<dbl>
+	
+month	2021-01-01	1	January	1Q21	Bryant	All	145.00000	5740	136	
+month	2021-01-01	1	January	1Q21	Lattimore	All	157.00000	5638	161	
+month	2021-01-01	1	January	1Q21	Legrand	All	140.00000	4921	108	
+month	2021-01-01	1	January	1Q21	Mcintyre	All	160.00000	5489	104	
+month	2021-01-01	1	January	1Q21	Patterson	All	165.00000	5229	129	
+month	2021-02-01	2	February	1Q21	Bryant	All	164.00000	5468	181	
+month	2021-02-01	2	February	1Q21	Lattimore	All	152.00000	5734	110	
+month	2021-02-01	2	February	1Q21	Legrand	All	149.00000	4676	162	
+month	2021-02-01	2	February	1Q21	Mcintyre	All	145.06000	5453	96	
+month	2021-02-01	2	February	1Q21	Patterson	All	152.00000	6270	91	
+
+Next
+123456
+Previous
+1-10 of 60 rows | 1-10 of 22 columns
+
+|billdata_month_rank2 <- billdata_cross_month2 |>
+  group_by <https://dplyr.tidyverse.org/reference/group_by.html>(month, biller_last) |>
+  summarise <https://dplyr.tidyverse.org/reference/summarise.html>(avg_score = mean <https://rdrr.io/r/base/mean.html>(avg_score, 3)) |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(rank = rank <https://rdrr.io/r/base/rank.html>(desc <https://dplyr.tidyverse.org/reference/desc.html>(avg_score), ties.method = "min"))
+
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(billdata_month_rank2)|//
+
+ABCDEFGHIJ0123456789
+
+month
+<ord>
+	
+biller_last
+<chr>
+	
+avg_score
+<dbl>
+	
+rank
+<int>
+	
+January	Bryant	75.0	1	
+January	Lattimore	50.0	5	
+January	Legrand	70.0	2	
+January	Mcintyre	70.0	2	
+January	Patterson	60.0	4	
+February	Bryant	45.0	4	
+February	Lattimore	72.5	2	
+February	Legrand	45.0	4	
+February	Mcintyre	70.0	3	
+February	Patterson	85.0	1	
+
+Next
+123456
+Previous
+1-10 of 60 rows
+
+
+    <#potential-drawbacks>Potential Drawbacks
+
+This is my simplified adaptation of what’s come to be known as a “North
+Star Metric” which you can read more about here <https://mixpanel.com/
+blog/north-star-metric/
+#:~:text=A%20North%20Star%20metric%20is,customer%20value%2C%20and%20measure%20progress.>. I’m using it more as a sort of “One Number to Rule Them All.” Ideally, by combining as many measurements as is reasonable, you can monitor one number instead of six. The legitimacy of the number/score can be difficult to parse if one does not take great care when creating the calculation. It might take a lot of testing to make sure the final score is accurately reflecting an individual’s performance.
+
+For instance, the above example does not take into account:
+
+  *
+
+    *Provider Lag*: While provider lag is usually monitored because it
+    has more of an effect on a provider’s monthly reimbursement, it
+    would have an effect here as well. If a provider isn’t signing
+    charts and making claims billable, a biller is missing chances to
+    better (or worsen) their score. And while provider lag is usually
+    measured as the average days between an encounter being created and
+    the encounter being signed, the number we would need to be able to
+    include it in this quality score calculation is the number of claims
+    that were potentially billable because of the lag.
+
+  *
+
+    *Biller’s Personal Circumstances*: Did the biller go on vacation?
+    Were they out sick? Do they have different responsibilities as
+    compared to other billers? There are a hundred different things that
+    might need to be considered. Some of these questions could be solved
+    by using minimum thresholds to be considered for the score (i.e.,
+    the biller must have worked at least xx hours and billed xx claims
+    to be elligible for inclusion.)
+
+  *
+
+    *Variance in Client Activity*: Any significant variance in patient
+    volume, gross charges, coding patterns, provider absences, etc.
+    would need to be accounted for and the score adjusted.
+
+    A quality rating or score should judge an individual’s performance
+    based solely upon circumstances within their control.
+    Misrepresentation renders any such number meaningless.
+
+As with any metric meant to sum up several other complex metrics, a
+quality score such as this should be used to quickly tell a stakeholder
+that either everything is alright or point to a potential issue that
+needs further review. The caveat is that the more complicated you make
+the number, the harder it will be to explain to decision makers who /
+must/ understand exactly what it means.
+
+
+      Citations
+
+Package 	Version 	Citation
+base 	4.2.1 	R Core Team (2022 <#ref-base>)
+distill 	1.4 	Dervieux et al. (2022 <#ref-distill>)
+grateful 	0.1.11 	Rodríguez-Sánchez, Jackson, and Hutchins (2022 <#ref-
+grateful>)
+gt 	0.6.0 	Iannone, Cheng, and Schloerke (2022 <#ref-gt>)
+gtExtras 	0.4.1 	Mock (2022 <#ref-gtExtras>)
+htmltools 	0.5.3 	Cheng et al. (2022 <#ref-htmltools>)
+janitor 	2.1.0 	Firke (2021 <#ref-janitor>)
+knitr 	1.39 	Xie (2014 <#ref-knitr2014>); Xie (2015 <#ref-knitr2015>);
+Xie (2022 <#ref-knitr2022>)
+rmarkdown 	2.14 	Xie, Allaire, and Grolemund (2018 <#ref-
+rmarkdown2018>); Xie, Dervieux, and Riederer (2020 <#ref-
+rmarkdown2020>); Allaire et al. (2022 <#ref-rmarkdown2022>)
+sessioninfo 	1.2.2 	Wickham et al. (2021 <#ref-sessioninfo>)
+skimr 	2.1.4 	Waring et al. (2022 <#ref-skimr>)
+SmartEDA 	0.3.8 	Dayanand Ubrangala et al. (2021 <#ref-SmartEDA>)
+tidycharts 	0.1.3 	Biecek et al. (2022 <#ref-tidycharts>)
+tidymetrics 	0.0.1 	Vaidyanathan and Robinson (2022 <#ref-tidymetrics>)
+tidytable 	0.8.0 	Fairbanks (2022 <#ref-tidytable>)
+tidyverse 	1.3.2 	Wickham et al. (2019 <#ref-tidyverse>)
+xaringanExtra 	0.7.0 	Aden-Buie and Warkentin (2022 <#ref-xaringanExtra>)
+
+
+      Last updated on
+
+|# [1] "2022-07-20 16:11:52 EDT"|//
+
+
+      Session Info
+
+Session Info
+
+|session|//
+
+|# ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+#  setting  value
+#  version  R version 4.2.1 (2022-06-23 ucrt)
+#  os       Windows 10 x64 (build 25158)
+#  system   x86_64, mingw32
+#  ui       RTerm
+#  language (EN)
+#  collate  English_United States.utf8
+#  ctype    English_United States.utf8
+#  tz       America/New_York
+#  date     2022-07-20
+#  pandoc   2.18 @ C:/Program Files/RStudio/bin/quarto/bin/tools/ (via rmarkdown)
+# 
+# ─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+#  package       * version    date (UTC) lib source
+#  assertthat      0.2.1      2019-03-21 [1] CRAN (R 4.2.0)
+#  backports       1.4.1      2021-12-13 [1] CRAN (R 4.2.0)
+#  base64enc       0.1-3      2015-07-28 [1] CRAN (R 4.2.0)
+#  broom           1.0.0      2022-07-01 [1] CRAN (R 4.2.1)
+#  bslib           0.4.0      2022-07-16 [1] CRAN (R 4.2.1)
+#  cachem          1.0.6      2021-08-19 [1] CRAN (R 4.2.0)
+#  cellranger      1.1.0      2016-07-27 [1] CRAN (R 4.2.0)
+#  checkmate       2.1.0      2022-04-21 [1] CRAN (R 4.2.0)
+#  cli             3.3.0      2022-04-25 [1] CRAN (R 4.2.0)
+#  colorspace      2.0-3      2022-02-21 [1] CRAN (R 4.2.0)
+#  crayon          1.5.1      2022-03-26 [1] CRAN (R 4.2.0)
+#  curl            4.3.2      2021-06-23 [1] CRAN (R 4.2.0)
+#  data.table      1.14.2     2021-09-27 [1] CRAN (R 4.2.0)
+#  DBI             1.1.3      2022-06-18 [1] CRAN (R 4.2.0)
+#  dbplyr          2.2.1      2022-06-27 [1] CRAN (R 4.2.0)
+#  digest          0.6.29     2021-12-01 [1] CRAN (R 4.2.0)
+#  distill         1.4        2022-05-12 [1] CRAN (R 4.2.0)
+#  downlit         0.4.2      2022-07-05 [1] CRAN (R 4.2.0)
+#  dplyr         * 1.0.9      2022-04-28 [1] CRAN (R 4.2.0)
+#  ellipsis        0.3.2      2021-04-29 [1] CRAN (R 4.2.0)
+#  evaluate        0.15       2022-02-18 [1] CRAN (R 4.2.0)
+#  fansi           1.0.3      2022-03-24 [1] CRAN (R 4.2.0)
+#  fastmap         1.1.0      2021-01-25 [1] CRAN (R 4.2.0)
+#  fontawesome     0.2.2      2021-07-02 [1] CRAN (R 4.2.0)
+#  forcats       * 0.5.1      2021-01-27 [1] CRAN (R 4.2.0)
+#  fs              1.5.2      2021-12-08 [1] CRAN (R 4.2.0)
+#  gargle          1.2.0.9002 2022-06-05 [1] Github (r-lib/gargle@1e67aa0)
+#  generics        0.1.3      2022-07-05 [1] CRAN (R 4.2.0)
+#  GGally          2.1.2      2021-06-21 [1] CRAN (R 4.2.0)
+#  ggplot2       * 3.3.6      2022-05-03 [1] CRAN (R 4.2.0)
+#  glue            1.6.2      2022-02-24 [1] CRAN (R 4.2.0)
+#  googledrive     2.0.0      2021-07-08 [1] CRAN (R 4.2.0)
+#  googlesheets4 * 1.0.0      2021-07-21 [1] CRAN (R 4.2.0)
+#  grateful      * 0.1.11     2022-05-07 [1] Github (Pakillo/grateful@ba9b003)
+#  gridExtra       2.3        2017-09-09 [1] CRAN (R 4.2.1)
+#  gt              0.6.0      2022-05-24 [1] CRAN (R 4.2.0)
+#  gtable          0.3.0      2019-03-25 [1] CRAN (R 4.2.0)
+#  gtExtras        0.4.1      2022-07-13 [1] CRAN (R 4.2.1)
+#  haven           2.5.0      2022-04-15 [1] CRAN (R 4.2.0)
+#  highr           0.9        2021-04-16 [1] CRAN (R 4.2.0)
+#  hms             1.1.1      2021-09-26 [1] CRAN (R 4.2.0)
+#  htmltools     * 0.5.3      2022-07-18 [1] CRAN (R 4.2.1)
+#  htmlwidgets     1.5.4      2021-09-08 [1] CRAN (R 4.2.0)
+#  httr            1.4.3      2022-05-04 [1] CRAN (R 4.2.0)
+#  ISLR            1.4        2021-09-15 [1] CRAN (R 4.2.0)
+#  janitor       * 2.1.0      2021-01-05 [1] CRAN (R 4.2.0)
+#  jquerylib       0.1.4      2021-04-26 [1] CRAN (R 4.2.0)
+#  jsonlite        1.8.0      2022-02-22 [1] CRAN (R 4.2.0)
+#  knitr         * 1.39       2022-04-26 [1] CRAN (R 4.2.0)
+#  lifecycle       1.0.1      2021-09-24 [1] CRAN (R 4.2.0)
+#  lpSolve         5.6.15     2020-01-24 [1] CRAN (R 4.2.0)
+#  lubridate     * 1.8.0      2021-10-07 [1] CRAN (R 4.2.0)
+#  magrittr      * 2.0.3      2022-03-30 [1] CRAN (R 4.2.0)
+#  MASS            7.3-58     2022-07-14 [1] CRAN (R 4.2.1)
+#  memoise         2.0.1      2021-11-26 [1] CRAN (R 4.2.0)
+#  modelr          0.1.8      2020-05-19 [1] CRAN (R 4.2.0)
+#  munsell         0.5.0      2018-06-12 [1] CRAN (R 4.2.0)
+#  paletteer       1.4.0      2021-07-20 [1] CRAN (R 4.2.0)
+#  pillar          1.8.0      2022-07-18 [1] CRAN (R 4.2.1)
+#  pkgconfig       2.0.3      2019-09-22 [1] CRAN (R 4.2.0)
+#  plyr            1.8.7      2022-03-24 [1] CRAN (R 4.2.0)
+#  purrr         * 0.3.4      2020-04-17 [1] CRAN (R 4.2.0)
+#  R.cache         0.15.0     2021-04-30 [1] CRAN (R 4.2.0)
+#  R.methodsS3     1.8.2      2022-06-13 [1] CRAN (R 4.2.0)
+#  R.oo            1.25.0     2022-06-12 [1] CRAN (R 4.2.0)
+#  R.utils         2.12.0     2022-06-28 [1] CRAN (R 4.2.0)
+#  R6              2.5.1      2021-08-19 [1] CRAN (R 4.2.0)
+#  RColorBrewer    1.1-3      2022-04-03 [1] CRAN (R 4.2.0)
+#  Rcpp            1.0.9      2022-07-08 [1] CRAN (R 4.2.1)
+#  readr         * 2.1.2      2022-01-30 [1] CRAN (R 4.2.0)
+#  readxl          1.4.0      2022-03-28 [1] CRAN (R 4.2.0)
+#  rematch2        2.1.2      2020-05-01 [1] CRAN (R 4.2.0)
+#  renv            0.15.5     2022-05-26 [1] CRAN (R 4.2.0)
+#  repr            1.1.4      2022-01-04 [1] CRAN (R 4.2.0)
+#  reprex          2.0.1      2021-08-05 [1] CRAN (R 4.2.0)
+#  reshape         0.8.9      2022-04-12 [1] CRAN (R 4.2.0)
+#  rlang           1.0.4      2022-07-12 [1] CRAN (R 4.2.1)
+#  rmarkdown     * 2.14       2022-04-25 [1] CRAN (R 4.2.0)
+#  rstudioapi      0.13       2020-11-12 [1] CRAN (R 4.2.0)
+#  rsvg            2.3.1      2022-04-20 [1] CRAN (R 4.2.0)
+#  rvest           1.0.2      2021-10-16 [1] CRAN (R 4.2.0)
+#  sampling        2.9        2021-01-13 [1] CRAN (R 4.2.0)
+#  sass            0.4.2      2022-07-16 [1] CRAN (R 4.2.1)
+#  scales          1.2.0      2022-04-13 [1] CRAN (R 4.2.0)
+#  sessioninfo     1.2.2      2021-12-06 [1] CRAN (R 4.2.0)
+#  skimr         * 2.1.4      2022-06-14 [1] Github (ropensci/skimr@413ad47)
+#  SmartEDA        0.3.8      2021-06-05 [1] CRAN (R 4.2.0)
+#  snakecase       0.11.0     2019-05-25 [1] CRAN (R 4.2.0)
+#  stringi         1.7.8      2022-07-11 [1] CRAN (R 4.2.1)
+#  stringr       * 1.4.0      2019-02-10 [1] CRAN (R 4.2.0)
+#  styler          1.7.0      2022-03-13 [1] CRAN (R 4.2.0)
+#  tibble        * 3.1.7      2022-05-03 [1] CRAN (R 4.2.0)
+#  tidycharts    * 0.1.3      2022-01-18 [1] CRAN (R 4.2.1)
+#  tidymetrics   * 0.0.1      2022-05-07 [1] Github (datacamp/tidymetrics@47f157a)
+#  tidyr         * 1.2.0      2022-02-01 [1] CRAN (R 4.2.0)
+#  tidyselect      1.1.2      2022-02-21 [1] CRAN (R 4.2.0)
+#  tidytable     * 0.8.0      2022-06-14 [1] Github (markfairbanks/tidytable@13c9b1d)
+#  tidyverse     * 1.3.2      2022-07-18 [1] CRAN (R 4.2.1)
+#  tzdb            0.3.0      2022-03-28 [1] CRAN (R 4.2.0)
+#  utf8            1.2.2      2021-07-24 [1] CRAN (R 4.2.0)
+#  uuid            1.1-0      2022-04-19 [1] CRAN (R 4.2.0)
+#  vctrs           0.4.1      2022-04-13 [1] CRAN (R 4.2.0)
+#  withr           2.5.0      2022-03-03 [1] CRAN (R 4.2.0)
+#  xaringanExtra   0.7.0      2022-07-16 [1] CRAN (R 4.2.1)
+#  xfun            0.31       2022-05-10 [1] CRAN (R 4.2.0)
+#  xml2            1.3.3      2021-11-30 [1] CRAN (R 4.2.0)
+#  yaml            2.3.5      2022-02-21 [1] CRAN (R 4.2.0)
+# 
+#  [1] C:/Users/andyb/AppData/Local/R/win-library/4.2
+#  [2] C:/Program Files/R/R-4.2.1/library
+# 
+# ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────|//
+
+//   0 Comments Share:   // <https://twitter.com/share?
+text=R%20Cookbook%3A%20Medical%20Billing&url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fr-cookbook-medical-billing%2F> // <https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fr-cookbook-medical-billing%2F&title=R%20Cookbook%3A%20Medical%20Billing> // <https://www.facebook.com/sharer/sharer.php?s=100&p[url]=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fr-cookbook-medical-billing%2F> // <https://pinterest.com/pin/create/link/?url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fr-cookbook-medical-billing%2F&description=R%20Cookbook%3A%20Medical%20Billing>
+
+Enjoy this blog? Get notified of new posts via email:
+
+
+      Footnotes
+
+
+      References
+
+Aden-Buie, Garrick, and Matthew T. Warkentin. 2022. /xaringanExtra:
+Extras and Extensions for ’Xaringan’ Slides/. https://CRAN.R-
+project.org/package=xaringanExtra <https://cran.r-project.org/
+package=xaringanExtra>.
+Allaire, JJ, Yihui Xie, Jonathan McPherson, Javier Luraschi, Kevin
+Ushey, Aron Atkins, Hadley Wickham, Joe Cheng, Winston Chang, and
+Richard Iannone. 2022. /Rmarkdown: Dynamic Documents for r/. https://
+github.com/rstudio/rmarkdown <https://github.com/rstudio/rmarkdown>.
+Biecek, Przemysław, Piotr Piątyszek, Kinga Ułasik, and Bartosz Sawicki.
+2022. /Tidycharts: Generate Tidy Charts Inspired by ’IBCS’/. https://
+CRAN.R-project.org/package=tidycharts <https://cran.r-project.org/
+package=tidycharts>.
+Cheng, Joe, Carson Sievert, Barret Schloerke, Winston Chang, Yihui Xie,
+and Jeff Allen. 2022. /Htmltools: Tools for HTML/. https://CRAN.R-
+project.org/package=htmltools <https://cran.r-project.org/
+package=htmltools>.
+Dayanand Ubrangala, Kiran R, Ravi Prasad Kondapalli, and Sayan
+Putatunda. 2021. /SmartEDA: Summarize and Explore the Data/. https://
+CRAN.R-project.org/package=SmartEDA <https://cran.r-project.org/
+package=SmartEDA>.
+Dervieux, Christophe, JJ Allaire, Rich Iannone, Alison Presmanes Hill,
+and Yihui Xie. 2022. /Distill: ’R Markdown’ Format for Scientific and
+Technical Writing/. https://CRAN.R-project.org/package=distill <https://
+cran.r-project.org/package=distill>.
+Fairbanks, Mark. 2022. /Tidytable: Tidy Interface to ’Data.table’/.
+https://github.com/markfairbanks/tidytable <https://github.com/
+markfairbanks/tidytable>.
+Firke, Sam. 2021. /Janitor: Simple Tools for Examining and Cleaning
+Dirty Data/. https://CRAN.R-project.org/package=janitor <https://cran.r-
+project.org/package=janitor>.
+Iannone, Richard, Joe Cheng, and Barret Schloerke. 2022. /Gt: Easily
+Create Presentation-Ready Display Tables/. https://CRAN.R-project.org/
+package=gt <https://cran.r-project.org/package=gt>.
+Mock, Thomas. 2022. /gtExtras: Extending ’Gt’ for Beautiful HTML
+Tables/. https://CRAN.R-project.org/package=gtExtras <https://cran.r-
+project.org/package=gtExtras>.
+R Core Team. 2022. /R: A Language and Environment for Statistical
+Computing/. Vienna, Austria: R Foundation for Statistical Computing.
+https://www.R-project.org/ <https://www.r-project.org/>.
+Rodríguez-Sánchez, Francisco, Connor P. Jackson, and Shaurita D.
+Hutchins. 2022. /Grateful: Facilitate Citation of r Packages/. https://
+github.com/Pakillo/grateful <https://github.com/Pakillo/grateful>.
+Vaidyanathan, Ramnath, and David Robinson. 2022. /Tidymetrics: A Tidy
+Approach to Dimensional Modeling/.
+Waring, Elin, Michael Quinn, Amelia McNamara, Eduardo Arino de la Rubia,
+Hao Zhu, and Shannon Ellis. 2022. /Skimr: Compact and Flexible Summaries
+of Data/.
+Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy
+D’Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019.
+“Welcome to the tidyverse.” /Journal of Open Source Software/ 4 (43):
+1686. https://doi.org/10.21105/joss.01686 <https://doi.org/10.21105/
+joss.01686>.
+Wickham, Hadley, Winston Chang, Robert Flight, Kirill Müller, and Jim
+Hester. 2021. /Sessioninfo: R Session Information/. https://CRAN.R-
+project.org/package=sessioninfo <https://cran.r-project.org/
+package=sessioninfo>.
+Xie, Yihui. 2014. “Knitr: A Comprehensive Tool for Reproducible Research
+in R.” In /Implementing Reproducible Computational Research/, edited by
+Victoria Stodden, Friedrich Leisch, and Roger D. Peng. Chapman; Hall/
+CRC. http://www.crcpress.com/product/isbn/9781466561595 <http://
+www.crcpress.com/product/isbn/9781466561595>.
+———. 2015. /Dynamic Documents with R and Knitr/. 2nd ed. Boca Raton,
+Florida: Chapman; Hall/CRC. https://yihui.org/knitr/ <https://yihui.org/
+knitr/>.
+———. 2022. /Knitr: A General-Purpose Package for Dynamic Report
+Generation in r/. https://yihui.org/knitr/ <https://yihui.org/knitr/>.
+Xie, Yihui, J. J. Allaire, and Garrett Grolemund. 2018. /R Markdown: The
+Definitive Guide/. Boca Raton, Florida: Chapman; Hall/CRC. https://
+bookdown.org/yihui/rmarkdown <https://bookdown.org/yihui/rmarkdown>.
+Xie, Yihui, Christophe Dervieux, and Emily Riederer. 2020. /R Markdown
+Cookbook/. Boca Raton, Florida: Chapman; Hall/CRC. https://bookdown.org/
+yihui/rmarkdown-cookbook <https://bookdown.org/yihui/rmarkdown-cookbook>.
+
+
+      Corrections
+
+If you see mistakes or want to suggest changes, please create an issue
+<https://github.com/andrewallenbruce/issues/new> on the source repository.
+
+
+      Reuse
+
+Text and figures are licensed under Creative Commons Attribution CC BY
+4.0 <https://creativecommons.org/licenses/by/4.0/>. Source code is
+available at https://github.com/andrewallenbruce <https://github.com/
+andrewallenbruce>, unless otherwise noted. The figures that have been
+reused from other sources don't fall under this license and can be
+recognized by a note in their caption: "Figure from ...".
+
+
+      Citation
+
+For attribution, please cite this work as
+
+Bruce (2022, April 6). Andrew Bruce: R Cookbook: Medical Billing. Retrieved from https://andrewbruce.netlify.app/posts/r-cookbook-medical-billing///
+
+BibTeX citation
+
+@misc{bruce2022r,
+  author = {Bruce, Andrew},
+  title = {Andrew Bruce: R Cookbook: Medical Billing},
+  url = {https://andrewbruce.netlify.app/posts/r-cookbook-medical-billing/},
+  year = {2022}
+}//
+
+Andrew A. Bruce - 2024 - made with , and {distill} <https://
+rstudio.github.io/distill/>
+

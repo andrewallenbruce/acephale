@@ -1,0 +1,2071 @@
+Andrew Bruce <https://andrewbrucehimni.netlify.app/>
+
+Home <https://andrewbrucehimni.netlify.app/> Projects ▾ EHR UX/UI Mockup
+<https://andrewbrucehimni.netlify.app/flex_example/flexexample> Days in
+AR Shiny App <https://himni.shinyapps.io/darguide/> The Art of DAR
+<https://artofdar.netlify.app/> HIM & I <https://himni.info/>
+About <https://andrewbrucehimni.netlify.app/about> // <https://
+www.linkedin.com/in/andybruce1> // <https://twitter.com/aabrucehimni> //
+<https://www.behance.net/andybruce1> // <https://
+andrewbrucehimni.netlify.app/index.xml> // <https://github.com/
+andrewallenbruce> ☰ <javascript:void(0);>
+
+
+  Chloropleth Maps: Medicare Physician & Other Practitioners Dataset
+
+medicare <https://andrewbrucehimni.netlify.app/#category:medicare> data-
+analytics <https://andrewbrucehimni.netlify.app/#category:data-
+analytics> highcharter <https://andrewbrucehimni.netlify.app/
+#category:highcharter> highcharts <https://andrewbrucehimni.netlify.app/
+#category:highcharts> rstats <https://andrewbrucehimni.netlify.app/
+#category:rstats> r-bloggers <https://andrewbrucehimni.netlify.app/
+#category:r-bloggers>
+
+Create interactive chloropleth maps for more intuitive data visualizations.
+
+
+      Author
+
+
+      Affiliation
+
+Andrew Bruce <https://andrewbruce.netlify.app/> ORCID ID <https://
+orcid.org/0000-0001-5040-4327>
+
+ 
+
+
+      Published
+
+May 15, 2022
+
+
+      Citation
+
+Bruce, 2022 <#citation>
+
+
+      Contents
+
+  * Introduction <#introduction>
+      o Packages <#packages>
+      o Dataset <#dataset>
+  * Data Cleaning <#data-cleaning>
+      o Rename Columns <#rename-columns>
+      o Subset Data Frame <#subset-data-frame>
+      o Zipcode Dataset <#zipcode-dataset>
+      o Left-Join |mpfs_ga_em| & |ga_zip| Datasets <#left-join-mpfs_ga_em-ga_zip-datasets>
+      o County FIPS Codes <#county-fips-codes>
+      o Remove “County” Text from |county| column <#remove-county-text-from-county-column>
+      o Summarize by Zip Code and EM Code <#summarize-by-zip-code-and-
+        em-code>
+  * Prepare Data for Plot <#prepare-data-for-plot>
+      o Subset by Individual EM Codes <#subset-by-individual-em-codes>
+          + New Patient E/M Codes <#new-patient-em-codes>
+          + Established Patient E/M Codes <#established-patient-em-codes>
+      o Download Map Data from Highcharter package <#download-map-data-
+        from-highcharter-package>
+  * Creating the Chloropleth Maps <#creating-the-chloropleth-maps>
+      o New Patient E/M Codes <#new-patient-em-codes-1>
+      o Established Patient E/M Codes <#established-patient-em-codes-1>
+
+
+  Introduction
+
+This is intended to be a step-by-step guide for data analysis of large,
+publicly available datasets. I’ll be working with a Medicare dataset
+named *Medicare Physician & Other Practitioners - by Provider and
+Service* that can be downloaded here <https://data.cms.gov/provider-
+summary-by-type-of-service/medicare-physician-other-practitioners/
+medicare-physician-other-practitioners-by-provider-and-service>. /Note:
+You can currently get this dataset with data going all the way back to
+2013 (21 GB), but, in the interest of filesize, I’m only going to be
+working with the most recent data, from 2019 (3 GB)./
+
+
+    <#packages>Packages
+
+|library <https://rdrr.io/r/base/library.html>(tidyverse <https://tidyverse.tidyverse.org/>)
+library <https://rdrr.io/r/base/library.html>(rio <https://github.com/leeper/rio>)
+library <https://rdrr.io/r/base/library.html>(rmarkdown <https://github.com/rstudio/rmarkdown>)
+library <https://rdrr.io/r/base/library.html>(htmltools <https://github.com/rstudio/htmltools>)
+library <https://rdrr.io/r/base/library.html>(tidycensus <https://walker-data.com/tidycensus/>)
+library <https://rdrr.io/r/base/library.html>(highcharter <https://jkunst.com/highcharter/>)
+|//
+
+
+    <#dataset>Dataset
+
+The *Medicare Physician & Other Practitioners by Provider and Service*
+dataset provides information on use, payments, and submitted charges
+organized by National Provider Identifier (NPI), Healthcare Common
+Procedure Coding System (HCPCS) code, and place of service. This dataset
+is based on information gathered from CMS administrative claims data for
+Original Medicare Part B beneficiaries available from the CMS Chronic
+Conditions Data Warehouse.
+
+
+  Data Cleaning
+
+Let’s take a look at our initial data frame:
+
+|mpfs_preview <- head <https://rdrr.io/r/utils/head.html>(mpfs, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(mpfs_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+ 
+ 
+	
+Rndrng_NPI
+<int>
+	
+Rndrng_Prvdr_Last_Org_Name
+<chr>
+	
+Rndrng_Prvdr_First_Name
+<chr>
+	
+Rndrng_Prvdr_MI
+<chr>
+	
+1	1003000126	Enkeshafi	Ardalan		
+2	1003000126	Enkeshafi	Ardalan		
+3	1003000126	Enkeshafi	Ardalan		
+4	1003000126	Enkeshafi	Ardalan		
+5	1003000126	Enkeshafi	Ardalan		
+6	1003000126	Enkeshafi	Ardalan		
+7	1003000126	Enkeshafi	Ardalan		
+8	1003000126	Enkeshafi	Ardalan		
+9	1003000126	Enkeshafi	Ardalan		
+10	1003000134	Cibull	Thomas	L	
+
+1-10 of 10 rows | 1-5 of 30 columns
+
+
+    <#rename-columns>Rename Columns
+
+The column names are looking pretty long and unwieldy:
+
+|names <https://rdrr.io/r/base/names.html>(mpfs)
+|//
+
+|   [1] "Rndrng_NPI"                    "Rndrng_Prvdr_Last_Org_Name"    "Rndrng_Prvdr_First_Name"      
+   [4] "Rndrng_Prvdr_MI"               "Rndrng_Prvdr_Crdntls"          "Rndrng_Prvdr_Gndr"            
+   [7] "Rndrng_Prvdr_Ent_Cd"           "Rndrng_Prvdr_St1"              "Rndrng_Prvdr_St2"             
+  [10] "Rndrng_Prvdr_City"             "Rndrng_Prvdr_State_Abrvtn"     "Rndrng_Prvdr_State_FIPS"      
+  [13] "Rndrng_Prvdr_Zip5"             "Rndrng_Prvdr_RUCA"             "Rndrng_Prvdr_RUCA_Desc"       
+  [16] "Rndrng_Prvdr_Cntry"            "Rndrng_Prvdr_Type"             "Rndrng_Prvdr_Mdcr_Prtcptg_Ind"
+  [19] "HCPCS_Cd"                      "HCPCS_Desc"                    "HCPCS_Drug_Ind"               
+  [22] "Place_Of_Srvc"                 "Tot_Benes"                     "Tot_Srvcs"                    
+  [25] "Tot_Bene_Day_Srvcs"            "Avg_Sbmtd_Chrg"                "Avg_Mdcr_Alowd_Amt"           
+  [28] "Avg_Mdcr_Pymt_Amt"             "Avg_Mdcr_Stdzd_Amt"|//
+
+I’ll go ahead and rename them:
+
+|mpfs <- mpfs |> 
+    rename <https://dplyr.tidyverse.org/reference/rename.html>(npi = Rndrng_NPI,
+           last = Rndrng_Prvdr_Last_Org_Name,
+           first = Rndrng_Prvdr_First_Name,
+           mid = Rndrng_Prvdr_MI,
+           cred = Rndrng_Prvdr_Crdntls,
+           gender = Rndrng_Prvdr_Gndr,
+           entity = Rndrng_Prvdr_Ent_Cd,
+           street = Rndrng_Prvdr_St1,
+           street2 = Rndrng_Prvdr_St2,
+           city = Rndrng_Prvdr_City,
+           state = Rndrng_Prvdr_State_Abrvtn,
+           fips = Rndrng_Prvdr_State_FIPS,
+           zip = Rndrng_Prvdr_Zip5,
+           ruca = Rndrng_Prvdr_RUCA,
+           ruca_desc = Rndrng_Prvdr_RUCA_Desc,
+           country = Rndrng_Prvdr_Cntry,
+           ptype = Rndrng_Prvdr_Type,
+           par = Rndrng_Prvdr_Mdcr_Prtcptg_Ind,
+           hcpcs = HCPCS_Cd,
+           hcpcs_desc = HCPCS_Desc,
+           hcpcs_drug = HCPCS_Drug_Ind,
+           pos = Place_Of_Srvc,
+           pts = Tot_Benes,
+           proc = Tot_Srvcs,
+           proc_day = Tot_Bene_Day_Srvcs,
+           avg_sub = Avg_Sbmtd_Chrg,
+           avg_allow = Avg_Mdcr_Alowd_Amt,
+           avg_pymt = Avg_Mdcr_Pymt_Amt,
+           avg_stand = Avg_Mdcr_Stdzd_Amt
+           )
+|//
+
+
+    <#subset-data-frame>Subset Data Frame
+
+To cut down on the file size for this example, I want to subset this
+data frame for two conditions - *E&M Codes* in the state of *Georgia*:
+
+|mpfs_ga_em <- mpfs |> 
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(state == "GA") |> 
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(str_detect <https://stringr.tidyverse.org/reference/str_detect.html>(hcpcs, "^992"))
+
+mpfs_ga_em_preview <- head <https://rdrr.io/r/utils/head.html>(mpfs_ga_em, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(mpfs_ga_em_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+ 
+ 
+	
+npi
+<int>
+	
+last
+<chr>
+	
+first
+<chr>
+	
+mid
+<chr>
+	
+cred
+<chr>
+	
+gender
+<chr>
+	
+entity
+<chr>
+	
+street
+<chr>
+	
+street2
+<chr>
+	
+1	1003006115	Durham	Benjamin		PA-C	M	I	522 N Center St		
+2	1003008111	Easterlin	Marie	O	M.D.	F	I	418 Eh Ct	Unit 4b	
+3	1003008111	Easterlin	Marie	O	M.D.	F	I	418 Eh Ct	Unit 4b	
+4	1003012915	John	Jayashree	S	MD	F	I	2000 16th Avenue		
+5	1003012915	John	Jayashree	S	MD	F	I	2000 16th Avenue		
+6	1003012915	John	Jayashree	S	MD	F	I	2000 16th Avenue		
+7	1003012915	John	Jayashree	S	MD	F	I	2000 16th Avenue		
+8	1003012915	John	Jayashree	S	MD	F	I	2000 16th Avenue		
+9	1003012915	John	Jayashree	S	MD	F	I	2000 16th Avenue		
+10	1003013236	Ostaszewski	Mary	E	FNP-C	F	I	4720 Nelson Brogdon Blvd		
+
+1-10 of 10 rows | 1-10 of 30 columns
+
+
+    <#zipcode-dataset>Zipcode Dataset
+
+I’d like to include some other information that isn’t included in this
+dataset, such as the county name. I came across a zip code dataset
+online that I’ll use:
+
+|zip_code_database_preview <- head <https://rdrr.io/r/utils/head.html>(zip_code_database, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(zip_code_database_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+ 
+ 
+	
+zip
+<int>
+	
+type
+<chr>
+	
+decommissioned
+<int>
+	
+primary_city
+<chr>
+	
+acceptable_cities
+<chr>
+	
+1	501	UNIQUE	0	Holtsville		
+2	544	UNIQUE	0	Holtsville		
+3	601	STANDARD	0	Adjuntas		
+4	602	STANDARD	0	Aguada		
+5	603	STANDARD	0	Aguadilla	Ramey	
+6	604	PO BOX	0	Aguadilla	Ramey	
+7	605	PO BOX	0	Aguadilla		
+8	606	STANDARD	0	Maricao		
+9	610	STANDARD	0	Anasco		
+10	611	PO BOX	0	Angeles		
+
+1-10 of 10 rows | 1-6 of 16 columns
+
+I’ll subset it for Georgia:
+
+|ga_zip <- zip_code_database |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(state == "GA")
+
+ga_zip_preview <- head <https://rdrr.io/r/utils/head.html>(ga_zip, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(ga_zip_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+ 
+ 
+	
+zip
+<int>
+	
+type
+<chr>
+	
+decommissioned
+<int>
+	
+primary_city
+<chr>
+	
+acceptable_cities
+<chr>
+	
+1	30002	STANDARD	0	Avondale Estates	Avondale Est	
+2	30003	PO BOX	0	Norcross		
+3	30004	STANDARD	0	Alpharetta	Milton	
+4	30005	STANDARD	0	Alpharetta	Johns Creek	
+5	30006	PO BOX	0	Marietta		
+6	30007	PO BOX	0	Marietta		
+7	30008	STANDARD	0	Marietta		
+8	30009	STANDARD	0	Alpharetta	Milton	
+9	30010	PO BOX	0	Norcross	Peachtree Cor, Peachtree Corners	
+10	30011	STANDARD	0	Auburn	Carl	
+
+1-10 of 10 rows | 1-6 of 16 columns
+
+
+    <#left-join-mpfs_ga_em-ga_zip-datasets>Left-Join |mpfs_ga_em| & |ga_zip| Datasets
+
+|ga_zip$zip  <- as.character <https://rdrr.io/r/base/character.html>(ga_zip$zip)
+
+ga_zip <- ga_zip |> 
+  select <https://dplyr.tidyverse.org/reference/select.html>(zip, county, latitude, longitude, irs_estimated_population)
+
+combined_df <- left_join <https://dplyr.tidyverse.org/reference/mutate-joins.html>(mpfs_ga_em, ga_zip, by = "zip")
+
+combined_df_preview <- head <https://rdrr.io/r/utils/head.html>(combined_df, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(combined_df_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+ 
+ 
+	
+npi
+<int>
+	
+last
+<chr>
+	
+first
+<chr>
+	
+mid
+<chr>
+	
+cred
+<chr>
+	
+gender
+<chr>
+	
+entity
+<chr>
+	
+street
+<chr>
+	
+street2
+<chr>
+	
+1	1003006115	Durham	Benjamin		PA-C	M	I	522 N Center St		
+2	1003008111	Easterlin	Marie	O	M.D.	F	I	418 Eh Ct	Unit 4b	
+3	1003008111	Easterlin	Marie	O	M.D.	F	I	418 Eh Ct	Unit 4b	
+4	1003012915	John	Jayashree	S	MD	F	I	2000 16th Avenue		
+5	1003012915	John	Jayashree	S	MD	F	I	2000 16th Avenue		
+6	1003012915	John	Jayashree	S	MD	F	I	2000 16th Avenue		
+7	1003012915	John	Jayashree	S	MD	F	I	2000 16th Avenue		
+8	1003012915	John	Jayashree	S	MD	F	I	2000 16th Avenue		
+9	1003012915	John	Jayashree	S	MD	F	I	2000 16th Avenue		
+10	1003013236	Ostaszewski	Mary	E	FNP-C	F	I	4720 Nelson Brogdon Blvd		
+
+1-10 of 10 rows | 1-10 of 34 columns
+
+
+    <#county-fips-codes>County FIPS Codes
+
+|## Get County FIPS codes from tidycensus package
+data <https://rdrr.io/r/utils/data.html>(fips_codes)
+
+## Filter to "GA"
+ga_fips_codes <- fips_codes |> 
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(state == "GA")
+
+## Join "state" & "county" FIPS codes for complete county code
+## Select only needed columns
+ga_fips_codes <- ga_fips_codes |> 
+  unite <https://tidyr.tidyverse.org/reference/unite.html>("fips_county_code", c <https://rdrr.io/r/base/c.html>("state_code", "county_code"), sep = "", remove = TRUE) |> 
+  select <https://dplyr.tidyverse.org/reference/select.html>(fips_county_code, county)
+
+## Join the two data frames
+combined_df <- left_join <https://dplyr.tidyverse.org/reference/mutate-joins.html>(combined_df, ga_fips_codes, by = "county")
+
+
+## Remove Unneeded Columns
+## Rename columns for clarity
+combined_df_map <- combined_df |> 
+  select <https://dplyr.tidyverse.org/reference/select.html>(-npi, -mid, -gender, -cred, 
+         -street2, -state, -country, 
+         -hcpcs_drug, -proc_day, 
+         -avg_stand, -fips) |> 
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(fips = fips_county_code,
+         population = irs_estimated_population
+         )
+
+combined_df_map_preview <- head <https://rdrr.io/r/utils/head.html>(combined_df_map, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(combined_df_map_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+ 
+ 
+	
+last
+<chr>
+	
+first
+<chr>
+	
+entity
+<chr>
+	
+street
+<chr>
+	
+city
+<chr>
+	
+zip
+<chr>
+	
+ruca
+<dbl>
+	
+1	Durham	Benjamin	I	522 N Center St	Thomaston	30286	4	
+2	Easterlin	Marie	I	418 Eh Ct	Brunswick	31520	1	
+3	Easterlin	Marie	I	418 Eh Ct	Brunswick	31520	1	
+4	John	Jayashree	I	2000 16th Avenue	Columbus	31901	1	
+5	John	Jayashree	I	2000 16th Avenue	Columbus	31901	1	
+6	John	Jayashree	I	2000 16th Avenue	Columbus	31901	1	
+7	John	Jayashree	I	2000 16th Avenue	Columbus	31901	1	
+8	John	Jayashree	I	2000 16th Avenue	Columbus	31901	1	
+9	John	Jayashree	I	2000 16th Avenue	Columbus	31901	1	
+10	Ostaszewski	Mary	I	4720 Nelson Brogdon Blvd	Sugar Hill	30518	1	
+
+1-10 of 10 rows | 1-8 of 24 columns
+
+
+    <#remove-county-text-from-county-column>Remove “County” Text from |county| column
+
+|combined_df_map$county <- gsub <https://rdrr.io/r/base/grep.html>(" County", "", as.character <https://rdrr.io/r/base/character.html>(combined_df_map$county))
+
+combined_df_map_preview <- head <https://rdrr.io/r/utils/head.html>(combined_df_map, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(combined_df_map_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+ 
+ 
+	
+last
+<chr>
+	
+first
+<chr>
+	
+entity
+<chr>
+	
+street
+<chr>
+	
+city
+<chr>
+	
+zip
+<chr>
+	
+ruca
+<dbl>
+	
+1	Durham	Benjamin	I	522 N Center St	Thomaston	30286	4	
+2	Easterlin	Marie	I	418 Eh Ct	Brunswick	31520	1	
+3	Easterlin	Marie	I	418 Eh Ct	Brunswick	31520	1	
+4	John	Jayashree	I	2000 16th Avenue	Columbus	31901	1	
+5	John	Jayashree	I	2000 16th Avenue	Columbus	31901	1	
+6	John	Jayashree	I	2000 16th Avenue	Columbus	31901	1	
+7	John	Jayashree	I	2000 16th Avenue	Columbus	31901	1	
+8	John	Jayashree	I	2000 16th Avenue	Columbus	31901	1	
+9	John	Jayashree	I	2000 16th Avenue	Columbus	31901	1	
+10	Ostaszewski	Mary	I	4720 Nelson Brogdon Blvd	Sugar Hill	30518	1	
+
+1-10 of 10 rows | 1-8 of 24 columns
+
+
+    <#summarize-by-zip-code-and-em-code>Summarize by Zip Code and EM Code
+
+|combined_df_map <- combined_df_map |>
+  group_by <https://dplyr.tidyverse.org/reference/group_by.html>(
+    zip, county, fips, city, ruca, hcpcs
+  ) |> 
+  summarise <https://dplyr.tidyverse.org/reference/summarise.html>(
+        pts                         = sum <https://rdrr.io/r/base/sum.html>(pts),
+        proc                        = round <https://rdrr.io/r/base/Round.html>(sum <https://rdrr.io/r/base/sum.html>(proc)),
+        avg_sub                     = round <https://rdrr.io/r/base/Round.html>(mean <https://rdrr.io/r/base/mean.html>(avg_sub), 2),
+        avg_allow                   = round <https://rdrr.io/r/base/Round.html>(mean <https://rdrr.io/r/base/mean.html>(avg_allow), 2),
+        avg_pymt                    = round <https://rdrr.io/r/base/Round.html>(mean <https://rdrr.io/r/base/mean.html>(avg_pymt), 2), 
+        .groups                     = 'drop')|>
+    arrange <https://dplyr.tidyverse.org/reference/arrange.html>(desc <https://dplyr.tidyverse.org/reference/desc.html>(proc))
+
+combined_df_map_preview <- head <https://rdrr.io/r/utils/head.html>(combined_df_map, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(combined_df_map_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+zip
+<chr>
+	
+county
+<chr>
+	
+fips
+<chr>
+	
+city
+<chr>
+	
+ruca
+<dbl>
+	
+hcpcs
+<chr>
+	
+pts
+<int>
+	
+proc
+<dbl>
+	
+avg_sub
+<dbl>
+	
+avg_allow
+<dbl>
+	
+30501	Hall	13139	Gainesville	1	99214	72734	130542	200.14	98.20	
+30060	Cobb	13067	Marietta	1	99213	62623	91618	163.82	69.24	
+30060	Cobb	13067	Marietta	1	99214	58585	91143	237.49	101.61	
+30342	Fulton	13121	Atlanta	1	99213	56680	83656	196.63	68.27	
+30342	Fulton	13121	Atlanta	1	99214	49268	79346	292.95	100.25	
+31904	Muscogee	13215	Columbus	1	99214	39028	78626	210.32	92.91	
+30309	Fulton	13121	Atlanta	1	99214	48276	73850	280.43	100.49	
+30501	Hall	13139	Gainesville	1	99213	50697	72703	135.86	67.08	
+31201	Bibb	13021	Macon	1	99213	44080	72371	131.05	64.53	
+30606	Clarke	13059	Athens	1	99213	37940	71646	162.73	66.54	
+
+1-10 of 10 rows | 1-10 of 11 columns
+
+
+  Prepare Data for Plot
+
+
+    <#subset-by-individual-em-codes>Subset by Individual EM Codes
+
+
+      <#new-patient-em-codes>New Patient E/M Codes
+
+|## 99202
+map_99202 <- combined_df_map |> 
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(hcpcs == "99202") |> 
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(value = avg_pymt) |> 
+  select <https://dplyr.tidyverse.org/reference/select.html>(county, city, zip, fips, ruca, pts, proc, value)
+
+## Statewide Average: $44.73
+avg_99202 <- map_99202 |> 
+  summarise <https://dplyr.tidyverse.org/reference/summarise.html>(state_avg = mean <https://rdrr.io/r/base/mean.html>(value))
+
+map_99202_preview <- head <https://rdrr.io/r/utils/head.html>(map_99202, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(map_99202_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+county
+<chr>
+	
+city
+<chr>
+	
+zip
+<chr>
+	
+fips
+<chr>
+	
+ruca
+<dbl>
+	
+pts
+<int>
+	
+proc
+<dbl>
+	
+value
+<dbl>
+Cobb	Marietta	30060	13067	1	3145	3145	49.94
+Chatham	Savannah	31405	13051	1	1929	1929	47.25
+Muscogee	Columbus	31904	13215	1	1929	1929	41.90
+Bibb	Macon	31201	13021	1	1458	1458	43.83
+Fulton	Atlanta	30342	13121	1	1308	1308	49.05
+Whitfield	Dalton	30720	13313	1	1267	1267	42.26
+Floyd	Rome	30165	13115	1	1244	1244	43.30
+Coweta	Newnan	30265	13077	1	1105	1105	47.63
+Oconee	Watkinsville	30677	13219	1	1103	1103	43.57
+Lowndes	Valdosta	31602	13185	1	1069	1069	44.17
+
+1-10 of 10 rows
+
+|## 99203
+map_99203 <- combined_df_map |> 
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(hcpcs == "99203") |> 
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(value = avg_pymt) |> 
+  select <https://dplyr.tidyverse.org/reference/select.html>(county, city, zip, fips, ruca, pts, proc, value)
+
+## State Average = 63.48
+avg_99203 <- map_99203 |> 
+  summarise <https://dplyr.tidyverse.org/reference/summarise.html>(state_avg = mean <https://rdrr.io/r/base/mean.html>(value))
+
+map_99203_preview <- head <https://rdrr.io/r/utils/head.html>(map_99203, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(map_99203_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+county
+<chr>
+	
+city
+<chr>
+	
+zip
+<chr>
+	
+fips
+<chr>
+	
+ruca
+<dbl>
+	
+pts
+<int>
+	
+proc
+<dbl>
+	
+value
+<dbl>
+Fulton	Atlanta	30342	13121	1	11471	11472	73.06
+Cobb	Marietta	30060	13067	1	10710	10711	72.90
+Hall	Gainesville	30501	13139	1	10284	10284	68.22
+Chatham	Savannah	31405	13051	1	9493	9493	66.76
+Clarke	Athens	30606	13059	1	8163	8163	68.62
+Fulton	Atlanta	30309	13121	1	7835	7835	72.26
+Bibb	Macon	31201	13021	1	7070	7070	68.89
+Gwinnett	Lawrenceville	30046	13135	1	6019	6019	69.07
+Fulton	Roswell	30076	13121	1	5693	5693	72.21
+Whitfield	Dalton	30720	13313	1	5445	5445	63.94
+
+1-10 of 10 rows
+
+|## 99204
+map_99204 <- combined_df_map |> 
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(hcpcs == "99204") |> 
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(value = avg_pymt) |> 
+  select <https://dplyr.tidyverse.org/reference/select.html>(county, city, zip, fips, ruca, pts, proc, value)
+
+## State Average = 103.13
+avg_99204 <- map_99204 |> 
+  summarise <https://dplyr.tidyverse.org/reference/summarise.html>(state_avg = mean <https://rdrr.io/r/base/mean.html>(value))
+
+map_99204_preview <- head <https://rdrr.io/r/utils/head.html>(map_99204, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(map_99204_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+county
+<chr>
+	
+city
+<chr>
+	
+zip
+<chr>
+	
+fips
+<chr>
+	
+ruca
+<dbl>
+	
+pts
+<int>
+	
+proc
+<dbl>
+	
+value
+<dbl>
+Hall	Gainesville	30501	13139	1	14155	14155	111.20
+Cobb	Marietta	30060	13067	1	11916	11916	116.91
+Fulton	Atlanta	30342	13121	1	11013	11014	116.10
+Fulton	Atlanta	30309	13121	1	9404	9406	115.98
+Chatham	Savannah	31405	13051	1	7515	7516	107.41
+Clarke	Athens	30606	13059	1	6926	6927	109.36
+Gwinnett	Lawrenceville	30046	13135	1	6476	6477	114.47
+Bibb	Macon	31201	13021	1	6326	6326	110.21
+DeKalb	Atlanta	30322	13089	1	6183	6184	117.37
+Henry	Stockbridge	30281	13151	1	5857	5857	114.87
+
+1-10 of 10 rows
+
+|## 99205
+map_99205 <- combined_df_map |> 
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(hcpcs == "99205") |> 
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(value = avg_pymt) |> 
+  select <https://dplyr.tidyverse.org/reference/select.html>(county, city, zip, fips, ruca, pts, proc, value)
+
+## State Average = 142.39
+avg_99205 <- map_99205 |> 
+  summarise <https://dplyr.tidyverse.org/reference/summarise.html>(state_avg = mean <https://rdrr.io/r/base/mean.html>(value))
+
+map_99205_preview <- head <https://rdrr.io/r/utils/head.html>(map_99205, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(map_99205_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+county
+<chr>
+	
+city
+<chr>
+	
+zip
+<chr>
+	
+fips
+<chr>
+	
+ruca
+<dbl>
+	
+pts
+<int>
+	
+proc
+<dbl>
+	
+value
+<dbl>
+DeKalb	Atlanta	30322	13089	1	3973	3973	146.74
+Hall	Gainesville	30501	13139	1	3621	3621	146.50
+Cobb	Marietta	30060	13067	1	3350	3350	150.18
+Fulton	Atlanta	30342	13121	1	3066	3066	148.82
+Clarke	Athens	30606	13059	1	2480	2480	145.51
+Fulton	Atlanta	30309	13121	1	2399	2399	151.93
+Henry	Stockbridge	30281	13151	1	2150	2150	148.94
+Floyd	Rome	30165	13115	1	1640	1640	141.56
+Chatham	Savannah	31405	13051	1	1590	1590	142.26
+Chatham	Savannah	31404	13051	1	1513	1513	148.25
+
+1-10 of 10 rows
+
+
+      <#established-patient-em-codes>Established Patient E/M Codes
+
+|## 99212
+map_99212 <- combined_df_map |> 
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(hcpcs == "99212") |> 
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(value = avg_pymt) |> 
+  select <https://dplyr.tidyverse.org/reference/select.html>(county, city, zip, fips, ruca, pts, proc, value)
+
+## State Average = 28.50
+avg_99212 <- map_99212 |> 
+  summarise <https://dplyr.tidyverse.org/reference/summarise.html>(state_avg = mean <https://rdrr.io/r/base/mean.html>(value))
+
+map_99212_preview <- head <https://rdrr.io/r/utils/head.html>(map_99212, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(map_99212_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+county
+<chr>
+	
+city
+<chr>
+	
+zip
+<chr>
+	
+fips
+<chr>
+	
+ruca
+<dbl>
+	
+pts
+<int>
+	
+proc
+<dbl>
+	
+value
+<dbl>
+Cobb	Marietta	30060	13067	1	9645	12012	29.38
+Fulton	Atlanta	30342	13121	1	8063	10878	29.12
+Chatham	Savannah	31405	13051	1	8726	10766	28.65
+Floyd	Rome	30165	13115	1	6870	10199	26.32
+Muscogee	Columbus	31904	13215	1	6210	8689	24.68
+Whitfield	Dalton	30720	13313	1	4513	6913	27.86
+Lowndes	Valdosta	31602	13185	1	3462	5320	27.79
+Clarke	Athens	30606	13059	1	4052	5264	28.01
+Bibb	Macon	31210	13021	1	4181	5249	27.73
+Thomas	Thomasville	31792	13275	4	3200	5093	26.81
+
+1-10 of 10 rows
+
+|## 99213
+map_99213 <- combined_df_map |> 
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(hcpcs == "99213") |> 
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(value = avg_pymt) |> 
+  select <https://dplyr.tidyverse.org/reference/select.html>(county, city, zip, fips, ruca, pts, proc, value)
+
+## State Average = 44.83
+avg_99213 <- map_99213 |> 
+  summarise <https://dplyr.tidyverse.org/reference/summarise.html>(state_avg = mean <https://rdrr.io/r/base/mean.html>(value))
+
+map_99213_preview <- head <https://rdrr.io/r/utils/head.html>(map_99213, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(map_99213_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+county
+<chr>
+	
+city
+<chr>
+	
+zip
+<chr>
+	
+fips
+<chr>
+	
+ruca
+<dbl>
+	
+pts
+<int>
+	
+proc
+<dbl>
+	
+value
+<dbl>
+Cobb	Marietta	30060	13067	1	62623	91618	49.06
+Fulton	Atlanta	30342	13121	1	56680	83656	48.79
+Hall	Gainesville	30501	13139	1	50697	72703	47.53
+Bibb	Macon	31201	13021	1	44080	72371	46.15
+Clarke	Athens	30606	13059	1	37940	71646	46.83
+Chatham	Savannah	31405	13051	1	44844	70757	46.82
+Whitfield	Dalton	30720	13313	1	34128	59713	44.95
+Fulton	Atlanta	30309	13121	1	36428	56570	48.88
+Muscogee	Columbus	31904	13215	1	33762	54804	43.55
+Gwinnett	Lawrenceville	30046	13135	1	32082	54019	47.74
+
+1-10 of 10 rows
+
+|## 99214
+map_99214 <- combined_df_map |> 
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(hcpcs == "99214") |> 
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(value = avg_pymt) |> 
+  select <https://dplyr.tidyverse.org/reference/select.html>(county, city, zip, fips, ruca, pts, proc, value)
+
+## State Average = 66.13
+avg_99214 <- map_99214 |> 
+  summarise <https://dplyr.tidyverse.org/reference/summarise.html>(state_avg = mean <https://rdrr.io/r/base/mean.html>(value))
+
+map_99214_preview <- head <https://rdrr.io/r/utils/head.html>(map_99214, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(map_99214_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+county
+<chr>
+	
+city
+<chr>
+	
+zip
+<chr>
+	
+fips
+<chr>
+	
+ruca
+<dbl>
+	
+pts
+<int>
+	
+proc
+<dbl>
+	
+value
+<dbl>
+Hall	Gainesville	30501	13139	1	72734	130542	70.80
+Cobb	Marietta	30060	13067	1	58585	91143	72.79
+Fulton	Atlanta	30342	13121	1	49268	79346	72.80
+Muscogee	Columbus	31904	13215	1	39028	78626	65.97
+Fulton	Atlanta	30309	13121	1	48276	73850	72.11
+Clarke	Athens	30606	13059	1	43671	70669	69.43
+Floyd	Rome	30165	13115	1	39819	68171	65.96
+Henry	Stockbridge	30281	13151	1	33086	66372	74.25
+Whitfield	Dalton	30720	13313	1	33837	63555	66.92
+Gwinnett	Lawrenceville	30046	13135	1	30981	54943	70.62
+
+1-10 of 10 rows
+
+|## 99215
+map_99215 <- combined_df_map |> 
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(hcpcs == "99215") |> 
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(value = avg_pymt) |> 
+  select <https://dplyr.tidyverse.org/reference/select.html>(county, city, zip, fips, ruca, pts, proc, value)
+
+## State Average = 95.61
+avg_99215 <- map_99215 |> 
+  summarise <https://dplyr.tidyverse.org/reference/summarise.html>(state_avg = mean <https://rdrr.io/r/base/mean.html>(value))
+
+map_99215_preview <- head <https://rdrr.io/r/utils/head.html>(map_99215, 10)
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(map_99215_preview)
+|//
+
+ABCDEFGHIJ0123456789
+
+county
+<chr>
+	
+city
+<chr>
+	
+zip
+<chr>
+	
+fips
+<chr>
+	
+ruca
+<dbl>
+	
+pts
+<int>
+	
+proc
+<dbl>
+	
+value
+<dbl>
+Cobb	Marietta	30060	13067	1.0	7543	10675	101.50
+DeKalb	Atlanta	30322	13089	1.0	6525	9032	94.50
+Hall	Gainesville	30501	13139	1.0	6342	8292	100.65
+Henry	Stockbridge	30281	13151	1.0	4933	7096	104.88
+Fulton	Atlanta	30309	13121	1.0	5148	6613	100.45
+Clarke	Athens	30606	13059	1.0	4707	6499	99.20
+Fulton	Atlanta	30342	13121	1.0	4777	6428	103.94
+Cobb	Austell	30106	13067	1.0	4385	6367	103.11
+Muscogee	Columbus	31904	13215	1.0	3554	6269	93.36
+Carroll	Carrollton	30117	13045	4.1	3281	4201	95.54
+
+1-10 of 10 rows
+
+
+    <#download-map-data-from-highcharter-package>Download Map Data from
+    Highcharter package
+
+Highcharter provides two functions for accessing and browsing different
+common maps:
+
+|download_map_data()|: Download the geojson data from the highchartsJS collection. |get_data_from_map()|: Get the properties for each region in the map, as the keys from the
+map data.
+
+|# Download Georgia map data
+map_layout_data <- download_map_data <https://jkunst.com/highcharter/reference/download_map_data.html>("countries/us/us-ga-all.js")
+
+get_data_from_map <https://jkunst.com/highcharter/reference/get_data_from_map.html>(map_layout_data) |> 
+  janitor::clean_names <https://rdrr.io/pkg/janitor/man/clean_names.html>() |> 
+  glimpse <https://pillar.r-lib.org/reference/glimpse.html>()
+|//
+
+|  Rows: 159
+  Columns: 7
+  $ hc_group    <chr> "admin2", "admin2", "admin2", "admin2", "admin2", "admin2", "admin2", "admin2"…
+  $ hc_middle_x <dbl> 0.42, 0.38, 0.44, 0.54, 0.50, 0.34, 0.50, 0.50, 0.50, 0.45, 0.53, 0.57, 0.45, …
+  $ hc_middle_y <dbl> 0.62, 0.50, 0.46, 0.41, 0.60, 0.37, 0.49, 0.48, 0.50, 0.41, 0.47, 0.55, 0.41, …
+  $ hc_key      <chr> "us-ga-295", "us-ga-261", "us-ga-179", "us-ga-001", "us-ga-279", "us-ga-061", …
+  $ hc_a2       <chr> "WA", "SU", "LI", "AP", "TO", "CL", "CA", "CO", "ME", "BL", "LA", "SC", "BU", …
+  $ fips        <chr> "13295", "13261", "13179", "13001", "13279", "13061", "13037", "13077", "13199…
+  $ name        <chr> "Walker", "Sumter", "Liberty", "Appling", "Toombs", "Clay", "Calhoun", "Coweta…|//
+
+
+  Creating the Chloropleth Maps
+
+
+    <#new-patient-em-codes-1>New Patient E/M Codes
+
+Show code
+
+|## 99202
+hc_99202 <- highchart <https://jkunst.com/highcharter/reference/highchart.html>(type = "map") |> 
+  hc_add_series <https://jkunst.com/highcharter/reference/hc_add_series.html>(
+    data = map_99202,
+    name = "99202",
+    mapData = map_layout_data,
+    joinBy = "fips",
+    borderColor = "#FAFAFA",
+    borderWidth = 0.15,
+    nullColor = "#d3d3d3",
+    tooltip = list <https://rdrr.io/r/base/list.html>(
+    valueDecimals = 2,
+    valuePrefix = "$",
+    valueSuffix = " USD"),
+    dataLabels = list <https://rdrr.io/r/base/list.html>(enabled = TRUE, format = "{point.county}")) |>
+  hc_colorAxis <https://jkunst.com/highcharter/reference/hc_colorAxis.html>(stops = color_stops <https://jkunst.com/highcharter/reference/color_stops.html>(colors = viridisLite::viridis <https://sjmgarnier.github.io/viridisLite/reference/viridis.html>(5, direction = -1))) |> 
+  hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(
+    text = "99202 Average Medicare Payment: Georgia (2019)",
+    align = "left", 
+    style = list <https://rdrr.io/r/base/list.html>(fontSize = "18", color = "#000000", fontWeight = "bold")) |> 
+  hc_subtitle <https://jkunst.com/highcharter/reference/hc_subtitle.html>(
+    text = "Georgia Statewide Average: <b>$44.73</b>", 
+    align = "left",
+    style = list <https://rdrr.io/r/base/list.html>(fontSize = "16", color = "#000000", fontWeight = "normal")) |> 
+  hc_legend <https://jkunst.com/highcharter/reference/hc_legend.html>(
+    layout = "horizontal",
+    reversed = TRUE,
+    floating = TRUE,
+    align = "right",
+    verticalAlight = "top"
+    ) |> 
+  hc_caption <https://jkunst.com/highcharter/reference/hc_caption.html>(
+    text = "<b>99202 HCPCS Code Description:</b><br><em>New Patient Office or Other<br>Outpatient Visit (~10 min.)</em>"
+  ) |> 
+  hc_credits <https://jkunst.com/highcharter/reference/hc_credits.html>(
+    enabled = TRUE,
+    text = "Data source: data.cms.gov",
+    href = "https://data.cms.gov/provider-summary-by-type-of-service/medicare-physician-other-practitioners/medicare-physician-other-practitioners-by-provider-and-service"
+  ) |>
+  hc_mapNavigation <https://jkunst.com/highcharter/reference/hc_mapNavigation.html>(enabled = TRUE,
+    enableMouseWheelZoom = TRUE,
+    enableDoubleClickZoom = TRUE) |> 
+  hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 900) |> 
+  hc_chart <https://jkunst.com/highcharter/reference/hc_chart.html>(style = list <https://rdrr.io/r/base/list.html>(fontFamily = "Karla"))
+
+## 99203
+hc_99203 <- highchart <https://jkunst.com/highcharter/reference/highchart.html>(type = "map") |> 
+  hc_add_series <https://jkunst.com/highcharter/reference/hc_add_series.html>(
+    data = map_99203,
+    name = "99203",
+    mapData = map_layout_data,
+    joinBy = "fips",
+    borderColor = "#FAFAFA",
+    borderWidth = 0.15,
+    nullColor = "#d3d3d3",
+    tooltip = list <https://rdrr.io/r/base/list.html>(
+    valueDecimals = 2,
+    valuePrefix = "$",
+    valueSuffix = " USD"),
+    dataLabels = list <https://rdrr.io/r/base/list.html>(enabled = TRUE, format = "{point.county}")) |>
+  hc_colorAxis <https://jkunst.com/highcharter/reference/hc_colorAxis.html>(stops = color_stops <https://jkunst.com/highcharter/reference/color_stops.html>(colors = viridisLite::viridis <https://sjmgarnier.github.io/viridisLite/reference/viridis.html>(5, direction = -1))) |> 
+  hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(
+    text = "99203 Average Medicare Payment: Georgia (2019)",
+    align = "left", 
+    style = list <https://rdrr.io/r/base/list.html>(fontSize = "18", color = "#000000", fontWeight = "bold")) |> 
+  hc_subtitle <https://jkunst.com/highcharter/reference/hc_subtitle.html>(
+    text = "Georgia Statewide Average: <b>$63.48</b>", 
+    align = "left",
+    style = list <https://rdrr.io/r/base/list.html>(fontSize = "16", color = "#000000", fontWeight = "normal")) |> 
+  hc_legend <https://jkunst.com/highcharter/reference/hc_legend.html>(
+    layout = "horizontal",
+    reversed = TRUE,
+    floating = TRUE,
+    align = "right",
+    verticalAlight = "top"
+    ) |> 
+  hc_caption <https://jkunst.com/highcharter/reference/hc_caption.html>(
+    text = "<b>99203 HCPCS Code Description:</b><br><em>New Patient Office or Other<br>Outpatient Visit (~15 min.)</em>"
+  ) |> 
+  hc_credits <https://jkunst.com/highcharter/reference/hc_credits.html>(
+    enabled = TRUE,
+    text = "Data source: data.cms.gov",
+    href = "https://data.cms.gov/provider-summary-by-type-of-service/medicare-physician-other-practitioners/medicare-physician-other-practitioners-by-provider-and-service"
+  ) |>
+  hc_mapNavigation <https://jkunst.com/highcharter/reference/hc_mapNavigation.html>(enabled = TRUE,
+    enableMouseWheelZoom = TRUE,
+    enableDoubleClickZoom = TRUE) |> 
+  hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 900) |> 
+  hc_chart <https://jkunst.com/highcharter/reference/hc_chart.html>(style = list <https://rdrr.io/r/base/list.html>(fontFamily = "Karla"))
+
+## 99204
+hc_99204 <- highchart <https://jkunst.com/highcharter/reference/highchart.html>(type = "map") |> 
+  hc_add_series <https://jkunst.com/highcharter/reference/hc_add_series.html>(
+    data = map_99204,
+    name = "99204",
+    mapData = map_layout_data,
+    joinBy = "fips",
+    borderColor = "#FAFAFA",
+    borderWidth = 0.15,
+    nullColor = "#d3d3d3",
+    tooltip = list <https://rdrr.io/r/base/list.html>(
+    valueDecimals = 2,
+    valuePrefix = "$",
+    valueSuffix = " USD"),
+    dataLabels = list <https://rdrr.io/r/base/list.html>(enabled = TRUE, format = "{point.county}")) |>
+  hc_colorAxis <https://jkunst.com/highcharter/reference/hc_colorAxis.html>(stops = color_stops <https://jkunst.com/highcharter/reference/color_stops.html>(colors = viridisLite::viridis <https://sjmgarnier.github.io/viridisLite/reference/viridis.html>(5, direction = -1))) |> 
+  hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(
+    text = "99204 Average Medicare Payment: Georgia (2019)",
+    align = "left", 
+    style = list <https://rdrr.io/r/base/list.html>(fontSize = "18", color = "#000000", fontWeight = "bold")) |> 
+  hc_subtitle <https://jkunst.com/highcharter/reference/hc_subtitle.html>(
+    text = "Georgia Statewide Average: <b>$103.13</b>", 
+    align = "left",
+    style = list <https://rdrr.io/r/base/list.html>(fontSize = "16", color = "#000000", fontWeight = "normal")) |> 
+  hc_legend <https://jkunst.com/highcharter/reference/hc_legend.html>(
+    layout = "horizontal",
+    reversed = TRUE,
+    floating = TRUE,
+    align = "right",
+    verticalAlight = "top"
+    ) |> 
+  hc_caption <https://jkunst.com/highcharter/reference/hc_caption.html>(
+    text = "<b>99204 HCPCS Code Description:</b><br><em>New Patient Office or Other<br>Outpatient Visit (~25 min.)</em>"
+  ) |> 
+  hc_credits <https://jkunst.com/highcharter/reference/hc_credits.html>(
+    enabled = TRUE,
+    text = "Data source: data.cms.gov",
+    href = "https://data.cms.gov/provider-summary-by-type-of-service/medicare-physician-other-practitioners/medicare-physician-other-practitioners-by-provider-and-service"
+  ) |>
+  hc_mapNavigation <https://jkunst.com/highcharter/reference/hc_mapNavigation.html>(enabled = TRUE,
+    enableMouseWheelZoom = TRUE,
+    enableDoubleClickZoom = TRUE) |> 
+  hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 900) |> 
+  hc_chart <https://jkunst.com/highcharter/reference/hc_chart.html>(style = list <https://rdrr.io/r/base/list.html>(fontFamily = "Karla"))
+
+## 99205
+hc_99205 <- highchart <https://jkunst.com/highcharter/reference/highchart.html>(type = "map") |> 
+  hc_add_series <https://jkunst.com/highcharter/reference/hc_add_series.html>(
+    data = map_99205,
+    name = "99205",
+    mapData = map_layout_data,
+    joinBy = "fips",
+    borderColor = "#FAFAFA",
+    borderWidth = 0.15,
+    nullColor = "#d3d3d3",
+    tooltip = list <https://rdrr.io/r/base/list.html>(
+    valueDecimals = 2,
+    valuePrefix = "$",
+    valueSuffix = " USD"),
+    dataLabels = list <https://rdrr.io/r/base/list.html>(enabled = TRUE, format = "{point.county}")) |>
+  hc_colorAxis <https://jkunst.com/highcharter/reference/hc_colorAxis.html>(stops = color_stops <https://jkunst.com/highcharter/reference/color_stops.html>(colors = viridisLite::viridis <https://sjmgarnier.github.io/viridisLite/reference/viridis.html>(5, direction = -1))) |> 
+  hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(
+    text = "99205 Average Medicare Payment: Georgia (2019)",
+    align = "left", 
+    style = list <https://rdrr.io/r/base/list.html>(fontSize = "18", color = "#000000", fontWeight = "bold")) |> 
+  hc_subtitle <https://jkunst.com/highcharter/reference/hc_subtitle.html>(
+    text = "Georgia Statewide Average: <b>$142.39</b>", 
+    align = "left",
+    style = list <https://rdrr.io/r/base/list.html>(fontSize = "16", color = "#000000", fontWeight = "normal")) |> 
+  hc_legend <https://jkunst.com/highcharter/reference/hc_legend.html>(
+    layout = "horizontal",
+    reversed = TRUE,
+    floating = TRUE,
+    align = "right",
+    verticalAlight = "top"
+    ) |> 
+  hc_caption <https://jkunst.com/highcharter/reference/hc_caption.html>(
+    text = "<b>99205 HCPCS Code Description:</b><br><em>New Patient Office or Other<br>Outpatient Visit (>30 min.)</em>"
+  ) |> 
+  hc_credits <https://jkunst.com/highcharter/reference/hc_credits.html>(
+    enabled = TRUE,
+    text = "Data source: data.cms.gov",
+    href = "https://data.cms.gov/provider-summary-by-type-of-service/medicare-physician-other-practitioners/medicare-physician-other-practitioners-by-provider-and-service"
+  ) |>
+  hc_mapNavigation <https://jkunst.com/highcharter/reference/hc_mapNavigation.html>(enabled = TRUE,
+    enableMouseWheelZoom = TRUE,
+    enableDoubleClickZoom = TRUE) |> 
+  hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 900) |> 
+  hc_chart <https://jkunst.com/highcharter/reference/hc_chart.html>(style = list <https://rdrr.io/r/base/list.html>(fontFamily = "Karla"))
+
+crosstalk::bscols <https://rdrr.io/pkg/crosstalk/man/bscols.html>(
+    widths = NA,
+    hc_99202,
+    hc_99203
+)
+|//
+
+Created with Highcharts 9.3.199202 Average Medicare Payment: Georgia
+(2019)Georgia Statewide Average: $44.7399202 HCPCS Code Description:​New
+Patient Office or Other​Outpatient Visit (~10 min.)Zoom in+Zoom out-
+Cobb​CobbChatham​ChathamMuscogee​MuscogeeBibb​BibbFulton​
+FultonWhitfield​WhitfieldFloyd​FloydCoweta​CowetaOconee​OconeeLowndes​
+LowndesHall​HallGlynn​GlynnThomas​ThomasRichmond​RichmondChatham​
+ChathamColumbia​ColumbiaHouston​HoustonCarroll​CarrollClarke​
+ClarkeFayette​FayetteGwinnett​GwinnettDougherty​DoughertyGwinnett​
+GwinnettDougherty​DoughertyBibb​BibbUnion​UnionDougherty​
+DoughertyDeKalb​DeKalbRichmond​RichmondRichmond​RichmondLaurens​
+LaurensFulton​FultonGwinnett​GwinnettCoffee​CoffeeDeKalb​DeKalbRockdale​
+RockdaleFulton​FultonForsyth​ForsythChatham​ChathamToombs​ToombsCobb​
+CobbRichmond​RichmondHouston​HoustonWare​WarePickens​PickensCoweta​
+CowetaBibb​BibbPaulding​PauldingTift​TiftGordon​GordonChatham​
+ChathamCobb​CobbHenry​HenryBaldwin​BaldwinFulton​FultonFulton​
+FultonLiberty​LibertyBartow​BartowFulton​FultonWayne​WayneFulton​
+FultonNewton​NewtonMcDuffie​McDuffieFannin​FanninFulton​FultonMuscogee​
+MuscogeeMuscogee​MuscogeeFulton​FultonGwinnett​GwinnettDouglas​
+DouglasLiberty​LibertyTroup​TroupCobb​CobbClarke​ClarkeFulton​
+FultonFulton​FultonCobb​CobbCobb​CobbCherokee​CherokeeBartow​
+BartowDeKalb​DeKalbSpalding​SpaldingLowndes​LowndesBulloch​
+BullochBulloch​BullochCobb​CobbFulton​FultonStephens​StephensGreene​
+GreeneGrady​GradyDouglas​DouglasPulaski​PulaskiFayette​FayetteBibb​
+BibbMonroe​MonroeFulton​FultonColumbia​ColumbiaHaralson​
+HaralsonHabersham​HabershamHenry​HenryGlynn​GlynnMuscogee​
+MuscogeeClarke​ClarkeGlynn​GlynnGwinnett​GwinnettCobb​CobbLumpkin​
+LumpkinFulton​FultonJackson​JacksonCarroll​CarrollCobb​CobbCobb​
+CobbWalton​WaltonCharlton​CharltonDawson​DawsonPolk​PolkCobb​CobbFulton​
+FultonCherokee​CherokeeHart​HartGwinnett​GwinnettHabersham​
+HabershamCrisp​CrispGlynn​GlynnCarroll​CarrollDeKalb​DeKalbNewton​
+NewtonColquitt​ColquittCherokee​CherokeeDeKalb​DeKalbDeKalb​DeKalbUpson​
+UpsonFloyd​FloydMurray​MurrayForsyth​ForsythFulton​FultonColumbia​
+ColumbiaClayton​ClaytonCamden​CamdenWalton​WaltonRichmond​
+RichmondLowndes​LowndesFulton​FultonCatoosa​CatoosaGlynn​GlynnAppling​
+ApplingWashington​WashingtonSeminole​SeminoleSumter​SumterCherokee​
+CherokeeWhite​WhiteClayton​ClaytonQuitman​QuitmanDeKalb​DeKalbEmanuel​
+EmanuelRockdale​RockdaleGwinnett​GwinnettTattnall​TattnallRichmond​
+RichmondHenry​HenryFulton​FultonCatoosa​CatoosaClayton​ClaytonJackson​
+JacksonGwinnett​GwinnettColumbia​ColumbiaDeKalb​DeKalbGwinnett​
+GwinnettPutnam​PutnamChatham​ChathamBen Hill​Ben HillGwinnett​
+GwinnettFulton​FultonHall​HallRabun​RabunTowns​TownsFulton​
+FultonChatham​ChathamDeKalb​DeKalbChatham​ChathamBartow​BartowClarke​
+ClarkeDeKalb​DeKalbCobb​CobbBibb​BibbMiller​MillerCobb​CobbGwinnett​
+GwinnettFranklin​FranklinCarroll​CarrollDeKalb​DeKalbCamden​
+CamdenFulton​FultonHenry​HenryChattooga​ChattoogaPolk​PolkHenry​
+HenryDeKalb​DeKalbDeKalb​DeKalbHall​HallWalker​WalkerJefferson​
+JeffersonEffingham​EffinghamRockdale​RockdaleFulton​FultonFulton​
+FultonFulton​FultonHabersham​HabershamElbert​ElbertMorgan​MorganBacon​
+BaconBrantley​BrantleyGwinnett​GwinnettButts​ButtsWalker​
+WalkerMeriwether​
+Meriwether​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​020406080Copyright (c) 2022 Highsoft AS, Based on data from The United States Census BureauData source: data.cms.gov © USA Census Bureau
+Created with Highcharts 9.3.199203 Average Medicare Payment: Georgia
+(2019)Georgia Statewide Average: $63.4899203 HCPCS Code Description:​New
+Patient Office or Other​Outpatient Visit (~15 min.)Zoom in+Zoom out-
+Fulton​FultonCobb​CobbHall​HallChatham​ChathamClarke​ClarkeFulton​
+FultonBibb​BibbGwinnett​GwinnettFulton​FultonWhitfield​WhitfieldLowndes​
+LowndesHenry​HenryMuscogee​MuscogeeBibb​BibbFayette​FayetteFloyd​
+FloydChatham​ChathamCobb​CobbMuscogee​MuscogeeCoweta​CowetaCarroll​
+CarrollRichmond​RichmondGlynn​GlynnRichmond​RichmondForsyth​
+ForsythRichmond​RichmondColumbia​ColumbiaGwinnett​GwinnettDeKalb​
+DeKalbMuscogee​MuscogeePickens​PickensLaurens​LaurensChatham​
+ChathamDeKalb​DeKalbHouston​HoustonCherokee​CherokeeFulton​
+FultonGwinnett​GwinnettThomas​ThomasWare​WareGwinnett​GwinnettFulton​
+FultonDougherty​DoughertyCherokee​CherokeeBibb​BibbJackson​
+JacksonBulloch​BullochUnion​UnionChatham​ChathamTift​TiftTroup​
+TroupGordon​GordonFulton​FultonOconee​OconeeCoffee​CoffeeRockdale​
+RockdaleSpalding​SpaldingFayette​FayetteWayne​WayneHouston​
+HoustonForsyth​ForsythFulton​FultonDeKalb​DeKalbDougherty​
+DoughertyCherokee​CherokeeFannin​FanninClayton​ClaytonToombs​
+ToombsRichmond​RichmondClarke​ClarkeDouglas​DouglasFulton​FultonCobb​
+CobbColquitt​ColquittClarke​ClarkeFulton​FultonFulton​FultonDawson​
+DawsonNewton​NewtonDeKalb​DeKalbPaulding​PauldingHenry​HenryCobb​
+CobbCobb​CobbCobb​CobbWalton​WaltonDouglas​DouglasBartow​BartowClayton​
+ClaytonBartow​BartowGreene​GreeneBibb​BibbFloyd​FloydMcDuffie​
+McDuffieColumbia​ColumbiaFulton​FultonFulton​FultonCherokee​
+CherokeeCatoosa​CatoosaGlynn​GlynnStephens​StephensCoweta​
+CowetaCherokee​CherokeeFulton​FultonCatoosa​CatoosaLiberty​
+LibertyDeKalb​DeKalbBaldwin​BaldwinJackson​JacksonFulton​FultonCobb​
+CobbHabersham​HabershamEffingham​EffinghamClayton​ClaytonCarroll​
+CarrollDougherty​DoughertyRockdale​RockdaleGwinnett​GwinnettCobb​
+CobbWalton​WaltonDeKalb​DeKalbGwinnett​GwinnettMurray​MurrayGwinnett​
+GwinnettLiberty​LibertyBarrow​BarrowCobb​CobbDeKalb​DeKalbGwinnett​
+GwinnettDeKalb​DeKalbLowndes​LowndesHouston​HoustonChatham​
+ChathamPaulding​PauldingClayton​ClaytonRichmond​RichmondUpson​
+UpsonWalker​WalkerCobb​CobbHall​HallHabersham​HabershamFulton​
+FultonCobb​CobbHenry​HenryChatham​ChathamLumpkin​LumpkinDeKalb​
+DeKalbPaulding​PauldingDecatur​DecaturWashington​WashingtonSpalding​
+SpaldingFulton​FultonFulton​FultonNewton​NewtonColumbia​
+ColumbiaGwinnett​GwinnettTroup​TroupFulton​FultonFranklin​
+FranklinRockdale​RockdaleCharlton​CharltonCamden​CamdenJackson​
+JacksonFulton​FultonCrisp​CrispCobb​CobbFulton​FultonDeKalb​
+DeKalbBarrow​BarrowClarke​ClarkeGwinnett​GwinnettCobb​CobbFulton​
+FultonJeff Davis​Jeff DavisDeKalb​DeKalbOconee​OconeeBryan​
+BryanColumbia​ColumbiaCamden​CamdenCobb​CobbHabersham​HabershamRabun​
+RabunBibb​BibbCobb​CobbSumter​SumterHenry​HenryButts​ButtsGlynn​
+GlynnPutnam​PutnamBen Hill​Ben HillGwinnett​GwinnettWhite​WhiteFranklin​
+FranklinFulton​FultonDeKalb​DeKalbRichmond​RichmondGwinnett​
+GwinnettGwinnett​GwinnettGwinnett​GwinnettTift​TiftChatham​ChathamDodge​
+DodgeTowns​TownsFulton​Fulton​Muscogee​MuscogeeGrady​GradyGilmer​
+GilmerFulton​FultonMorgan​MorganWalker​WalkerFulton​FultonBibb​
+BibbDeKalb​DeKalbChattahoochee​ChattahoocheeBibb​BibbDeKalb​
+DeKalbGwinnett​GwinnettGlynn​GlynnPulaski​PulaskiChattooga​
+ChattoogaElbert​ElbertFulton​FultonHaralson​HaralsonFulton​FultonJones​
+JonesFulton​FultonMonroe​MonroeDeKalb​DeKalbTelfair​TelfairPolk​
+PolkEffingham​EffinghamGilmer​GilmerDeKalb​DeKalbFulton​FultonClayton​
+ClaytonEvans​EvansLamar​LamarMcIntosh​McIntoshFayette​FayetteHenry​
+HenryDade​DadeDeKalb​DeKalbChatham​ChathamDeKalb​DeKalbCarroll​
+CarrollFulton​FultonPeach​PeachPolk​PolkMuscogee​MuscogeeHart​
+HartRichmond​RichmondFulton​FultonDeKalb​DeKalbWorth​WorthChattooga​
+ChattoogaPierce​PierceLowndes​LowndesDeKalb​DeKalbFulton​FultonDeKalb​
+DeKalbHall​HallPeach​PeachEmanuel​EmanuelCherokee​CherokeeAppling​
+ApplingBibb​BibbSeminole​SeminoleBacon​BaconWayne​WayneDeKalb​
+DeKalbJackson​JacksonJasper​JasperWilkes​WilkesGwinnett​GwinnettRabun​
+RabunFulton​FultonTowns​TownsTaylor​TaylorChatham​ChathamBulloch​
+BullochQuitman​QuitmanFulton​FultonLanier​LanierWhitfield​
+WhitfieldBartow​BartowHancock​HancockWilcox​Wilcox​Walker​
+WalkerRichmond​RichmondForsyth​ForsythCobb​CobbBartow​BartowLowndes​
+LowndesGwinnett​GwinnettCherokee​CherokeeFulton​FultonPike​PikeDeKalb​
+DeKalbHouston​HoustonFayette​FayetteCherokee​CherokeeFulton​
+FultonWalker​WalkerHouston​HoustonStephens​StephensWare​Ware​Meriwether​
+MeriwetherWalker​WalkerCamden​CamdenLee​LeeWalker​WalkerFulton​
+FultonPickens​PickensFulton​FultonGwinnett​GwinnettMurray​
+MurrayCrawford​CrawfordClarke​ClarkeHarris​HarrisTattnall​
+TattnallLaurens​LaurensGlynn​GlynnSumter​SumterHall​HallRichmond​
+RichmondLaurens​LaurensBibb​BibbLiberty​LibertyGlynn​GlynnThomas​
+ThomasMuscogee​MuscogeeRandolph​RandolphFulton​FultonTattnall​
+TattnallGlynn​GlynnFayette​FayetteClayton​ClaytonDeKalb​DeKalbWilkinson​
+WilkinsonDooly​DoolyBrooks​BrooksTerrell​TerrellCamden​CamdenBulloch​
+BullochBulloch​BullochBleckley​BleckleyClay​ClayBarrow​BarrowForsyth​
+ForsythCoweta​CowetaFulton​FultonLong​LongAppling​ApplingBrantley​
+BrantleyTurner​TurnerFulton​FultonTroup​TroupWalton​WaltonFloyd​
+FloydStephens​StephensLincoln​LincolnMuscogee​
+Muscogee​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​20406080100Copyright (c) 2022
+Highsoft AS, Based on data from The United States Census BureauData
+source: data.cms.gov © USA Census Bureau
+Created with Highcharts 9.3.199204 Average Medicare Payment: Georgia
+(2019)Georgia Statewide Average: $103.1399204 HCPCS Code Description:​
+New Patient Office or Other​Outpatient Visit (~25 min.)Zoom in+Zoom out-
+Hall​HallCobb​CobbFulton​FultonFulton​FultonChatham​ChathamClarke​
+ClarkeGwinnett​GwinnettBibb​BibbDeKalb​DeKalbHenry​HenryDeKalb​
+DeKalbForsyth​ForsythFloyd​FloydMuscogee​MuscogeeRichmond​RichmondGlynn​
+GlynnFayette​FayetteRichmond​RichmondWhitfield​WhitfieldCoweta​
+CowetaRichmond​RichmondChatham​ChathamFulton​FultonLowndes​
+LowndesCherokee​CherokeeColumbia​ColumbiaCarroll​CarrollChatham​
+ChathamTift​TiftMuscogee​MuscogeeCobb​CobbFulton​FultonClarke​
+ClarkeDeKalb​DeKalbThomas​ThomasLaurens​LaurensForsyth​ForsythGwinnett​
+GwinnettHouston​HoustonRockdale​RockdaleBulloch​BullochBibb​BibbWare​
+WareFulton​FultonClayton​ClaytonDougherty​DoughertyFulton​
+FultonDougherty​DoughertyUnion​UnionFulton​FultonChatham​ChathamBartow​
+BartowGwinnett​GwinnettTroup​TroupOconee​OconeePickens​PickensSpalding​
+SpaldingMuscogee​MuscogeeJackson​JacksonDouglas​DouglasGwinnett​
+GwinnettHouston​HoustonFulton​FultonGwinnett​GwinnettDeKalb​
+DeKalbCoffee​CoffeeCherokee​CherokeeGwinnett​GwinnettToombs​
+ToombsNewton​NewtonBibb​BibbPaulding​PauldingCobb​CobbGordon​
+GordonBaldwin​BaldwinColquitt​ColquittClarke​ClarkeCherokee​
+CherokeeDouglas​DouglasFloyd​FloydCobb​CobbFulton​FultonClayton​
+ClaytonFulton​FultonFulton​FultonFayette​FayetteWayne​WayneWalton​
+WaltonCobb​CobbCobb​CobbRichmond​RichmondColumbia​ColumbiaLiberty​
+LibertyCherokee​CherokeeWalton​WaltonClayton​ClaytonUpson​UpsonFannin​
+FanninCobb​CobbGlynn​GlynnCatoosa​CatoosaTroup​TroupDawson​
+DawsonEffingham​EffinghamDeKalb​DeKalbRabun​RabunLowndes​LowndesBibb​
+BibbFulton​FultonCobb​CobbFulton​FultonGreene​GreeneDeKalb​
+DeKalbGwinnett​GwinnettHenry​HenryDeKalb​DeKalbBartow​BartowChatham​
+ChathamBarrow​BarrowHouston​HoustonCarroll​CarrollDodge​DodgeGwinnett​
+GwinnettDeKalb​DeKalbFulton​FultonCherokee​CherokeeCoweta​CowetaFulton​
+FultonFulton​FultonBryan​BryanTowns​TownsGilmer​GilmerGwinnett​
+GwinnettGwinnett​GwinnettCamden​CamdenCobb​CobbMurray​MurrayBen Hill​Ben
+HillGwinnett​GwinnettHenry​HenryRichmond​RichmondColumbia​ColumbiaDade​
+DadeBarrow​BarrowHall​HallFulton​FultonLiberty​LibertyRockdale​
+RockdaleDeKalb​DeKalbFulton​FultonColumbia​ColumbiaGwinnett​
+GwinnettCamden​CamdenGwinnett​GwinnettPaulding​PauldingPaulding​
+PauldingBibb​BibbLumpkin​LumpkinPutnam​PutnamFulton​FultonCatoosa​
+CatoosaFulton​FultonSumter​SumterWalker​WalkerGwinnett​GwinnettGlynn​
+GlynnCrisp​CrispCobb​CobbFulton​FultonGilmer​GilmerStephens​
+StephensCobb​CobbHabersham​HabershamDecatur​DecaturMcDuffie​
+McDuffieChatham​ChathamDeKalb​DeKalbGwinnett​GwinnettDeKalb​
+DeKalbMuscogee​MuscogeeEmanuel​EmanuelChatham​ChathamRichmond​
+RichmondElbert​ElbertDeKalb​DeKalbDeKalb​DeKalbCoweta​CowetaDeKalb​
+DeKalbFulton​FultonCamden​CamdenFayette​FayetteDeKalb​DeKalbPulaski​
+PulaskiHenry​HenryFranklin​FranklinLaurens​LaurensPolk​PolkGwinnett​
+GwinnettCobb​CobbDeKalb​DeKalbAppling​ApplingWhite​WhiteSpalding​
+SpaldingSumter​SumterCobb​CobbGilmer​GilmerWashington​WashingtonJeff
+Davis​Jeff DavisCobb​CobbChatham​ChathamSeminole​SeminoleWare​
+WareClayton​ClaytonDeKalb​DeKalbFranklin​FranklinClayton​ClaytonJones​
+JonesHenry​HenryFulton​FultonFulton​FultonBartow​BartowEvans​
+EvansCoweta​CowetaClarke​ClarkeDougherty​DoughertyHancock​HancockGrady​
+Grady​Effingham​EffinghamHaralson​HaralsonChattooga​ChattoogaFulton​
+FultonRockdale​RockdaleMuscogee​MuscogeeHart​HartMuscogee​MuscogeePolk​
+PolkFulton​FultonFulton​FultonJackson​JacksonNewton​NewtonJackson​
+JacksonGlynn​GlynnLee​LeeDougherty​DoughertyTelfair​TelfairLaurens​
+LaurensCobb​CobbButts​ButtsBacon​BaconFulton​FultonBrooks​BrooksCobb​
+CobbWalker​WalkerRichmond​RichmondPickens​PickensBulloch​BullochDeKalb​
+DeKalbPickens​PickensChattahoochee​ChattahoocheeWalker​WalkerRandolph​
+RandolphFulton​FultonGwinnett​GwinnettHall​HallGwinnett​GwinnettJackson​
+JacksonMonroe​MonroeBartow​BartowCherokee​CherokeeFulton​FultonTattnall​
+TattnallLowndes​LowndesBibb​BibbDeKalb​DeKalbFayette​FayetteMacon​
+MaconWayne​WayneDeKalb​DeKalbWalker​WalkerGlynn​GlynnFulton​
+FultonFulton​FultonMcIntosh​McIntoshCharlton​CharltonFulton​
+FultonCamden​CamdenCook​CookPeach​PeachBibb​BibbDeKalb​DeKalbTelfair​
+TelfairBibb​BibbCherokee​CherokeeCarroll​CarrollDeKalb​DeKalbBulloch​
+BullochTowns​Towns​Fulton​FultonFulton​FultonMorgan​MorganMarion​
+MarionTroup​TroupHall​HallWhitfield​WhitfieldTaylor​TaylorLamar​
+LamarCrawford​CrawfordCarroll​CarrollOconee​OconeeLiberty​
+LibertyMuscogee​MuscogeeGlynn​GlynnCherokee​CherokeeHabersham​
+HabershamChatham​ChathamCamden​CamdenBrantley​BrantleyClinch​
+ClinchTurner​TurnerWorth​Worth​Bibb​BibbIrwin​IrwinCandler​CandlerBurke​
+BurkeBerrien​BerrienTift​TiftCobb​CobbClayton​ClaytonClarke​
+ClarkeRichmond​Richmond​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​
+5075100125150Copyright (c) 2022 Highsoft AS, Based on data from The
+United States Census BureauData source: data.cms.gov © USA Census Bureau
+Created with Highcharts 9.3.199205 Average Medicare Payment: Georgia
+(2019)Georgia Statewide Average: $142.3999205 HCPCS Code Description:​
+New Patient Office or Other​Outpatient Visit (>30 min.)Zoom in+Zoom out-
+DeKalb​DeKalbHall​HallCobb​CobbFulton​FultonClarke​ClarkeFulton​
+FultonHenry​HenryFloyd​FloydChatham​ChathamChatham​ChathamMuscogee​
+MuscogeeDeKalb​DeKalbRichmond​RichmondBibb​BibbLowndes​LowndesCobb​
+CobbGlynn​GlynnGwinnett​GwinnettFayette​FayetteClarke​ClarkeCarroll​
+CarrollRichmond​RichmondFulton​FultonChatham​ChathamThomas​
+ThomasForsyth​ForsythChatham​ChathamCoweta​CowetaBulloch​BullochDeKalb​
+DeKalbRichmond​RichmondMuscogee​MuscogeeGwinnett​GwinnettWhitfield​
+WhitfieldFulton​FultonGwinnett​GwinnettBartow​BartowLaurens​
+LaurensFulton​FultonUnion​UnionCherokee​CherokeeColquitt​
+ColquittHouston​HoustonTift​TiftBibb​BibbRockdale​RockdaleTroup​
+TroupWare​WareCherokee​CherokeeGordon​GordonCherokee​CherokeeRichmond​
+RichmondFulton​FultonGwinnett​GwinnettPickens​PickensGwinnett​
+GwinnettFulton​FultonPaulding​PauldingBaldwin​BaldwinGlynn​GlynnForsyth​
+ForsythClayton​ClaytonFulton​FultonCatoosa​CatoosaFulton​FultonCobb​
+CobbBibb​BibbDouglas​DouglasDougherty​DoughertyFulton​FultonClayton​
+ClaytonCobb​CobbClarke​ClarkeJackson​JacksonFulton​FultonOconee​
+OconeeHouston​HoustonLowndes​LowndesMuscogee​MuscogeeBartow​
+BartowToombs​ToombsHabersham​HabershamLiberty​LibertyCoffee​
+CoffeeCherokee​CherokeeDeKalb​DeKalbGwinnett​GwinnettCobb​CobbFannin​
+FanninDougherty​DoughertyWalton​WaltonRockdale​RockdaleFulton​
+FultonDeKalb​DeKalbCoweta​CowetaColumbia​ColumbiaTowns​TownsSpalding​
+SpaldingFulton​FultonDeKalb​DeKalbDouglas​DouglasGwinnett​
+GwinnettFayette​FayetteFulton​FultonFulton​FultonBibb​BibbNewton​
+NewtonFulton​FultonPulaski​PulaskiChatham​ChathamFloyd​FloydFulton​
+FultonWalton​WaltonOconee​OconeeCobb​CobbDeKalb​DeKalbFulton​
+FultonCrisp​CrispWayne​WayneCobb​CobbDecatur​DecaturCobb​CobbBarrow​
+BarrowCarroll​CarrollFayette​FayetteCobb​CobbJeff Davis​Jeff
+DavisSeminole​SeminoleHaralson​HaralsonMuscogee​MuscogeeColumbia​
+ColumbiaChatham​ChathamFulton​FultonDeKalb​DeKalbCobb​CobbWare​
+WareDeKalb​DeKalbClayton​ClaytonCobb​CobbGwinnett​GwinnettPolk​
+PolkCherokee​CherokeeDeKalb​DeKalbFranklin​FranklinFulton​FultonAppling​
+ApplingFulton​FultonEmanuel​EmanuelBartow​BartowCoweta​CowetaGilmer​
+GilmerHouston​HoustonDeKalb​DeKalbLumpkin​LumpkinGlynn​GlynnSumter​
+SumterGwinnett​GwinnettHenry​HenryHenry​HenryDeKalb​DeKalbCobb​
+CobbGreene​GreeneRichmond​RichmondPeach​PeachBibb​BibbDougherty​
+DoughertyPaulding​PauldingFulton​FultonDade​DadeDade​DadeMonroe​
+MonroeGlynn​
+Glynn​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​75100125150175Copyright (c) 2022 Highsoft AS, Based on data from The United States Census BureauData source: data.cms.gov © USA Census Bureau
+
+
+    <#established-patient-em-codes-1>Established Patient E/M Codes
+
+Show code
+
+|## 99212
+hc_99212 <- highchart <https://jkunst.com/highcharter/reference/highchart.html>(type = "map") |> 
+  hc_add_series <https://jkunst.com/highcharter/reference/hc_add_series.html>(
+    data = map_99212,
+    name = "99212",
+    mapData = map_layout_data,
+    joinBy = "fips",
+    borderColor = "#FAFAFA",
+    borderWidth = 0.15,
+    nullColor = "#d3d3d3",
+    tooltip = list <https://rdrr.io/r/base/list.html>(
+    valueDecimals = 2,
+    valuePrefix = "$",
+    valueSuffix = " USD"),
+    dataLabels = list <https://rdrr.io/r/base/list.html>(enabled = TRUE, format = "{point.county}")) |>
+  hc_colorAxis <https://jkunst.com/highcharter/reference/hc_colorAxis.html>(stops = color_stops <https://jkunst.com/highcharter/reference/color_stops.html>(colors = viridisLite::viridis <https://sjmgarnier.github.io/viridisLite/reference/viridis.html>(5, direction = -1))) |> 
+  hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(
+    text = "99212 Average Medicare Payment: Georgia (2019)",
+    align = "left", 
+    style = list <https://rdrr.io/r/base/list.html>(fontSize = "18", color = "#000000", fontWeight = "bold")) |> 
+  hc_subtitle <https://jkunst.com/highcharter/reference/hc_subtitle.html>(
+    text = "Georgia Statewide Average: <b>$28.50</b>", 
+    align = "left",
+    style = list <https://rdrr.io/r/base/list.html>(fontSize = "16", color = "#000000", fontWeight = "normal")) |> 
+  hc_legend <https://jkunst.com/highcharter/reference/hc_legend.html>(
+    layout = "horizontal",
+    reversed = TRUE,
+    floating = TRUE,
+    align = "right",
+    verticalAlight = "top"
+    ) |> 
+  hc_caption <https://jkunst.com/highcharter/reference/hc_caption.html>(
+    text = "<b>99212 HCPCS Code Description:</b><br><em>Established Patient Office or<br>Other Outpatient Visit (~10 min.)</em>"
+  ) |> 
+  hc_credits <https://jkunst.com/highcharter/reference/hc_credits.html>(
+    enabled = TRUE,
+    text = "Data source: data.cms.gov",
+    href = "https://data.cms.gov/provider-summary-by-type-of-service/medicare-physician-other-practitioners/medicare-physician-other-practitioners-by-provider-and-service"
+  ) |>
+  hc_mapNavigation <https://jkunst.com/highcharter/reference/hc_mapNavigation.html>(enabled = TRUE,
+    enableMouseWheelZoom = TRUE,
+    enableDoubleClickZoom = TRUE) |> 
+  hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 900) |> 
+  hc_chart <https://jkunst.com/highcharter/reference/hc_chart.html>(style = list <https://rdrr.io/r/base/list.html>(fontFamily = "Karla"))
+
+## 99213
+hc_99213 <- highchart <https://jkunst.com/highcharter/reference/highchart.html>(type = "map") |> 
+  hc_add_series <https://jkunst.com/highcharter/reference/hc_add_series.html>(
+    data = map_99213,
+    name = "99213",
+    mapData = map_layout_data,
+    joinBy = "fips",
+    borderColor = "#FAFAFA",
+    borderWidth = 0.15,
+    nullColor = "#d3d3d3",
+    tooltip = list <https://rdrr.io/r/base/list.html>(
+    valueDecimals = 2,
+    valuePrefix = "$",
+    valueSuffix = " USD"),
+    dataLabels = list <https://rdrr.io/r/base/list.html>(enabled = TRUE, format = "{point.county}")) |>
+  hc_colorAxis <https://jkunst.com/highcharter/reference/hc_colorAxis.html>(stops = color_stops <https://jkunst.com/highcharter/reference/color_stops.html>(colors = viridisLite::viridis <https://sjmgarnier.github.io/viridisLite/reference/viridis.html>(5, direction = -1))) |> 
+  hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(
+    text = "99213 Average Medicare Payment: Georgia (2019)",
+    align = "left", 
+    style = list <https://rdrr.io/r/base/list.html>(fontSize = "18", color = "#000000", fontWeight = "bold")) |> 
+  hc_subtitle <https://jkunst.com/highcharter/reference/hc_subtitle.html>(
+    text = "Georgia Statewide Average: <b>$44.83</b>", 
+    align = "left",
+    style = list <https://rdrr.io/r/base/list.html>(fontSize = "16", color = "#000000", fontWeight = "normal")) |> 
+  hc_legend <https://jkunst.com/highcharter/reference/hc_legend.html>(
+    layout = "horizontal",
+    reversed = TRUE,
+    floating = TRUE,
+    align = "right",
+    verticalAlight = "top"
+    ) |> 
+  hc_caption <https://jkunst.com/highcharter/reference/hc_caption.html>(
+    text = "<b>99213 HCPCS Code Description:</b><br><em>Established Patient Office or<br>Other Outpatient Visit (~15 min.)</em>"
+  ) |> 
+  hc_credits <https://jkunst.com/highcharter/reference/hc_credits.html>(
+    enabled = TRUE,
+    text = "Data source: data.cms.gov",
+    href = "https://data.cms.gov/provider-summary-by-type-of-service/medicare-physician-other-practitioners/medicare-physician-other-practitioners-by-provider-and-service"
+  ) |>
+  hc_mapNavigation <https://jkunst.com/highcharter/reference/hc_mapNavigation.html>(enabled = TRUE,
+    enableMouseWheelZoom = TRUE,
+    enableDoubleClickZoom = TRUE) |> 
+  hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 900) |> 
+  hc_chart <https://jkunst.com/highcharter/reference/hc_chart.html>(style = list <https://rdrr.io/r/base/list.html>(fontFamily = "Karla"))
+
+## 99214
+hc_99214 <- highchart <https://jkunst.com/highcharter/reference/highchart.html>(type = "map") |> 
+  hc_add_series <https://jkunst.com/highcharter/reference/hc_add_series.html>(
+    data = map_99214,
+    name = "99214",
+    mapData = map_layout_data,
+    joinBy = "fips",
+    borderColor = "#FAFAFA",
+    borderWidth = 0.15,
+    nullColor = "#d3d3d3",
+    tooltip = list <https://rdrr.io/r/base/list.html>(
+    valueDecimals = 2,
+    valuePrefix = "$",
+    valueSuffix = " USD"),
+    dataLabels = list <https://rdrr.io/r/base/list.html>(enabled = TRUE, format = "{point.county}")) |>
+  hc_colorAxis <https://jkunst.com/highcharter/reference/hc_colorAxis.html>(stops = color_stops <https://jkunst.com/highcharter/reference/color_stops.html>(colors = viridisLite::viridis <https://sjmgarnier.github.io/viridisLite/reference/viridis.html>(5, direction = -1))) |> 
+  hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(
+    text = "99214 Average Medicare Payment: Georgia (2019)",
+    align = "left", 
+    style = list <https://rdrr.io/r/base/list.html>(fontSize = "18", color = "#000000", fontWeight = "bold")) |> 
+  hc_subtitle <https://jkunst.com/highcharter/reference/hc_subtitle.html>(
+    text = "Georgia Statewide Average: <b>$66.13</b>", 
+    align = "left",
+    style = list <https://rdrr.io/r/base/list.html>(fontSize = "16", color = "#000000", fontWeight = "normal")) |> 
+  hc_legend <https://jkunst.com/highcharter/reference/hc_legend.html>(
+    layout = "horizontal",
+    reversed = TRUE,
+    floating = TRUE,
+    align = "right",
+    verticalAlight = "top"
+    ) |> 
+  hc_caption <https://jkunst.com/highcharter/reference/hc_caption.html>(
+    text = "<b>99214 HCPCS Code Description:</b><br><em>Established Patient Office or<br>Other Outpatient Visit (~25 min.)</em>"
+  ) |> 
+  hc_credits <https://jkunst.com/highcharter/reference/hc_credits.html>(
+    enabled = TRUE,
+    text = "Source: data.cms.gov",
+    href = "https://data.cms.gov/provider-summary-by-type-of-service/medicare-physician-other-practitioners/medicare-physician-other-practitioners-by-provider-and-service"
+  ) |> 
+  hc_mapNavigation <https://jkunst.com/highcharter/reference/hc_mapNavigation.html>(enabled = TRUE,
+    enableMouseWheelZoom = TRUE,
+    enableDoubleClickZoom = TRUE) |> 
+  hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 900) |> 
+  hc_chart <https://jkunst.com/highcharter/reference/hc_chart.html>(style = list <https://rdrr.io/r/base/list.html>(fontFamily = "Karla"))
+
+## 99215
+hc_99215 <- highchart <https://jkunst.com/highcharter/reference/highchart.html>(type = "map") |> 
+  hc_add_series <https://jkunst.com/highcharter/reference/hc_add_series.html>(
+    data = map_99215,
+    name = "99215",
+    mapData = map_layout_data,
+    joinBy = "fips",
+    borderColor = "#FAFAFA",
+    borderWidth = 0.15,
+    nullColor = "#d3d3d3",
+    tooltip = list <https://rdrr.io/r/base/list.html>(
+    valueDecimals = 2,
+    valuePrefix = "$",
+    valueSuffix = " USD"),
+    dataLabels = list <https://rdrr.io/r/base/list.html>(enabled = TRUE, format = "{point.county}")) |>
+  hc_colorAxis <https://jkunst.com/highcharter/reference/hc_colorAxis.html>(stops = color_stops <https://jkunst.com/highcharter/reference/color_stops.html>(colors = viridisLite::viridis <https://sjmgarnier.github.io/viridisLite/reference/viridis.html>(5, direction = -1))) |> 
+  hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(
+    text = "99215 Average Medicare Payment: Georgia (2019)",
+    align = "left", 
+    style = list <https://rdrr.io/r/base/list.html>(fontSize = "18", color = "#000000", fontWeight = "bold")) |> 
+  hc_subtitle <https://jkunst.com/highcharter/reference/hc_subtitle.html>(
+    text = "Georgia Statewide Average: <b>$95.61</b>", 
+    align = "left",
+    style = list <https://rdrr.io/r/base/list.html>(fontSize = "16", color = "#000000", fontWeight = "normal")) |> 
+  hc_legend <https://jkunst.com/highcharter/reference/hc_legend.html>(
+    layout = "horizontal",
+    reversed = TRUE,
+    floating = TRUE,
+    align = "right",
+    verticalAlight = "top"
+    ) |> 
+  hc_caption <https://jkunst.com/highcharter/reference/hc_caption.html>(
+    text = "<b>99215 HCPCS Code Description:</b><br><em>Established Patient Office or<br>Other Outpatient Visit (>30 min.)</em>"
+  ) |> 
+  hc_credits <https://jkunst.com/highcharter/reference/hc_credits.html>(
+    enabled = TRUE,
+    text = "Source: data.cms.gov",
+    href = "https://data.cms.gov/provider-summary-by-type-of-service/medicare-physician-other-practitioners/medicare-physician-other-practitioners-by-provider-and-service"
+  ) |> 
+  hc_mapNavigation <https://jkunst.com/highcharter/reference/hc_mapNavigation.html>(enabled = TRUE,
+    enableMouseWheelZoom = TRUE,
+    enableDoubleClickZoom = TRUE) |> 
+  hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 900) |> 
+  hc_chart <https://jkunst.com/highcharter/reference/hc_chart.html>(style = list <https://rdrr.io/r/base/list.html>(fontFamily = "Karla"))
+
+crosstalk::bscols <https://rdrr.io/pkg/crosstalk/man/bscols.html>(
+    widths = NA,
+    hc_99212,
+    hc_99213
+)
+|//
+
+Created with Highcharts 9.3.199212 Average Medicare Payment: Georgia
+(2019)Georgia Statewide Average: $28.5099212 HCPCS Code Description:​
+Established Patient Office or​Other Outpatient Visit (~10 min.)Zoom
+in+Zoom out-Cobb​CobbFulton​FultonChatham​ChathamFloyd​FloydMuscogee​
+MuscogeeWhitfield​WhitfieldLowndes​LowndesClarke​ClarkeBibb​BibbThomas​
+ThomasHouston​HoustonRichmond​RichmondHall​HallGlynn​GlynnFulton​
+FultonDeKalb​DeKalbGwinnett​GwinnettDeKalb​DeKalbBibb​BibbFulton​
+FultonRichmond​RichmondCoweta​CowetaGwinnett​GwinnettFayette​
+FayetteTift​TiftRichmond​RichmondDougherty​DoughertyCarroll​CarrollCobb​
+CobbBibb​BibbFannin​FanninRockdale​RockdaleMuscogee​MuscogeeChatham​
+ChathamRichmond​RichmondHenry​HenryOconee​OconeeHouston​
+HoustonDougherty​DoughertyNewton​NewtonUnion​UnionToombs​ToombsGwinnett​
+GwinnettFulton​FultonFulton​FultonChatham​ChathamMuscogee​
+MuscogeeFulton​FultonBulloch​BullochCherokee​CherokeeFulton​
+FultonForsyth​ForsythGwinnett​GwinnettChatham​ChathamPickens​
+PickensCoweta​CowetaColumbia​ColumbiaBartow​BartowFulton​FultonCoffee​
+CoffeeColquitt​ColquittWare​WareDeKalb​DeKalbBaldwin​BaldwinGwinnett​
+GwinnettBartow​BartowCobb​CobbSpalding​SpaldingStephens​StephensClarke​
+ClarkePulaski​PulaskiCherokee​CherokeeFulton​FultonGordon​
+GordonMcDuffie​McDuffieDeKalb​DeKalbTroup​TroupWayne​WayneJackson​
+JacksonDeKalb​DeKalbDouglas​DouglasClayton​ClaytonFulton​FultonForsyth​
+ForsythGwinnett​GwinnettCobb​CobbCoweta​CowetaFulton​FultonFayette​
+FayetteCobb​CobbDeKalb​DeKalbLaurens​LaurensHenry​HenryColumbia​
+ColumbiaDougherty​DoughertyDeKalb​DeKalbHabersham​HabershamFulton​
+FultonFloyd​FloydFayette​FayetteDouglas​DouglasPierce​PierceDecatur​
+DecaturFulton​FultonHabersham​HabershamUpson​UpsonPaulding​
+PauldingClayton​ClaytonCobb​CobbNewton​NewtonFulton​FultonFulton​
+FultonDodge​DodgeHart​HartPaulding​PauldingWalton​WaltonCrisp​
+CrispCatoosa​CatoosaClayton​ClaytonSeminole​SeminoleFulton​FultonGlynn​
+GlynnCobb​CobbCobb​CobbDeKalb​DeKalbGreene​GreeneHouston​HoustonFulton​
+FultonEffingham​EffinghamJackson​JacksonGwinnett​GwinnettMurray​
+MurrayCobb​CobbCherokee​CherokeeLiberty​LibertyRockdale​RockdaleCobb​
+CobbGrady​GradyCobb​CobbFulton​FultonCobb​CobbWalton​WaltonGlynn​
+GlynnGwinnett​GwinnettWashington​WashingtonSumter​SumterLowndes​
+LowndesFulton​FultonHabersham​HabershamHall​HallSumter​SumterCherokee​
+CherokeeWalker​WalkerTowns​TownsColumbia​ColumbiaFulton​FultonGwinnett​
+GwinnettGwinnett​GwinnettBartow​BartowDeKalb​DeKalbDeKalb​DeKalbMiller​
+MillerFulton​FultonCobb​CobbDeKalb​DeKalbPolk​PolkRabun​RabunEmanuel​
+EmanuelLiberty​LibertyGlynn​GlynnGilmer​GilmerGlynn​GlynnChatham​
+ChathamCatoosa​CatoosaRockdale​RockdaleFranklin​FranklinMorgan​
+MorganClayton​ClaytonMadison​MadisonLumpkin​LumpkinMarion​
+MarionGwinnett​GwinnettAppling​ApplingQuitman​QuitmanPolk​PolkClinch​
+ClinchDawson​DawsonMeriwether​MeriwetherGwinnett​GwinnettMuscogee​
+MuscogeeFulton​FultonHenry​HenryMuscogee​MuscogeeButts​ButtsBibb​
+BibbEvans​EvansBleckley​BleckleyCook​CookBacon​BaconBurke​BurkeBarrow​
+BarrowClarke​ClarkeFayette​FayetteFulton​FultonHenry​HenryCarroll​
+CarrollPaulding​PauldingBryan​BryanDeKalb​DeKalbMonroe​MonroeMacon​
+MaconClarke​ClarkeWalker​WalkerElbert​ElbertCrawford​CrawfordFranklin​
+FranklinColumbia​ColumbiaLowndes​LowndesCobb​CobbFulton​FultonFulton​
+FultonTattnall​TattnallDeKalb​DeKalbDeKalb​DeKalbJeff Davis​Jeff
+DavisAtkinson​AtkinsonCoweta​CowetaDeKalb​DeKalbDeKalb​DeKalbGwinnett​
+GwinnettPutnam​PutnamJackson​JacksonPeach​PeachCatoosa​Catoosa​DeKalb​
+DeKalbRichmond​RichmondWhite​WhiteBrooks​BrooksMuscogee​MuscogeeCobb​
+CobbDouglas​DouglasWalker​WalkerBibb​BibbGwinnett​GwinnettStephens​
+StephensEffingham​EffinghamTowns​TownsFulton​FultonBibb​BibbGwinnett​
+GwinnettTroup​TroupHall​HallTift​TiftDeKalb​DeKalbLincoln​LincolnDeKalb​
+DeKalbDouglas​DouglasCamden​CamdenFulton​FultonWalton​WaltonJackson​
+JacksonWhitfield​WhitfieldThomas​ThomasUnion​UnionChatham​ChathamFulton​
+FultonBibb​BibbFulton​FultonOconee​OconeeDade​DadeChattooga​
+ChattoogaDeKalb​DeKalbFulton​FultonToombs​ToombsBanks​BanksHouston​
+HoustonDeKalb​DeKalbLamar​LamarTattnall​TattnallStephens​StephensHall​
+HallBartow​BartowFulton​FultonPeach​PeachBibb​BibbBen Hill​Ben
+HillWilkes​WilkesMurray​MurrayGwinnett​GwinnettFulton​FultonForsyth​
+ForsythSumter​SumterCarroll​CarrollFloyd​FloydGwinnett​GwinnettWalker​
+WalkerBrantley​BrantleyBerrien​BerrienCherokee​Cherokee​Bibb​
+BibbCharlton​CharltonPickens​PickensBulloch​BullochChatham​
+Chatham​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​10203040Copyright
+(c) 2022 Highsoft AS, Based on data from The United States Census
+BureauData source: data.cms.gov © USA Census Bureau
+Created with Highcharts 9.3.199213 Average Medicare Payment: Georgia
+(2019)Georgia Statewide Average: $44.8399213 HCPCS Code Description:​
+Established Patient Office or​Other Outpatient Visit (~15 min.)Zoom
+in+Zoom out-Cobb​CobbFulton​FultonHall​HallBibb​BibbClarke​
+ClarkeChatham​ChathamWhitfield​WhitfieldFulton​FultonMuscogee​
+MuscogeeGwinnett​GwinnettLowndes​LowndesFloyd​FloydThomas​ThomasHenry​
+HenryBibb​BibbFayette​FayetteHouston​HoustonChatham​ChathamCarroll​
+CarrollRichmond​RichmondHouston​HoustonGlynn​GlynnFulton​FultonRichmond​
+RichmondMuscogee​MuscogeeDeKalb​DeKalbCobb​CobbGwinnett​GwinnettForsyth​
+ForsythDougherty​DoughertyCoweta​CowetaColumbia​ColumbiaLaurens​
+LaurensBibb​BibbDougherty​DoughertyTift​TiftMuscogee​MuscogeeChatham​
+ChathamDeKalb​DeKalbWare​WareRichmond​RichmondBulloch​BullochPickens​
+PickensCherokee​CherokeeCoffee​CoffeeTroup​TroupForsyth​ForsythSpalding​
+SpaldingOconee​OconeeFulton​FultonGwinnett​GwinnettUnion​UnionToombs​
+ToombsFulton​FultonRockdale​RockdaleGordon​GordonCherokee​
+CherokeeRichmond​RichmondFulton​FultonFannin​FanninLowndes​LowndesWayne​
+WayneFulton​FultonChatham​ChathamGwinnett​GwinnettBaldwin​
+BaldwinColquitt​ColquittFulton​FultonClarke​ClarkeNewton​NewtonBartow​
+BartowFulton​FultonFayette​FayetteDouglas​DouglasBibb​BibbPaulding​
+PauldingFloyd​FloydJackson​JacksonClayton​ClaytonHouston​HoustonFulton​
+FultonGreene​GreeneDeKalb​DeKalbColquitt​ColquittWalton​WaltonGwinnett​
+GwinnettLiberty​LibertyStephens​StephensRockdale​RockdaleCherokee​
+CherokeeCoweta​CowetaDeKalb​DeKalbColumbia​ColumbiaCarroll​
+CarrollWalton​WaltonCrisp​CrispDouglas​DouglasHenry​HenryMurray​
+MurrayFulton​FultonCobb​CobbBartow​BartowCobb​CobbJackson​JacksonGrady​
+GradyBarrow​BarrowMcDuffie​McDuffieCobb​CobbCatoosa​CatoosaCobb​
+CobbHart​HartCherokee​CherokeeGwinnett​GwinnettHabersham​
+HabershamClayton​ClaytonGwinnett​GwinnettFulton​FultonGlynn​GlynnFulton​
+FultonDeKalb​DeKalbPaulding​PauldingFulton​FultonCobb​CobbOconee​
+OconeeBen Hill​Ben HillCobb​CobbDeKalb​DeKalbTroup​TroupDawson​
+DawsonMuscogee​MuscogeeDeKalb​DeKalbUpson​UpsonLumpkin​LumpkinFulton​
+FultonCobb​CobbClarke​ClarkePulaski​PulaskiDodge​DodgeWashington​
+WashingtonMorgan​MorganMonroe​MonroeSumter​SumterChatham​ChathamPolk​
+PolkButts​ButtsRockdale​RockdaleDecatur​DecaturEmanuel​EmanuelClayton​
+ClaytonGlynn​GlynnGwinnett​GwinnettBibb​BibbFayette​FayetteEffingham​
+EffinghamCobb​CobbFulton​FultonDeKalb​DeKalbSeminole​SeminoleHall​
+HallTowns​TownsClayton​ClaytonPaulding​PauldingDougherty​
+DoughertyFulton​FultonCobb​CobbCherokee​CherokeeRichmond​RichmondFulton​
+FultonAppling​ApplingRabun​RabunWalker​WalkerHall​HallClarke​ClarkeCobb​
+CobbGwinnett​GwinnettFranklin​FranklinDeKalb​DeKalbPutnam​
+PutnamBleckley​BleckleyJeff Davis​Jeff DavisGwinnett​GwinnettCobb​
+CobbChatham​ChathamLiberty​LibertyCharlton​CharltonGwinnett​
+GwinnettColumbia​ColumbiaJackson​JacksonGwinnett​GwinnettBryan​
+BryanHenry​HenryFloyd​FloydGilmer​GilmerMuscogee​MuscogeeGwinnett​
+GwinnettEffingham​EffinghamPierce​PierceClinch​ClinchWhite​WhiteDeKalb​
+DeKalbGlynn​GlynnHaralson​HaralsonWalton​WaltonFulton​FultonClayton​
+ClaytonColumbia​ColumbiaHabersham​HabershamPeach​PeachBacon​BaconBartow​
+BartowCatoosa​CatoosaHenry​HenryCamden​CamdenCobb​CobbChattooga​
+ChattoogaFulton​FultonDeKalb​DeKalbChatham​ChathamGilmer​GilmerFranklin​
+FranklinFulton​FultonWalker​WalkerDeKalb​DeKalbWhitfield​WhitfieldJones​
+JonesEvans​EvansDeKalb​DeKalbDeKalb​DeKalbCamden​CamdenDeKalb​
+DeKalbBerrien​BerrienFulton​FultonTift​TiftFulton​FultonNewton​
+NewtonBarrow​BarrowGwinnett​GwinnettHarris​HarrisLamar​LamarDouglas​
+DouglasBurke​BurkeSpalding​SpaldingFulton​FultonCook​CookGwinnett​
+GwinnettBrantley​BrantleyMeriwether​MeriwetherGlynn​GlynnDeKalb​
+DeKalbCarroll​CarrollBibb​BibbMcIntosh​McIntoshFayette​FayetteBulloch​
+BullochJackson​JacksonGwinnett​GwinnettBrooks​BrooksBulloch​
+BullochFannin​FanninIrwin​IrwinClayton​ClaytonPolk​PolkDeKalb​
+DeKalbMiller​MillerSumter​SumterRichmond​RichmondHenry​HenryLanier​
+LanierDeKalb​DeKalbTroup​TroupPickens​PickensMarion​MarionHabersham​
+HabershamStewart​StewartClay​ClayBartow​Bartow​Fulton​FultonDeKalb​
+DeKalbTattnall​TattnallBibb​BibbPeach​PeachDeKalb​DeKalbGwinnett​
+GwinnettFulton​FultonCrawford​CrawfordElbert​ElbertWilkes​
+WilkesChattooga​ChattoogaGilmer​GilmerHouston​HoustonTowns​TownsDeKalb​
+DeKalbFulton​FultonBibb​BibbHall​HallMuscogee​MuscogeeCarroll​
+CarrollWalker​WalkerStephens​StephensWare​WareChatham​ChathamLincoln​
+LincolnMurray​MurrayFulton​FultonGwinnett​GwinnettLowndes​LowndesFulton​
+FultonWorth​WorthHouston​HoustonCobb​CobbBryan​BryanTelfair​
+TelfairGwinnett​GwinnettQuitman​QuitmanJasper​JasperChatham​
+ChathamCamden​CamdenCoweta​CowetaBarrow​BarrowMadison​MadisonFulton​
+FultonFulton​Fulton​Walker​WalkerTelfair​TelfairBanks​BanksLowndes​
+LowndesHarris​HarrisWilkinson​WilkinsonDeKalb​DeKalbJackson​
+JacksonRichmond​RichmondWalker​WalkerChattahoochee​ChattahoocheeFulton​
+FultonDeKalb​DeKalbCherokee​CherokeeRabun​RabunTurner​TurnerGwinnett​
+GwinnettCoweta​CowetaCamden​CamdenWalker​WalkerMitchell​MitchellThomas​
+ThomasFulton​FultonCobb​CobbFulton​FultonStewart​StewartRichmond​
+RichmondHall​HallFulton​FultonHall​HallDeKalb​DeKalbDade​DadeFulton​
+FultonCherokee​CherokeeAtkinson​AtkinsonMeriwether​MeriwetherMcDuffie​
+McDuffieDooly​DoolySumter​SumterTelfair​TelfairDeKalb​DeKalbTerrell​
+TerrellFulton​FultonCoffee​CoffeeEarly​EarlyDeKalb​DeKalbLaurens​
+LaurensMeriwether​MeriwetherDouglas​DouglasDeKalb​DeKalbForsyth​
+ForsythHeard​HeardFayette​FayetteBrantley​BrantleyCherokee​CherokeeBibb​
+BibbPike​PikeWilkinson​WilkinsonCoweta​CowetaCatoosa​CatoosaFulton​
+FultonFayette​FayetteRandolph​RandolphCarroll​CarrollFloyd​FloydCobb​
+CobbFulton​FultonMacon​MaconTattnall​TattnallUnion​UnionFulton​
+FultonCherokee​CherokeeWilcox​WilcoxFulton​FultonDeKalb​DeKalbLaurens​
+LaurensForsyth​ForsythWalker​WalkerLong​LongChattooga​ChattoogaLowndes​
+LowndesGwinnett​GwinnettToombs​ToombsSchley​SchleyHall​HallEffingham​
+EffinghamFulton​FultonGlynn​Glynn​Fulton​FultonWhite​WhiteMitchell​
+Mitchell​Elbert​ElbertFulton​FultonChatham​ChathamTroup​TroupClarke​
+ClarkeCamden​CamdenLowndes​LowndesHall​HallAtkinson​AtkinsonCarroll​
+CarrollCalhoun​CalhounJohnson​JohnsonDeKalb​DeKalb​Calhoun​
+CalhounRichmond​RichmondGlynn​Glynn​Clarke​ClarkeMcIntosh​McIntoshGlynn​
+GlynnFulton​FultonLiberty​LibertyFulton​FultonDeKalb​DeKalbWhite​
+WhiteFulton​FultonFulton​FultonJenkins​JenkinsForsyth​ForsythCandler​
+CandlerHouston​HoustonDeKalb​DeKalbBibb​BibbHouston​HoustonThomas​
+ThomasFulton​Fulton​Bartow​BartowLiberty​LibertyStephens​
+StephensAppling​ApplingWayne​WayneDougherty​DoughertyLee​LeeLee​
+LeeClayton​ClaytonWare​Ware​Macon​Macon​​​​​​​​​​​​​​​​0204060Copyright
+(c) 2022 Highsoft AS, Based on data from The United States Census
+BureauData source: data.cms.gov © USA Census Bureau
+Created with Highcharts 9.3.199214 Average Medicare Payment: Georgia
+(2019)Georgia Statewide Average: $66.1399214 HCPCS Code Description:​
+Established Patient Office or​Other Outpatient Visit (~25 min.)Zoom
+in+Zoom out-Hall​HallCobb​CobbFulton​FultonMuscogee​MuscogeeFulton​
+FultonClarke​ClarkeFloyd​FloydHenry​HenryWhitfield​WhitfieldGwinnett​
+GwinnettDeKalb​DeKalbBibb​BibbLowndes​LowndesChatham​ChathamFayette​
+FayetteChatham​ChathamRichmond​RichmondGlynn​GlynnCoweta​CowetaTift​
+TiftDeKalb​DeKalbColumbia​ColumbiaMuscogee​MuscogeeCherokee​
+CherokeeForsyth​ForsythBulloch​BullochCarroll​CarrollCobb​CobbRichmond​
+RichmondFulton​FultonLaurens​LaurensDougherty​DoughertyThomas​
+ThomasHouston​HoustonBibb​BibbChatham​ChathamFulton​FultonBartow​
+BartowTroup​TroupDougherty​DoughertyWare​WareRichmond​RichmondUnion​
+UnionHouston​HoustonForsyth​ForsythClarke​ClarkeChatham​ChathamFulton​
+FultonGwinnett​GwinnettSpalding​SpaldingDeKalb​DeKalbGordon​
+GordonClayton​ClaytonFulton​FultonPickens​PickensLowndes​LowndesDouglas​
+DouglasGwinnett​GwinnettCherokee​CherokeeGwinnett​GwinnettCoffee​
+CoffeeCatoosa​CatoosaBibb​BibbOconee​OconeeRockdale​RockdaleFulton​
+FultonFulton​FultonLiberty​LibertyStephens​StephensJackson​
+JacksonNewton​NewtonFloyd​FloydFannin​FanninRichmond​RichmondColquitt​
+ColquittDeKalb​DeKalbCobb​CobbWayne​WayneBaldwin​BaldwinToombs​
+ToombsGwinnett​GwinnettPaulding​PauldingBibb​BibbHenry​HenryMurray​
+MurrayDeKalb​DeKalbPolk​PolkFulton​FultonFayette​FayetteCherokee​
+CherokeeCobb​CobbHabersham​HabershamCobb​CobbDouglas​DouglasWalton​
+WaltonCrisp​CrispMuscogee​MuscogeeDawson​DawsonHouston​HoustonCobb​
+CobbFulton​FultonFulton​FultonUpson​UpsonMcDuffie​McDuffieCoweta​
+CowetaColumbia​ColumbiaCherokee​CherokeeRichmond​RichmondWalton​
+WaltonFulton​FultonRabun​RabunPutnam​PutnamCarroll​CarrollBryan​
+BryanDodge​DodgeTroup​TroupEffingham​EffinghamFulton​FultonCobb​
+CobbBartow​BartowFulton​FultonGwinnett​GwinnettFulton​FultonDeKalb​
+DeKalbLumpkin​LumpkinCobb​CobbGlynn​GlynnBacon​BaconRockdale​
+RockdaleGwinnett​GwinnettRockdale​RockdaleCamden​CamdenBarrow​
+BarrowClarke​ClarkeFranklin​FranklinFulton​FultonCobb​CobbHenry​
+HenryWhite​WhiteGreene​GreeneTowns​TownsJeff Davis​Jeff DavisCobb​
+CobbJackson​JacksonDecatur​DecaturHenry​HenryColumbia​ColumbiaAppling​
+ApplingChatham​ChathamPulaski​PulaskiGrady​GradyGwinnett​
+GwinnettClayton​ClaytonOconee​OconeeButts​ButtsHall​HallChatham​
+ChathamGwinnett​GwinnettSumter​SumterSeminole​SeminoleGwinnett​
+GwinnettMonroe​MonroeGilmer​GilmerWashington​WashingtonCobb​
+CobbCherokee​CherokeeFloyd​FloydFayette​FayetteHart​HartClarke​
+ClarkeBrooks​BrooksWalton​WaltonGilmer​GilmerGwinnett​GwinnettDeKalb​
+DeKalbCobb​CobbGwinnett​GwinnettBen Hill​Ben HillEvans​EvansDeKalb​
+DeKalbBibb​BibbFulton​FultonDeKalb​DeKalbDeKalb​DeKalbMuscogee​
+MuscogeeCoweta​CowetaFranklin​FranklinBartow​BartowLiberty​
+LibertyGilmer​GilmerSumter​SumterDade​DadeGwinnett​GwinnettHall​
+HallBibb​BibbGwinnett​GwinnettPolk​PolkEmanuel​EmanuelFulton​
+FultonGlynn​GlynnSpalding​SpaldingLamar​LamarFulton​FultonEffingham​
+EffinghamPaulding​PauldingFulton​FultonColumbia​ColumbiaClayton​
+ClaytonGwinnett​GwinnettCobb​CobbJackson​JacksonWalker​WalkerBleckley​
+BleckleyCamden​CamdenFulton​FultonChattooga​ChattoogaBerrien​
+BerrienBartow​BartowPaulding​PauldingClayton​ClaytonFannin​
+FanninChattooga​ChattoogaDeKalb​DeKalbCharlton​CharltonCoweta​
+CowetaJasper​JasperCamden​CamdenPeach​PeachBarrow​BarrowWhitfield​
+WhitfieldGwinnett​GwinnettWalker​WalkerMorgan​MorganFulton​
+FultonHaralson​HaralsonJones​JonesDougherty​DoughertyPickens​
+PickensDeKalb​DeKalbDeKalb​DeKalbHenry​HenryCook​CookTurner​
+TurnerCatoosa​CatoosaBulloch​BullochClinch​ClinchBibb​BibbDeKalb​
+DeKalbBibb​BibbFulton​FultonDeKalb​DeKalbJackson​JacksonFulton​
+FultonFulton​FultonFulton​FultonMitchell​MitchellFulton​FultonClayton​
+ClaytonDeKalb​DeKalbBurke​BurkeMitchell​MitchellGlynn​GlynnDeKalb​
+DeKalbTattnall​TattnallNewton​NewtonDouglas​DouglasGlynn​GlynnWorth​
+WorthAtkinson​AtkinsonFulton​FultonDeKalb​DeKalbWilkinson​
+WilkinsonDeKalb​DeKalbHouston​HoustonFulton​FultonHall​HallMcIntosh​
+McIntoshChatham​ChathamBarrow​BarrowDeKalb​DeKalbMeriwether​
+MeriwetherCrawford​CrawfordFayette​FayetteCamden​CamdenCobb​CobbBulloch​
+BullochClayton​ClaytonWilkes​WilkesBrantley​BrantleyFulton​FultonDeKalb​
+DeKalbFulton​FultonFulton​FultonFulton​FultonTaylor​TaylorWalker​
+WalkerCobb​CobbMuscogee​MuscogeeWalker​WalkerPeach​PeachRichmond​
+RichmondMarion​MarionGwinnett​GwinnettTroup​TroupLee​LeeLowndes​
+LowndesDeKalb​DeKalbLanier​LanierCalhoun​CalhounMurray​MurrayWalker​
+Walker​Telfair​TelfairLincoln​LincolnLowndes​LowndesMadison​
+MadisonHabersham​HabershamStephens​StephensCobb​CobbWare​Ware​Irwin​
+IrwinWalker​WalkerMcIntosh​McIntoshGwinnett​GwinnettPierce​
+PierceCherokee​CherokeeSumter​SumterFulton​FultonFulton​FultonCherokee​
+CherokeeTerrell​TerrellDeKalb​DeKalbCherokee​CherokeeGwinnett​
+GwinnettGlynn​GlynnToombs​ToombsHall​HallDeKalb​DeKalbTowns​
+TownsRandolph​RandolphChatham​ChathamElbert​ElbertWare​WareTift​
+TiftBibb​BibbFulton​FultonWayne​WayneFulton​FultonCoffee​CoffeeBanks​
+BanksBrantley​BrantleyChatham​ChathamThomas​ThomasDeKalb​DeKalbFulton​
+FultonDooly​DoolyCamden​CamdenHancock​HancockHall​HallJohnson​
+JohnsonChatham​ChathamFloyd​FloydPike​PikeColquitt​ColquittFulton​
+FultonHarris​HarrisCobb​CobbChattooga​ChattoogaMcDuffie​McDuffieRabun​
+RabunDeKalb​DeKalbCarroll​CarrollFulton​FultonBaldwin​BaldwinStewart​
+StewartTelfair​TelfairDeKalb​DeKalbLowndes​LowndesSchley​SchleyFulton​
+FultonLaurens​LaurensTreutlen​TreutlenFulton​FultonFulton​FultonFayette​
+FayetteRichmond​RichmondCarroll​CarrollPickens​PickensHall​HallHarris​
+HarrisLong​LongMuscogee​MuscogeeHabersham​HabershamGlynn​GlynnLaurens​
+LaurensCobb​CobbDeKalb​DeKalbFulton​FultonAtkinson​AtkinsonHeard​
+HeardBulloch​BullochUnion​UnionOglethorpe​OglethorpeStewart​
+StewartMiller​MillerMuscogee​MuscogeeFulton​FultonCarroll​CarrollBryan​
+BryanTattnall​TattnallBibb​Bibb​Gwinnett​GwinnettLee​Lee​Jackson​
+JacksonThomas​ThomasMacon​MaconHall​HallClay​ClayBartow​Bartow​Fulton​
+FultonTroup​TroupWalker​WalkerFulton​FultonCandler​CandlerStephens​
+StephensLowndes​LowndesForsyth​ForsythRichmond​RichmondTelfair​
+TelfairGlynn​GlynnClarke​ClarkeLiberty​LibertyDouglas​DouglasCoweta​
+CowetaHouston​HoustonFayette​FayetteWilkinson​WilkinsonMacon​MaconBibb​
+BibbQuitman​QuitmanFulton​FultonCherokee​CherokeeCamden​CamdenDade​
+DadeCarroll​CarrollEffingham​EffinghamChattahoochee​
+ChattahoocheeDougherty​DoughertyWhite​WhiteJefferson​JeffersonElbert​
+ElbertHouston​HoustonRichmond​RichmondCatoosa​CatoosaDeKalb​DeKalbHall​
+HallFulton​FultonRichmond​Richmond​​​​​​​​​​​​​​​0255075100Copyright (c)
+2022 Highsoft AS, Based on data from The United States Census
+BureauSource: data.cms.gov © USA Census Bureau
+Created with Highcharts 9.3.199215 Average Medicare Payment: Georgia
+(2019)Georgia Statewide Average: $95.6199215 HCPCS Code Description:​
+Established Patient Office or​Other Outpatient Visit (>30 min.)Zoom
+in+Zoom out-Cobb​CobbDeKalb​DeKalbHall​HallHenry​HenryFulton​
+FultonClarke​ClarkeFulton​FultonCobb​CobbMuscogee​MuscogeeCarroll​
+CarrollDeKalb​DeKalbGlynn​GlynnChatham​ChathamBibb​BibbFulton​
+FultonWhitfield​WhitfieldFloyd​FloydLowndes​LowndesBibb​BibbGwinnett​
+GwinnettFayette​FayetteChatham​ChathamDeKalb​DeKalbBibb​BibbForsyth​
+ForsythRichmond​RichmondGwinnett​GwinnettRichmond​RichmondCoweta​
+CowetaFulton​FultonClarke​ClarkeClayton​ClaytonHouston​HoustonTift​
+TiftBartow​BartowThomas​ThomasWare​WareCherokee​CherokeeChatham​
+ChathamChatham​ChathamFulton​FultonMuscogee​MuscogeeForsyth​
+ForsythUnion​UnionGwinnett​GwinnettDouglas​DouglasLaurens​
+LaurensCherokee​CherokeeDougherty​DoughertyHouston​HoustonHabersham​
+HabershamDeKalb​DeKalbCherokee​CherokeeFulton​FultonSpalding​
+SpaldingCoffee​CoffeeRichmond​RichmondCobb​CobbTroup​TroupCobb​
+CobbBarrow​BarrowCobb​CobbGwinnett​GwinnettCobb​CobbCatoosa​
+CatoosaLowndes​LowndesGordon​GordonHouston​HoustonWalton​WaltonSpalding​
+SpaldingBulloch​BullochFulton​FultonColumbia​ColumbiaPeach​PeachToombs​
+ToombsWalton​WaltonFulton​FultonWilkes​WilkesLiberty​LibertyFulton​
+FultonFulton​FultonNewton​NewtonOconee​OconeeBaldwin​BaldwinJackson​
+JacksonColquitt​ColquittBryan​BryanWhitfield​WhitfieldGwinnett​
+GwinnettCherokee​CherokeeDeKalb​DeKalbGwinnett​GwinnettClayton​
+ClaytonGwinnett​GwinnettFulton​FultonCobb​CobbDeKalb​DeKalbRockdale​
+RockdaleFulton​FultonFulton​FultonFulton​FultonDeKalb​DeKalbClarke​
+ClarkeGwinnett​GwinnettPutnam​PutnamDeKalb​DeKalbDeKalb​DeKalbPaulding​
+PauldingPickens​PickensCobb​CobbFannin​FanninDougherty​DoughertyBibb​
+BibbPulaski​PulaskiMurray​MurrayMonroe​MonroeFulton​FultonWilkinson​
+WilkinsonSeminole​SeminoleDeKalb​DeKalbFulton​FultonWalker​WalkerCobb​
+CobbHenry​HenryCoweta​CowetaSumter​SumterPolk​PolkDouglas​
+DouglasDecatur​DecaturFulton​FultonCoweta​CowetaFulton​FultonGrady​
+GradyCherokee​CherokeeFulton​FultonDawson​DawsonMcDuffie​
+McDuffieMuscogee​MuscogeeFayette​FayetteCamden​CamdenCalhoun​
+CalhounFulton​FultonBartow​BartowLumpkin​LumpkinGlynn​GlynnCarroll​
+CarrollCoweta​CowetaCrisp​CrispDeKalb​DeKalbEmanuel​EmanuelWhitfield​
+WhitfieldRichmond​RichmondTattnall​TattnallFulton​FultonCobb​
+CobbJackson​JacksonHaralson​HaralsonCamden​CamdenRichmond​RichmondCobb​
+CobbBacon​BaconClarke​ClarkeRockdale​RockdaleGwinnett​GwinnettTowns​
+TownsOconee​OconeeHenry​HenryWhite​WhiteMcIntosh​McIntoshGwinnett​
+GwinnettFayette​FayetteMuscogee​MuscogeeWare​WareDeKalb​DeKalbGwinnett​
+GwinnettEvans​EvansFloyd​FloydFulton​FultonDougherty​DoughertyBartow​
+BartowGlynn​GlynnUpson​UpsonCatoosa​CatoosaGlynn​GlynnCamden​
+CamdenMcDuffie​McDuffieDeKalb​DeKalbFulton​FultonMcIntosh​McIntoshCobb​
+CobbGwinnett​GwinnettGwinnett​GwinnettPaulding​PauldingHall​
+HallEffingham​EffinghamMadison​MadisonGreene​GreeneDeKalb​
+DeKalbStephens​StephensColumbia​ColumbiaChatham​ChathamAtkinson​
+AtkinsonDeKalb​DeKalb​Fulton​FultonGwinnett​GwinnettToombs​ToombsMiller​
+MillerDeKalb​DeKalbFranklin​FranklinColumbia​ColumbiaFloyd​FloydCobb​
+CobbAppling​ApplingDodge​DodgeMuscogee​MuscogeeLamar​LamarHall​
+HallWorth​WorthDeKalb​DeKalbColumbia​ColumbiaBibb​BibbHart​HartPolk​
+PolkTattnall​TattnallGilmer​GilmerWalker​WalkerHenry​HenryButts​
+ButtsWalker​WalkerBrantley​BrantleyBen Hill​Ben HillPickens​
+PickensFulton​FultonFulton​FultonFranklin​FranklinChattooga​
+ChattoogaCobb​CobbMarion​MarionFulton​FultonDeKalb​DeKalbWalker​
+WalkerGlynn​GlynnLowndes​LowndesTelfair​TelfairChatham​ChathamWayne​
+WayneStewart​StewartRockdale​Rockdale​Rabun​RabunMitchell​
+MitchellDeKalb​DeKalbCherokee​CherokeeFulton​FultonFloyd​FloydStephens​
+StephensCamden​CamdenDade​DadeWalton​WaltonGwinnett​GwinnettBibb​
+BibbFayette​FayetteClayton​ClaytonFulton​FultonWalker​WalkerJeff Davis​
+Jeff DavisMeriwether​MeriwetherDeKalb​DeKalbCobb​CobbJackson​
+JacksonTroup​TroupFulton​FultonChatham​ChathamClayton​ClaytonGilmer​
+GilmerBibb​BibbFulton​FultonGwinnett​GwinnettCobb​CobbFulton​
+FultonJackson​JacksonOglethorpe​OglethorpeMorgan​MorganBleckley​
+BleckleyCrawford​Crawford​Gwinnett​GwinnettWashington​WashingtonTurner​
+TurnerChattooga​ChattoogaBurke​BurkeJones​
+Jones​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​255075100125Copyright
+(c) 2022 Highsoft AS, Based on data from The United States Census
+BureauSource: data.cms.gov © USA Census Bureau
+
+
+
+//   0 Comments Share:   // <https://twitter.com/share?
+text=Chloropleth%20Maps%3A%20Medicare%20Physician%20%26%20Other%20Practitioners%20Dataset&url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fchloropleth-maps-medicare-physician-other-practitioners%2F> // <https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fchloropleth-maps-medicare-physician-other-practitioners%2F&title=Chloropleth%20Maps%3A%20Medicare%20Physician%20%26%20Other%20Practitioners%20Dataset> // <https://www.facebook.com/sharer/sharer.php?s=100&p[url]=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fchloropleth-maps-medicare-physician-other-practitioners%2F> // <https://pinterest.com/pin/create/link/?url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fchloropleth-maps-medicare-physician-other-practitioners%2F&description=Chloropleth%20Maps%3A%20Medicare%20Physician%20%26%20Other%20Practitioners%20Dataset>
+
+Enjoy this blog? Get notified of new posts via email:
+
+
+      Footnotes
+
+
+      Corrections
+
+If you see mistakes or want to suggest changes, please create an issue
+<https://github.com/andrewallenbruce/issues/new> on the source repository.
+
+
+      Reuse
+
+Text and figures are licensed under Creative Commons Attribution CC BY
+4.0 <https://creativecommons.org/licenses/by/4.0/>. Source code is
+available at https://github.com/andrewallenbruce <https://github.com/
+andrewallenbruce>, unless otherwise noted. The figures that have been
+reused from other sources don't fall under this license and can be
+recognized by a note in their caption: "Figure from ...".
+
+
+      Citation
+
+For attribution, please cite this work as
+
+Bruce (2022, May 15). Andrew Bruce: Chloropleth Maps: Medicare Physician & Other Practitioners Dataset. Retrieved from https://andrewbruce.netlify.app/posts/chloropleth-maps-medicare-physician-other-practitioners///
+
+BibTeX citation
+
+@misc{bruce2022chloropleth,
+  author = {Bruce, Andrew},
+  title = {Andrew Bruce: Chloropleth Maps: Medicare Physician & Other Practitioners Dataset},
+  url = {https://andrewbruce.netlify.app/posts/chloropleth-maps-medicare-physician-other-practitioners/},
+  year = {2022}
+}//
+
+Andrew A. Bruce - 2024 - made with , and {distill} <https://
+rstudio.github.io/distill/>
+

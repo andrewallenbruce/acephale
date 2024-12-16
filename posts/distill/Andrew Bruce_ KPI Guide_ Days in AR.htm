@@ -1,0 +1,5087 @@
+Andrew Bruce <https://andrewbrucehimni.netlify.app/>
+
+Home <https://andrewbrucehimni.netlify.app/> Projects ▾ EHR UX/UI Mockup
+<https://andrewbrucehimni.netlify.app/flex_example/flexexample> Days in
+AR Shiny App <https://himni.shinyapps.io/darguide/> The Art of DAR
+<https://artofdar.netlify.app/> HIM & I <https://himni.info/>
+About <https://andrewbrucehimni.netlify.app/about> // <https://
+www.linkedin.com/in/andybruce1> // <https://twitter.com/aabrucehimni> //
+<https://www.behance.net/andybruce1> // <https://
+andrewbrucehimni.netlify.app/index.xml> // <https://github.com/
+andrewallenbruce> ☰ <javascript:void(0);>
+
+
+  KPI Guide: Days in AR
+
+KPI <https://andrewbrucehimni.netlify.app/#category:KPI> Days-in-AR
+<https://andrewbrucehimni.netlify.app/#category:Days-in-AR> Healthcare
+<https://andrewbrucehimni.netlify.app/#category:Healthcare>
+Reimbursement <https://andrewbrucehimni.netlify.app/
+#category:Reimbursement>
+
+An (exhaustive) overview of the Days in AR metric from a healthcare
+reimbursement perspective.
+
+
+      Author
+
+
+      Affiliation
+
+Andrew Bruce <https://twitter.com/aabrucehimni> ORCID ID <https://
+orcid.org/0000-0001-5040-4327>
+
+Healthcare Analytics in R <https://andrewbruce.netlify.app/about>
+
+
+      Published
+
+April 12, 2022
+
+
+      Citation
+
+Bruce, 2022 <#citation>
+
+
+      Contents
+
+  * Introduction <#introduction>
+      o Accounts Receivable <#accounts-receivable>
+      o Aging of Accounts <#aging-of-accounts>
+      o Days in Accounts Receivable <#days-in-accounts-receivable>
+      o The Healthcare Economic Model <#the-healthcare-economic-model>
+      o Example: Your Days in AR is 95 <#example-your-days-in-ar-is-95>
+  * DAR Formulas <#dar-formulas>
+      o Step-by-Step Example <#step-by-step-example>
+      o Building on the DAR Formula <#building-on-the-dar-formula>
+          + EARB for xx DARt <#earb-for-x-dart>
+          + GCt for xx DARt <#gct-for-x-dart>
+          + NDiP for xx DARt <#ndip-for-x-dart>
+          + ADC for xx DARt <#adc-for-x-dart>
+          + ADC-Related Formulas <#adc-related-formulas>
+      o Formula Quick Reference <#formula-quick-reference>
+      o Relationship Between Variables <#relationship-between-variables>
+  * DAR Ratios <#dar-ratios>
+      o Example: 1.5x Rule <#example-1.5x-rule>
+      o The Actual & the Ideal <#the-actual-the-ideal>
+      o An AR-centric Model <#an-ar-centric-model>
+          + Behavior of Ideal Amounts Over Time <#behavior-of-ideal-
+            amounts-over-time>
+      o Using the DAR Ratios <#using-the-dar-ratios>
+          + Ratio Difference and Days in AR Difference <#ratio-
+            difference-and-days-in-ar-difference>
+          + Example: Ending AR Needed <#example-ending-ar-needed>
+          + Bullet Chart: Visualizing Where AR Should Be <#bullet-chart-
+            visualizing-where-ar-should-be>
+          + How Much AR is Too Much? <#how-much-ar-is-too-much>
+      o Optimal AR/Charges Difference for xx DARt <#optimal-archarges-
+        difference-for-x-dart>
+          + Ratios and Proportions <#ratios-and-proportions>
+      o Ideal Ratio = the Slope of a Line <#ideal-ratio-the-slope-of-a-
+        line>
+          + Slope-Intercept Form = EARB for xx DARt <#slope-intercept-
+            form-earb-for-x-dart>
+          + Graphing the Ideal Slope <#graphing-the-ideal-slope>
+          + Linear Regression <#linear-regression>
+  * DAR Percentages <#dar-percentages>
+      o Parts of A Whole <#parts-of-a-whole>
+      o Example: DAR Percentages <#example-dar-percentages>
+      o {reactable} Stacked Bar Chart <#reactable-stacked-bar-chart>
+
+
+  Introduction
+
+*Days in Accounts Receivable* (also known as *DAR* or *Days in AR*) is a
+common financial metric belonging to a group of ratios called /
+efficiency ratios/. It measures the average amount of time it takes for
+a business to collect money owed from the responsible party for services
+rendered and billed.
+
+It’s importance within the healthcare RCM sphere cannot be understated,
+as it acts as a sort of pressure monitor connected to the vital organs
+of financial health within an organization. This post is intended to be
+a thorough overview of everything you never knew you didn’t want to know
+about Days in AR. Let’s start off with some background and terminology.
+
+
+    <#accounts-receivable>Accounts Receivable
+
+Accounts Receivable (AR) represents money owed to the healthcare
+practice by patients and/or insurance carriers. The Accounts Receivable
+cycle begins with the delivery of service and continues until payment
+for the service is reconciled to a zero balance. The AR Balance is the
+total Gross Charges entered and/or submitted to an insurance payer or
+patient but not yet collected. The AR balance can only be reduced by
+receiving payments or by entering contractual or write-off adjustments.
+Typical performance statistics maintained by the AR department include
+Days in AR and Aging of Accounts.
+
+
+    <#aging-of-accounts>Aging of Accounts
+
+An /account/ is a billable episode of care. It begins to /age/ once it
+is billed to an insurance company or patient. These outstanding accounts
+are monitored by age in 30-day increments (0 - 30, 31 - 60, 61 - 90, and
+so forth.) AR departments monitor the number of accounts outstanding,
+the dollar amount in each 30-day increment (sometimes called “bins” or
+“buckets”), and the responsible parties. As well, aging should be broken
+down by many metrics, such as Provider, Patient, Insurance Types
+(Commercial, Primary, Secondary, Worker’s Compensation, Managed Care),
+Facility, Diagnosis/Procedure code, Specialty, etc. The older the
+account or the longer the account remains unpaid, the less likely it
+will be reimbursed.
+
+Most claims are originally billed to insurance and, until the insurance
+makes a payment, the responsibility for the payment continues to be with
+the insurance payer. After the payer makes or denies a payment (with no
+just cause for an appeal), the responsibility for the balance of goes to
+the patient (to be sent an invoice) or the physician (to be written off.)
+
+
+    <#days-in-accounts-receivable>Days in Accounts Receivable
+
+Days in Accounts Receivable is a mathematical formula that calculates
+the average number of days it takes a business to collect money that it
+is owed. The DAR number should be low. A high DAR number tells you that
+there is a problem in your revenue cycle.
+
+
+    <#the-healthcare-economic-model>The Healthcare Economic Model
+
+To understand the healthcare version of Days in AR, you need to first
+understand a little bit about the environment in which it lives.
+Typically, companies sell their products or services directly to
+consumers and are paid immediately at the point of service. This is
+called a /business-to-consumer/ revenue model. Another revenue model
+type is the /business-to-business/ model, concerning businesses that
+transact primarily with other businesses. As purchases between two
+businesses tend to be much larger, business-to-business companies
+invoice on a monthly basis, meaning it will not be paid for 30-plus days.
+
+Somewhere in between these two models is the American healthcare system.
+This gray area is caused by a middleman called a third party payer.
+Better known as an insurance company, providers enter into a contractual
+agreement with this third party to be paid for their services at a
+reduced rate. In exchange, a provider gains access to the payer’s large
+subscriber base. The difference between the charge a provider submits to
+a payer and the contracted rate he or she has agreed to is called the
+*Contractual Adjustment*, which is written off once a claim has been
+adjudicated.
+
+The contractual adjustment introduces a critical inefficiency to the
+healthcare revenue model. Rather than prices being determined by supply
+and demand, they are set by individually negotiated arrangements, the
+end result of which is no real demand or pricing curve. This issue is
+much too complex for me to properly do justice to here. It is, however,
+an essential concept to grasp when trying to understand healthcare
+reimbursement. In other words, healthcare reimbursement is crazy, not you.
+
+
+    <#example-your-days-in-ar-is-95>Example: Your Days in AR is 95
+
+So now you know that a low Days in AR number is good and a high number
+is bad. How low is good though? How high is bad? Is a DAR of zero the
+best? Let’s say that a practice has a Days in AR of 95 days. This means
+that, on average, it takes the practice 95 days to collect it’s
+outstanding balances. That doesn’t sound good, according to what I wrote
+a couple of paragraphs above. Or could that normal for that particular
+practice?
+
+Let’s start with what we can say for sure about a Days in AR of 95:
+
+ 1. 95 days is roughly equal to a little over three months.
+ 2. Therefore, there is three months of unpaid work sitting in Accounts
+    Receivable.
+ 3. As such, this practice will need three months of cash reserves on
+    hand to meet its financial obligations.
+
+The “ideal” Days in AR depends entirely upon the medical practice, its
+customers (patients), its customers’ payers, the services it supplies,
+the providers performing those services, and the financial situation of
+the practice.
+
+------------------------------------------------------------------------
+
+
+  DAR Formulas
+
+You need three numbers to calculate Days in AR:
+
+ 1. *Number of Days in the Period*: Literally the number of days in the
+    period for which you are calculating Days in AR. DAR is typically
+    measured in monthly and quarterly increments, so this number will
+    usually be around 30 or 90.
+ 2. *Total Gross Charges*: The total dollar amount (derived from the
+    practice’s fee scheduleA list of fees physicians establish as the
+    fair price for the services they provide. Keep in mind that this is
+    not the same as a payment schedule.) charged by the practice during
+    the period that you are measuring.
+ 3. *Ending AR Balance*: The Accounts Receivable balance at the close of
+    business on the final day of the period that you are measuring.
+
+And the formula for Days in AR:
+
+
+Days in AR=Ending AR BalanceTotal Gross Charges÷Number of Days in Period
+Days in AR=Ending AR BalanceTotalGross Charges÷Number of Days in Period
+
+
+    <#step-by-step-example>Step-by-Step Example
+
+Let’s say we want to calculate the Days in AR for January 2022. Our
+Gross Charges total is $131,440.30 and our Ending AR Balance is
+$203,460.00. I’ll create a data frame with this information:
+
+|# Create data frame
+df <- data.frame <https://rdrr.io/r/base/data.frame.html>(
+  date = as.Date <https://rdrr.io/r/base/as.Date.html>("2022-01-01"),
+  gross_charges = 131440.30,
+  ending_ar = 203460.00
+)
+
+# Add column with the number of days in January 2022
+df <- df |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(number_of_days = lubridate::days_in_month <https://lubridate.tidyverse.org/reference/days_in_month.html>(date))|//
+
+Show code
+
+|## --- reactable
+df |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!(date)) |>
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(
+    "Gross Charges" = gross_charges,
+    "Ending AR Balance" = ending_ar,
+    "Number of Days in Period" = number_of_days
+  ) |>
+  tidyr::pivot_longer <https://tidyr.tidyverse.org/reference/pivot_longer.html>(
+    everything <https://tidyselect.r-lib.org/reference/everything.html>(),
+    names_to = "Name",
+    values_to = "Value"
+  ) |>
+  reactable <https://glin.github.io/reactable/reference/reactable.html>(
+    defaultColDef = colDef <https://glin.github.io/reactable/reference/colDef.html>(align = "left"),
+    theme = nytimes <https://kcuilla.github.io/reactablefmtr/reference/nytimes.html>(
+      font_size = 16,
+      header_font_size = 14
+    ),
+    sortable = FALSE,
+    pagination = FALSE,
+    bordered = TRUE,
+    striped = FALSE,
+    rownames = TRUE,
+    columns = list <https://rdrr.io/r/base/list.html>(
+      Name = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        style = cell_style <https://kcuilla.github.io/reactablefmtr/reference/cell_style.html>(.,
+          rows = 1:3,
+          font_color = "red",
+          font_weight = "bold",
+          horizontal_align = "left"
+        ),
+        minWidth = 350
+      ),
+      Value = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        style = cell_style <https://kcuilla.github.io/reactablefmtr/reference/cell_style.html>(.,
+          rows = 1:3,
+          font_color = "red",
+          font_weight = "bold",
+          horizontal_align = "left"
+        ),
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          separators = TRUE,
+          digits = 2
+        )
+      )
+    )
+  )|//
+
+Name
+Value
+1
+Gross Charges
+131,440.30
+2
+Ending AR Balance
+203,460.00
+3
+Number of Days in Period
+31.00
+
+We have the three numbers we need, let’s plug them into our formula:
+
+|df <- df |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    # Calculate the Average Daily Charge
+    avg_daily_charge = gross_charges / number_of_days,
+    # Calculate Days in AR
+    days_in_ar = ending_ar / avg_daily_charge
+  )|//
+
+Show code
+
+|## --- reactable
+df |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!(date)) |>
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(
+    "Gross Charges" = gross_charges,
+    "Ending AR Balance" = ending_ar,
+    "Number of Days in Period" = number_of_days,
+    "Average Daily Charge" = avg_daily_charge,
+    "Days in AR" = days_in_ar
+  ) |>
+  tidyr::pivot_longer <https://tidyr.tidyverse.org/reference/pivot_longer.html>(
+    everything <https://tidyselect.r-lib.org/reference/everything.html>(),
+    names_to = "Name",
+    values_to = "Value"
+  ) |>
+  reactable <https://glin.github.io/reactable/reference/reactable.html>(
+    defaultColDef = colDef <https://glin.github.io/reactable/reference/colDef.html>(align = "left"),
+    theme = nytimes <https://kcuilla.github.io/reactablefmtr/reference/nytimes.html>(
+      font_size = 16,
+      header_font_size = 14
+    ),
+    sortable = FALSE,
+    pagination = FALSE,
+    bordered = TRUE,
+    striped = FALSE,
+    rownames = TRUE,
+    columns = list <https://rdrr.io/r/base/list.html>(
+      Name = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        style = cell_style <https://kcuilla.github.io/reactablefmtr/reference/cell_style.html>(.,
+          rows = 4:5,
+          font_color = "red",
+          font_weight = "bold",
+          horizontal_align = "left"
+        ),
+        minWidth = 350
+      ),
+      Value = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        style = cell_style <https://kcuilla.github.io/reactablefmtr/reference/cell_style.html>(.,
+          rows = 4:5,
+          font_color = "red",
+          font_weight = "bold",
+          horizontal_align = "left"
+        ),
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          separators = TRUE,
+          digits = 2
+        )
+      )
+    )
+  )|//
+
+Name
+Value
+1
+Gross Charges
+131,440.30
+2
+Ending AR Balance
+203,460.00
+3
+Number of Days in Period
+31.00
+4
+Average Daily Charge
+4,240.01
+5
+Days in AR
+47.99
+
+And there we have it, our Average Daily Charge is $4,240.01 and our Days
+in AR is *47.99*.
+
+
+    <#building-on-the-dar-formula>Building on the DAR Formula
+
+Now that we have a basic understanding of the formula for *Days in AR*,
+we can expand upon and rearrange it to do many other things.
+
+One thing we’ll need to do is to declare a Days in AR target or |DARt|, which is the benchmark or threshold that we’d like to keep our Days
+in AR under for the time period being measured. For the time being,
+we’ll make it 35 days.
+
+As well, to simply things a bit, I’m going to use acronyms for these
+long variable names. They are as follows:
+
+Acronym 	Description
+|NDiP| 	Number of Days in Period
+|GCt| 	Total Gross Charges
+|EARB| 	Ending AR Balance
+|ADC| 	Average Daily Charge
+|DAR| 	Days in AR
+|DARt| 	Days in AR Target
+
+
+      <#earb-for-x-dart>EARB for xx DARt
+
+In the first example, our |DAR| was 47.99. That’s approximately 13 days over our |DARt| of 35. What would our |EARB| need to have been to bring us under our |DARt|? Here’s our formula:
+
+
+EARB Needed=(DARt×GCt)÷NDiP
+EARB Needed=(DARt×GCt)÷NDiP
+
+
+We’ll calculate the |EARB| we needed as well as the difference between the two AR figures:
+
+|# Declare target Days in AR
+dart <- 35
+
+# Calculate the Ending AR Needed for 35 DARt
+df <- df |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    earb_n = (dart * gross_charges) / number_of_days,
+    ardiff = ending_ar - earb_n,
+    arpctdecrs = (ardiff / ending_ar) * 100
+  )|//
+
+Show code
+
+|## --- reactable
+df |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!(date)) |>
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(
+    "Gross Charges" = gross_charges,
+    "Ending AR Balance" = ending_ar,
+    "Number of Days in Period" = number_of_days,
+    "Average Daily Charge" = avg_daily_charge,
+    "Days in AR" = days_in_ar,
+    "AR Balance Needed" = earb_n,
+    "Difference Between Actual & Needed AR Balance" = ardiff,
+    "Percentage Decrease of AR Needed" = arpctdecrs
+  ) |>
+  tidyr::pivot_longer <https://tidyr.tidyverse.org/reference/pivot_longer.html>(
+    everything <https://tidyselect.r-lib.org/reference/everything.html>(),
+    names_to = "Name",
+    values_to = "Value"
+  ) |>
+  reactable <https://glin.github.io/reactable/reference/reactable.html>(
+    defaultColDef = colDef <https://glin.github.io/reactable/reference/colDef.html>(align = "left"),
+    theme = nytimes <https://kcuilla.github.io/reactablefmtr/reference/nytimes.html>(
+      font_size = 16,
+      header_font_size = 14
+    ),
+    sortable = FALSE,
+    pagination = FALSE,
+    bordered = TRUE,
+    striped = FALSE,
+    rownames = TRUE,
+    columns = list <https://rdrr.io/r/base/list.html>(
+      Name = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        style = cell_style <https://kcuilla.github.io/reactablefmtr/reference/cell_style.html>(.,
+          rows = 6:8,
+          font_color = "red",
+          font_weight = "bold",
+          horizontal_align = "left"
+        ),
+        minWidth = 350
+      ),
+      Value = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        style = cell_style <https://kcuilla.github.io/reactablefmtr/reference/cell_style.html>(.,
+          rows = 6:8,
+          font_color = "red",
+          font_weight = "bold",
+          horizontal_align = "left"
+        ),
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          separators = TRUE,
+          digits = 2
+        )
+      )
+    )
+  )|//
+
+Name
+Value
+1
+Gross Charges
+131,440.30
+2
+Ending AR Balance
+203,460.00
+3
+Number of Days in Period
+31.00
+4
+Average Daily Charge
+4,240.01
+5
+Days in AR
+47.99
+6
+AR Balance Needed
+148,400.34
+7
+Difference Between Actual & Needed AR Balance
+55,059.66
+8
+Percentage Decrease of AR Needed
+27.06
+
+So we needed approximately a 27% decrease in AR ($55,059.66) to pass the
+DAR target.
+
+
+      <#gct-for-x-dart>GCt for xx DARt
+
+What if the problem was an uncharacteristic drop in patient encounters?
+How much would our Gross Charges total need to have been to pass?
+
+
+GCt Needed=(EARB×NDiP)÷DARt
+GCt Needed=(EARB×NDiP)÷DARt
+
+
+|# Calculate the Gross Charges total Needed for 35 DARt
+df <- df |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    gct_n = (ending_ar * number_of_days) / dart,
+    gcdiff = gct_n - gross_charges,
+    gcpctincrs = (gcdiff / gross_charges) * 100
+  )|//
+
+Show code
+
+|## --- reactable
+df |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!(date)) |>
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(
+    "Gross Charges" = gross_charges,
+    "Ending AR Balance" = ending_ar,
+    "Number of Days in Period" = number_of_days,
+    "Average Daily Charge" = avg_daily_charge,
+    "Days in AR" = days_in_ar,
+    "AR Balance Needed" = earb_n,
+    "Difference Between Actual & Needed AR Balance" = ardiff,
+    "Percentage Decrease of AR Needed" = arpctdecrs,
+    "Gross Charges Needed" = gct_n,
+    "Difference Between Actual & Needed Gross Charges" = gcdiff,
+    "Percentage Increase of Gross Charges Needed" = gcpctincrs
+  ) |>
+  tidyr::pivot_longer <https://tidyr.tidyverse.org/reference/pivot_longer.html>(
+    everything <https://tidyselect.r-lib.org/reference/everything.html>(),
+    names_to = "Name",
+    values_to = "Value"
+  ) |>
+  reactable <https://glin.github.io/reactable/reference/reactable.html>(
+    defaultColDef = colDef <https://glin.github.io/reactable/reference/colDef.html>(align = "left"),
+    theme = nytimes <https://kcuilla.github.io/reactablefmtr/reference/nytimes.html>(
+      font_size = 16,
+      header_font_size = 14
+    ),
+    sortable = FALSE,
+    pagination = FALSE,
+    bordered = TRUE,
+    striped = FALSE,
+    rownames = TRUE,
+    columns = list <https://rdrr.io/r/base/list.html>(
+      Name = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        style = cell_style <https://kcuilla.github.io/reactablefmtr/reference/cell_style.html>(.,
+          rows = 9:11,
+          font_color = "red",
+          font_weight = "bold",
+          horizontal_align = "left"
+        ),
+        minWidth = 350
+      ),
+      Value = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        style = cell_style <https://kcuilla.github.io/reactablefmtr/reference/cell_style.html>(.,
+          rows = 9:11,
+          font_color = "red",
+          font_weight = "bold",
+          horizontal_align = "left"
+        ),
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          separators = TRUE,
+          digits = 2
+        )
+      )
+    )
+  )|//
+
+Name
+Value
+1
+Gross Charges
+131,440.30
+2
+Ending AR Balance
+203,460.00
+3
+Number of Days in Period
+31.00
+4
+Average Daily Charge
+4,240.01
+5
+Days in AR
+47.99
+6
+AR Balance Needed
+148,400.34
+7
+Difference Between Actual & Needed AR Balance
+55,059.66
+8
+Percentage Decrease of AR Needed
+27.06
+9
+Gross Charges Needed
+180,207.43
+10
+Difference Between Actual & Needed Gross Charges
+48,767.13
+11
+Percentage Increase of Gross Charges Needed
+37.10
+
+So we needed a 37% increase in Gross Charges ($48,767.13) to pass the
+DAR target.
+
+
+      <#ndip-for-x-dart>NDiP for xx DARt
+
+This one might seem a little odd, but stick with me because the
+connection becomes important later. So we’re trying to determine the
+ideal number of days it would take to pass the target DAR. That formula is:
+
+
+NDiP Needed=(DARt×GCt)÷EARB
+NDiP Needed=(DARt×GCt)÷EARB
+
+
+|# Calculate the Number of Days Needed for 35 DARt
+df <- df |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(ndip_n = (dart * gross_charges) / ending_ar)|//
+
+Show code
+
+|## --- reactable
+df |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!(date)) |>
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(
+    "Gross Charges" = gross_charges,
+    "Ending AR Balance" = ending_ar,
+    "Number of Days in Period" = number_of_days,
+    "Average Daily Charge" = avg_daily_charge,
+    "Days in AR" = days_in_ar,
+    "AR Balance Needed" = earb_n,
+    "Difference Between Actual & Needed AR Balance" = ardiff,
+    "Percentage Decrease of AR Needed" = arpctdecrs,
+    "Gross Charges Needed" = gct_n,
+    "Difference Between Actual & Needed Gross Charges" = gcdiff,
+    "Percentage Increase of Gross Charges Needed" = gcpctincrs,
+    "Ideal Number of Days in Period" = ndip_n
+  ) |>
+  tidyr::pivot_longer <https://tidyr.tidyverse.org/reference/pivot_longer.html>(
+    everything <https://tidyselect.r-lib.org/reference/everything.html>(),
+    names_to = "Name",
+    values_to = "Value"
+  ) |>
+  reactable <https://glin.github.io/reactable/reference/reactable.html>(
+    defaultColDef = colDef <https://glin.github.io/reactable/reference/colDef.html>(align = "left"),
+    theme = nytimes <https://kcuilla.github.io/reactablefmtr/reference/nytimes.html>(
+      font_size = 16,
+      header_font_size = 14
+    ),
+    sortable = FALSE,
+    pagination = FALSE,
+    bordered = TRUE,
+    striped = FALSE,
+    rownames = TRUE,
+    columns = list <https://rdrr.io/r/base/list.html>(
+      Name = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        style = cell_style <https://kcuilla.github.io/reactablefmtr/reference/cell_style.html>(.,
+          rows = 12,
+          font_color = "red",
+          font_weight = "bold",
+          horizontal_align = "left"
+        ),
+        minWidth = 350
+      ),
+      Value = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        style = cell_style <https://kcuilla.github.io/reactablefmtr/reference/cell_style.html>(.,
+          rows = 12,
+          font_color = "red",
+          font_weight = "bold",
+          horizontal_align = "left"
+        ),
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          separators = TRUE,
+          digits = 2
+        )
+      )
+    )
+  )|//
+
+Name
+Value
+1
+Gross Charges
+131,440.30
+2
+Ending AR Balance
+203,460.00
+3
+Number of Days in Period
+31.00
+4
+Average Daily Charge
+4,240.01
+5
+Days in AR
+47.99
+6
+AR Balance Needed
+148,400.34
+7
+Difference Between Actual & Needed AR Balance
+55,059.66
+8
+Percentage Decrease of AR Needed
+27.06
+9
+Gross Charges Needed
+180,207.43
+10
+Difference Between Actual & Needed Gross Charges
+48,767.13
+11
+Percentage Increase of Gross Charges Needed
+37.10
+12
+Ideal Number of Days in Period
+22.61
+
+So 22.6 days would have been the ideal period for these figures, as
+opposed to 31.
+
+
+      <#adc-for-x-dart>ADC for xx DARt
+
+This one is a little odd as well as more in depth. What’s the average
+daily charge needed to pass the target DAR? The formula:
+
+
+ADC Needed=EARB÷DARt
+ADC Needed=EARB÷DARt
+
+
+|# Calculate the Average Daily Charge Needed for 35 DARt
+df <- df |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    adc_n = ending_ar / dart,
+    gct_nn = adc_n * number_of_days
+  )|//
+
+Show code
+
+|## --- reactable
+df |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!(date)) |>
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(
+    "Gross Charges" = gross_charges,
+    "Ending AR Balance" = ending_ar,
+    "Number of Days in Period" = number_of_days,
+    "Average Daily Charge" = avg_daily_charge,
+    "Days in AR" = days_in_ar,
+    "AR Balance Needed" = earb_n,
+    "Difference Between Actual & Needed AR Balance" = ardiff,
+    "Percentage Decrease of AR Needed" = arpctdecrs,
+    "Gross Charges Needed" = gct_n,
+    "Difference Between Actual & Needed Gross Charges" = gcdiff,
+    "Percentage Increase of Gross Charges Needed" = gcpctincrs,
+    "Ideal Number of Days in Period" = ndip_n,
+    "Average Daily Charge Needed" = adc_n,
+    "Gross Charges Needed (ADC)" = gct_nn
+  ) |>
+  tidyr::pivot_longer <https://tidyr.tidyverse.org/reference/pivot_longer.html>(
+    everything <https://tidyselect.r-lib.org/reference/everything.html>(),
+    names_to = "Name",
+    values_to = "Value"
+  ) |>
+  reactable <https://glin.github.io/reactable/reference/reactable.html>(
+    defaultColDef = colDef <https://glin.github.io/reactable/reference/colDef.html>(align = "left"),
+    theme = nytimes <https://kcuilla.github.io/reactablefmtr/reference/nytimes.html>(
+      font_size = 16,
+      header_font_size = 14
+    ),
+    sortable = FALSE,
+    pagination = FALSE,
+    bordered = TRUE,
+    striped = FALSE,
+    rownames = TRUE,
+    columns = list <https://rdrr.io/r/base/list.html>(
+      Name = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        style = cell_style <https://kcuilla.github.io/reactablefmtr/reference/cell_style.html>(.,
+          rows = 13:14,
+          font_color = "red",
+          font_weight = "bold",
+          horizontal_align = "left"
+        ),
+        minWidth = 350
+      ),
+      Value = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        style = cell_style <https://kcuilla.github.io/reactablefmtr/reference/cell_style.html>(.,
+          rows = 13:14,
+          font_color = "red",
+          font_weight = "bold",
+          horizontal_align = "left"
+        ),
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          separators = TRUE,
+          digits = 2
+        )
+      )
+    )
+  )|//
+
+Name
+Value
+1
+Gross Charges
+131,440.30
+2
+Ending AR Balance
+203,460.00
+3
+Number of Days in Period
+31.00
+4
+Average Daily Charge
+4,240.01
+5
+Days in AR
+47.99
+6
+AR Balance Needed
+148,400.34
+7
+Difference Between Actual & Needed AR Balance
+55,059.66
+8
+Percentage Decrease of AR Needed
+27.06
+9
+Gross Charges Needed
+180,207.43
+10
+Difference Between Actual & Needed Gross Charges
+48,767.13
+11
+Percentage Increase of Gross Charges Needed
+37.10
+12
+Ideal Number of Days in Period
+22.61
+13
+Average Daily Charge Needed
+5,813.14
+14
+Gross Charges Needed (ADC)
+180,207.43
+
+
+      <#adc-related-formulas>ADC-Related Formulas
+
+For completeness’ sake I’m going to include the formulas for |EARB|, |NDiP|, and |GCt| that include the |ADC| variable (cc):
+
+|df <- df |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    adc_gct = number_of_days * avg_daily_charge,
+    adc_earb = avg_daily_charge * days_in_ar,
+    adc_ndip = gross_charges / avg_daily_charge
+  )|//
+
+Show code
+
+|## --- reactable
+df |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!(date)) |>
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(
+    "Gross Charges" = gross_charges,
+    "Ending AR Balance" = ending_ar,
+    "Number of Days in Period" = number_of_days,
+    "Average Daily Charge" = avg_daily_charge,
+    "Days in AR" = days_in_ar,
+    "AR Balance Needed" = earb_n,
+    "Difference Between Actual & Needed AR Balance" = ardiff,
+    "Percentage Decrease of AR Needed" = arpctdecrs,
+    "Gross Charges Needed" = gct_n,
+    "Difference Between Actual & Needed Gross Charges" = gcdiff,
+    "Percentage Increase of Gross Charges Needed" = gcpctincrs,
+    "Ideal Number of Days in Period" = ndip_n,
+    "Average Daily Charge Needed" = adc_n,
+    "Gross Charges Needed (ADC)" = gct_nn,
+    "Gross Charges (ADC)" = adc_gct,
+    "Ending AR Balance (ADC)" = adc_earb,
+    "Number of Days in Period (ADC)" = adc_ndip
+  ) |>
+  tidyr::pivot_longer <https://tidyr.tidyverse.org/reference/pivot_longer.html>(
+    everything <https://tidyselect.r-lib.org/reference/everything.html>(),
+    names_to = "Name",
+    values_to = "Value"
+  ) |>
+  reactable <https://glin.github.io/reactable/reference/reactable.html>(
+    defaultColDef = colDef <https://glin.github.io/reactable/reference/colDef.html>(align = "left"),
+    theme = nytimes <https://kcuilla.github.io/reactablefmtr/reference/nytimes.html>(
+      font_size = 16,
+      header_font_size = 14
+    ),
+    sortable = FALSE,
+    pagination = FALSE,
+    bordered = TRUE,
+    striped = FALSE,
+    rownames = TRUE,
+    columns = list <https://rdrr.io/r/base/list.html>(
+      Name = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        style = cell_style <https://kcuilla.github.io/reactablefmtr/reference/cell_style.html>(.,
+          rows = 15:17,
+          font_color = "red",
+          font_weight = "bold",
+          horizontal_align = "left"
+        ),
+        minWidth = 350
+      ),
+      Value = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        style = cell_style <https://kcuilla.github.io/reactablefmtr/reference/cell_style.html>(.,
+          rows = 15:17,
+          font_color = "red",
+          font_weight = "bold",
+          horizontal_align = "left"
+        ),
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          separators = TRUE,
+          digits = 2
+        )
+      )
+    )
+  )|//
+
+Name
+Value
+1
+Gross Charges
+131,440.30
+2
+Ending AR Balance
+203,460.00
+3
+Number of Days in Period
+31.00
+4
+Average Daily Charge
+4,240.01
+5
+Days in AR
+47.99
+6
+AR Balance Needed
+148,400.34
+7
+Difference Between Actual & Needed AR Balance
+55,059.66
+8
+Percentage Decrease of AR Needed
+27.06
+9
+Gross Charges Needed
+180,207.43
+10
+Difference Between Actual & Needed Gross Charges
+48,767.13
+11
+Percentage Increase of Gross Charges Needed
+37.10
+12
+Ideal Number of Days in Period
+22.61
+13
+Average Daily Charge Needed
+5,813.14
+14
+Gross Charges Needed (ADC)
+180,207.43
+15
+Gross Charges (ADC)
+131,440.30
+16
+Ending AR Balance (ADC)
+203,460.00
+17
+Number of Days in Period (ADC)
+31.00
+
+
+    <#formula-quick-reference>Formula Quick Reference
+
+*Variable* 	*Acronym* 	*Description*
+nn 	|NDiP| 	Number of Days in the Period
+xx 	|GCt| 	total Gross Charges for |NDiP|
+yy 	|EARB| 	Ending AR Balance
+cc 	|ADC| 	Average Daily Charge for |NDiP|
+zz 	|DAR| 	*Days in AR*
+tt 	|DARt| 	Target *Days in AR*
+
+*Name* 	*Formula* 	*Variable Form*
+DAR^1 	|EARB| / (|GCt| / |NDiP|) 	y÷(x÷n)=zy÷(x÷n)=z
+DAR^2 	|EARB| / |ADC| 	y÷c=zy÷c=z
+GCt^1 	(|EARB| x |NDiP|) / |DAR| 	(y×n)÷z=x(y×n)÷z=x
+GCt^2 	|NDiP| x |ADC| 	n×c=xn×c=x
+EARB^1 	(|DAR| x |GCt|) / |NDiP| 	(z×x)÷n=y(z×x)÷n=y
+EARB^2 	|DAR| x |ADC| 	z×c=yz×c=y
+NDiP^1 	(|DAR| x |GCt|) / |EARB| 	(z×x)÷y=n(z×x)÷y=n
+NDiP^2 	|GCt| / |ADC| 	x÷c=nx÷c=n
+ADC^1 	|GCt| / |NDiP| 	x÷n=cx÷n=c
+ADC^2 	|EARB| / |DAR| 	y÷z=cy÷z=c
+DAR /Ratio/^1 	|EARB| / |GCt| 	y÷xy÷x
+DAR /Ratio/^2 	|DAR| / |NDiP| 	z÷nz÷n
+DAR /Ratio/^3 	|GCt| / |EARB| 	x÷yx÷y
+DAR /Ratio/^4 	|NDiP| / |DAR| 	n÷zn÷z
+
+
+    <#relationship-between-variables>Relationship Between Variables
+
+In this section, we will discuss the empirical relationship between |DAR| and all of it’s related variables. In the last section, you might have
+noticed that we established two different formulas for the *Average
+Daily Charge*:
+
+    Average Daily Charge Formula: Version 1
+
+Average Daily Charge=Gross Charges÷Number of Days in Period
+Average Daily Charge=Gross Charges÷Number of Days in Period
+
+
+    Average Daily Charge Formula: Version 2
+
+Average Daily Charge=Ending AR Balance÷Days in AR
+Average Daily Charge=Ending AR Balance÷Days in AR
+
+
+If these are both true, then we can assume that the following equations
+are also true:
+
+
+    Ratio Equivalence 1: Gross Charges to Days in Period equals Ending
+    AR Balance to Days in AR
+
+Gross Charges÷Number of Days in Period=Ending AR Balance÷Days in AR
+Gross Charges÷Number of Days in Period=Ending AR Balance÷Days in AR
+
+
+    Ratio Equivalence 2: Days in AR to Days in Period equals Ending AR
+    Balance to Gross Charges
+
+Days in AR÷Number of Days in Period=Ending AR Balance÷Gross Charges
+Days in AR÷Number of Days in Period=Ending AR Balance÷Gross Charges
+
+
+    Ratio Equivalence 3: Gross Charges to Ending AR Balance equals
+    Number of Days to Days in AR
+
+Gross Charges÷Ending AR Balance=Number of Days in Period÷Days in AR
+Gross Charges÷Ending AR Balance=Number of Days in Period÷Days in AR
+
+|df <- df |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    ratio1 = ending_ar / gross_charges,
+    ratio2 = days_in_ar / number_of_days,
+    ratio3 = gross_charges / ending_ar,
+    ratio4 = number_of_days / days_in_ar
+  )|//
+
+Show code
+
+|## --- reactable
+df |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!(date)) |>
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(
+    "Gross Charges" = gross_charges,
+    "Ending AR Balance" = ending_ar,
+    "Number of Days in Period" = number_of_days,
+    "Average Daily Charge" = avg_daily_charge,
+    "Days in AR" = days_in_ar,
+    "AR Balance Needed" = earb_n,
+    "Difference Between Actual & Needed AR Balance" = ardiff,
+    "Percentage Decrease of AR Needed" = arpctdecrs,
+    "Gross Charges Needed" = gct_n,
+    "Difference Between Actual & Needed Gross Charges" = gcdiff,
+    "Percentage Increase of Gross Charges Needed" = gcpctincrs,
+    "Ideal Number of Days in Period" = ndip_n,
+    "Average Daily Charge Needed" = adc_n,
+    "Gross Charges Needed (ADC)" = gct_nn,
+    "Gross Charges (ADC)" = adc_gct,
+    "Ending AR Balance (ADC)" = adc_earb,
+    "Number of Days in Period (ADC)" = adc_ndip,
+    "Ratio: Ending AR to Gross Charges" = ratio1,
+    "Ratio: Days in AR to Number of Days in Period" = ratio2,
+    "Ratio: Gross Charges to Ending AR" = ratio3,
+    "Ratio: Number of Days in Period to Days in AR" = ratio4,
+  ) |>
+  tidyr::pivot_longer <https://tidyr.tidyverse.org/reference/pivot_longer.html>(
+    everything <https://tidyselect.r-lib.org/reference/everything.html>(),
+    names_to = "Name",
+    values_to = "Value"
+  ) |>
+  reactable <https://glin.github.io/reactable/reference/reactable.html>(
+    defaultColDef = colDef <https://glin.github.io/reactable/reference/colDef.html>(align = "left"),
+    theme = nytimes <https://kcuilla.github.io/reactablefmtr/reference/nytimes.html>(
+      font_size = 16,
+      header_font_size = 14
+    ),
+    sortable = FALSE,
+    pagination = FALSE,
+    bordered = TRUE,
+    striped = FALSE,
+    rownames = TRUE,
+    columns = list <https://rdrr.io/r/base/list.html>(
+      Name = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        style = cell_style <https://kcuilla.github.io/reactablefmtr/reference/cell_style.html>(.,
+          rows = 18:21,
+          font_color = "red",
+          font_weight = "bold",
+          horizontal_align = "left"
+        ),
+        minWidth = 350
+      ),
+      Value = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        style = cell_style <https://kcuilla.github.io/reactablefmtr/reference/cell_style.html>(.,
+          rows = 18:21,
+          font_color = "red",
+          font_weight = "bold",
+          horizontal_align = "left"
+        ),
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          separators = TRUE,
+          digits = 2
+        )
+      )
+    )
+  )|//
+
+Name
+Value
+1
+Gross Charges
+131,440.30
+2
+Ending AR Balance
+203,460.00
+3
+Number of Days in Period
+31.00
+4
+Average Daily Charge
+4,240.01
+5
+Days in AR
+47.99
+6
+AR Balance Needed
+148,400.34
+7
+Difference Between Actual & Needed AR Balance
+55,059.66
+8
+Percentage Decrease of AR Needed
+27.06
+9
+Gross Charges Needed
+180,207.43
+10
+Difference Between Actual & Needed Gross Charges
+48,767.13
+11
+Percentage Increase of Gross Charges Needed
+37.10
+12
+Ideal Number of Days in Period
+22.61
+13
+Average Daily Charge Needed
+5,813.14
+14
+Gross Charges Needed (ADC)
+180,207.43
+15
+Gross Charges (ADC)
+131,440.30
+16
+Ending AR Balance (ADC)
+203,460.00
+17
+Number of Days in Period (ADC)
+31.00
+18
+Ratio: Ending AR to Gross Charges
+1.55
+19
+Ratio: Days in AR to Number of Days in Period
+1.55
+20
+Ratio: Gross Charges to Ending AR
+0.65
+21
+Ratio: Number of Days in Period to Days in AR
+0.65
+------------------------------------------------------------------------
+
+
+  DAR Ratios
+
+A *ratio* is a mathematical parameter used to express the relationship
+of one quantity to another. To calculate a ratio, one quantity is
+divided by another. The quotient can be greater than 1 or less than 1.
+For example, if seven men and five women were in a group, the ratio of
+men to women would be 7575. This may also be written as *7:5* and
+verbalized as “7 to 5.”
+
+The numbers 7 and 5 have no common factors, so this ratio cannot be
+simplified any further. However, if the group consisted of 6 men and 10
+women, the ratio would be *6:10*. Because the numbers in this ratio have
+a common factor of 2, the ratio can be simplified by dividing each
+number by 2, which simplifies the ratio to *3:5*.
+
+A *proportion* is a /type/ of ratio in which xx is a portion of the
+whole (x+y)(x+y). In a proportion, the numerator is always included in
+the denominator. For example, if two women out of a group of 10 over the
+age of 50 have had breast cancer, where x=2x=2 (women who have had
+breast cancer) and y=8y=8 (women who have not had breast cancer), the
+calculation would be 2 divided by 10. The proportion of women who have
+had breast cancer is 0.20.2 or 20%20%.
+
+
+    <#example-1.5x-rule>Example: 1.5x Rule
+
+Let’s test out one of the many AR “best practices” I’ve come across time
+and again:
+
+
+    your monthly Ending Accounts Receivable Balance should never be more
+    than *1.5 times* your total Gross Monthly Charges.
+
+
+In other words, if your Gross Charge total is *$1.00* at the end of the
+month, then your Ending AR Balance can be no more than *$1.50*. Assuming
+our practice’s Days in AR target is *35 days*, I’ll calculate the Days
+in AR for January, February, and April(31, 28, and 30 days):
+
+|# Create a data frame with the data
+df2 <- data.frame <https://rdrr.io/r/base/data.frame.html>(
+  date = c <https://rdrr.io/r/base/c.html>("2022-01-01", "2022-02-01", "2022-04-01"),
+  gct = c <https://rdrr.io/r/base/c.html>(1, 1, 1),
+  earb = c <https://rdrr.io/r/base/c.html>(1.5, 1.5, 1.5),
+  dart = c <https://rdrr.io/r/base/c.html>(35, 35, 35)
+)
+
+# Convert Date to date object
+df2$date <- as.Date.character <https://rdrr.io/r/base/as.Date.html>(df2$date)
+
+# Add column with the number of days in each month
+df2 <- df2 |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    ndip = lubridate::days_in_month <https://lubridate.tidyverse.org/reference/days_in_month.html>(date)
+  )
+
+# Calculate Average Daily Charge & Days in AR
+df2 <- df2 |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    adc = gct / ndip,
+    dar = earb / adc
+  )|//
+
+Show code
+
+|## --- reactable
+df2 |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(!(dart)) |>
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(
+    "Date" = date,
+    "Gross Charges" = gct,
+    "Ending AR" = earb,
+    "Days in Period" = ndip,
+    "Average Daily Charge" = adc,
+    "Days in AR" = dar
+  ) |>
+  reactable <https://glin.github.io/reactable/reference/reactable.html>(
+    defaultColDef = colDef <https://glin.github.io/reactable/reference/colDef.html>(align = "left"),
+    theme = nytimes <https://kcuilla.github.io/reactablefmtr/reference/nytimes.html>(
+      font_size = 16,
+      header_font_size = 14
+    ),
+    sortable = FALSE,
+    pagination = FALSE,
+    bordered = TRUE,
+    striped = FALSE,
+    rownames = FALSE,
+    columns = list <https://rdrr.io/r/base/list.html>(
+      Date = colDef <https://glin.github.io/reactable/reference/colDef.html>(),
+      "Days in Period" = colDef <https://glin.github.io/reactable/reference/colDef.html>(),
+      "Gross Charges" = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          separators = TRUE,
+          prefix = "$",
+          digits = 2
+        )
+      ),
+      "Ending AR" = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          separators = TRUE,
+          prefix = "$",
+          digits = 2
+        )
+      ),
+      "Average Daily Charge" = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          separators = TRUE,
+          prefix = "$",
+          digits = 2
+        )
+      ),
+      "Days in AR" = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          separators = TRUE,
+          digits = 1
+        )
+      )
+    )
+  )|//
+
+Date
+Gross Charges
+Ending AR
+Days in Period
+Average Daily Charge
+Days in AR
+2022-01-01
+$1.00
+$1.50
+31
+$0.03
+46.5
+2022-02-01
+$1.00
+$1.50
+28
+$0.04
+42.0
+2022-04-01
+$1.00
+$1.50
+30
+$0.03
+45.0
+
+So, even though the Ending AR balance is exactly 1.5 times the Gross
+Charges in each of the three months, the Days in AR fails the target
+each time. Even though the *1.5x* rule is poor advice, it is a great
+example of what calculating a ratio can do. Let me explain.
+
+If, according to this rule, your Ending AR balance should never be more
+than 1.5 times your monthly Gross Charges total, then the /ideal/ ratio of |EARB| to |GCt| is *1.5* to *1*. Since you can represent this as a fraction and
+divide, the /ideal/ ratio is also *1.5* (1.5÷1=1.51.5÷1=1.5).
+
+Let’s test out this /ideal/ to show why is it not what it says it is.
+Suppose that your |EARB| is *$203,460.50* and your |GCt| is *$131,440.30*. Therefore, your /actual/ ratio is *203,460.50* to
+*131,440.30*. Represent this as a fraction and divide:
+
+|# Create a data frame
+df3 <- data.frame <https://rdrr.io/r/base/data.frame.html>(
+  gct = 131440.3,
+  earb = 203460.5
+)
+
+# Calculate Actual Ratio
+df3 <- df3 |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    actual = earb / gct
+  )|//
+
+Show code
+
+|## --- reactable
+df3 |>
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(
+    "Gross Charges" = gct,
+    "Ending AR" = earb,
+    "Actual Ratio" = actual
+  ) |>
+  reactable <https://glin.github.io/reactable/reference/reactable.html>(
+    defaultColDef = colDef <https://glin.github.io/reactable/reference/colDef.html>(align = "left"),
+    theme = nytimes <https://kcuilla.github.io/reactablefmtr/reference/nytimes.html>(
+      font_size = 16,
+      header_font_size = 14
+    ),
+    sortable = FALSE,
+    pagination = FALSE,
+    bordered = TRUE,
+    striped = FALSE,
+    rownames = FALSE,
+    columns = list <https://rdrr.io/r/base/list.html>(
+      "Gross Charges" = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          separators = TRUE,
+          prefix = "$",
+          digits = 2
+        )
+      ),
+      "Ending AR" = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          separators = TRUE,
+          prefix = "$",
+          digits = 2
+        )
+      ),
+      "Actual Ratio" = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          separators = TRUE,
+          digits = 3
+        )
+      )
+    )
+  )|//
+
+Gross Charges
+Ending AR
+Actual Ratio
+$131,440.30
+$203,460.50
+1.548
+
+Your /actual/ ratio of |EARB| to |GCt| is *1.548*. In other words, your Ending AR balance is *1.548 times*
+your Gross Charges, breaking the 1.5x rule. We can check this by
+multiplying the |GCt| by 1.5 and seeing whether or not the result is less than our |EARB|:
+
+Another way to think of this is that you have $1.55 in AR for every
+$1.00 in Gross Charges.
+
+|# Multiply Gross Charges by 1.5
+df3 <- df3 |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    gct_1.5 = gct * 1.5
+  ) |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(
+    gct,
+    gct_1.5,
+    earb,
+    actual
+  )|//
+
+Show code
+
+|## --- reactable
+df3 |>
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(
+    "Gross Charges" = gct,
+    "Ending AR" = earb,
+    "Actual Ratio" = actual,
+    "Gross Charges x 1.5" = gct_1.5
+  ) |>
+  reactable <https://glin.github.io/reactable/reference/reactable.html>(
+    defaultColDef = colDef <https://glin.github.io/reactable/reference/colDef.html>(align = "left"),
+    theme = nytimes <https://kcuilla.github.io/reactablefmtr/reference/nytimes.html>(
+      font_size = 16,
+      header_font_size = 14
+    ),
+    sortable = FALSE,
+    pagination = FALSE,
+    bordered = TRUE,
+    striped = FALSE,
+    rownames = FALSE,
+    columns = list <https://rdrr.io/r/base/list.html>(
+      "Gross Charges" = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          separators = TRUE,
+          prefix = "$",
+          digits = 2
+        )
+      ),
+      "Gross Charges x 1.5" = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          separators = TRUE,
+          prefix = "$",
+          digits = 2
+        )
+      ),
+      "Ending AR" = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          separators = TRUE,
+          prefix = "$",
+          digits = 2
+        )
+      ),
+      "Actual Ratio" = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          separators = TRUE,
+          digits = 3
+        )
+      )
+    )
+  )|//
+
+Gross Charges
+Gross Charges x 1.5
+Ending AR
+Actual Ratio
+$131,440.30
+$197,160.45
+$203,460.50
+1.548
+
+As you can see, Gross Charges multiplied by 1.5 is less than the Ending
+AR balance. The usefulness of calculating and comparing this /actual/
+ratio to it’s /ideal/ counterpart will (hopefully) become evident in the
+next several sections.
+
+
+    <#the-actual-the-ideal>The Actual & the Ideal
+
+In the previous section, we established several ratio equivalencies. The
+one we’ll be concentrating on is the second one:
+
+
+    Ratio Equivalence 2: Days in AR to Number of Days in Period equals
+    Ending AR Balance to Gross Charges
+
+Days in AR÷Number of Days in Period=Ending AR Balance÷Gross Charges
+Days in AR÷Number of Days in Period=Ending AR Balance÷Gross Charges
+
+
+The left side of this equation represents the /Ideal/ Ratio for xx Days
+in AR. It is the ratio of your target Days in AR to the Number of Days
+in the Period (|NDiP|). The right side is your /Actual/ Ratio, which is the ratio of your
+Ending AR balance to your Gross Charges total. Let’s use the figures
+from the /1.5x/ example to demonstrate a good use case. Our desired DAR
+target (|DARt|) was 35 days, our |EARB| was $1.50, and our |GCt| was $1.00. Let’s calculate the Ideal and Actual Ratios:
+
+|# Calculate Ideal and Actual Ratios
+dart <- 35
+
+df2 <- df2 |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    actual = earb / gct,
+    ideal = dart / ndip
+  )|//
+
+Show code
+
+|## --- reactable
+df2 |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(
+    gct,
+    earb,
+    ndip,
+    dar,
+    actual,
+    ideal
+  ) |>
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(
+    "Gross Charges" = gct,
+    "Ending AR" = earb,
+    "Days in Period" = ndip,
+    "Days in AR" = dar,
+    "Actual Ratio" = actual,
+    "Ideal Ratio" = ideal
+  ) |>
+  reactable <https://glin.github.io/reactable/reference/reactable.html>(
+    defaultColDef = colDef <https://glin.github.io/reactable/reference/colDef.html>(align = "left"),
+    theme = nytimes <https://kcuilla.github.io/reactablefmtr/reference/nytimes.html>(
+      font_size = 16,
+      header_font_size = 14
+    ),
+    sortable = FALSE,
+    pagination = FALSE,
+    bordered = TRUE,
+    striped = FALSE,
+    rownames = FALSE,
+    columns = list <https://rdrr.io/r/base/list.html>(
+      "Gross Charges" = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          separators = TRUE,
+          prefix = "$",
+          digits = 2
+        )
+      ),
+      "Ending AR" = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          separators = TRUE,
+          prefix = "$",
+          digits = 2
+        )
+      ),
+      "Days in AR" = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          separators = TRUE,
+          digits = 2
+        )
+      ),
+      "Actual Ratio" = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          separators = TRUE,
+          digits = 2
+        )
+      ),
+      "Ideal Ratio" = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          separators = TRUE,
+          digits = 2
+        )
+      )
+    )
+  )|//
+
+Gross Charges
+Ending AR
+Days in Period
+Days in AR
+Actual Ratio
+Ideal Ratio
+$1.00
+$1.50
+31
+46.50
+1.50
+1.13
+$1.00
+$1.50
+28
+42.00
+1.50
+1.25
+$1.00
+$1.50
+30
+45.00
+1.50
+1.17
+
+We now know that if our target Days in AR is /35 days/ and we are in a
+month with /31/, /28/ or /30/ days, then our Ending AR balance needs to
+be, respectively, /1.13/, /1.25/, or /1.17/ times our Gross Charges.
+This is the /Ideal Ratio/.
+
+
+    The *EARB Required for xx DARt* formula used earlier is equal to
+    multiplying Gross Charges by the /Ideal Ratio/. We simply take the
+    Gross Charges totals and multiply them by the /Ideal Ratio/. This
+    will give us the Ending AR balances needed for a |DAR| of 35 days:
+
+
+Ending AR Needed=(Target Days in AR×Gross Charges)÷Number of Days in Period
+Ending AR Needed=(Target Days in AR×Gross Charges)÷Number of Days in Period
+
+
+Ending AR Needed=Gross Charges×Ideal Ratio
+Ending AR Needed=Gross Charges×Ideal Ratio
+
+
+    <#an-ar-centric-model>An AR-centric Model
+
+Remember that the “Actual” Ratio we’re calculating here is |EARB| divided by |GCt|, and not |GCt| divided by |EARB|. This is important to keep in mind because |EARB| is dependent on |GCt|. In other words, |GCt| will never change because of a change in |EARB|, which is true in the real world. |EARB| changes on a /daily/ basis because of |GCt|. This is because every Gross Charge is added to the AR Balance whether
+that charge is paid immediately (and is subtracted from the AR Balance)
+or 90 days later.
+
+As such, the focus here is on the performance of AR/Aging management,
+not Gross Charges, as the management of AR should be the focus of
+practice’s financial performance.
+
+Another important reason to mention this is that, just as you can use
+the formulas for |EARB| Required for xx |DARt| and |GCt| Required for xx |DARt|, you can also calculate both of these using the |DAR| Ratios.
+
+However, calculating one will not tell you the other. They are
+completely independent of each other.
+
+  * Calculating the |EARB| required will tell you *ONLY* the |EARB| required for that |GCt|.
+  * Calculating the |GCt| required will tell you *ONLY* the |GCt| required for that |EARB|.
+
+
+      <#behavior-of-ideal-amounts-over-time>Behavior of Ideal Amounts
+      Over Time
+
+To demonstrate, I’ll create a data frame and plot it. The first one
+shows the ideal Gross Charges amount over the course of a calendar year
+(365 days) for a |DARt| of 35 and a constant |EARB| of $1:
+
+|# Create data frame
+gct_df <- data.frame <https://rdrr.io/r/base/data.frame.html>(
+  ndip = c <https://rdrr.io/r/base/c.html>(1:365),
+  earb = rep <https://rdrr.io/r/base/rep.html>(1, times = 365),
+  dart = rep <https://rdrr.io/r/base/rep.html>(35, times = 365)
+)
+
+# Calculate Ideal Ratio & Gross Charges Needed
+gct_df <- gct_df |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    ideal = dart / ndip,
+    gct = (earb * ndip) / dart
+  )
+
+head <https://rdrr.io/r/utils/head.html>(gct_df, 10)|//
+
+|#    ndip earb dart     ideal        gct
+# 1     1    1   35 35.000000 0.02857143
+# 2     2    1   35 17.500000 0.05714286
+# 3     3    1   35 11.666667 0.08571429
+# 4     4    1   35  8.750000 0.11428571
+# 5     5    1   35  7.000000 0.14285714
+# 6     6    1   35  5.833333 0.17142857
+# 7     7    1   35  5.000000 0.20000000
+# 8     8    1   35  4.375000 0.22857143
+# 9     9    1   35  3.888889 0.25714286
+# 10   10    1   35  3.500000 0.28571429|//
+
+As you can see, the ideal Ending AR balance /decays rapidly/, while the
+ideal Gross Charges total /increases in a linear fashion/:
+
+Show code
+
+|hc_theme_aab <- hc_theme <https://jkunst.com/highcharter/reference/hc_theme.html>(
+  colors = c <https://rdrr.io/r/base/c.html>(
+    "#0C2340", # Navy
+    "#C8102E", # Red
+    "#85714D" # Gold
+  ),
+  chart = list <https://rdrr.io/r/base/list.html>(
+    style = list <https://rdrr.io/r/base/list.html>(
+      fontSize = "18",
+      color = "#000000",
+      fontWeight = "normal",
+      fontFamily = "Karla"
+    )
+  ),
+  title = list <https://rdrr.io/r/base/list.html>(
+    align = "left",
+    style = list <https://rdrr.io/r/base/list.html>(
+      fontSize = "20",
+      color = "#0C2340",
+      fontWeight = "bold",
+      fontFamily = "Karla"
+    )
+  ),
+  subtitle = list <https://rdrr.io/r/base/list.html>(
+    align = "left",
+    style = list <https://rdrr.io/r/base/list.html>(
+      fontSize = "18",
+      color = "#C8102E",
+      fontWeight = "normal",
+      fontFamily = "Karla"
+    )
+  ),
+  plotOptions = list <https://rdrr.io/r/base/list.html>(
+    line = list <https://rdrr.io/r/base/list.html>(
+      marker = list <https://rdrr.io/r/base/list.html>(
+        symbol = "circle",
+        lineWidth = 2,
+        radius = 5
+      )
+    )
+  )
+)
+
+hchart <https://jkunst.com/highcharter/reference/hchart.html>(gct_df,
+  "area",
+  hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(
+    x = ndip,
+    y = ideal
+  ),
+  name = "Ideal AR Balance",
+  yAxis = 0,
+  fillOpacity = 0.2
+) |>
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(text = "Number of Days in Period"),
+    labels = list <https://rdrr.io/r/base/list.html>(format = "{value}"),
+    crosshair = list <https://rdrr.io/r/base/list.html>(
+      snap = TRUE,
+      width = 2,
+      zIndex = 0
+    )
+  ) |>
+  hc_yAxis_multiples <https://jkunst.com/highcharter/reference/hc_add_yAxis.html>(
+    list <https://rdrr.io/r/base/list.html>(
+      title = list <https://rdrr.io/r/base/list.html>(
+        text = "Ideal AR Balance"
+      ),
+      labels = list <https://rdrr.io/r/base/list.html>(format = "${value}"),
+      top = "0%",
+      height = "45%"
+    ),
+    list <https://rdrr.io/r/base/list.html>(
+      title = list <https://rdrr.io/r/base/list.html>(
+        text = "Ideal Gross Charges"
+      ),
+      labels = list <https://rdrr.io/r/base/list.html>(format = "${value}"),
+      top = "55%",
+      height = "50%",
+      opposite = TRUE
+    )
+  ) |>
+  hc_add_series <https://jkunst.com/highcharter/reference/hc_add_series.html>(gct_df,
+    "area",
+    hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(
+      x = ndip,
+      y = gct
+    ),
+    name = "Ideal Gross Charges",
+    yAxis = 1,
+    fillOpacity = 0.2
+  ) |>
+  hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    crosshairs = TRUE,
+    valueDecimals = 2,
+    table = TRUE,
+    shared = TRUE,
+    borderWidth = 1,
+    backgroundColor = "#F0F0F0",
+    sort = FALSE
+  ) |>
+  hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 700) |>
+  hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "Ideal Behavior of AR Balance & Gross Charges Over 365 Days") |>
+  hc_subtitle <https://jkunst.com/highcharter/reference/hc_subtitle.html>(text = "Target Days in AR = 35") |>
+  hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_aab) |>
+  hc_navigator <https://jkunst.com/highcharter/reference/hc_navigator.html>(enabled = TRUE)|//
+
+Created with Highcharts 9.3.1Number of Days in PeriodIdeal AR
+BalanceIdeal Gross ChargesIdeal Behavior of AR Balance & Gross Charges
+Over 365 DaysTarget Days in AR =
+3501002003005015025035000:00:00.10000:00:00.20000:00:00.300$0$10$20$30$40$0$2$4$6$8$10$12
+
+
+    <#using-the-dar-ratios>Using the DAR Ratios
+
+Let’s examine some sample data and apply the DAR ratios to this data.
+The following table contains 12 months of mock financial data from a
+physician practice. The accompanying graph charts the |EARB| and |GCt| across those months. As you will see, |DAR| failed in *six* of the *12 months*: /March/, /May/ through /July/, /
+September/, and /December/:
+
+|# Declare target Days in AR
+dart <- 35
+
+# Create data frame
+df4 <- data.frame <https://rdrr.io/r/base/data.frame.html>(
+  date = c <https://rdrr.io/r/base/c.html>(
+    "2022-01-01", "2022-02-01",
+    "2022-03-01", "2022-04-01",
+    "2022-05-01", "2022-06-01",
+    "2022-07-01", "2022-08-01",
+    "2022-09-01", "2022-10-01",
+    "2022-11-01", "2022-12-01"
+  ),
+  gct = c <https://rdrr.io/r/base/c.html>(
+    325982, 297731.74,
+    198655.14, 186047,
+    123654, 131440.28,
+    153991, 156975,
+    146878.12, 163799.44,
+    151410.74, 169094.46
+  ),
+  earb = c <https://rdrr.io/r/base/c.html>(
+    288432.52, 307871.08,
+    253976.56, 183684.90,
+    204227.59, 203460.47,
+    182771.32, 169633.64,
+    179347.72, 178051.11,
+    162757.49, 199849.30
+  )
+)
+
+# Convert Date to date object
+df4$date <- as.Date.character <https://rdrr.io/r/base/as.Date.html>(df4$date)
+
+df4 <- df4 |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    ndip = lubridate::days_in_month <https://lubridate.tidyverse.org/reference/days_in_month.html>(date),
+    nmon = lubridate::month <https://lubridate.tidyverse.org/reference/month.html>(date, label = FALSE),
+    month = lubridate::month <https://lubridate.tidyverse.org/reference/month.html>(date, label = TRUE, abbr = FALSE),
+    mon = lubridate::month <https://lubridate.tidyverse.org/reference/month.html>(date, label = TRUE, abbr = TRUE)
+  )
+
+
+df4 <- df4 |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    adc = gct / ndip, # Average Daily Charge
+    dar = earb / adc, # Days in AR
+    actual = earb / gct, # Actual Ratio
+    ideal = dart / ndip, # Ideal Ratio
+    diff = actual - ideal, # Ratio Difference
+    status = case_when <https://dplyr.tidyverse.org/reference/case_when.html>(
+      dar < dart ~ "Pass",
+      TRUE ~ "Fail"
+    )
+  )|//
+
+Show code
+
+|df4_tbl <- df4 |>
+  dplyr::select <https://dplyr.tidyverse.org/reference/select.html>(
+    nmon,
+    mon,
+    gct,
+    earb,
+    dar,
+    actual,
+    ideal,
+    diff,
+    status
+  ) |>
+  reactable <https://glin.github.io/reactable/reference/reactable.html>(
+    pagination = FALSE,
+    outlined = TRUE,
+    compact = TRUE,
+    defaultColDef = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      footerStyle = list <https://rdrr.io/r/base/list.html>(fontWeight = "bold"),
+      headerClass = "col-header",
+      footerClass = "col-footer",
+      align = "left"
+    ),
+    columns = list <https://rdrr.io/r/base/list.html>(
+      nmon = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = " ",
+        width = 60
+      ),
+      mon = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Month",
+        width = 100
+      ),
+      gct = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Gross Charges",
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          digits = 2
+        )
+      ),
+      earb = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Ending AR",
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          digits = 2
+        )
+      ),
+      dar = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Days in AR",
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          digits = 2
+        )
+      ),
+      actual = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Actual Ratio",
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          digits = 2
+        )
+      ),
+      ideal = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Ideal Ratio",
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          digits = 2
+        )
+      ),
+      diff = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Ratio Difference",
+        align = "right",
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          digits = 2
+        )
+      ),
+      status = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Status"
+      )
+    )
+  )
+
+# Plot of Ending AR and Gross Charges
+df4_hc1 <- df4 |>
+  arrange <https://dplyr.tidyverse.org/reference/arrange.html>(date) |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(
+    mon,
+    gct,
+    earb
+  ) |>
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(
+    "Gross Charges" = gct,
+    "Ending AR Balance" = earb
+  ) |>
+  tidyr::pivot_longer <https://tidyr.tidyverse.org/reference/pivot_longer.html>(
+    !mon,
+    names_to = "measures",
+    values_to = "values"
+  ) |>
+  hchart <https://jkunst.com/highcharter/reference/hchart.html>(
+    "line",
+    hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(x = mon, y = values, group = measures)
+  ) |>
+  hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(text = " "),
+    labels = list <https://rdrr.io/r/base/list.html>(formatter = JS <https://rdrr.io/pkg/htmlwidgets/man/JS.html>(
+      "function(){
+          byHundred = Math.round(this.value / 1000)
+          return(byHundred + 'K')
+        }"
+    )),
+    crosshair = list <https://rdrr.io/r/base/list.html>(
+      snap = TRUE,
+      width = 2,
+      zIndex = 0
+    )
+  ) |>
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(text = NULL),
+    labels = list <https://rdrr.io/r/base/list.html>(format = "{value}"),
+    crosshair = list <https://rdrr.io/r/base/list.html>(
+      snap = TRUE,
+      width = 2,
+      zIndex = 0
+    ),
+    plotBands = list <https://rdrr.io/r/base/list.html>(
+      list <https://rdrr.io/r/base/list.html>(
+        from = 1.5,
+        to = 2.5,
+        color = "#ccc",
+        label = list <https://rdrr.io/r/base/list.html>(
+          text = "FAIL",
+          style = list <https://rdrr.io/r/base/list.html>(
+            fontWeight = "bold",
+            color = "white",
+            fontSize = "16px"
+          )
+        )
+      ),
+      list <https://rdrr.io/r/base/list.html>(
+        from = 3.5,
+        to = 6.5,
+        color = "#ccc",
+        label = list <https://rdrr.io/r/base/list.html>(
+          text = "FAIL",
+          style = list <https://rdrr.io/r/base/list.html>(
+            fontWeight = "bold",
+            color = "white",
+            fontSize = "16px"
+          )
+        )
+      ),
+      list <https://rdrr.io/r/base/list.html>(
+        from = 7.5,
+        to = 8.5,
+        color = "#ccc",
+        label = list <https://rdrr.io/r/base/list.html>(
+          text = "FAIL",
+          style = list <https://rdrr.io/r/base/list.html>(
+            fontWeight = "bold",
+            color = "white",
+            fontSize = "16px"
+          )
+        )
+      ),
+      list <https://rdrr.io/r/base/list.html>(
+        from = 10.5,
+        to = 11.5,
+        color = "#ccc",
+        label = list <https://rdrr.io/r/base/list.html>(
+          text = "FAIL",
+          style = list <https://rdrr.io/r/base/list.html>(
+            fontWeight = "bold",
+            color = "white",
+            fontSize = "16px"
+          )
+        )
+      )
+    )
+  ) |>
+  hc_plotOptions <https://jkunst.com/highcharter/reference/hc_plotOptions.html>(
+    line = list <https://rdrr.io/r/base/list.html>(
+      marker = list <https://rdrr.io/r/base/list.html>(
+        symbol = "circle",
+        lineWidth = 3,
+        radius = 5
+      )
+    )
+  ) |>
+  hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE
+  ) |>
+  hc_legend <https://jkunst.com/highcharter/reference/hc_legend.html>(
+    align = "right",
+    verticalAlign = "bottom",
+    layout = "horizontal",
+    x = 0,
+    y = 10
+  ) |>
+  hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 500) |>
+  hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_aab) |>
+  hc_chart <https://jkunst.com/highcharter/reference/hc_chart.html>(zoomType = "xy")
+
+df4_tbl|//
+
+Month
+Gross Charges
+Ending AR
+Days in AR
+Actual Ratio
+Ideal Ratio
+Ratio Difference
+Status
+1
+Jan
+325982.00
+288432.52
+27.43
+0.88
+1.13
+-0.24
+Pass
+2
+Feb
+297731.74
+307871.08
+28.95
+1.03
+1.25
+-0.22
+Pass
+3
+Mar
+198655.14
+253976.56
+39.63
+1.28
+1.13
+0.15
+Fail
+4
+Apr
+186047.00
+183684.90
+29.62
+0.99
+1.17
+-0.18
+Pass
+5
+May
+123654.00
+204227.59
+51.20
+1.65
+1.13
+0.52
+Fail
+6
+Jun
+131440.28
+203460.47
+46.44
+1.55
+1.17
+0.38
+Fail
+7
+Jul
+153991.00
+182771.32
+36.79
+1.19
+1.13
+0.06
+Fail
+8
+Aug
+156975.00
+169633.64
+33.50
+1.08
+1.13
+-0.05
+Pass
+9
+Sep
+146878.12
+179347.72
+36.63
+1.22
+1.17
+0.05
+Fail
+10
+Oct
+163799.44
+178051.11
+33.70
+1.09
+1.13
+-0.04
+Pass
+11
+Nov
+151410.74
+162757.49
+32.25
+1.07
+1.17
+-0.09
+Pass
+12
+Dec
+169094.46
+199849.30
+36.64
+1.18
+1.13
+0.05
+Fail
+Created with Highcharts 9.3.1FAILFAILFAILFAILEnding AR BalanceGross
+ChargesJanFebMarAprMayJunJulAugSepOctNovDec100K150K200K250K300K350K
+
+Examining the months that failed on the graph, you can see that:
+
+  *
+
+    When |GCt| falls too far below |EARB|, |DAR| exceeds the DAR target (35).
+
+  *
+
+    When the two get close enough, |DAR| is under the target.
+
+
+Looking at the data in the table, you can see that:
+
+  *
+
+    If the *Difference* between the Actual and Ideal Ratio is *positive*, |DAR| is /over/ the target set by the Ideal Ratio (35) and is /failing/.
+
+  *
+
+    If the *Difference* is *negative*, |DAR| is /under/ the target or /passing/.
+
+
+    /Note: |DAR| would meet the target (35) if the Difference was zero, but this
+    will never be the case, as the |GCt| and |EARB| will never be the exact same number./
+
+
+      <#ratio-difference-and-days-in-ar-difference>Ratio Difference and
+      Days in AR Difference
+
+Another interesting find is that if you plot each month’s Ratio
+Difference and the difference between the actual Days in AR and the
+target Days in AR, they line up in an exact one-to-one relationship:
+
+|df4 <- df4 |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    dardiff = dar - dart
+  )
+
+df4 |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(
+    mon, dar, diff, dardiff, status
+  )|//
+
+|#    mon      dar        diff   dardiff status
+# 1  Jan 27.42915 -0.24422107 -7.570853   Pass
+# 2  Feb 28.95355 -0.21594471 -6.046452   Pass
+# 3  Mar 39.63287  0.14944742  4.632870   Fail
+# 4  Apr 29.61911 -0.17936292 -5.380888   Pass
+# 5  May 51.19976  0.52257295 16.199761   Fail
+# 6  Jun 46.43793  0.38126423 11.437927   Fail
+# 7  Jul 36.79378  0.05786386  1.793780   Fail
+# 8  Aug 33.49987 -0.04839114 -1.500125   Pass
+# 9  Sep 36.63195  0.05439825  1.631948   Fail
+# 10 Oct 33.69721 -0.04202543 -1.302788   Pass
+# 11 Nov 32.24821 -0.09172647 -2.751794   Pass
+# 12 Dec 36.63827  0.05284738  1.638269   Fail|//
+
+Show code
+
+|hchart <https://jkunst.com/highcharter/reference/hchart.html>(df4,
+  "area",
+  hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(
+    x = mon,
+    y = dardiff
+  ),
+  name = "DAR Difference",
+  yAxis = 0,
+  fillOpacity = 0.2
+) |>
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(text = NULL),
+    crosshair = list <https://rdrr.io/r/base/list.html>(
+      snap = TRUE,
+      width = 2,
+      zIndex = 0
+    )
+  ) |>
+  hc_yAxis_multiples <https://jkunst.com/highcharter/reference/hc_add_yAxis.html>(
+    list <https://rdrr.io/r/base/list.html>(
+      title = list <https://rdrr.io/r/base/list.html>(
+        text = "DAR Difference"
+      ),
+      top = "0%",
+      height = "50%"
+    ),
+    list <https://rdrr.io/r/base/list.html>(
+      title = list <https://rdrr.io/r/base/list.html>(
+        text = "Ratio Difference"
+      ),
+      top = "50%", height = "50%",
+      opposite = TRUE
+    )
+  ) |>
+  hc_add_series <https://jkunst.com/highcharter/reference/hc_add_series.html>(df4,
+    "area",
+    hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(
+      x = mon,
+      y = diff
+    ),
+    name = "Ratio Difference",
+    yAxis = 1,
+    fillOpacity = 0.2
+  ) |>
+  hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    crosshairs = TRUE,
+    valueDecimals = 2,
+    table = TRUE,
+    shared = TRUE,
+    borderWidth = 1,
+    sort = FALSE
+  ) |>
+  hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 500) |>
+  hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_aab) |>
+  hc_chart <https://jkunst.com/highcharter/reference/hc_chart.html>(zoomType = "xy")|//
+
+Created with Highcharts 9.3.1DAR DifferenceRatio
+DifferenceJanFebMarAprMayJunJulAugSepOctNovDec-1001020-0.5-0.2500.250.50.75
+
+
+      <#example-ending-ar-needed>Example: Ending AR Needed
+
+Putting the ratios into practice, for months that failed, we can
+calculate the Ending AR balance needed that would’ve resulted in passing
+a Days in AR target of 35.
+
+|dart <- 35
+
+df4 <- df4 |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    earb_n = (dart * gct) / ndip,
+    earbdiff = earb - earb_n,
+    earbpctdc = earbdiff / earb
+  )|//
+
+Show code
+
+|df4 |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(
+    status == "Fail"
+  ) |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(
+    nmon,
+    mon,
+    status,
+    earb,
+    earb_n,
+    earbdiff,
+    earbpctdc
+  ) |>
+  reactable <https://glin.github.io/reactable/reference/reactable.html>(
+    pagination = FALSE,
+    outlined = TRUE,
+    compact = TRUE,
+    defaultColDef = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      footerStyle = list <https://rdrr.io/r/base/list.html>(fontWeight = "bold"),
+      headerClass = "col-header",
+      footerClass = "col-footer",
+      align = "left"
+    ),
+    columns = list <https://rdrr.io/r/base/list.html>(
+      nmon = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = " ",
+        width = 60
+      ),
+      mon = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Month",
+        width = 100
+      ),
+      earb = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Ending AR",
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          prefix = "$",
+          separators = TRUE,
+          digits = 2
+        )
+      ),
+      earb_n = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Ending AR Needed",
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          prefix = "$",
+          separators = TRUE,
+          digits = 2
+        )
+      ),
+      earbdiff = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "AR Decrease Needed",
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          prefix = "$",
+          separators = TRUE,
+          digits = 2
+        )
+      ),
+      earbpctdc = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "% Decrease Needed",
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          digits = 2,
+          percent = TRUE
+        )
+      ),
+      status = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Status"
+      )
+    )
+  )|//
+
+Month
+Status
+Ending AR
+Ending AR Needed
+AR Decrease Needed
+% Decrease Needed
+3
+Mar
+Fail
+$253,976.56
+$224,288.06
+$29,688.50
+11.69%
+5
+May
+Fail
+$204,227.59
+$139,609.35
+$64,618.24
+31.64%
+6
+Jun
+Fail
+$203,460.47
+$153,346.99
+$50,113.48
+24.63%
+7
+Jul
+Fail
+$182,771.32
+$173,860.81
+$8,910.51
+4.88%
+9
+Sep
+Fail
+$179,347.72
+$171,357.81
+$7,989.91
+4.45%
+12
+Dec
+Fail
+$199,849.30
+$190,913.10
+$8,936.20
+4.47%
+
+We can plot the Ending AR balance needed onto our earlier chart to
+visualize how close we came to passing:
+
+Show code
+
+|df4_sub <- df4 |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(
+    status == "Fail"
+  ) |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(
+    mon,
+    earb_n,
+    earbdiff,
+    earbpctdc
+  )
+
+# Plot of Ending AR Needed
+hc_add_series <https://jkunst.com/highcharter/reference/hc_add_series.html>(
+  df4_hc1,
+  df4_sub,
+  "column",
+  hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(
+    x = mon,
+    y = earb_n,
+    size = earbdiff
+  ),
+  name = "Ending AR Balance Needed",
+  fillOpacity = 0.2,
+  color = "white"
+) |>
+  hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_aab) |>
+  hc_plotOptions <https://jkunst.com/highcharter/reference/hc_plotOptions.html>(series = list <https://rdrr.io/r/base/list.html>(pointWidth = 5)) |>
+  hc_chart <https://jkunst.com/highcharter/reference/hc_chart.html>(zoomType = "xy")|//
+
+Created with Highcharts 9.3.1FAILFAILFAILFAILEnding AR BalanceGross
+ChargesEnding AR Balance
+NeededJanFebMarAprMayJunJulAugSepOctNovDec0K50K100K150K200K250K300K350K
+
+The white bars represent where the Ending AR balance would need to be to
+pass Days in AR, though it’s not the most intuitive visual. Let’s try
+another type of visual.
+
+
+      <#bullet-chart-visualizing-where-ar-should-be>Bullet Chart:
+      Visualizing Where AR Should Be
+
+Another option for visualizing the AR balance is the bullet chart, a
+variation of a bar graph developed by Stephen Few to “replace the meters
+and gauges that are often used on dashboards.” It is much more versatile
+and complex than the way in which I’m using it here, but the basic form
+lends itself to such an intuitive interpretation by the viewer, that I
+had to include it:
+
+Show code
+
+|hchart <https://jkunst.com/highcharter/reference/hchart.html>(df4,
+  "bullet",
+  hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(
+    x = month,
+    y = earb,
+    target = earb_n
+  ),
+  name = "Ending AR",
+  color = "#0C2340",
+  fillOpacity = 0.2
+) |>
+  hc_chart <https://jkunst.com/highcharter/reference/hc_chart.html>(inverted = TRUE) |>
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(text = NULL),
+    gridLineWidth = 2,
+    gridLineColor = "white"
+  ) |>
+  hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(text = " "),
+    min = 0,
+    max = 400000,
+    gridLineWidth = 0,
+    showFirstLabel = FALSE,
+    showLastLabel = FALSE,
+    plotBands = list <https://rdrr.io/r/base/list.html>(
+      list <https://rdrr.io/r/base/list.html>(from = 0, to = 100000, color = "#bbb"),
+      list <https://rdrr.io/r/base/list.html>(from = 100000, to = 200000, color = "#ccc"),
+      list <https://rdrr.io/r/base/list.html>(from = 200000, to = 300000, color = "#ddd"),
+      list <https://rdrr.io/r/base/list.html>(from = 300000, to = 400000, color = "#eee")
+    )
+  ) |>
+  hc_plotOptions <https://jkunst.com/highcharter/reference/hc_plotOptions.html>(
+    series = list <https://rdrr.io/r/base/list.html>(
+      pointPadding = 0.3,
+      pointWidth = 12,
+      borderWidth = 0,
+      targetOptions = list <https://rdrr.io/r/base/list.html>(
+        width = "200%",
+        color = "#C8102E"
+      )
+    )
+  ) |>
+  hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 500) |>
+  hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_aab) |>
+  hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "2022 Monthly AR Balance & AR Threshold Mark") |>
+  hc_subtitle <https://jkunst.com/highcharter/reference/hc_subtitle.html>(text = "Target Days in AR = <b>35 Days</b>.
+              If the Bar Has Crossed the Vertical Target, <b>DAR</b> has Failed.") |>
+  hc_chart <https://jkunst.com/highcharter/reference/hc_chart.html>(zoomType = "xy")|//
+
+Created with Highcharts 9.3.12022 Monthly AR Balance & AR Threshold
+MarkTarget Days in AR = 35 Days. If the Bar Has Crossed the Vertical
+Target, DAR has
+Failed.JanuaryFebruaryMarchAprilMayJuneJulyAugustSeptemberOctoberNovemberDecember0100k200k300k400k25k50k75k125k150k175k225k250k275k325k350k375k
+Show code
+
+|library <https://rdrr.io/r/base/library.html>(gt <https://gt.rstudio.com/>)
+library <https://rdrr.io/r/base/library.html>(gtExtras <https://github.com/jthomasmock/gtExtras>)
+df4 |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(month, gct, earb, earb_n, dar, status, diff) |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    target_col = earb,
+    plot_col = earb_n,
+  ) |>
+  gt <https://gt.rstudio.com/reference/gt.html>(rowname_col = "month") |>
+  cols_label <https://gt.rstudio.com/reference/cols_label.html>(
+    month = "Month",
+    gct = "Gross Charges",
+    earb = "Ending AR",
+    earb_n = "Optimal AR",
+    dar = "Days in AR",
+    status = "Status",
+    diff = "Ratio Difference",
+    plot_col = "AR Target"
+  ) |>
+  fmt_number <https://gt.rstudio.com/reference/fmt_number.html>(columns = c <https://rdrr.io/r/base/c.html>(dar, diff)) |>
+  fmt_currency <https://gt.rstudio.com/reference/fmt_currency.html>(columns = c <https://rdrr.io/r/base/c.html>(gct, earb, earb_n)) |>
+  gt_plt_bullet <https://jthomasmock.github.io/gtExtras/reference/gt_plt_bullet.html>(column = plot_col, target = target_col, palette = c <https://rdrr.io/r/base/c.html>("lightblue", "black"), width = 45) |>
+  # gt_fa_column(column = status) |>
+  tab_style <https://gt.rstudio.com/reference/tab_style.html>(
+    style = cell_text <https://gt.rstudio.com/reference/cell_text.html>(color = "red", weight = "bold"),
+    locations = cells_body <https://gt.rstudio.com/reference/cells_body.html>(
+      columns = status,
+      rows = status == "Fail"
+    )
+  ) |>
+  gt_theme_espn <https://jthomasmock.github.io/gtExtras/reference/gt_theme_espn.html>()|//
+
+	Gross Charges 	Ending AR 	Optimal AR 	Days in AR 	Status 	Ratio
+Difference 	AR Target
+January 	$325,982.00 	$288,432.52 	$368,044.19 	27.43 	Pass 	−0.24
+	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; }
+February 	$297,731.74 	$307,871.08 	$372,164.67 	28.95 	Pass 	−0.22
+	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; }
+March 	$198,655.14 	$253,976.56 	$224,288.06 	39.63 	Fail 	0.15
+	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; }
+April 	$186,047.00 	$183,684.90 	$217,054.83 	29.62 	Pass 	−0.18
+	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; }
+May 	$123,654.00 	$204,227.59 	$139,609.35 	51.20 	Fail 	0.52 	.svglite
+line, .svglite polyline, .svglite polygon, .svglite path, .svglite
+rect, .svglite circle { fill: none; stroke: #000000; stroke-linecap:
+round; stroke-linejoin: round; stroke-miterlimit: 10.00; } .svglite text
+{ white-space: pre; }
+June 	$131,440.28 	$203,460.47 	$153,346.99 	46.44 	Fail 	0.38 	.svglite
+line, .svglite polyline, .svglite polygon, .svglite path, .svglite
+rect, .svglite circle { fill: none; stroke: #000000; stroke-linecap:
+round; stroke-linejoin: round; stroke-miterlimit: 10.00; } .svglite text
+{ white-space: pre; }
+July 	$153,991.00 	$182,771.32 	$173,860.81 	36.79 	Fail 	0.06 	.svglite
+line, .svglite polyline, .svglite polygon, .svglite path, .svglite
+rect, .svglite circle { fill: none; stroke: #000000; stroke-linecap:
+round; stroke-linejoin: round; stroke-miterlimit: 10.00; } .svglite text
+{ white-space: pre; }
+August 	$156,975.00 	$169,633.64 	$177,229.84 	33.50 	Pass 	−0.05
+	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; }
+September 	$146,878.12 	$179,347.72 	$171,357.81 	36.63 	Fail 	0.05
+	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; }
+October 	$163,799.44 	$178,051.11 	$184,934.85 	33.70 	Pass 	−0.04
+	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; }
+November 	$151,410.74 	$162,757.49 	$176,645.86 	32.25 	Pass 	−0.09
+	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; }
+December 	$169,094.46 	$199,849.30 	$190,913.10 	36.64 	Fail 	0.05
+	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; }
+
+Show code
+
+|df4_pct <- df4 |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    gct_pct = (gct / (gct + earb) * 100),
+    earb_pct = (earb / (gct + earb) * 100)
+  ) |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(month, gct_pct, earb_pct) |>
+  tidyr::pivot_longer <https://tidyr.tidyverse.org/reference/pivot_longer.html>(-month, names_to = "measure", values_to = "percentage") |>
+  group_by <https://dplyr.tidyverse.org/reference/group_by.html>(month) |>
+  summarize <https://dplyr.tidyverse.org/reference/summarise.html>(list_data = list <https://rdrr.io/r/base/list.html>(percentage))
+
+df4_pct2 <- right_join <https://dplyr.tidyverse.org/reference/mutate-joins.html>(df4, df4_pct, by = "month")
+
+df4_pct2 |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(month, gct, earb, earb_n, dar, status, diff, list_data) |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    target_col = earb,
+    plot_col = earb_n,
+  ) |>
+  gt <https://gt.rstudio.com/reference/gt.html>(rowname_col = "month") |>
+  cols_label <https://gt.rstudio.com/reference/cols_label.html>(
+    month = "Month",
+    gct = "Gross Charges",
+    earb = "Ending AR",
+    earb_n = "Optimal AR",
+    dar = "Days in AR",
+    status = "Status",
+    diff = "Ratio Difference",
+    plot_col = "AR Target"
+  ) |>
+  fmt_number <https://gt.rstudio.com/reference/fmt_number.html>(columns = c <https://rdrr.io/r/base/c.html>(dar, diff)) |>
+  fmt_currency <https://gt.rstudio.com/reference/fmt_currency.html>(columns = c <https://rdrr.io/r/base/c.html>(gct, earb, earb_n)) |>
+  gt_plt_bullet <https://jthomasmock.github.io/gtExtras/reference/gt_plt_bullet.html>(column = plot_col, target = target_col, palette = c <https://rdrr.io/r/base/c.html>("lightblue", "black"), width = 65) |>
+  gt_plt_bar_stack <https://jthomasmock.github.io/gtExtras/reference/gt_plt_bar_stack.html>(list_data, width = 65, labels = c <https://rdrr.io/r/base/c.html>("Gross Charges ", " Ending AR"), palette = c <https://rdrr.io/r/base/c.html>("lightblue", "black")) |>
+  # gt_fa_column(column = status) |>
+  tab_style <https://gt.rstudio.com/reference/tab_style.html>(
+    style = cell_text <https://gt.rstudio.com/reference/cell_text.html>(color = "red", weight = "bold"),
+    locations = cells_body <https://gt.rstudio.com/reference/cells_body.html>(
+      columns = status,
+      rows = status == "Fail"
+    )
+  ) |>
+  gt_theme_espn <https://jthomasmock.github.io/gtExtras/reference/gt_theme_espn.html>()|//
+
+	Gross Charges 	Ending AR 	Optimal AR 	Days in AR 	Status 	Ratio
+Difference 	*Gross Charges *||*Ending AR* 	AR Target
+January 	$325,982.00 	$288,432.52 	$368,044.19 	27.43 	Pass 	−0.24
+	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; } 53.146.9 	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; }
+February 	$297,731.74 	$307,871.08 	$372,164.67 	28.95 	Pass 	−0.22
+	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; } 49.250.8 	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; }
+March 	$198,655.14 	$253,976.56 	$224,288.06 	39.63 	Fail 	0.15
+	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; } 4456 	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; }
+April 	$186,047.00 	$183,684.90 	$217,054.83 	29.62 	Pass 	−0.18
+	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; } 50.3249.68 	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; }
+May 	$123,654.00 	$204,227.59 	$139,609.35 	51.20 	Fail 	0.52 	.svglite
+line, .svglite polyline, .svglite polygon, .svglite path, .svglite
+rect, .svglite circle { fill: none; stroke: #000000; stroke-linecap:
+round; stroke-linejoin: round; stroke-miterlimit: 10.00; } .svglite text
+{ white-space: pre; } 3862 	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; }
+June 	$131,440.28 	$203,460.47 	$153,346.99 	46.44 	Fail 	0.38 	.svglite
+line, .svglite polyline, .svglite polygon, .svglite path, .svglite
+rect, .svglite circle { fill: none; stroke: #000000; stroke-linecap:
+round; stroke-linejoin: round; stroke-miterlimit: 10.00; } .svglite text
+{ white-space: pre; } 3961 	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; }
+July 	$153,991.00 	$182,771.32 	$173,860.81 	36.79 	Fail 	0.06 	.svglite
+line, .svglite polyline, .svglite polygon, .svglite path, .svglite
+rect, .svglite circle { fill: none; stroke: #000000; stroke-linecap:
+round; stroke-linejoin: round; stroke-miterlimit: 10.00; } .svglite text
+{ white-space: pre; } 45.754.3 	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; }
+August 	$156,975.00 	$169,633.64 	$177,229.84 	33.50 	Pass 	−0.05
+	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; } 48.151.9 	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; }
+September 	$146,878.12 	$179,347.72 	$171,357.81 	36.63 	Fail 	0.05
+	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; } 4555 	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; }
+October 	$163,799.44 	$178,051.11 	$184,934.85 	33.70 	Pass 	−0.04
+	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; } 47.952.1 	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; }
+November 	$151,410.74 	$162,757.49 	$176,645.86 	32.25 	Pass 	−0.09
+	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; } 48.251.8 	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; }
+December 	$169,094.46 	$199,849.30 	$190,913.10 	36.64 	Fail 	0.05
+	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; } 45.854.2 	.svglite line, .svglite polyline, .svglite polygon, .svglite
+path, .svglite rect, .svglite circle { fill: none; stroke: #000000;
+stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit:
+10.00; } .svglite text { white-space: pre; }
+
+
+      <#how-much-ar-is-too-much>How Much AR is Too Much?
+
+The {compareBars} package does one thing, but does it /very/ well. It
+helps you easily create a stacked bar chart that displays which of the
+two parts of a whole is greater and the amount of the difference between
+the two visually. If we take our monthly Gross Charges and Ending AR
+balances and plot them, we can see a very interesting trend in the
+months that fail Days in AR:
+
+Show code
+
+|library <https://rdrr.io/r/base/library.html>(compareBars)
+df4 |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(mon, gct, earb) |>
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(
+    Month = mon,
+    "Gross Charges" = gct,
+    "Ending AR" = earb
+  ) |>
+  compareBars <https://rdrr.io/pkg/compareBars/man/compareBars.html>(
+    Month,
+    "Gross Charges",
+    "Ending AR",
+    xLabel = NULL,
+    yLabel = NULL,
+    titleLabel = "2022 Comparing Monthly Gross Charges & Ending AR Balance",
+    subtitleLabel = "The Color of the Bar Top Indicates Which is Larger, the Tooltip Displays the Difference",
+    fontFamily = "Karla",
+    compareVarFill1 = "#5FA0CB",
+    compareVarFill2 = "#DE7F40",
+    orientation = "vertical",
+    width = 800,
+    height = 600,
+    tooltipFormat = ".0s"
+  )|//
+
+050k100k200k200k300k300k400k
+
+2022 Comparing Monthly Gross Charges & Ending AR BalanceThe Color of the
+Bar Top Indicates Which is Larger, the Tooltip Displays the
+DifferenceGross Charges >Ending AR >JanFebMarAprMayJunJulAugSepOctNovDec
+
+Remember the months that failed (*March*, *May*, *June*, *July*,
+*September* and *December*) and take a look at the difference between
+Gross Charges and the Ending AR balance.
+
+
+    In each month that failed, it looks like the Ending AR balance was /
+    at least/ around *$30,000 greater* than the Gross Charges.
+
+
+We can go back to our data table to confirm:
+
+Show code
+
+|df4 <- df4 |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(earb_gct_d = earb - gct)
+
+df4 |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(status == "Fail") |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(
+    nmon,
+    mon,
+    ndip,
+    dar,
+    status,
+    earb,
+    gct,
+    earb_gct_d,
+    earbdiff
+  ) |>
+  reactable <https://glin.github.io/reactable/reference/reactable.html>(
+    pagination = FALSE,
+    outlined = TRUE,
+    compact = TRUE,
+    defaultColDef = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      footerStyle = list <https://rdrr.io/r/base/list.html>(fontWeight = "bold"),
+      headerClass = "col-header",
+      footerClass = "col-footer",
+      align = "left"
+    ),
+    columns = list <https://rdrr.io/r/base/list.html>(
+      nmon = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = " ",
+        width = 60
+      ),
+      mon = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Month",
+        width = 80
+      ),
+      ndip = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "NDiP",
+        class = "number",
+        width = 60
+      ),
+      dar = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Days in AR",
+        class = "number",
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          separators = TRUE,
+          digits = 2
+        )
+      ),
+      earb = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Ending AR",
+        class = "number",
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          prefix = "$",
+          separators = TRUE,
+          digits = 2
+        )
+      ),
+      gct = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Gross Charges",
+        class = "number",
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          prefix = "$",
+          separators = TRUE,
+          digits = 2
+        )
+      ),
+      earb_gct_d = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        class = "number",
+        style = cell_style <https://kcuilla.github.io/reactablefmtr/reference/cell_style.html>(.,
+          rows = 4,
+          font_color = "red",
+          font_weight = "bold",
+          horizontal_align = "left"
+        ),
+        name = "Ending AR - Gross Charges Difference",
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          prefix = "$",
+          separators = TRUE,
+          digits = 2
+        )
+      ),
+      earbdiff = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "AR Decrease Needed",
+        class = "number",
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          prefix = "$",
+          separators = TRUE,
+          digits = 2
+        )
+      ),
+      status = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Status",
+        width = 80
+      )
+    )
+  )|//
+
+Month
+NDiP
+Days in AR
+Status
+Ending AR
+Gross Charges
+Ending AR - Gross Charges Difference
+AR Decrease Needed
+3
+Mar
+31
+39.63
+Fail
+$253,976.56
+$198,655.14
+$55,321.42
+$29,688.50
+5
+May
+31
+51.20
+Fail
+$204,227.59
+$123,654.00
+$80,573.59
+$64,618.24
+6
+Jun
+30
+46.44
+Fail
+$203,460.47
+$131,440.28
+$72,020.19
+$50,113.48
+7
+Jul
+31
+36.79
+Fail
+$182,771.32
+$153,991.00
+$28,780.32
+$8,910.51
+9
+Sep
+30
+36.63
+Fail
+$179,347.72
+$146,878.12
+$32,469.60
+$7,989.91
+12
+Dec
+31
+36.64
+Fail
+$199,849.30
+$169,094.46
+$30,754.84
+$8,936.20
+
+
+This *$30k greater rule* (for a |DARt| of 35) holds true in all but July’s case, where the Ending AR balance
+was ~$29k greater than the Gross Charges. So, /pretty/ close and a very
+interesting insight to explore further.
+
+
+    <#optimal-archarges-difference-for-x-dart>Optimal AR/Charges
+    Difference for xx DARt
+
+What’s the optimal difference between Ending AR and Gross Charges for xx
+DARt?
+
+Show code
+
+|df4 |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    opt_earb_gct_d = earb_n - gct,
+    actual_optimal = earb_gct_d - opt_earb_gct_d
+  ) |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(status == "Fail") |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(
+    nmon,
+    mon,
+    ndip,
+    dar,
+    earb,
+    gct,
+    ideal,
+    earb_n,
+    earb_gct_d,
+    opt_earb_gct_d,
+    actual_optimal,
+    earbdiff
+  ) |>
+  reactable <https://glin.github.io/reactable/reference/reactable.html>(
+    pagination = FALSE,
+    outlined = TRUE,
+    compact = TRUE,
+    defaultColDef = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      footerStyle = list <https://rdrr.io/r/base/list.html>(fontWeight = "bold"),
+      headerClass = "col-header",
+      footerClass = "col-footer",
+      align = "left"
+    ),
+    columns = list <https://rdrr.io/r/base/list.html>(
+      nmon = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = " ",
+        width = 60
+      ),
+      mon = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Month",
+        width = 80
+      ),
+      ndip = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "NDiP",
+        class = "number",
+        width = 60
+      ),
+      dar = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        width = 80,
+        name = "Days in AR",
+        class = "number",
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          separators = TRUE,
+          digits = 2
+        )
+      ),
+      earb = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Ending AR",
+        class = "number",
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          prefix = "$",
+          separators = TRUE,
+          digits = 2
+        )
+      ),
+      gct = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Gross Charges",
+        class = "number",
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          prefix = "$",
+          separators = TRUE,
+          digits = 2
+        )
+      ),
+      earb_gct_d = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        class = "number",
+        style = cell_style <https://kcuilla.github.io/reactablefmtr/reference/cell_style.html>(.,
+          rows = 4,
+          font_color = "red",
+          font_weight = "bold",
+          horizontal_align = "left"
+        ),
+        name = "Actual AR - Charges Difference",
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          prefix = "$",
+          separators = TRUE,
+          digits = 2
+        )
+      ),
+      earb_n = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Optimal Ending AR",
+        class = "number",
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          prefix = "$",
+          separators = TRUE,
+          digits = 2
+        )
+      ),
+      opt_earb_gct_d = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Optimal AR - Charges Difference",
+        class = "number",
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          prefix = "$",
+          separators = TRUE,
+          digits = 2
+        )
+      ),
+      ideal = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Ideal Ratio",
+        width = 60,
+        class = "number",
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          digits = 2
+        )
+      ),
+      actual_optimal = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Actual - Optimal Difference",
+        class = "number",
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          prefix = "$",
+          separators = TRUE,
+          digits = 2
+        )
+      ),
+      earbdiff = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "AR Decrease Needed",
+        class = "number",
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+          prefix = "$",
+          separators = TRUE,
+          digits = 2
+        )
+      )
+    )
+  )|//
+
+Month
+NDiP
+Days in AR
+Ending AR
+Gross Charges
+Ideal Ratio
+Optimal Ending AR
+Actual AR - Charges Difference
+Optimal AR - Charges Difference
+Actual - Optimal Difference
+AR Decrease Needed
+3
+Mar
+31
+39.63
+$253,976.56
+$198,655.14
+1.13
+$224,288.06
+$55,321.42
+$25,632.92
+$29,688.50
+$29,688.50
+5
+May
+31
+51.20
+$204,227.59
+$123,654.00
+1.13
+$139,609.35
+$80,573.59
+$15,955.35
+$64,618.24
+$64,618.24
+6
+Jun
+30
+46.44
+$203,460.47
+$131,440.28
+1.17
+$153,346.99
+$72,020.19
+$21,906.71
+$50,113.48
+$50,113.48
+7
+Jul
+31
+36.79
+$182,771.32
+$153,991.00
+1.13
+$173,860.81
+$28,780.32
+$19,869.81
+$8,910.51
+$8,910.51
+9
+Sep
+30
+36.63
+$179,347.72
+$146,878.12
+1.17
+$171,357.81
+$32,469.60
+$24,479.69
+$7,989.91
+$7,989.91
+12
+Dec
+31
+36.64
+$199,849.30
+$169,094.46
+1.13
+$190,913.10
+$30,754.84
+$21,818.64
+$8,936.20
+$8,936.20
+
+  * Ideal Ratio is DARt divided by NDiP
+  * Optimal Ending AR is Gross Charges multiplied by Ideal Ratio
+  * Optimal AR - Charges Difference is Optimal Ending AR minus Gross Charges
+  * Actual - Optimal Difference is
+  * AR Decrease Needed is
+
+
+      <#ratios-and-proportions>Ratios and Proportions
+
+Let’s say you have 75 apples and 300 oranges. In the simplest meaning of
+the word, the /ratio/ of apples to oranges is 75:30075:300, thus you
+have 75 apples for every 300 oranges you have. To find the ratio of
+apples to oranges, divide 75 by 300:
+
+|# Ratio of apples to oranges
+75 / 300|//
+
+|# [1] 0.25|//
+
+You have 1414 of an apple for every orange you have.
+
+To find the proportion of apples and oranges, first add the number of
+apples and oranges together:
+
+|# Total of apples and oranges
+75 + 300|//
+
+|# [1] 375|//
+
+Now divide the individual number of each by the total:
+
+|# Proportion of apples
+75 / 375|//
+
+|# [1] 0.2|//
+
+|# Proportion of oranges
+300 / 375|//
+
+|# [1] 0.8|//
+
+So, of the fruit you have, 80% are oranges and 20% are apples.
+
+A ratio is useful when comparing one to another.
+
+Let’s say you have 75 apples and 300 oranges at the start of one week,
+then 25 apples and 200 oranges by the start of the next week.
+
+In one week, you lost 50 apples and 100 oranges, or one apple for every
+two oranges you lost.
+
+By calculating the two ratios, we can easily compare the change in
+quantity from week to week:
+
+|# Ratio of apples to oranges, week 1
+75 / 300|//
+
+|# [1] 0.25|//
+
+|# Ratio of apples to oranges, week 2
+25 / 200|//
+
+|# [1] 0.125|//
+
+Week one, you had 0.25
+
+The ratio of apples to oranges is 75:30075:300. To find the ratio of
+apples to oranges, divide 75 by 300, then multiply by 100:
+
+|# Find the ratio of apples to oranges
+(75 / 300) * 100|//
+
+|# [1] 25|//
+
+This tells you that there are 25 apples for every 100 oranges you have.
+(Since 25 and 100 have a common denominator (25) the ratio can be
+reduced further to 1:51:5, meaning you have one apple for every five
+oranges.
+
+The ratio to percent conversion procedure helps in arithmetic operations
+for representing a quantity in ratio form in terms of percentage. You
+may have come across the % as a means to assess a student’s exam
+performance. As a result, the percentage is employed to compare numbers.
+It signifies ‘per 100,’ which is a number expressed as a fraction of a
+hundred.
+
+So, when you say “100% of something,” it means “the total of it.” The
+ratio can also be used to compare quantities in a variety of ways.
+Assume x:yx:y is the ratio of xx to yy. The percent version can thus be
+written as:
+
+
+(x÷y)×100=Percentage
+(x÷y)×100=Percentage
+
+
+For example, let’s say you have 75 apples and 300 oranges. The ratio of
+apples to oranges is 75:30075:300. To convert it to a percentage, divide
+75 by 300, then multiply by 100:
+
+|# Convert the ratio to a percentage
+(75 / 300) * 100|//
+
+|# [1] 25|//
+
+This tells you that there are 25 apples for every 100 oranges you have.
+(Since 25 and 100 have a common denominator (25) the ratio can be
+reduced further to 1:51:5, meaning you have one apple for every five
+oranges.
+
+
+    <#ideal-ratio-the-slope-of-a-line>Ideal Ratio = the Slope of a Line
+
+The /Ideal/ ratio (or any ratio) represents the slope of a line. The
+*slope* of a line (also called its /gradient/) is equal to the ratio of
+the change in y-coordinates to the change in x-coordinates. This slope
+shows the rise of a line in the plane along with the distance covered in
+the x-axis.
+
+The /Ideal/ ratio is equal to the change /needed/ in |EARB| relative to the change in |GCt|, given a certain |DARt| and |NDiP|. Let’s try to unpack all of that.
+
+The most common form of a linear equationAn equation that describes a
+line. is the *slope-intercept form*, represented as:
+
+
+y=mx+b
+y=mx+b
+
+/Where/:
+
+  * yy = y-coordinate
+  * mm = slope
+  * xx = x-coordinate
+  * bb = y-intercept
+
+
+What does this have to do with *Days in AR*? First, this formula is yet
+another way of calculating the |EARB| or |GCt| needed for xx |DARt|. Let’s re-label the formula:
+
+
+y=mx+b
+y=mx+b
+
+/Where/:
+
+  * yy = Ending AR Balance
+  * mm = Ideal Ratio (Days in AR target // Number of Days in Period)
+  * xx = Gross Charges
+  * bb = 0
+
+
+And demonstrate with an example:
+
+
+      <#slope-intercept-form-earb-for-x-dart>Slope-Intercept Form = EARB
+      for xx DARt
+
+What *Ending AR Balance* would you need for a:
+
+ 1. *target Days in AR* of /35/ days
+ 2. on the /25th/ day of the period
+ 3. with a *Gross Charges* total of /$80/
+
+First, calculate the Ideal Ratio by dividing the target Days in AR by
+the Number of Days (35÷25=1.435÷25=1.4).
+
+Next, multiply the Ideal Ratio by the Gross Charges (1.4×80=1121.4×80=112).
+
+Since bb will always be 0 in this particular situationThe Ideal Ratio
+represents the slope of a line that intercepts the y-axis at (0,0), so
+the y-intercept will always be zero., *$112* is the Ending AR Balance
+you would need.
+
+
+      <#graphing-the-ideal-slope>Graphing the Ideal Slope
+
+Graphing the Ideal Ratio as the slope of a line is another way of
+visualizing how close an Ending AR balance/Gross Charges combination is
+to passing a target Days in AR.
+
+If we go back to our |gct_df| data frame from earlier, we have all of the information that we need
+to graph the slope of a line for any day in the year, for a |DARt| of 35 days:
+
+|head <https://rdrr.io/r/utils/head.html>(gct_df, 10)|//
+
+|#    ndip earb dart     ideal        gct
+# 1     1    1   35 35.000000 0.02857143
+# 2     2    1   35 17.500000 0.05714286
+# 3     3    1   35 11.666667 0.08571429
+# 4     4    1   35  8.750000 0.11428571
+# 5     5    1   35  7.000000 0.14285714
+# 6     6    1   35  5.833333 0.17142857
+# 7     7    1   35  5.000000 0.20000000
+# 8     8    1   35  4.375000 0.22857143
+# 9     9    1   35  3.888889 0.25714286
+# 10   10    1   35  3.500000 0.28571429|//
+
+However, we need to filter a bit to get the ideal ratio for NDiP counts
+that apply to the months of the year:
+
+|# February NDiP (Non-Leap Year)
+gct_df |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(ndip, ideal) |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(ndip == 28)|//
+
+|#   ndip ideal
+# 1   28  1.25|//
+
+|# April/June/September/November NDiP
+gct_df |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(ndip, ideal) |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(ndip == 30)|//
+
+|#   ndip    ideal
+# 1   30 1.166667|//
+
+|# Jan/Mar/May/Jul/Aug/Oct/Dec NDiP
+gct_df |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(ndip, ideal) |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(ndip == 31)|//
+
+|#   ndip    ideal
+# 1   31 1.129032|//
+
+Now we can create a data frame with the (x,y)(x,y) coordinates for each
+group of months with the same NDiPs:
+
+|# February Slope (Non-Leap Year)
+ndip28 <- data.frame <https://rdrr.io/r/base/data.frame.html>(
+  x = c <https://rdrr.io/r/base/c.html>(0:500000),
+  x1 = c <https://rdrr.io/r/base/c.html>(1:500001),
+  ideal = rep <https://rdrr.io/r/base/rep.html>(1.25, times = 500001)
+) |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    y = ideal * x1
+  ) |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(x, y) |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(x == 0 | x == 500000)
+
+ndip28|//
+
+|#        x         y
+# 1      0      1.25
+# 2 500000 625001.25|//
+
+|# April/June/September/November Slope
+ndip30 <- data.frame <https://rdrr.io/r/base/data.frame.html>(
+  x = c <https://rdrr.io/r/base/c.html>(0:500000),
+  x1 = c <https://rdrr.io/r/base/c.html>(1:500001),
+  ideal = rep <https://rdrr.io/r/base/rep.html>(1.166667, times = 500001)
+) |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    y = ideal * x1
+  ) |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(x, y) |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(x == 0 | x == 500000)
+
+ndip30|//
+
+|#        x             y
+# 1      0      1.166667
+# 2 500000 583334.666667|//
+
+|# Jan/Mar/May/Jul/Aug/Oct/Dec Line
+ndip31 <- data.frame <https://rdrr.io/r/base/data.frame.html>(
+  x = c <https://rdrr.io/r/base/c.html>(0:500000),
+  x1 = c <https://rdrr.io/r/base/c.html>(1:500001),
+  ideal = rep <https://rdrr.io/r/base/rep.html>(1.129032, times = 500001)
+) |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    y = ideal * x1
+  ) |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(x, y) |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(x == 0 | x == 500000)
+
+ndip31|//
+
+|#        x             y
+# 1      0      1.129032
+# 2 500000 564517.129032|//
+
+If we go back to our mock dataset, we can subset for each group of months:
+
+|ndip28_df4 <- df4 |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(ndip == 28) |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(month, ndip, gct, earb, status, diff)
+
+ndip28_df4|//
+
+|#      month ndip      gct     earb status       diff
+# 1 February   28 297731.7 307871.1   Pass -0.2159447|//
+
+|ndip30_df4 <- df4 |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(ndip == 30) |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(month, ndip, gct, earb, status, diff)
+
+ndip30_df4|//
+
+|#       month ndip      gct     earb status        diff
+# 1     April   30 186047.0 183684.9   Pass -0.17936292
+# 2      June   30 131440.3 203460.5   Fail  0.38126423
+# 3 September   30 146878.1 179347.7   Fail  0.05439825
+# 4  November   30 151410.7 162757.5   Pass -0.09172647|//
+
+|ndip31_df4 <- df4 |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(ndip == 31) |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(month, ndip, gct, earb, status, diff)
+
+ndip31_df4|//
+
+|#      month ndip      gct     earb status        diff
+# 1  January   31 325982.0 288432.5   Pass -0.24422107
+# 2    March   31 198655.1 253976.6   Fail  0.14944742
+# 3      May   31 123654.0 204227.6   Fail  0.52257295
+# 4     July   31 153991.0 182771.3   Fail  0.05786386
+# 5   August   31 156975.0 169633.6   Pass -0.04839114
+# 6  October   31 163799.4 178051.1   Pass -0.04202543
+# 7 December   31 169094.5 199849.3   Fail  0.05284738|//
+
+And now we can plot each group with their respective “ideal” lines:
+
+Show code
+
+|# Months with 28 Days
+hc_28 <- hchart <https://jkunst.com/highcharter/reference/hchart.html>(
+  ndip28_df4,
+  "bubble",
+  hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(gct, earb, group = status, size = diff),
+  dataLabels = list <https://rdrr.io/r/base/list.html>(
+    enabled = TRUE,
+    formatter = JS <https://rdrr.io/pkg/htmlwidgets/man/JS.html>(
+      "
+        function(){return(this.point.month)}
+        "
+    )
+  )
+) |>
+  hc_add_series <https://jkunst.com/highcharter/reference/hc_add_series.html>(
+    ndip28,
+    "line",
+    hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(x, y),
+    name = "Ideal Ratio for 28 Day Time Period (1.25)",
+    color = "black",
+    dashStyle = "ShortDash"
+  ) |>
+  hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(
+      text = "Ending AR Balance",
+      align = "high"
+    ),
+    labels = list <https://rdrr.io/r/base/list.html>(formatter = JS <https://rdrr.io/pkg/htmlwidgets/man/JS.html>(
+      "function(){
+          byHundred = Math.round(this.value / 1000)
+          return(byHundred + 'K')
+        }"
+    )),
+    crosshair = list <https://rdrr.io/r/base/list.html>(
+      snap = TRUE,
+      width = 2,
+      zIndex = 0
+    )
+  ) |>
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(
+      text = "Gross Charges",
+      align = "high"
+    ),
+    labels = list <https://rdrr.io/r/base/list.html>(formatter = JS <https://rdrr.io/pkg/htmlwidgets/man/JS.html>(
+      "function(){
+          byHundred = Math.round(this.value / 1000)
+          return(byHundred + 'K')
+        }"
+    )),
+    crosshair = list <https://rdrr.io/r/base/list.html>(
+      snap = TRUE,
+      width = 2,
+      zIndex = 0
+    )
+  ) |>
+  hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "Gross Charges & Ending AR Balance: 28 Day Months") |>
+  hc_subtitle <https://jkunst.com/highcharter/reference/hc_subtitle.html>(text = "Bubble Size = Difference Between Actual & Ideal Ratio") |>
+  hc_legend <https://jkunst.com/highcharter/reference/hc_legend.html>(align = "right") |>
+  hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    valueDecimals = 2,
+    crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE
+  ) |>
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(min = 200000, max = 400000) |>
+  hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(min = 275000, max = 350000) |>
+  hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 500) |>
+  hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_aab) |>
+  hc_chart <https://jkunst.com/highcharter/reference/hc_chart.html>(zoomType = "xy") |>
+  hc_exporting <https://jkunst.com/highcharter/reference/hc_exporting.html>(enabled = TRUE, filename = "chart")
+
+# Months with 30 Days
+hc_30 <- hchart <https://jkunst.com/highcharter/reference/hchart.html>(
+  ndip30_df4,
+  "bubble",
+  hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(gct, earb, group = status, size = diff),
+  dataLabels = list <https://rdrr.io/r/base/list.html>(
+    enabled = TRUE,
+    formatter = JS <https://rdrr.io/pkg/htmlwidgets/man/JS.html>(
+      "
+        function(){return(this.point.month)}
+        "
+    )
+  )
+) |>
+  hc_add_series <https://jkunst.com/highcharter/reference/hc_add_series.html>(
+    ndip30,
+    "line",
+    hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(x, y),
+    name = "Ideal Ratio for 30 Day Time Period (1.166667)",
+    color = "black",
+    dashStyle = "ShortDash"
+  ) |>
+  hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(
+      text = "Ending AR Balance",
+      align = "high"
+    ),
+    labels = list <https://rdrr.io/r/base/list.html>(formatter = JS <https://rdrr.io/pkg/htmlwidgets/man/JS.html>(
+      "function(){
+          byHundred = Math.round(this.value / 1000)
+          return(byHundred + 'K')
+        }"
+    )),
+    crosshair = list <https://rdrr.io/r/base/list.html>(
+      snap = TRUE,
+      width = 2,
+      zIndex = 0
+    )
+  ) |>
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(
+      text = "Gross Charges",
+      align = "high"
+    ),
+    labels = list <https://rdrr.io/r/base/list.html>(formatter = JS <https://rdrr.io/pkg/htmlwidgets/man/JS.html>(
+      "function(){
+          byHundred = Math.round(this.value / 1000)
+          return(byHundred + 'K')
+        }"
+    )),
+    crosshair = list <https://rdrr.io/r/base/list.html>(
+      snap = TRUE,
+      width = 2,
+      zIndex = 0
+    )
+  ) |>
+  hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "Gross Charges & Ending AR Balance: 30 Day Months") |>
+  hc_subtitle <https://jkunst.com/highcharter/reference/hc_subtitle.html>(text = "Bubble Size = Difference Between Actual & Ideal Ratio") |>
+  hc_legend <https://jkunst.com/highcharter/reference/hc_legend.html>(align = "right") |>
+  hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    valueDecimals = 2,
+    crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE
+  ) |>
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(min = 120000, max = 200000) |>
+  hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(min = 120000, max = 250000) |>
+  hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 500) |>
+  hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_aab) |>
+  hc_chart <https://jkunst.com/highcharter/reference/hc_chart.html>(zoomType = "xy") |>
+  hc_exporting <https://jkunst.com/highcharter/reference/hc_exporting.html>(enabled = TRUE, filename = "chart")
+
+# Months with 31 Days
+hc_31 <- hchart <https://jkunst.com/highcharter/reference/hchart.html>(
+  ndip31_df4,
+  "bubble",
+  hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(
+    gct,
+    earb,
+    group = status,
+    size = diff
+  ),
+  dataLabels = list <https://rdrr.io/r/base/list.html>(
+    enabled = TRUE,
+    formatter = JS <https://rdrr.io/pkg/htmlwidgets/man/JS.html>(
+      "
+        function(){return(this.point.month)}
+        "
+    )
+  )
+) |>
+  hc_add_series <https://jkunst.com/highcharter/reference/hc_add_series.html>(
+    ndip31,
+    "line",
+    hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(x, y),
+    name = "Ideal Ratio for 31-Day NDIP (1.129032)",
+    color = "black",
+    dashStyle = "ShortDash"
+  ) |>
+  hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(
+      text = "Ending AR Balance",
+      align = "high"
+    ),
+    labels = list <https://rdrr.io/r/base/list.html>(formatter = JS <https://rdrr.io/pkg/htmlwidgets/man/JS.html>(
+      "function(){
+          byHundred = Math.round(this.value / 1000)
+          return(byHundred + 'K')
+        }"
+    )),
+    crosshair = list <https://rdrr.io/r/base/list.html>(
+      snap = TRUE,
+      width = 2,
+      zIndex = 0
+    )
+  ) |>
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(
+      text = "Gross Charges",
+      align = "high"
+    ),
+    labels = list <https://rdrr.io/r/base/list.html>(formatter = JS <https://rdrr.io/pkg/htmlwidgets/man/JS.html>(
+      "function(){
+          byHundred = Math.round(this.value / 1000)
+          return(byHundred + 'K')
+        }"
+    )),
+    crosshair = list <https://rdrr.io/r/base/list.html>(
+      snap = TRUE,
+      width = 2,
+      zIndex = 0
+    )
+  ) |>
+  hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "Gross Charges & Ending AR Balance: 31 Day Months") |>
+  hc_subtitle <https://jkunst.com/highcharter/reference/hc_subtitle.html>(text = "Bubble Size = Difference Between Actual & Ideal Ratio") |>
+  hc_legend <https://jkunst.com/highcharter/reference/hc_legend.html>(align = "right") |>
+  hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    valueDecimals = 2,
+    crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE
+  ) |>
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(min = 100000, max = 350000) |>
+  hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(min = 150000, max = 300000) |>
+  hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 500) |>
+  hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_aab) |>
+  hc_chart <https://jkunst.com/highcharter/reference/hc_chart.html>(zoomType = "xy") |>
+  hc_exporting <https://jkunst.com/highcharter/reference/hc_exporting.html>(enabled = TRUE, filename = "chart")|//
+
+|hc_28|//
+
+Created with Highcharts 9.3.1Gross ChargesEnding AR BalanceChart context
+menuGross Charges & Ending AR Balance: 28 Day MonthsBubble Size =
+Difference Between Actual & Ideal RatioFebruary​FebruaryPassIdeal Ratio
+for 28 Day Time Period
+(1.25)200K250K300K350K400K225K275K325K375K280K300K320K340K260K360K
+
+|hc_30|//
+
+Created with Highcharts 9.3.1Gross ChargesEnding AR BalanceChart context
+menuGross Charges & Ending AR Balance: 30 Day MonthsBubble Size =
+Difference Between Actual & Ideal RatioJune​JuneSeptember​
+SeptemberApril​AprilNovember​NovemberFailPassIdeal Ratio for 30 Day Time
+Period
+(1.166667)120K130K140K150K160K170K180K190K200K100K125K150K175K200K225K250K
+
+|hc_31|//
+
+Created with Highcharts 9.3.1Gross ChargesEnding AR BalanceChart context
+menuGross Charges & Ending AR Balance: 31 Day MonthsBubble Size =
+Difference Between Actual & Ideal RatioMarch​MarchMay​MayJuly​
+JulyDecember​DecemberJanuary​JanuaryAugust​AugustOctober​
+OctoberFailPassIdeal Ratio for 31-Day NDIP
+(1.129032)100K150K200K250K300K350K150K175K200K225K250K275K300K
+
+What you need to know to interpret these charts:
+
+  * The *dashed diagonal line* represents the Ideal ratio of |EARB| to |GCt| for a |DARt| of 35 days and an |NDiP| of 28, 30, and 31 (respectively).
+  * |GCt| is the x-coordinate and |EARB| is the y-coordinate.
+  * If the |GCt|/|EARB| combination is below the |DARt| (passing Days in AR), it’s point is to the *RIGHT* of and *BELOW*
+    the diagonal line.
+  * If the |GCt|/|EARB| combination is above the |DARt| (failing Days in AR), it’s point is to the *LEFT* of and *ABOVE*
+    the diagonal line.
+  * Moreover, you can tell by looking at the points how close a |EARB|/|GCt| combo is to failing or passing Days in AR.
+
+
+      <#linear-regression>Linear Regression
+
+  * Linear relationship: a relationship between two interval/ratio
+    variables is said to be linear if the observations, when displayed
+    in a scatterplot, can be approximated by a straight line. In other
+    words, if we were to play connect-the-dots, the result would be a
+    straight line.
+  * Ordinary least squares (OLS) regression: a technique in which a
+    straight line is used to estimate the relationship between two
+    interval/ratio variables. The line that minimizes the sum of the
+    squared errors (the distance between the line and each observation)
+    is said to be the “best-fitting line.”
+  * Y-intercept (a): the point at which the regression line crosses the
+    y-axis. Alternatively, the y-intercept can be thought of as the
+    value of y when x is zero.
+  * Slope (b): the amount of change in y (the dependent variable) for
+    each unit-change in x (the independent variable), or rise/run, for
+    those of you who actually remember 8th grade algebra.
+
+We can use bivariate regression to look at the relationship between any
+two variables, but for the purposes of this course we will focus on
+interval/ratio variables. Bivariate regression tells us the amount of
+change in the dependent variable for each unit change in the independent
+variable. In other words, we can tell exactly how much someone’s income
+goes up for each year of school he or she has completed. At this point,
+we’re no longer talking about relationships in terms of “strong” and
+“weak” like we did with nominal and ordinal measures of association (if
+your instructor skipped nominal and ordinal measures of association,
+just smile and nod). We can now calculate the exact relationship between
+the two variables.
+
+A linear relationship is a relationship between two interval/ratio
+variables in which the observations displayed in a scatterplot can be
+approximated by a straight line. In other words, if we were to play
+connect-the-dots, the result would basically be a straight line.
+
+We can predict any score on the dependent variable with the following
+equation:
+
+yˆ=a+bx
+y^=a+bx
+
+/Where/:
+
+  * yˆy^ = the predicted value
+  * xx = the actual score on the dependent variable
+  * aa = the y-intercept, or the point where the line crosses the y-
+    axis, therefore aa is the value of yy when xx is 00
+  * bb = the slope of the regression line, or the change in yy with each
+    unit change in xx
+
+We can see that this relationship is linear, but how do we draw a line
+that will accurately depict the relationship between education and
+income? Few if any of our values are likely to fall directly on the
+line, and some may fall a great distance from it. Generally speaking,
+the best-fitting line is the one that generates the least amount of
+error, or the one that minimizes the distance between the line and our
+observations.
+
+Not all best fitting lines are created equal; some might not be
+representative of our data at all. We need a statistic that can tell us,
+among other things, how well our line fits our data. The coefficient of
+determination, or r2, does just that. The formula for calculating r2r2
+is as follows:
+
+We square the covariance (a measure of the degree to which two variables
+are linearly associated with one another) and divide it by the product
+of the variance of each of our variables.
+
+r2r2 tells us three things:
+
+ 1. Goodness of fit (i.e. the distance between the best-fitting line and
+    the various dots on our scatterplot). This is a measure of the
+    amount of error in our best fitting line.
+ 2. The amount of variance in the dependent variable that’s accounted
+    for by the independent variable.
+ 3. Since r2r2 is a pre-measure, it tells us the extent to which knowing
+    the independent variable reduces our error in predicting the
+    dependent variable. PRE measures are discussed further below.
+
+A couple of important things about r2r2:
+
+  * r2r2 ranges from zero to one. In other words, it is always positive.
+    If you get an r2r2 value that’s negative (or greater than one, for
+    that matter), you might want to check your math again.
+  * The closer r2r2 is to 1, the better the line fits our data.
+
+Another commonly used measure of association between interval/ratio
+variables is rr, also known as *Pearson’s Correlation Coefficient*. To
+find rr, we just take the square root of r2r2.
+
+A few things to remember about r:
+
+  * rr can be either positive or negative and ranges from -1 to 1.
+  * rr should always have the same sign as the covariance. If your
+    covariance is negative, r should also be negative.
+  * rr is useful because it returns our measure of association to the
+    original metric.
+
+|library <https://rdrr.io/r/base/library.html>(forecast <https://pkg.robjhyndman.com/forecast/>)
+
+fit <- lm <https://rdrr.io/r/stats/lm.html>(earb ~ gct + status, data = df4)
+
+# factors in earb:gct ratio
+fit_ratio <- lm <https://rdrr.io/r/stats/lm.html>(earb ~ gct + earb:gct, data = df4)
+
+# y-intercept is 0
+fit_zero <- lm <https://rdrr.io/r/stats/lm.html>(earb ~ 0 + gct, data = df4)
+
+# show the theoretical model
+equatiomatic::extract_eq <https://datalorax.github.io/equatiomatic/reference/extract_eq.html>(fit_zero)|//
+
+earb=β1(gct)+ϵ
+earb=β1(gct)+ϵ
+
+|# display the actual coefficients
+equatiomatic::extract_eq <https://datalorax.github.io/equatiomatic/reference/extract_eq.html>(fit_zero, use_coefs = TRUE)|//
+
+earbˆ=1.09(gct)
+earb^=1.09(gct)
+
+Show code
+
+|hchart <https://jkunst.com/highcharter/reference/hchart.html>(
+  df4,
+  "scatter",
+  hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(x = gct, y = earb),
+  regression = TRUE,
+  regressionSettings = list <https://rdrr.io/r/base/list.html>(
+    type = "linear",
+    dashStyle = "solid",
+    lineWidth = 3,
+    name = "Regression: %eq | r: %r | r2: %r2 | SE: %se",
+    hideInLegend = FALSE
+  ),
+  dataLabels = list <https://rdrr.io/r/base/list.html>(
+    enabled = TRUE,
+    formatter = JS <https://rdrr.io/pkg/htmlwidgets/man/JS.html>(
+      "
+        function(){return(this.point.month)}
+        "
+    )
+  )
+) |>
+  # hc_add_series(
+  # fit,
+  # type = "line",
+  # color = "#5F83EE",
+  # fillOpacity = 0.1) |>
+  hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(
+      text = "Ending AR Balance",
+      align = "high"
+    ),
+    labels = list <https://rdrr.io/r/base/list.html>(formatter = JS <https://rdrr.io/pkg/htmlwidgets/man/JS.html>(
+      "function(){
+          byHundred = Math.round(this.value / 1000)
+          return(byHundred + 'K')
+        }"
+    )),
+    crosshair = list <https://rdrr.io/r/base/list.html>(
+      snap = TRUE,
+      width = 2,
+      zIndex = 0
+    )
+  ) |>
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(
+      text = "Gross Charges",
+      align = "high"
+    ),
+    labels = list <https://rdrr.io/r/base/list.html>(formatter = JS <https://rdrr.io/pkg/htmlwidgets/man/JS.html>(
+      "function(){
+          byHundred = Math.round(this.value / 1000)
+          return(byHundred + 'K')
+        }"
+    )),
+    crosshair = list <https://rdrr.io/r/base/list.html>(
+      snap = TRUE,
+      width = 2,
+      zIndex = 0
+    )
+  ) |>
+  hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "Gross Charges & Ending AR Balance") |>
+  # hc_subtitle(text = "Slope of Line = Ideal Ratio for 31-Day Time Period (1.129032)") |>
+  hc_legend <https://jkunst.com/highcharter/reference/hc_legend.html>(align = "left") |>
+  hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    pointFormat = "Gross Charges: ${point.x}<br>Ending AR: ${point.y}",
+    valueDecimals = 2,
+    crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE
+  ) |>
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(min = 100000, max = 350000) |>
+  hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(min = 150000, max = 300000) |>
+  hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 500) |>
+  hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_aab) |>
+  hc_chart <https://jkunst.com/highcharter/reference/hc_chart.html>(zoomType = "xy") |>
+  hc_colors <https://jkunst.com/highcharter/reference/hc_colors.html>(c <https://rdrr.io/r/base/c.html>("#C8102E", "#0C2340")) |>
+  hc_add_dependency <https://jkunst.com/highcharter/reference/hc_add_dependency.html>("plugins/highcharts-regression.js") |>
+  hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_aab) |>
+  hc_exporting <https://jkunst.com/highcharter/reference/hc_exporting.html>(enabled = TRUE, filename = "chart")|//
+
+Created with Highcharts 9.3.1Gross ChargesEnding AR BalanceChart context
+menuGross Charges & Ending AR BalanceMay​MayJune​JuneSeptember​
+SeptemberNovember​NovemberJuly​JulyAugust​AugustOctober​OctoberDecember​
+DecemberApril​AprilMarch​MarchFebruary​FebruaryJanuary​
+JanuaryRegression: y = 0.65x + 89787 | r: 0.87 | r2: 0.75 | SE:
+25004.91100K150K200K250K300K350K150K175K200K225K250K275K300K
+
+|df4_31 <- df4 |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(ndip == "31")
+
+fit31 <- lm <https://rdrr.io/r/stats/lm.html>(earb ~ 0 + gct, data = df4_31)
+
+# show the theoretical model
+equatiomatic::extract_eq <https://datalorax.github.io/equatiomatic/reference/extract_eq.html>(fit31)|//
+
+earb=β1(gct)+ϵ
+earb=β1(gct)+ϵ
+
+|# display the actual coefficients
+equatiomatic::extract_eq <https://datalorax.github.io/equatiomatic/reference/extract_eq.html>(fit31, use_coefs = TRUE)|//
+
+earbˆ=1.09(gct)
+earb^=1.09(gct)
+
+|# Jan/Mar/May/Jul/Aug/Oct/Dec Line
+ndip31act <- data.frame <https://rdrr.io/r/base/data.frame.html>(
+  x = c <https://rdrr.io/r/base/c.html>(0:500000),
+  x1 = c <https://rdrr.io/r/base/c.html>(1:500001),
+  ideal = rep <https://rdrr.io/r/base/rep.html>(1.086, times = 500001)
+) |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    y = ideal * x1
+  ) |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(x, y) |>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(x == 0 | x == 500000)
+
+ndip31act|//
+
+|#        x          y
+# 1      0      1.086
+# 2 500000 543001.086|//
+
+Show code
+
+|hchart <https://jkunst.com/highcharter/reference/hchart.html>(
+  df4_31,
+  "scatter",
+  hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(x = gct, y = earb),
+  regression = TRUE,
+  regressionSettings = list <https://rdrr.io/r/base/list.html>(
+    type = "linear",
+    dashStyle = "solid",
+    lineWidth = 3,
+    name = "Regression: %eq | r: %r | r2: %r2 | SE: %se",
+    hideInLegend = FALSE
+  ),
+  dataLabels = list <https://rdrr.io/r/base/list.html>(
+    enabled = TRUE,
+    formatter = JS <https://rdrr.io/pkg/htmlwidgets/man/JS.html>(
+      "
+        function(){return(this.point.month)}
+        "
+    )
+  )
+) |>
+  hc_add_series <https://jkunst.com/highcharter/reference/hc_add_series.html>(
+    ndip31,
+    "line",
+    hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(x, y),
+    name = "Ideal Ratio: y = 1.129032x + 0",
+    color = "black",
+    dashStyle = "ShortDash"
+  ) |>
+  hc_add_series <https://jkunst.com/highcharter/reference/hc_add_series.html>(
+    ndip31act,
+    "line",
+    hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(x, y),
+    name = "Average Actual Ratio: y = 1.086x + 0",
+    color = "blue",
+    dashStyle = "ShortDash"
+  ) |>
+  hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(
+      text = "Ending AR Balance",
+      align = "high"
+    ),
+    labels = list <https://rdrr.io/r/base/list.html>(formatter = JS <https://rdrr.io/pkg/htmlwidgets/man/JS.html>(
+      "function(){
+          byHundred = Math.round(this.value / 1000)
+          return(byHundred + 'K')
+        }"
+    )),
+    crosshair = list <https://rdrr.io/r/base/list.html>(
+      snap = TRUE,
+      width = 2,
+      zIndex = 0
+    )
+  ) |>
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(
+      text = "Gross Charges",
+      align = "high"
+    ),
+    labels = list <https://rdrr.io/r/base/list.html>(formatter = JS <https://rdrr.io/pkg/htmlwidgets/man/JS.html>(
+      "function(){
+          byHundred = Math.round(this.value / 1000)
+          return(byHundred + 'K')
+        }"
+    )),
+    crosshair = list <https://rdrr.io/r/base/list.html>(
+      snap = TRUE,
+      width = 2,
+      zIndex = 0
+    )
+  ) |>
+  hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "Gross Charges & Ending AR Balance: 31 Day Months") |>
+  hc_subtitle <https://jkunst.com/highcharter/reference/hc_subtitle.html>(text = "Slope of Line = Ideal Ratio for 31-Day Time Period (1.129032)") |>
+  hc_legend <https://jkunst.com/highcharter/reference/hc_legend.html>(align = "left") |>
+  hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    pointFormat = "Gross Charges: ${point.x}<br>Ending AR: ${point.y}",
+    valueDecimals = 2,
+    crosshairs = TRUE,
+    shared = TRUE,
+    borderWidth = 1,
+    sort = TRUE
+  ) |>
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(min = 100000, max = 350000) |>
+  hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(min = 150000, max = 300000) |>
+  hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 500) |>
+  hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_aab) |>
+  hc_chart <https://jkunst.com/highcharter/reference/hc_chart.html>(zoomType = "xy") |>
+  hc_colors <https://jkunst.com/highcharter/reference/hc_colors.html>(c <https://rdrr.io/r/base/c.html>("#C8102E", "#0C2340")) |>
+  hc_add_dependency <https://jkunst.com/highcharter/reference/hc_add_dependency.html>("plugins/highcharts-regression.js") |>
+  hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_aab) |>
+  hc_exporting <https://jkunst.com/highcharter/reference/hc_exporting.html>(enabled = TRUE, filename = "chart", showTable = TRUE)|//
+
+Created with Highcharts 9.3.1Gross ChargesEnding AR BalanceChart context
+menuGross Charges & Ending AR Balance: 31 Day MonthsSlope of Line =
+Ideal Ratio for 31-Day Time Period (1.129032)May​MayJuly​JulyAugust​
+AugustOctober​OctoberDecember​DecemberMarch​MarchJanuary​
+JanuaryRegression: y = 0.56x + 106804.76 | r: 0.85 | r2: 0.72 | SE:
+25442.94100K150K200K250K300K350K150K175K200K225K250K275K300K
+Gross Charges & Ending AR Balance: 31 Day MonthsGross Charges	Series 1	
+Ideal Ratio: y = 1.129032x + 0	Average Actual Ratio: y = 1.086x + 0	
+Regression: y = 0.56x + 106804.76 | r: 0.85 | r2: 0.72 | SE: 25442.94
+0		1.129032	1.086	
+123654	204227.59			176596.86
+153991	182771.32			193719.51
+156975	169633.64			195403.72
+163799.44	178051.11			199255.53
+169094.46	199849.3			202244.12
+198655.14	253976.56			218928.59
+325982	288432.52			290793.71
+500000		564517.129032	543001.086	
+
+------------------------------------------------------------------------
+
+
+  DAR Percentages
+
+
+    <#parts-of-a-whole>Parts of A Whole
+
+Percentages are used to describe parts of a whole made up of 100 equal
+parts. One percent is one hundredth of a whole, meaning it can be
+written as both a decimal and a fraction.
+
+To convert a percentage to a decimal, simply divide it by 100. For
+example, 50% becomes 0.5, 20% becomes 0.2, 1% becomes 0.01, etc.
+
+One way to find some percentage of some whole is to first find the value
+of 1% of the whole, then multiply it by the percentage you need to find.
+
+For example, to find 25% of 300, multiply 300 by 0.01 then multiply the
+result by 25:
+
+|# Method 1
+(300 * 0.01) * 25|//
+
+|# [1] 75|//
+
+A quicker method is to simply multiply the whole by the decimal form of
+the percentage that you need.
+
+For example, to find 25% of 300, multiply 300 by 0.25:
+
+|# Method 2
+300 * 0.25|//
+
+|# [1] 75|//
+
+Conversely, to find what percentage a part is of a whole, divide the
+part by the whole and multiply by 100.
+
+For example, to find what percentage 75 is of 300, divide 75 by 300,
+then multiply by 100:
+
+|# Find the percentage
+(75 / 300) * 100|//
+
+|# [1] 25|//
+
+To find the whole that the percentage of the part belongs to, multiply
+the part by 100 then divide by the decimal form of the percentage.
+
+For example, to find what whole 75 is 25% of, multiply 75 by 100 then
+divide by 25:
+
+|# Find the whole
+(75 * 100) / 25|//
+
+|# [1] 300|//
+
+
+    <#example-dar-percentages>Example: DAR Percentages
+
+Let’s go through a pretty simple example.
+
+We’ll start of with a Gross Charge of $1.00 and an Ending AR balance of
+$1.50.
+
+|# Create dataframe
+darpctex <- data.frame <https://rdrr.io/r/base/data.frame.html>(gross_charges = 1, ending_ar = 1.5)
+
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(darpctex)|//
+
+ABCDEFGHIJ0123456789
+
+gross_charges
+<dbl>
+	
+ending_ar
+<dbl>
+			
+1	1.5			
+
+1 row
+
+Next, we need to find out what percentage of the whole that the Gross
+Charge and Ending AR balance are.
+
+First, we need to add the two numbers together to create this whole:
+
+|# Add gross_charges and ending_ar together to create the whole
+darpctex <- darpctex |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(whole = gross_charges + ending_ar)
+
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(darpctex)|//
+
+ABCDEFGHIJ0123456789
+
+gross_charges
+<dbl>
+	
+ending_ar
+<dbl>
+	
+whole
+<dbl>
+		
+1	1.5	2.5		
+
+1 row
+
+Now we can find the percentage of each by dividing them by the whole:
+
+|# Divide gross_charges and ending_ar by the whole
+darpctex <- darpctex |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    gross_charge_percent = gross_charges / whole,
+    ending_ar_percent = ending_ar / whole
+  )
+
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(darpctex)|//
+
+ABCDEFGHIJ0123456789
+
+gross_charges
+<dbl>
+	
+ending_ar
+<dbl>
+	
+whole
+<dbl>
+	
+gross_charge_percent
+<dbl>
+	
+ending_ar_percent
+<dbl>
+1	1.5	2.5	0.4	0.6
+
+1 row
+
+So, when added together to create a “whole”, Gross Charges are 40% of
+this whole and the Ending AR is 60%.
+
+These are the “actual” percentages. Next we need to calculate the
+“ideal” percentages of Gross Charges and Ending AR.
+
+We’ll first create the whole by adding one to the Ideal Ratio for xx DARt:
+
+|# Calculate Ideal Ratio for 28 day period & 35 DARt
+darpctex_ndip28 <- darpctex |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    ideal = 35 / 28,
+    # Add 1 to ideal ratio to create the whole
+    whole2 = ideal + 1
+  )
+
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(darpctex_ndip28)|//
+
+ABCDEFGHIJ0123456789
+
+gross_charges
+<dbl>
+	
+ending_ar
+<dbl>
+	
+whole
+<dbl>
+	
+gross_charge_percent
+<dbl>
+	
+ending_ar_percent
+<dbl>
+	
+ideal
+<dbl>
+	
+1	1.5	2.5	0.4	0.6	1.25	
+
+1 row | 1-6 of 7 columns
+
+To get our ideal percentages, we’ll divide 1 and the Ideal Ratio
+(remember, those were our original parts) by the whole:
+
+|# Divide 1 and ideal ratio by the whole
+darpctex_ndip28 <- darpctex_ndip28 |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    gross_charge_ideal = 1 / whole2,
+    ending_ar_ideal = ideal / whole2
+  )
+
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(darpctex_ndip28)|//
+
+ABCDEFGHIJ0123456789
+
+gross_charges
+<dbl>
+	
+ending_ar
+<dbl>
+	
+whole
+<dbl>
+	
+gross_charge_percent
+<dbl>
+	
+ending_ar_percent
+<dbl>
+	
+ideal
+<dbl>
+	
+1	1.5	2.5	0.4	0.6	1.25	
+
+1 row | 1-6 of 9 columns
+
+Finally, we’ll take the whole of our actual amounts (2.5) and multiply
+it by both Ideal Percentages (in decimal form) to find our Ideal Dollar
+Amounts:
+
+|darpctex_ndip28 <- darpctex_ndip28 |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    gross_ideal_dollars = whole * gross_charge_ideal,
+    ending_ideal_dollars = whole * ending_ar_ideal
+  )
+
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(darpctex_ndip28)|//
+
+ABCDEFGHIJ0123456789
+
+gross_charges
+<dbl>
+	
+ending_ar
+<dbl>
+	
+whole
+<dbl>
+	
+gross_charge_percent
+<dbl>
+	
+ending_ar_percent
+<dbl>
+	
+ideal
+<dbl>
+	
+1	1.5	2.5	0.4	0.6	1.25	
+
+1 row | 1-6 of 11 columns
+
+Let’s check our Days in AR
+
+|darpctex_dar <- darpctex |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(dar = ending_ar / (gross_charges / 28))
+
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(darpctex_dar)|//
+
+ABCDEFGHIJ0123456789
+
+gross_charges
+<dbl>
+	
+ending_ar
+<dbl>
+	
+whole
+<dbl>
+	
+gross_charge_percent
+<dbl>
+	
+ending_ar_percent
+<dbl>
+	
+dar
+<dbl>
+1	1.5	2.5	0.4	0.6	42
+
+1 row
+
+Since our target Days in AR was 35, our actual DAR was well over the
+threshold, at 42. Let’s recalculate with the ideal amounts that we came
+up with:
+
+|darpctex_ndip28 <- darpctex_ndip28 |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(dar = ending_ideal_dollars / (gross_ideal_dollars / 28))
+
+paged_table <https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html>(darpctex_ndip28)|//
+
+ABCDEFGHIJ0123456789
+
+gross_charges
+<dbl>
+	
+ending_ar
+<dbl>
+	
+whole
+<dbl>
+	
+gross_charge_percent
+<dbl>
+	
+ending_ar_percent
+<dbl>
+	
+ideal
+<dbl>
+	
+1	1.5	2.5	0.4	0.6	1.25	
+
+1 row | 1-6 of 12 columns
+
+
+    <#reactable-stacked-bar-chart>{reactable} Stacked Bar Chart
+
+This comes from a function I came across on Andrew Bates’ Github
+<https://gist.github.com/asbates> located here <https://gist.github.com/
+asbates/bbc382c2f2ae54b5c319d44d2450afe8>. He based it on a chapter from
+Thomas Wilburn’s online book, /The Elegant Selection/, Building stacked
+charts with flexbox <https://thomaswilburn.github.io/viz-book/css-
+flex.html>.
+
+Show code
+
+|# reactable stacked bar chart function
+bar_chart <-
+  function(value,
+           color_left = "salmon",
+           color_right = "wheat",
+           height = "30px",
+           border_right = "3px solid white",
+           border_color = "white",
+           text_color = "white") {
+    val_left <- paste0 <https://rdrr.io/r/base/paste.html>(round <https://rdrr.io/r/base/Round.html>(value * 100, 2), "%")
+    val_right <- paste0 <https://rdrr.io/r/base/paste.html>(round <https://rdrr.io/r/base/Round.html>((1 - value) * 100, 2), "%")
+
+    bar_left <- div <https://rdrr.io/pkg/htmltools/man/builder.html>(
+      style = list <https://rdrr.io/r/base/list.html>(
+        background = color_left,
+        height = height,
+        borderRight = border_right
+      ),
+      val_left
+    )
+
+    chart_left <- div <https://rdrr.io/pkg/htmltools/man/builder.html>(
+      style = list <https://rdrr.io/r/base/list.html>(
+        flexGrow = 1,
+        textAlign = "center",
+        flexBasis = val_left
+      ),
+      bar_left
+    )
+
+    bar_right <- div <https://rdrr.io/pkg/htmltools/man/builder.html>(
+      style = list <https://rdrr.io/r/base/list.html>(
+        background = color_right,
+        height = height
+      ),
+      val_right
+    )
+
+    chart_right <- div <https://rdrr.io/pkg/htmltools/man/builder.html>(
+      style = list <https://rdrr.io/r/base/list.html>(
+        flexGrow = 1,
+        textAlign = "center",
+        flexBasis = val_right
+      ),
+      bar_right
+    )
+
+    div <https://rdrr.io/pkg/htmltools/man/builder.html>(
+      style = list <https://rdrr.io/r/base/list.html>(
+        display = "flex",
+        alignItems = "stretch",
+        justifyContent = "center"
+      ),
+      chart_left,
+      chart_right
+    )
+  }
+
+stacked_df <- df4 |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(nmon, mon, gct, earb, dar, status) |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(gct_pct = gct / (gct + earb))
+
+# reactable
+stacked_bars <- reactable <https://glin.github.io/reactable/reference/reactable.html>(
+  data = stacked_df,
+  outlined = TRUE,
+  columns = list <https://rdrr.io/r/base/list.html>(
+    nmon = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      name = " ",
+      width = 60
+    ),
+    mon = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      name = "Month",
+      width = 80
+    ),
+    gct = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      name = "Gross Charges",
+      format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        prefix = "$",
+        separators = TRUE,
+        digits = 2
+      )
+    ),
+    earb = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      name = "Ending AR",
+      format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        prefix = "$",
+        separators = TRUE,
+        digits = 2
+      )
+    ),
+    dar = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      name = "Days in AR",
+      format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        separators = TRUE,
+        digits = 2
+      )
+    ),
+    status = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      name = "Status"
+    ),
+    gct_pct = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      name = "Gross Charges || Ending AR Balance",
+      width = 400,
+      class = "number",
+      cell = function(value) {
+        bar_chart(value)
+      },
+      align = "center"
+    )
+  ),
+  theme = reactableTheme <https://glin.github.io/reactable/reference/reactableTheme.html>(
+    # Vertically center cells
+    cellStyle = list <https://rdrr.io/r/base/list.html>(display = "flex", flexDirection = "column", justifyContent = "center")
+  )
+)
+
+# html output
+div <https://rdrr.io/pkg/htmltools/man/builder.html>(class = "rcm-analysis", stacked_bars)|//
+
+Month
+Gross Charges
+Ending AR
+Days in AR
+Status
+Gross Charges || Ending AR Balance
+1
+Jan
+$325,982.00
+$288,432.52
+27.43
+Pass
+53.06%
+46.94%
+2
+Feb
+$297,731.74
+$307,871.08
+28.95
+Pass
+49.16%
+50.84%
+3
+Mar
+$198,655.14
+$253,976.56
+39.63
+Fail
+43.89%
+56.11%
+4
+Apr
+$186,047.00
+$183,684.90
+29.62
+Pass
+50.32%
+49.68%
+5
+May
+$123,654.00
+$204,227.59
+51.20
+Fail
+37.71%
+62.29%
+6
+Jun
+$131,440.28
+$203,460.47
+46.44
+Fail
+39.25%
+60.75%
+7
+Jul
+$153,991.00
+$182,771.32
+36.79
+Fail
+45.73%
+54.27%
+8
+Aug
+$156,975.00
+$169,633.64
+33.50
+Pass
+48.06%
+51.94%
+9
+Sep
+$146,878.12
+$179,347.72
+36.63
+Fail
+45.02%
+54.98%
+10
+Oct
+$163,799.44
+$178,051.11
+33.70
+Pass
+47.92%
+52.08%
+1–10 of 12 rows
+Previous12Next
+
+
+      Citations
+
+Package 	Version 	Citation
+base 	4.2.1 	R Core Team (2022 <#ref-base>)
+compareBars 	0.0.1 	Ranzolin (2022 <#ref-compareBars>)
+distill 	1.4 	Dervieux et al. (2022 <#ref-distill>)
+equatiomatic 	0.3.1 	Anderson, Heiss, and Sumners (2022 <#ref-
+equatiomatic>)
+forecast 	8.16 	R. J. Hyndman and Khandakar (2008 <#ref-forecast2008>);
+R. Hyndman et al. (2022 <#ref-forecast2022>)
+grateful 	0.1.11 	Rodríguez-Sánchez, Jackson, and Hutchins (2022 <#ref-
+grateful>)
+gt 	0.6.0 	Iannone, Cheng, and Schloerke (2022 <#ref-gt>)
+gtExtras 	0.4.1 	Mock (2022 <#ref-gtExtras>)
+highcharter 	0.9.4 	Kunst (2022 <#ref-highcharter>)
+htmltools 	0.5.3 	Cheng et al. (2022 <#ref-htmltools>)
+htmlwidgets 	1.5.4 	Vaidyanathan et al. (2021 <#ref-htmlwidgets>)
+knitr 	1.39 	Xie (2014 <#ref-knitr2014>); Xie (2015 <#ref-knitr2015>);
+Xie (2022 <#ref-knitr2022>)
+reactable 	0.3.0 	Lin (2022 <#ref-reactable>)
+reactablefmtr 	2.0.0 	Cuilla (2022 <#ref-reactablefmtr>)
+rmarkdown 	2.14 	Xie, Allaire, and Grolemund (2018 <#ref-
+rmarkdown2018>); Xie, Dervieux, and Riederer (2020 <#ref-
+rmarkdown2020>); Allaire et al. (2022 <#ref-rmarkdown2022>)
+sessioninfo 	1.2.2 	Wickham et al. (2021 <#ref-sessioninfo>)
+tidyverse 	1.3.2 	Wickham et al. (2019 <#ref-tidyverse>)
+xaringanExtra 	0.7.0 	Aden-Buie and Warkentin (2022 <#ref-xaringanExtra>)
+
+
+      Last updated on
+
+|# [1] "2022-07-20 15:58:51 EDT"|//
+
+
+      Session Info
+
+Session Info
+
+|session|//
+
+|# ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+#  setting  value
+#  version  R version 4.2.1 (2022-06-23 ucrt)
+#  os       Windows 10 x64 (build 25158)
+#  system   x86_64, mingw32
+#  ui       RTerm
+#  language (EN)
+#  collate  English_United States.utf8
+#  ctype    English_United States.utf8
+#  tz       America/New_York
+#  date     2022-07-20
+#  pandoc   2.18 @ C:/Program Files/RStudio/bin/quarto/bin/tools/ (via rmarkdown)
+# 
+# ─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+#  package       * version    date (UTC) lib source
+#  assertthat      0.2.1      2019-03-21 [1] CRAN (R 4.2.0)
+#  backports       1.4.1      2021-12-13 [1] CRAN (R 4.2.0)
+#  broom           1.0.0      2022-07-01 [1] CRAN (R 4.2.1)
+#  bslib           0.4.0      2022-07-16 [1] CRAN (R 4.2.1)
+#  cachem          1.0.6      2021-08-19 [1] CRAN (R 4.2.0)
+#  cellranger      1.1.0      2016-07-27 [1] CRAN (R 4.2.0)
+#  checkmate       2.1.0      2022-04-21 [1] CRAN (R 4.2.0)
+#  cli             3.3.0      2022-04-25 [1] CRAN (R 4.2.0)
+#  colorspace      2.0-3      2022-02-21 [1] CRAN (R 4.2.0)
+#  compareBars   * 0.0.1      2022-05-15 [1] Github (daranzolin/compareBars@3c56dae)
+#  crayon          1.5.1      2022-03-26 [1] CRAN (R 4.2.0)
+#  crosstalk       1.2.0      2021-11-04 [1] CRAN (R 4.2.0)
+#  curl            4.3.2      2021-06-23 [1] CRAN (R 4.2.0)
+#  data.table      1.14.2     2021-09-27 [1] CRAN (R 4.2.0)
+#  DBI             1.1.3      2022-06-18 [1] CRAN (R 4.2.0)
+#  dbplyr          2.2.1      2022-06-27 [1] CRAN (R 4.2.0)
+#  digest          0.6.29     2021-12-01 [1] CRAN (R 4.2.0)
+#  distill         1.4        2022-05-12 [1] CRAN (R 4.2.0)
+#  downlit         0.4.2      2022-07-05 [1] CRAN (R 4.2.0)
+#  dplyr         * 1.0.9      2022-04-28 [1] CRAN (R 4.2.0)
+#  ellipsis        0.3.2      2021-04-29 [1] CRAN (R 4.2.0)
+#  equatiomatic    0.3.1      2022-01-30 [1] CRAN (R 4.2.0)
+#  evaluate        0.15       2022-02-18 [1] CRAN (R 4.2.0)
+#  fansi           1.0.3      2022-03-24 [1] CRAN (R 4.2.0)
+#  farver          2.1.1      2022-07-06 [1] CRAN (R 4.2.1)
+#  fastmap         1.1.0      2021-01-25 [1] CRAN (R 4.2.0)
+#  fontawesome     0.2.2      2021-07-02 [1] CRAN (R 4.2.0)
+#  forcats       * 0.5.1      2021-01-27 [1] CRAN (R 4.2.0)
+#  forecast      * 8.16       2022-01-10 [1] CRAN (R 4.2.0)
+#  fracdiff        1.5-1      2020-01-24 [1] CRAN (R 4.2.0)
+#  fs              1.5.2      2021-12-08 [1] CRAN (R 4.2.0)
+#  gargle          1.2.0.9002 2022-06-05 [1] Github (r-lib/gargle@1e67aa0)
+#  generics        0.1.3      2022-07-05 [1] CRAN (R 4.2.0)
+#  ggplot2       * 3.3.6      2022-05-03 [1] CRAN (R 4.2.0)
+#  glue            1.6.2      2022-02-24 [1] CRAN (R 4.2.0)
+#  googledrive     2.0.0      2021-07-08 [1] CRAN (R 4.2.0)
+#  googlesheets4   1.0.0      2021-07-21 [1] CRAN (R 4.2.0)
+#  grateful      * 0.1.11     2022-05-07 [1] Github (Pakillo/grateful@ba9b003)
+#  gt            * 0.6.0      2022-05-24 [1] CRAN (R 4.2.0)
+#  gtable          0.3.0      2019-03-25 [1] CRAN (R 4.2.0)
+#  gtExtras      * 0.4.1      2022-07-13 [1] CRAN (R 4.2.1)
+#  haven           2.5.0      2022-04-15 [1] CRAN (R 4.2.0)
+#  highcharter   * 0.9.4      2022-01-03 [1] CRAN (R 4.2.0)
+#  highr           0.9        2021-04-16 [1] CRAN (R 4.2.0)
+#  hms             1.1.1      2021-09-26 [1] CRAN (R 4.2.0)
+#  htmltools     * 0.5.3      2022-07-18 [1] CRAN (R 4.2.1)
+#  htmlwidgets   * 1.5.4      2021-09-08 [1] CRAN (R 4.2.0)
+#  httpuv          1.6.5      2022-01-05 [1] CRAN (R 4.2.0)
+#  httr            1.4.3      2022-05-04 [1] CRAN (R 4.2.0)
+#  igraph          1.3.4      2022-07-19 [1] CRAN (R 4.2.1)
+#  jquerylib       0.1.4      2021-04-26 [1] CRAN (R 4.2.0)
+#  jsonlite        1.8.0      2022-02-22 [1] CRAN (R 4.2.0)
+#  knitr         * 1.39       2022-04-26 [1] CRAN (R 4.2.0)
+#  labeling        0.4.2      2020-10-20 [1] CRAN (R 4.2.0)
+#  later           1.3.0      2021-08-18 [1] CRAN (R 4.2.0)
+#  lattice         0.20-45    2021-09-22 [2] CRAN (R 4.2.1)
+#  lifecycle       1.0.1      2021-09-24 [1] CRAN (R 4.2.0)
+#  lmtest          0.9-40     2022-03-21 [1] CRAN (R 4.2.0)
+#  lubridate     * 1.8.0      2021-10-07 [1] CRAN (R 4.2.0)
+#  magrittr        2.0.3      2022-03-30 [1] CRAN (R 4.2.0)
+#  memoise         2.0.1      2021-11-26 [1] CRAN (R 4.2.0)
+#  mime            0.12       2021-09-28 [1] CRAN (R 4.2.0)
+#  modelr          0.1.8      2020-05-19 [1] CRAN (R 4.2.0)
+#  munsell         0.5.0      2018-06-12 [1] CRAN (R 4.2.0)
+#  nlme            3.1-157    2022-03-25 [2] CRAN (R 4.2.1)
+#  nnet            7.3-17     2022-01-16 [2] CRAN (R 4.2.1)
+#  paletteer       1.4.0      2021-07-20 [1] CRAN (R 4.2.0)
+#  pillar          1.8.0      2022-07-18 [1] CRAN (R 4.2.1)
+#  pkgconfig       2.0.3      2019-09-22 [1] CRAN (R 4.2.0)
+#  promises        1.2.0.1    2021-02-11 [1] CRAN (R 4.2.0)
+#  purrr         * 0.3.4      2020-04-17 [1] CRAN (R 4.2.0)
+#  quadprog        1.5-8      2019-11-20 [1] CRAN (R 4.2.0)
+#  quantmod        0.4.20     2022-04-29 [1] CRAN (R 4.2.0)
+#  R.cache         0.15.0     2021-04-30 [1] CRAN (R 4.2.0)
+#  R.methodsS3     1.8.2      2022-06-13 [1] CRAN (R 4.2.0)
+#  R.oo            1.25.0     2022-06-12 [1] CRAN (R 4.2.0)
+#  R.utils         2.12.0     2022-06-28 [1] CRAN (R 4.2.0)
+#  R6              2.5.1      2021-08-19 [1] CRAN (R 4.2.0)
+#  ragg            1.2.2      2022-02-21 [1] CRAN (R 4.2.0)
+#  Rcpp            1.0.9      2022-07-08 [1] CRAN (R 4.2.1)
+#  reactable     * 0.3.0      2022-05-26 [1] CRAN (R 4.2.0)
+#  reactablefmtr * 2.0.0      2022-03-16 [1] CRAN (R 4.2.0)
+#  reactR          0.4.4      2021-02-22 [1] CRAN (R 4.2.0)
+#  readr         * 2.1.2      2022-01-30 [1] CRAN (R 4.2.0)
+#  readxl          1.4.0      2022-03-28 [1] CRAN (R 4.2.0)
+#  rematch2        2.1.2      2020-05-01 [1] CRAN (R 4.2.0)
+#  renv            0.15.5     2022-05-26 [1] CRAN (R 4.2.0)
+#  reprex          2.0.1      2021-08-05 [1] CRAN (R 4.2.0)
+#  rlang           1.0.4      2022-07-12 [1] CRAN (R 4.2.1)
+#  rlist           0.4.6.2    2021-09-03 [1] CRAN (R 4.2.0)
+#  rmarkdown     * 2.14       2022-04-25 [1] CRAN (R 4.2.0)
+#  rstudioapi      0.13       2020-11-12 [1] CRAN (R 4.2.0)
+#  rvest           1.0.2      2021-10-16 [1] CRAN (R 4.2.0)
+#  sass            0.4.2      2022-07-16 [1] CRAN (R 4.2.1)
+#  scales          1.2.0      2022-04-13 [1] CRAN (R 4.2.0)
+#  sessioninfo     1.2.2      2021-12-06 [1] CRAN (R 4.2.0)
+#  shiny           1.7.2      2022-07-19 [1] CRAN (R 4.2.1)
+#  stringi         1.7.8      2022-07-11 [1] CRAN (R 4.2.1)
+#  stringr       * 1.4.0      2019-02-10 [1] CRAN (R 4.2.0)
+#  styler          1.7.0      2022-03-13 [1] CRAN (R 4.2.0)
+#  svglite         2.1.0      2022-02-03 [1] CRAN (R 4.2.0)
+#  systemfonts     1.0.4      2022-02-11 [1] CRAN (R 4.2.0)
+#  textshaping     0.3.6      2021-10-13 [1] CRAN (R 4.2.0)
+#  tibble        * 3.1.7      2022-05-03 [1] CRAN (R 4.2.0)
+#  tidyr         * 1.2.0      2022-02-01 [1] CRAN (R 4.2.0)
+#  tidyselect      1.1.2      2022-02-21 [1] CRAN (R 4.2.0)
+#  tidyverse     * 1.3.2      2022-07-18 [1] CRAN (R 4.2.1)
+#  timeDate        4021.104   2022-07-19 [1] CRAN (R 4.2.1)
+#  tseries         0.10-51    2022-05-01 [1] CRAN (R 4.2.0)
+#  TTR             0.24.3     2021-12-12 [1] CRAN (R 4.2.0)
+#  tzdb            0.3.0      2022-03-28 [1] CRAN (R 4.2.0)
+#  urca            1.3-0      2016-09-06 [1] CRAN (R 4.2.0)
+#  utf8            1.2.2      2021-07-24 [1] CRAN (R 4.2.0)
+#  uuid            1.1-0      2022-04-19 [1] CRAN (R 4.2.0)
+#  vctrs           0.4.1      2022-04-13 [1] CRAN (R 4.2.0)
+#  withr           2.5.0      2022-03-03 [1] CRAN (R 4.2.0)
+#  xaringanExtra   0.7.0      2022-07-16 [1] CRAN (R 4.2.1)
+#  xfun            0.31       2022-05-10 [1] CRAN (R 4.2.0)
+#  xml2            1.3.3      2021-11-30 [1] CRAN (R 4.2.0)
+#  xtable          1.8-4      2019-04-21 [1] CRAN (R 4.2.0)
+#  xts             0.12.1     2020-09-09 [1] CRAN (R 4.2.0)
+#  yaml            2.3.5      2022-02-21 [1] CRAN (R 4.2.0)
+#  zoo             1.8-10     2022-04-15 [1] CRAN (R 4.2.0)
+# 
+#  [1] C:/Users/andyb/AppData/Local/R/win-library/4.2
+#  [2] C:/Program Files/R/R-4.2.1/library
+# 
+# ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────|//
+
+//   0 Comments Share:   // <https://twitter.com/share?
+text=KPI%20Guide%3A%20Days%20in%20AR&url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fkpi-guide-days-in-ar%2F> // <https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fkpi-guide-days-in-ar%2F&title=KPI%20Guide%3A%20Days%20in%20AR> // <https://www.facebook.com/sharer/sharer.php?s=100&p[url]=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fkpi-guide-days-in-ar%2F> // <https://pinterest.com/pin/create/link/?url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fkpi-guide-days-in-ar%2F&description=KPI%20Guide%3A%20Days%20in%20AR>
+
+Enjoy this blog? Get notified of new posts via email:
+
+
+      Footnotes
+
+ 1. A list of fees physicians establish as the fair price for the
+    services they provide. Keep in mind that this is not the same as a
+    payment schedule.[↩] <#d-footnote-1>
+ 2. An equation that describes a line.[↩] <#d-footnote-2>
+ 3. The Ideal Ratio represents the slope of a line that intercepts the
+    y-axis at (0,0), so the y-intercept will always be zero.[↩] <#d-
+    footnote-3>
+
+
+      References
+
+Aden-Buie, Garrick, and Matthew T. Warkentin. 2022. /xaringanExtra:
+Extras and Extensions for ’Xaringan’ Slides/. https://CRAN.R-
+project.org/package=xaringanExtra <https://cran.r-project.org/
+package=xaringanExtra>.
+Allaire, JJ, Yihui Xie, Jonathan McPherson, Javier Luraschi, Kevin
+Ushey, Aron Atkins, Hadley Wickham, Joe Cheng, Winston Chang, and
+Richard Iannone. 2022. /Rmarkdown: Dynamic Documents for r/. https://
+github.com/rstudio/rmarkdown <https://github.com/rstudio/rmarkdown>.
+Anderson, Daniel, Andrew Heiss, and Jay Sumners. 2022. /Equatiomatic:
+Transform Models into ’LaTeX’ Equations/. https://CRAN.R-project.org/
+package=equatiomatic <https://cran.r-project.org/package=equatiomatic>.
+Cheng, Joe, Carson Sievert, Barret Schloerke, Winston Chang, Yihui Xie,
+and Jeff Allen. 2022. /Htmltools: Tools for HTML/. https://CRAN.R-
+project.org/package=htmltools <https://cran.r-project.org/
+package=htmltools>.
+Cuilla, Kyle. 2022. /Reactablefmtr: Streamlined Table Styling and
+Formatting for Reactable/. https://CRAN.R-project.org/
+package=reactablefmtr <https://cran.r-project.org/package=reactablefmtr>.
+Dervieux, Christophe, JJ Allaire, Rich Iannone, Alison Presmanes Hill,
+and Yihui Xie. 2022. /Distill: ’R Markdown’ Format for Scientific and
+Technical Writing/. https://CRAN.R-project.org/package=distill <https://
+cran.r-project.org/package=distill>.
+Hyndman, Rob J, and Yeasmin Khandakar. 2008. “Automatic Time Series
+Forecasting: The Forecast Package for R.” /Journal of Statistical
+Software/ 26 (3): 1–22. https://doi.org/10.18637/jss.v027.i03 <https://
+doi.org/10.18637/jss.v027.i03>.
+Hyndman, Rob, George Athanasopoulos, Christoph Bergmeir, Gabriel
+Caceres, Leanne Chhay, Mitchell O’Hara-Wild, Fotios Petropoulos, Slava
+Razbash, Earo Wang, and Farah Yasmeen. 2022. /forecast: Forecasting
+Functions for Time Series and Linear Models/. https://
+pkg.robjhyndman.com/forecast/ <https://pkg.robjhyndman.com/forecast/>.
+Iannone, Richard, Joe Cheng, and Barret Schloerke. 2022. /Gt: Easily
+Create Presentation-Ready Display Tables/. https://CRAN.R-project.org/
+package=gt <https://cran.r-project.org/package=gt>.
+Kunst, Joshua. 2022. /Highcharter: A Wrapper for the ’Highcharts’
+Library/. https://CRAN.R-project.org/package=highcharter <https://
+cran.r-project.org/package=highcharter>.
+Lin, Greg. 2022. /Reactable: Interactive Data Tables Based on ’React
+Table’/. https://CRAN.R-project.org/package=reactable <https://cran.r-
+project.org/package=reactable>.
+Mock, Thomas. 2022. /gtExtras: Extending ’Gt’ for Beautiful HTML
+Tables/. https://CRAN.R-project.org/package=gtExtras <https://cran.r-
+project.org/package=gtExtras>.
+R Core Team. 2022. /R: A Language and Environment for Statistical
+Computing/. Vienna, Austria: R Foundation for Statistical Computing.
+https://www.R-project.org/ <https://www.r-project.org/>.
+Ranzolin, David. 2022. /compareBars: Simplify Comparative Bar Charts
+with D3.js/.
+Rodríguez-Sánchez, Francisco, Connor P. Jackson, and Shaurita D.
+Hutchins. 2022. /Grateful: Facilitate Citation of r Packages/. https://
+github.com/Pakillo/grateful <https://github.com/Pakillo/grateful>.
+Vaidyanathan, Ramnath, Yihui Xie, JJ Allaire, Joe Cheng, Carson Sievert,
+and Kenton Russell. 2021. /Htmlwidgets: HTML Widgets for r/. https://
+CRAN.R-project.org/package=htmlwidgets <https://cran.r-project.org/
+package=htmlwidgets>.
+Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy
+D’Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019.
+“Welcome to the tidyverse.” /Journal of Open Source Software/ 4 (43):
+1686. https://doi.org/10.21105/joss.01686 <https://doi.org/10.21105/
+joss.01686>.
+Wickham, Hadley, Winston Chang, Robert Flight, Kirill Müller, and Jim
+Hester. 2021. /Sessioninfo: R Session Information/. https://CRAN.R-
+project.org/package=sessioninfo <https://cran.r-project.org/
+package=sessioninfo>.
+Xie, Yihui. 2014. “Knitr: A Comprehensive Tool for Reproducible Research
+in R.” In /Implementing Reproducible Computational Research/, edited by
+Victoria Stodden, Friedrich Leisch, and Roger D. Peng. Chapman; Hall/
+CRC. http://www.crcpress.com/product/isbn/9781466561595 <http://
+www.crcpress.com/product/isbn/9781466561595>.
+———. 2015. /Dynamic Documents with R and Knitr/. 2nd ed. Boca Raton,
+Florida: Chapman; Hall/CRC. https://yihui.org/knitr/ <https://yihui.org/
+knitr/>.
+———. 2022. /Knitr: A General-Purpose Package for Dynamic Report
+Generation in r/. https://yihui.org/knitr/ <https://yihui.org/knitr/>.
+Xie, Yihui, J. J. Allaire, and Garrett Grolemund. 2018. /R Markdown: The
+Definitive Guide/. Boca Raton, Florida: Chapman; Hall/CRC. https://
+bookdown.org/yihui/rmarkdown <https://bookdown.org/yihui/rmarkdown>.
+Xie, Yihui, Christophe Dervieux, and Emily Riederer. 2020. /R Markdown
+Cookbook/. Boca Raton, Florida: Chapman; Hall/CRC. https://bookdown.org/
+yihui/rmarkdown-cookbook <https://bookdown.org/yihui/rmarkdown-cookbook>.
+
+
+      Corrections
+
+If you see mistakes or want to suggest changes, please create an issue
+<https://github.com/andrewallenbruce/issues/new> on the source repository.
+
+
+      Reuse
+
+Text and figures are licensed under Creative Commons Attribution CC BY
+4.0 <https://creativecommons.org/licenses/by/4.0/>. Source code is
+available at https://github.com/andrewallenbruce <https://github.com/
+andrewallenbruce>, unless otherwise noted. The figures that have been
+reused from other sources don't fall under this license and can be
+recognized by a note in their caption: "Figure from ...".
+
+
+      Citation
+
+For attribution, please cite this work as
+
+Bruce (2022, April 12). Andrew Bruce: KPI Guide: Days in AR. Retrieved from https://andrewbruce.netlify.app/posts/kpi-guide-days-in-ar///
+
+BibTeX citation
+
+@misc{bruce2022kpi,
+  author = {Bruce, Andrew},
+  title = {Andrew Bruce: KPI Guide: Days in AR},
+  url = {https://andrewbruce.netlify.app/posts/kpi-guide-days-in-ar/},
+  year = {2022}
+}//
+
+Andrew A. Bruce - 2024 - made with , and {distill} <https://
+rstudio.github.io/distill/>
+

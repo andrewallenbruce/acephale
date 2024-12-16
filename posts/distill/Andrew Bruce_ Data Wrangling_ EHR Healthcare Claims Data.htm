@@ -1,0 +1,1493 @@
+Andrew Bruce <https://andrewbrucehimni.netlify.app/>
+
+Home <https://andrewbrucehimni.netlify.app/> Projects ▾ EHR UX/UI Mockup
+<https://andrewbrucehimni.netlify.app/flex_example/flexexample> Days in
+AR Shiny App <https://himni.shinyapps.io/darguide/> The Art of DAR
+<https://artofdar.netlify.app/> HIM & I <https://himni.info/>
+About <https://andrewbrucehimni.netlify.app/about> // <https://
+www.linkedin.com/in/andybruce1> // <https://twitter.com/aabrucehimni> //
+<https://www.behance.net/andybruce1> // <https://
+andrewbrucehimni.netlify.app/index.xml> // <https://github.com/
+andrewallenbruce> ☰ <javascript:void(0);>
+
+
+  Data Wrangling: EHR Healthcare Claims Data
+
+medical-billing <https://andrewbrucehimni.netlify.app/#category:medical-
+billing> data-analytics <https://andrewbrucehimni.netlify.app/
+#category:data-analytics> dplyr <https://andrewbrucehimni.netlify.app/
+#category:dplyr> rstats <https://andrewbrucehimni.netlify.app/
+#category:rstats> r-bloggers <https://andrewbrucehimni.netlify.app/
+#category:r-bloggers>
+
+Using the {tidyverse} to wrangle EHR/EMR healthcare claims data.
+
+
+      Author
+
+
+      Affiliation
+
+Andrew Bruce <https://andrewbruce.netlify.app/> ORCID ID <https://
+orcid.org/0000-0001-5040-4327>
+
+ 
+
+
+      Published
+
+March 18, 2022
+
+
+      Citation
+
+Bruce, 2022 <#citation>
+
+
+      Contents
+
+  * Introduction <#introduction>
+      o Packages <#packages>
+  * Data <#data>
+  * Data Cleaning & Wrangling <#data-cleaning-wrangling>
+      o Convert ‘Date’ and ‘Character’ Types <#convert-date-and-
+        character-types>
+      o New Columns: Age Open, Age Closed, Bucket <#new-columns-age-
+        open-age-closed-bucket>
+      o Dates, Months, Quarters, Years <#dates-months-quarters-years>
+      o Status Columns <#status-columns>
+  * Encounter Counts & Percentage <#encounter-counts-percentage>
+      o Encounters by Provider <#encounters-by-provider>
+      o Encounters by Payer <#encounters-by-payer>
+      o Encounters by Incomplete Status <#encounters-by-incomplete-status>
+  * Aging: Count, Amount, Percent <#aging-count-amount-percent>
+      o Primary: Count, Amount, Percent <#primary-count-amount-percent>
+      o Secondary: Count, Amount, Percent <#secondary-count-amount-percent>
+      o Patient: Count, Amount, Percent <#patient-count-amount-percent>
+  * Visualizations <#visualizations>
+      o Encounter Counts <#encounter-counts>
+      o Aging: Count, Amount, Percent <#aging-count-amount-percent-1>
+      o Aging Percentages by Class <#aging-percentages-by-class>
+      o Age and Balance Plots <#age-and-balance-plots>
+      o Diagnosis and Procedure Coding <#diagnosis-and-procedure-coding>
+
+
+  Introduction
+
+This is intended to be a step-by-step guide for data analysis of
+healthcare claims data from an EHR/EMR; one of a series of posts I’ll be
+working on with the goal of turning the code into functions in the
+interest of speeding up repetitive analyses.
+
+
+    <#packages>Packages
+
+I’ll load the packages that I’ll be using:
+
+|library <https://rdrr.io/r/base/library.html>(tidyverse <https://tidyverse.tidyverse.org/>)
+library <https://rdrr.io/r/base/library.html>(tidyr <https://tidyr.tidyverse.org/>)
+library <https://rdrr.io/r/base/library.html>(rmarkdown <https://github.com/rstudio/rmarkdown>)
+library <https://rdrr.io/r/base/library.html>(lubridate <https://lubridate.tidyverse.org/>)
+library <https://rdrr.io/r/base/library.html>(highcharter <https://jkunst.com/highcharter/>)
+library <https://rdrr.io/r/base/library.html>(htmltools <https://github.com/rstudio/htmltools>)
+library <https://rdrr.io/r/base/library.html>(reactable <https://glin.github.io/reactable/>)
+library <https://rdrr.io/r/base/library.html>(reactablefmtr <https://kcuilla.github.io/reactablefmtr/>)
+library <https://rdrr.io/r/base/library.html>(ggsci <https://nanx.me/ggsci/>)
+library <https://rdrr.io/r/base/library.html>(printr <https://yihui.org/printr/>)
+|//
+
+
+  Data
+
+I’m using a mock data set I’ve created using medical coding practice
+exercises that I have collected, the {randomNames} package for creating
+patient names, and my personal knowledge of EMR/EHR data systems to fill
+in the rest. A quick note: this is a very light set of data as compared
+to what you might actually see in an EHR. In the interest of time, I’ve
+tried to use only the types of data I would need to write these
+functions to perform the applicable analyses. Let’s take a look at the
+structure of the raw data:
+
+|str <https://rdrr.io/r/utils/str.html>(claimsdata)
+|//
+
+|tibble [75 x 27] (S3: tbl_df/tbl/data.frame)
+ $ enc       : chr [1:75] "AB073A1" "AB071A3" "AB072A2" "AB070A4" ...
+ $ type      : chr [1:75] "HCFA" "HCFA" "HCFA" "HCFA" ...
+ $ pt        : chr [1:75] "Long" "Noorani" "Tampubolon" "Martin" ...
+ $ datecreate: POSIXct[1:75], format: "2022-02-03" "2022-02-04" ...
+ $ datedos   : POSIXct[1:75], format: "2022-02-03" "2022-02-04" ...
+ $ datenow   : POSIXct[1:75], format: "2022-02-12" "2022-02-12" ...
+ $ datesign  : POSIXct[1:75], format: NA NA ...
+ $ pos       : chr [1:75] "11" NA "11" "11" ...
+ $ prov      : chr [1:75] "Johnson" "Johnson" "Johnson" NA ...
+ $ loc       : chr [1:75] "Valdosta" "Valdosta" "Valdosta" "Valdosta" ...
+ $ payer     : chr [1:75] "Aetna" "Medicare" "UHC" "BCBS" ...
+ $ class     : chr [1:75] "Primary" "Primary" "Primary" "Primary" ...
+ $ stat      : chr [1:75] "Unsigned" "Place of Service" "Date of Service" "Provider" ...
+ $ datebill  : POSIXct[1:75], format: NA NA ...
+ $ datecomp  : POSIXct[1:75], format: NA NA ...
+ $ bal       : num [1:75] 975 711.8 723.1 659.8 71.9 ...
+ $ rej       : logi [1:75] NA NA NA NA NA NA ...
+ $ den       : chr [1:75] NA NA NA NA ...
+ $ px1       : num [1:75] 99214 99204 99214 99203 99214 ...
+ $ px1m      : num [1:75] 25 NA NA NA 25 NA NA 25 NA 25 ...
+ $ px2       : num [1:75] 93350 NA NA NA 93289 ...
+ $ px2m      : chr [1:75] NA NA NA NA ...
+ $ px3       : chr [1:75] NA NA NA NA ...
+ $ px3m      : chr [1:75] NA NA NA NA ...
+ $ dx1       : chr [1:75] "R55" "R00.0" "R60.0" "I49.3" ...
+ $ dx2       : chr [1:75] "E78.5" "Z33.1" "I11.9" "I34.0" ...
+ $ dx3       : chr [1:75] "I25.9" NA NA "I34.1" ...|//
+
+
+  Data Cleaning & Wrangling
+
+First I need to make sure any columns with dates are converted to |date| objects. Next, I need to convert the Procedure code columns to the |character| type. Since each of the Diagnosis code columns are alpha-numeric (as
+all ICD-10-CM codes are), they were automatically identified as the |character| type when the data was read in.
+
+
+    <#convert-date-and-character-types>Convert ‘Date’ and ‘Character’ Types
+
+|# Convert date columns to date object
+claimsdata$datecreate <- as.Date <https://rdrr.io/r/base/as.Date.html>(claimsdata$datecreate, "%yyyy-%mm-%dd", tz = "EST")
+claimsdata$datedos <- as.Date <https://rdrr.io/r/base/as.Date.html>(claimsdata$datedos, "%yyyy-%mm-%dd", tz = "EST")
+claimsdata$datesign <- as.Date <https://rdrr.io/r/base/as.Date.html>(claimsdata$datesign, "%yyyy-%mm-%dd", tz = "EST")
+claimsdata$datenow <- as.Date <https://rdrr.io/r/base/as.Date.html>(claimsdata$datenow, "%yyyy-%mm-%dd", tz = "EST")
+claimsdata$datebill <- as.Date <https://rdrr.io/r/base/as.Date.html>(claimsdata$datebill, "%yyyy-%mm-%dd", tz = "EST")
+claimsdata$datecomp <- as.Date <https://rdrr.io/r/base/as.Date.html>(claimsdata$datecomp, "%yyyy-%mm-%dd", tz = "EST")
+
+# Convert Px/Dx/Mod columns to factor type
+claimsdata$px1 <- as.factor <https://rdrr.io/r/base/factor.html>(claimsdata$px1)
+claimsdata$px1m <- as.factor <https://rdrr.io/r/base/factor.html>(claimsdata$px1m)
+claimsdata$px2 <- as.factor <https://rdrr.io/r/base/factor.html>(claimsdata$px2)
+claimsdata$px2m <- as.factor <https://rdrr.io/r/base/factor.html>(claimsdata$px2m)
+claimsdata$px3 <- as.factor <https://rdrr.io/r/base/factor.html>(claimsdata$px3)
+claimsdata$px3m <- as.factor <https://rdrr.io/r/base/factor.html>(claimsdata$px3m)
+
+str <https://rdrr.io/r/utils/str.html>(claimsdata)
+|//
+
+|tibble [75 x 27] (S3: tbl_df/tbl/data.frame)
+ $ enc       : chr [1:75] "AB073A1" "AB071A3" "AB072A2" "AB070A4" ...
+ $ type      : chr [1:75] "HCFA" "HCFA" "HCFA" "HCFA" ...
+ $ pt        : chr [1:75] "Long" "Noorani" "Tampubolon" "Martin" ...
+ $ datecreate: Date[1:75], format: "2022-02-02" "2022-02-03" ...
+ $ datedos   : Date[1:75], format: "2022-02-02" "2022-02-03" ...
+ $ datenow   : Date[1:75], format: "2022-02-11" "2022-02-11" ...
+ $ datesign  : Date[1:75], format: NA NA ...
+ $ pos       : chr [1:75] "11" NA "11" "11" ...
+ $ prov      : chr [1:75] "Johnson" "Johnson" "Johnson" NA ...
+ $ loc       : chr [1:75] "Valdosta" "Valdosta" "Valdosta" "Valdosta" ...
+ $ payer     : chr [1:75] "Aetna" "Medicare" "UHC" "BCBS" ...
+ $ class     : chr [1:75] "Primary" "Primary" "Primary" "Primary" ...
+ $ stat      : chr [1:75] "Unsigned" "Place of Service" "Date of Service" "Provider" ...
+ $ datebill  : Date[1:75], format: NA NA ...
+ $ datecomp  : Date[1:75], format: NA NA ...
+ $ bal       : num [1:75] 975 711.8 723.1 659.8 71.9 ...
+ $ rej       : logi [1:75] NA NA NA NA NA NA ...
+ $ den       : chr [1:75] NA NA NA NA ...
+ $ px1       : Factor w/ 18 levels "93224","93227",..: 11 8 11 7 11 11 11 17 11 11 ...
+ $ px1m      : Factor w/ 2 levels "25","26": 1 NA NA NA 1 NA NA 1 NA 1 ...
+ $ px2       : Factor w/ 9 levels "17110","23650",..: 7 NA NA NA 6 NA NA 4 NA 5 ...
+ $ px2m      : Factor w/ 3 levels "26","59","RT": NA NA NA NA 1 NA NA 2 NA 1 ...
+ $ px3       : Factor w/ 6 levels "12011","93010",..: NA NA NA NA NA NA NA 2 NA NA ...
+ $ px3m      : Factor w/ 1 level "XS-RT": NA NA NA NA NA NA NA NA NA NA ...
+ $ dx1       : chr [1:75] "R55" "R00.0" "R60.0" "I49.3" ...
+ $ dx2       : chr [1:75] "E78.5" "Z33.1" "I11.9" "I34.0" ...
+ $ dx3       : chr [1:75] "I25.9" NA NA "I34.1" ...|//
+
+
+    <#new-columns-age-open-age-closed-bucket>New Columns: Age Open, Age
+    Closed, Bucket
+
+|# Add 'Age Open' Column to assign 
+# an Aging Bucket to each Open claim
+claimsdata <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    mutate <https://dplyr.tidyverse.org/reference/mutate.html>(ageopen = days <https://lubridate.tidyverse.org/reference/period.html>(datenow) - days <https://lubridate.tidyverse.org/reference/period.html>(datedos))
+
+claimsdata$ageopen <- as.numeric <https://rdrr.io/r/base/numeric.html>(claimsdata$ageopen, "hours")
+
+claimsdata <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    mutate <https://dplyr.tidyverse.org/reference/mutate.html>(ageopen = ageopen / 24)
+
+# Add 'Bucket' Column to assign 
+# an Aging Bucket to each Open claim
+claimsdata <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    mutate <https://dplyr.tidyverse.org/reference/mutate.html>(bucket = case_when <https://dplyr.tidyverse.org/reference/case_when.html>(
+        claimsdata$ageopen < 31 ~ "0-30",
+        claimsdata$ageopen >= 31 & claimsdata$ageopen < 61 ~ "31-60",
+        claimsdata$ageopen >= 61 & claimsdata$ageopen < 91 ~ "61-90",
+        claimsdata$ageopen >= 91 & claimsdata$ageopen < 121 ~ "91-120",
+        claimsdata$ageopen >= 121 & claimsdata$ageopen < 151 ~ "121-150",
+        claimsdata$ageopen >= 151 & claimsdata$ageopen < 181 ~ "151-180",
+        claimsdata$ageopen >= 181 ~ "181+",
+        TRUE ~ "NA"
+    ))
+
+# Convert 'Bucket' column to factor
+claimsdata$bucket <- factor <https://rdrr.io/r/base/factor.html>(claimsdata$bucket, 
+                            levels = c <https://rdrr.io/r/base/c.html>("0-30", 
+                                       "31-60", 
+                                       "61-90", 
+                                       "91-120", 
+                                       "121-150", 
+                                       "151-180", 
+                                       "181+", 
+                                       "NA"
+                                       ), 
+                            ordered = is.ordered <https://rdrr.io/r/base/factor.html>(claimsdata$bucket))
+
+# Add 'Age Close' Column to calculate 
+# the number of days it took to Close claim
+claimsdata <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    mutate <https://dplyr.tidyverse.org/reference/mutate.html>(ageclose = days <https://lubridate.tidyverse.org/reference/period.html>(datecomp) - days <https://lubridate.tidyverse.org/reference/period.html>(datedos))
+
+claimsdata$ageclose <- as.numeric <https://rdrr.io/r/base/numeric.html>(claimsdata$ageclose, "hours")
+
+claimsdata <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    mutate <https://dplyr.tidyverse.org/reference/mutate.html>(ageclose = ageclose / 24)
+
+# Print data frame
+claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+  select <https://dplyr.tidyverse.org/reference/select.html>(
+    enc,
+    stat,
+    datecreate,
+    datedos,
+    datenow,
+    datesign,
+    datebill,
+    bucket,
+    ageopen,
+    ageclose
+  ) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+  head <https://rdrr.io/r/utils/head.html>()
+|//
+
+enc 	stat 	datecreate 	datedos 	datenow 	datesign 	datebill 	bucket 	
+ageopen 	ageclose
+AB073A1 	Unsigned 	2022-02-02 	2022-02-02 	2022-02-11 	NA 	NA 	0-30 	9 	NA
+AB071A3 	Place of Service 	2022-02-03 	2022-02-03 	2022-02-11 	NA 	NA 	
+0-30 	8 	NA
+AB072A2 	Date of Service 	2022-02-03 	NA 	2022-02-11 	NA 	NA 	NA 	NA 	NA
+AB070A4 	Provider 	2022-02-10 	2022-02-10 	2022-02-11 	NA 	NA 	0-30 	1 	NA
+AB069A5 	Billed 	2022-02-09 	2022-02-09 	2022-02-11 	2022-02-27 	
+2022-02-27 	0-30 	2 	NA
+AB068A6 	Ready 	2022-02-08 	2022-02-08 	2022-02-11 	2022-02-09 	NA 	0-30
+	3 	NA
+
+
+    <#dates-months-quarters-years>Dates, Months, Quarters, Years
+
+|# function to create many different date types based on the Date of Service
+claims_ymq <- function(df, date_col) {
+  stopifnot <https://rdrr.io/r/base/stopifnot.html>(inherits <https://rdrr.io/r/base/class.html>(df, "data.frame"))
+  stopifnot <https://rdrr.io/r/base/stopifnot.html>(class <https://rdrr.io/r/base/class.html>(df %>% <https://tidyr.tidyverse.org/reference/pipe.html> dplyr::pull <https://dplyr.tidyverse.org/reference/pull.html>({{date_col}})) == 'Date')
+  dplyr::mutate <https://dplyr.tidyverse.org/reference/mutate.html>(df,
+                nmon = lubridate::month <https://lubridate.tidyverse.org/reference/month.html>({{date_col}}, label = FALSE),
+                ndip = lubridate::days_in_month <https://lubridate.tidyverse.org/reference/days_in_month.html>({{date_col}}),
+                month = lubridate::month <https://lubridate.tidyverse.org/reference/month.html>({{date_col}}, label = TRUE, abbr = FALSE),
+                mon = lubridate::month <https://lubridate.tidyverse.org/reference/month.html>({{date_col}}, label = TRUE, abbr = TRUE),
+                year = lubridate::year <https://lubridate.tidyverse.org/reference/year.html>({{date_col}}),
+                nqtr = lubridate::quarter <https://lubridate.tidyverse.org/reference/quarter.html>({{date_col}}),
+                yqtr = lubridate::quarter <https://lubridate.tidyverse.org/reference/quarter.html>({{date_col}}, with_year = TRUE),
+                dqtr = paste0 <https://rdrr.io/r/base/paste.html>(lubridate::quarter <https://lubridate.tidyverse.org/reference/quarter.html>({{date_col}}),"Q", format <https://rdrr.io/r/base/format.html>({{date_col}},"%y")),
+                ymon = as.numeric <https://rdrr.io/r/base/numeric.html>(format <https://rdrr.io/r/base/format.html>({{date_col}}, "%Y.%m")),
+                mmon = format <https://rdrr.io/r/base/format.html>({{date_col}}, "%b %Y"),
+                nhalf = lubridate::semester <https://lubridate.tidyverse.org/reference/quarter.html>({{date_col}}),
+                yhalf = lubridate::semester <https://lubridate.tidyverse.org/reference/quarter.html>({{date_col}}, with_year = TRUE),
+                dhalf = paste0 <https://rdrr.io/r/base/paste.html>(lubridate::semester <https://lubridate.tidyverse.org/reference/quarter.html>({{date_col}}), "H", format <https://rdrr.io/r/base/format.html>({{date_col}},"%y"))
+                )
+}
+
+# call function
+claimsdata <- claims_ymq(df = claimsdata, date_col = datecreate)
+
+# print data frame
+claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+  select <https://dplyr.tidyverse.org/reference/select.html>(
+    datecreate,
+    nmon,
+    ndip,
+    month,
+    mon,
+    year,
+    nqtr,
+    yqtr,
+    dqtr,
+    ymon,
+    nmon,
+    nhalf,
+    yhalf,
+    dhalf
+  ) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+  head <https://rdrr.io/r/utils/head.html>()
+|//
+
+datecreate 	nmon 	ndip 	month 	mon 	year 	nqtr 	yqtr 	dqtr 	ymon 	nhalf
+	yhalf 	dhalf
+2022-02-02 	2 	28 	February 	Feb 	2022 	1 	2022.1 	1Q22 	2022.02 	1 	
+2022.1 	1H22
+2022-02-03 	2 	28 	February 	Feb 	2022 	1 	2022.1 	1Q22 	2022.02 	1 	
+2022.1 	1H22
+2022-02-03 	2 	28 	February 	Feb 	2022 	1 	2022.1 	1Q22 	2022.02 	1 	
+2022.1 	1H22
+2022-02-10 	2 	28 	February 	Feb 	2022 	1 	2022.1 	1Q22 	2022.02 	1 	
+2022.1 	1H22
+2022-02-09 	2 	28 	February 	Feb 	2022 	1 	2022.1 	1Q22 	2022.02 	1 	
+2022.1 	1H22
+2022-02-08 	2 	28 	February 	Feb 	2022 	1 	2022.1 	1Q22 	2022.02 	1 	
+2022.1 	1H22
+
+
+    <#status-columns>Status Columns
+
+|# Add 'Cycle' Column to assign an RCM Status to each claim
+claimsdata <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    mutate <https://dplyr.tidyverse.org/reference/mutate.html>(cycle = case_when <https://dplyr.tidyverse.org/reference/case_when.html>(
+        claimsdata$stat == "Complete" ~ "Closed",
+        claimsdata$stat == "Refund" ~ "Closed",
+        claimsdata$stat == "Credit" ~ "Closed",
+        TRUE ~ "Open"
+    ))
+
+# Add 'Review' Column to assign Claims to Responsible Party
+claimsdata <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    mutate <https://dplyr.tidyverse.org/reference/mutate.html>(review = case_when <https://dplyr.tidyverse.org/reference/case_when.html>(
+        claimsdata$stat == "Unsigned" ~ "Client",
+        claimsdata$stat == "Charges" ~ "Client",
+        claimsdata$stat == "Place of Service" ~ "Client",
+        claimsdata$stat == "Date of Service" ~ "Client",
+        claimsdata$stat == "Location" ~ "Client",
+        claimsdata$stat == "Provider" ~ "Client",
+        claimsdata$stat == "Payer" ~ "Client",
+        claimsdata$stat == "Refund" ~ "Client",
+        claimsdata$stat == "Credit" ~ "Client",
+        claimsdata$stat == "Complete" ~ "None",
+        claimsdata$stat == "Billed" ~ "Billing",
+        claimsdata$stat == "New" ~ "Billing",
+        claimsdata$stat == "Ready" ~ "Billing",
+        claimsdata$stat == "Rejection" ~ "Billing",
+        claimsdata$stat == "Denial" ~ "Aging",
+        claimsdata$stat == "Appeal" ~ "Aging",
+        TRUE ~ "Other"
+    ))
+
+## Add 'incomp' Column to group Incomplete Statuses
+claimsdata <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    mutate <https://dplyr.tidyverse.org/reference/mutate.html>(incomp = case_when <https://dplyr.tidyverse.org/reference/case_when.html>(
+        claimsdata$stat == "Unsigned" ~ "Incomplete",
+        claimsdata$stat == "Charges" ~ "Incomplete",
+        claimsdata$stat == "Place of Service" ~ "Incomplete",
+        claimsdata$stat == "Date of Service" ~ "Incomplete",
+        claimsdata$stat == "Location" ~ "Incomplete",
+        claimsdata$stat == "Provider" ~ "Incomplete",
+        claimsdata$stat == "Payer" ~ "Incomplete",
+        claimsdata$stat == "Refund" ~ "Review",
+        claimsdata$stat == "Credit" ~ "Review",
+        claimsdata$stat == "Complete" ~ "Complete",
+        claimsdata$stat == "Billed" ~ "Billed",
+        claimsdata$stat == "New" ~ "New",
+        claimsdata$stat == "Ready" ~ "Ready",
+        claimsdata$stat == "Rejection" ~ "Rejection",
+        claimsdata$stat == "Denial" ~ "Denial",
+        claimsdata$stat == "Appeal" ~ "Appeal",
+        TRUE ~ "Other"
+    ))
+
+# print data frame
+claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+  select <https://dplyr.tidyverse.org/reference/select.html>(
+    enc,
+    stat,
+    cycle,
+    review,
+    incomp
+  ) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+  head <https://rdrr.io/r/utils/head.html>()
+|//
+
+enc 	stat 	cycle 	review 	incomp
+AB073A1 	Unsigned 	Open 	Client 	Incomplete
+AB071A3 	Place of Service 	Open 	Client 	Incomplete
+AB072A2 	Date of Service 	Open 	Client 	Incomplete
+AB070A4 	Provider 	Open 	Client 	Incomplete
+AB069A5 	Billed 	Open 	Billing 	Billed
+AB068A6 	Ready 	Open 	Billing 	Ready
+
+
+  Encounter Counts & Percentage
+
+
+    <#encounters-by-provider>Encounters by Provider
+
+|# Number of Encounters by Provider
+claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    group_by <https://dplyr.tidyverse.org/reference/group_by.html>(prov) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    filter <https://dplyr.tidyverse.org/reference/filter.html>(bal > 0 & prov != "NA") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    summarise <https://dplyr.tidyverse.org/reference/summarise.html>(n = n <https://dplyr.tidyverse.org/reference/context.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(percent = n/sum <https://rdrr.io/r/base/sum.html>(n) * 100) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    arrange <https://dplyr.tidyverse.org/reference/arrange.html>(desc <https://dplyr.tidyverse.org/reference/desc.html>(n))
+|//
+
+prov 	n 	percent
+Smith 	33 	47.14286
+Johnson 	28 	40.00000
+Gibson 	9 	12.85714
+
+
+    <#encounters-by-payer>Encounters by Payer
+
+|claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    group_by <https://dplyr.tidyverse.org/reference/group_by.html>(payer) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    filter <https://dplyr.tidyverse.org/reference/filter.html>(bal > 0 & payer != "NA") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    summarise <https://dplyr.tidyverse.org/reference/summarise.html>(n = n <https://dplyr.tidyverse.org/reference/context.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(percent = n/sum <https://rdrr.io/r/base/sum.html>(n) * 100) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    arrange <https://dplyr.tidyverse.org/reference/arrange.html>(desc <https://dplyr.tidyverse.org/reference/desc.html>(n)) 
+|//
+
+payer 	n 	percent
+Medicare 	19 	27.142857
+UHC 	17 	24.285714
+Patient 	14 	20.000000
+BCBS 	7 	10.000000
+Aetna 	4 	5.714286
+Humana 	4 	5.714286
+Meritain 	2 	2.857143
+Ambetter 	1 	1.428571
+Cigna 	1 	1.428571
+Medicaid 	1 	1.428571
+
+
+    <#encounters-by-incomplete-status>Encounters by Incomplete Status
+
+|claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    filter <https://dplyr.tidyverse.org/reference/filter.html>(bal > 0 & incomp == "Incomplete") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    group_by <https://dplyr.tidyverse.org/reference/group_by.html>(stat) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    summarise <https://dplyr.tidyverse.org/reference/summarise.html>(n = n <https://dplyr.tidyverse.org/reference/context.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(percent = n/sum <https://rdrr.io/r/base/sum.html>(n) * 100) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    arrange <https://dplyr.tidyverse.org/reference/arrange.html>(desc <https://dplyr.tidyverse.org/reference/desc.html>(n))
+|//
+
+stat 	n 	percent
+Unsigned 	6 	42.857143
+Location 	3 	21.428571
+Charges 	1 	7.142857
+Date of Service 	1 	7.142857
+Payer 	1 	7.142857
+Place of Service 	1 	7.142857
+Provider 	1 	7.142857
+
+
+  Aging: Count, Amount, Percent
+
+|# Encounters in Aging Buckets
+buckcount <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    group_by <https://dplyr.tidyverse.org/reference/group_by.html>(bucket) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    filter <https://dplyr.tidyverse.org/reference/filter.html>(bal > 0 & bucket != "NA") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    summarise <https://dplyr.tidyverse.org/reference/summarise.html>(n = n <https://dplyr.tidyverse.org/reference/context.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(percent = n/sum <https://rdrr.io/r/base/sum.html>(n) * 100)
+
+# AR Balance in Aging Buckets + Percentage
+buckamt <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    group_by <https://dplyr.tidyverse.org/reference/group_by.html>(bucket) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    filter <https://dplyr.tidyverse.org/reference/filter.html>(bal > 0 & bucket != "NA") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    summarise <https://dplyr.tidyverse.org/reference/summarise.html>(bal = sum <https://rdrr.io/r/base/sum.html>(bal)) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(percent = bal / sum <https://rdrr.io/r/base/sum.html>(bal) * 100)
+
+# Merge the data frames
+buckamtcount <- merge <https://rdrr.io/r/base/merge.html>(buckcount, buckamt, by = "bucket")
+
+# Rename percent cols
+buckamtcount <- buckamtcount %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(
+    enc = n,
+    pctenc = percent.x,
+    pctbal = percent.y
+    )
+
+#Print data frame
+buckamtcount
+|//
+
+bucket 	enc 	pctenc 	bal 	pctbal
+0-30 	34 	48.571429 	13586.38 	68.041072
+31-60 	18 	25.714286 	4166.39 	20.865429
+61-90 	5 	7.142857 	817.00 	4.091565
+91-120 	13 	18.571429 	1398.14 	7.001935
+
+
+    <#primary-count-amount-percent>Primary: Count, Amount, Percent
+
+|# Encounters in Primary by bucket
+primbk <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  group_by <https://dplyr.tidyverse.org/reference/group_by.html>(bucket) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(bal > 0 & bucket != "NA" & class != "Closed" & class == "Primary") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  summarise <https://dplyr.tidyverse.org/reference/summarise.html>(n = n <https://dplyr.tidyverse.org/reference/context.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(percent = n/sum <https://rdrr.io/r/base/sum.html>(n) * 100)
+
+# Balance in Primary by bucket
+primamt <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    group_by <https://dplyr.tidyverse.org/reference/group_by.html>(bucket) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    filter <https://dplyr.tidyverse.org/reference/filter.html>(bal > 0 & bucket != "NA" & class != "Closed" & class == "Primary") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    summarise <https://dplyr.tidyverse.org/reference/summarise.html>(bal = sum <https://rdrr.io/r/base/sum.html>(bal)) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(percent = bal / sum <https://rdrr.io/r/base/sum.html>(bal) * 100)
+
+# Merge the data frames
+primamtcount <- merge <https://rdrr.io/r/base/merge.html>(primbk, primamt, by = "bucket")
+
+# Rename percent cols
+primamtcount <- primamtcount %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(
+    enc = n,
+    pctenc = percent.x,
+    pctbal = percent.y
+    )
+
+# Print data frame
+primamtcount
+|//
+
+bucket 	enc 	pctenc 	bal 	pctbal
+0-30 	25 	60.975610 	10891.27 	75.0769984
+31-60 	15 	36.585366 	3483.89 	24.0155651
+91-120 	1 	2.439024 	131.64 	0.9074365
+
+
+    <#secondary-count-amount-percent>Secondary: Count, Amount, Percent
+
+|# Encounters in Secondary by bucket
+secbk <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  group_by <https://dplyr.tidyverse.org/reference/group_by.html>(bucket) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(bal > 0 & bucket != "NA" & class != "Closed" & class == "Secondary") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  summarise <https://dplyr.tidyverse.org/reference/summarise.html>(n = n <https://dplyr.tidyverse.org/reference/context.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(percent = n/sum <https://rdrr.io/r/base/sum.html>(n) * 100)
+
+# Balance in Secondary by bucket
+secamt <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    group_by <https://dplyr.tidyverse.org/reference/group_by.html>(bucket) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    filter <https://dplyr.tidyverse.org/reference/filter.html>(bal > 0 & bucket != "NA" & class != "Closed" & class == "Secondary") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    summarise <https://dplyr.tidyverse.org/reference/summarise.html>(bal = sum <https://rdrr.io/r/base/sum.html>(bal)) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(percent = bal / sum <https://rdrr.io/r/base/sum.html>(bal) * 100)
+
+# Merge the data frames
+secamtcount <- merge <https://rdrr.io/r/base/merge.html>(secbk, secamt, by = "bucket")
+
+# Rename percent cols
+secamtcount <- secamtcount %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(
+    enc = n,
+    pctenc = percent.x,
+    pctbal = percent.y
+    )
+
+# Print data frame
+secamtcount
+|//
+
+bucket 	enc 	pctenc 	bal 	pctbal
+0-30 	6 	46.15385 	1590.24 	56.860488
+31-60 	3 	23.07692 	682.50 	24.403413
+61-90 	2 	15.38462 	264.00 	9.439562
+91-120 	2 	15.38462 	260.00 	9.296538
+
+
+    <#patient-count-amount-percent>Patient: Count, Amount, Percent
+
+|# Encounters in Patient by bucket
+patbk <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  group_by <https://dplyr.tidyverse.org/reference/group_by.html>(bucket) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  filter <https://dplyr.tidyverse.org/reference/filter.html>(bal > 0 & bucket != "NA" & class != "Closed" & class == "Patient") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  summarise <https://dplyr.tidyverse.org/reference/summarise.html>(n = n <https://dplyr.tidyverse.org/reference/context.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(percent = n/sum <https://rdrr.io/r/base/sum.html>(n) * 100)
+
+# Balance in Patient by bucket
+patamt <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    group_by <https://dplyr.tidyverse.org/reference/group_by.html>(bucket) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    filter <https://dplyr.tidyverse.org/reference/filter.html>(bal > 0 & bucket != "NA" & class != "Closed" & class == "Patient") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    summarise <https://dplyr.tidyverse.org/reference/summarise.html>(bal = sum <https://rdrr.io/r/base/sum.html>(bal)) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(percent = bal / sum <https://rdrr.io/r/base/sum.html>(bal) * 100)
+
+# Merge the data frames
+patamtcount <- merge <https://rdrr.io/r/base/merge.html>(patbk, patamt, by = "bucket")
+
+# Rename percent cols
+patamtcount <- patamtcount %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+  rename <https://dplyr.tidyverse.org/reference/rename.html>(
+    enc = n,
+    pctenc = percent.x,
+    pctbal = percent.y
+    )
+
+# Print data frame
+patamtcount
+|//
+
+bucket 	enc 	pctenc 	bal 	pctbal
+0-30 	2 	13.33333 	464.87 	22.96369
+61-90 	3 	20.00000 	553.00 	27.31714
+91-120 	10 	66.66667 	1006.50 	49.71917
+
+
+  Visualizations
+
+
+    <#encounter-counts>Encounter Counts
+
+Show code
+
+|# Number of Encounters by Provider
+hcprov <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    group_by <https://dplyr.tidyverse.org/reference/group_by.html>(prov) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    filter <https://dplyr.tidyverse.org/reference/filter.html>(bal > 0 & prov != "NA") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    summarise <https://dplyr.tidyverse.org/reference/summarise.html>(n = n <https://dplyr.tidyverse.org/reference/context.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    arrange <https://dplyr.tidyverse.org/reference/arrange.html>(desc <https://dplyr.tidyverse.org/reference/desc.html>(n)) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hchart <https://jkunst.com/highcharter/reference/hchart.html>("column", hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(x = prov, y = n, color = prov), name = "Encounters") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+        gridLineWidth = 0,
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text = "", style = list <https://rdrr.io/r/base/list.html>(color = "#000000"))
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text= ""),
+        lineWidth = 0,
+        tickWidth = 0
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "Encounters by Provider") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE
+        ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_smpl <https://jkunst.com/highcharter/reference/hc_theme_smpl.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_plotOptions <https://jkunst.com/highcharter/reference/hc_plotOptions.html>(
+        column = list <https://rdrr.io/r/base/list.html>(
+            color = "red",
+            dataLabels = list <https://rdrr.io/r/base/list.html>(
+                enabled = TRUE
+            )
+        )
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 300, width = 350)
+
+# Number of Encounters by Payer
+hcpay <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    group_by <https://dplyr.tidyverse.org/reference/group_by.html>(payer) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    filter <https://dplyr.tidyverse.org/reference/filter.html>(bal > 0 & payer != "NA") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    summarise <https://dplyr.tidyverse.org/reference/summarise.html>(n = n <https://dplyr.tidyverse.org/reference/context.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    arrange <https://dplyr.tidyverse.org/reference/arrange.html>(desc <https://dplyr.tidyverse.org/reference/desc.html>(n)) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hchart <https://jkunst.com/highcharter/reference/hchart.html>("bar", hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(x = payer, y = n, color = payer), name = "Encounters") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+        gridLineWidth = 0,
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text = "", style = list <https://rdrr.io/r/base/list.html>(color = "#000000"))
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text= ""),
+        lineWidth = 0,
+        tickWidth = 0
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "Encounters by Payer") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE
+        ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_smpl <https://jkunst.com/highcharter/reference/hc_theme_smpl.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_plotOptions <https://jkunst.com/highcharter/reference/hc_plotOptions.html>(
+        column = list <https://rdrr.io/r/base/list.html>(
+            dataLabels = list <https://rdrr.io/r/base/list.html>(
+                enabled = TRUE
+            )
+        )
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 300, width = 350)
+
+# Number of Encounters by Incomplete Status
+hcstat <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    filter <https://dplyr.tidyverse.org/reference/filter.html>(bal > 0 & incomp == "Incomplete") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    group_by <https://dplyr.tidyverse.org/reference/group_by.html>(stat) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    summarise <https://dplyr.tidyverse.org/reference/summarise.html>(n = n <https://dplyr.tidyverse.org/reference/context.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    arrange <https://dplyr.tidyverse.org/reference/arrange.html>(desc <https://dplyr.tidyverse.org/reference/desc.html>(n)) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hchart <https://jkunst.com/highcharter/reference/hchart.html>("bar", hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(x = stat, y = n, color = stat), name = "Encounters") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+        gridLineWidth = 0,
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text = "", style = list <https://rdrr.io/r/base/list.html>(color = "#000000"))
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text= ""),
+        lineWidth = 0,
+        tickWidth = 0
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "Incomplete Encounters") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_smpl <https://jkunst.com/highcharter/reference/hc_theme_smpl.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE
+        ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_plotOptions <https://jkunst.com/highcharter/reference/hc_plotOptions.html>(
+        column = list <https://rdrr.io/r/base/list.html>(
+            dataLabels = list <https://rdrr.io/r/base/list.html>(
+                enabled = TRUE
+            )
+        )
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 300, width = 350)
+
+crosstalk::bscols <https://rdrr.io/pkg/crosstalk/man/bscols.html>(
+    widths = NA,
+hcprov,
+hcpay,
+hcstat
+)
+|//
+
+Created with Highcharts 9.3.1Encounters by Provider33​3328​289​
+9SmithJohnsonGibson010203040
+Created with Highcharts 9.3.1Encounters by
+PayerMedicareUHCPatientBCBSAetnaHumanaMeritainAmbetterCignaMedicaid05101520
+Created with Highcharts 9.3.1Incomplete
+EncountersUnsignedLocationChargesDate of ServiceDate of Servi…PayerPlace
+of ServicePlace of Serv…Provider02468
+
+
+    <#aging-count-amount-percent-1>Aging: Count, Amount, Percent
+
+Show code
+
+|# Encounters in Aging Buckets
+hcbucket <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    group_by <https://dplyr.tidyverse.org/reference/group_by.html>(bucket) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    filter <https://dplyr.tidyverse.org/reference/filter.html>(bal > 0 & bucket != "NA") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    summarise <https://dplyr.tidyverse.org/reference/summarise.html>(n = n <https://dplyr.tidyverse.org/reference/context.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hchart <https://jkunst.com/highcharter/reference/hchart.html>("column", hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(x = bucket, y = n, color = bucket), name = "Encounters") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+        gridLineWidth = 0,
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text = "", style = list <https://rdrr.io/r/base/list.html>(color = "#000000"))
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text= ""),
+        lineWidth = 0,
+        tickWidth = 0
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "Encounters in Aging Buckets") %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_smpl <https://jkunst.com/highcharter/reference/hc_theme_smpl.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE
+        ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_plotOptions <https://jkunst.com/highcharter/reference/hc_plotOptions.html>(
+        column = list <https://rdrr.io/r/base/list.html>(
+            color = "red",
+            dataLabels = list <https://rdrr.io/r/base/list.html>(
+                enabled = TRUE
+            )
+        )
+    )
+
+# Percentage of Encounters in Aging Buckets
+hcbucket4 <- buckamtcount %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    hchart <https://jkunst.com/highcharter/reference/hchart.html>("column", hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(x = bucket, y = round <https://rdrr.io/r/base/Round.html>(pctenc, 2), color = bucket), name = "Percentage of Encounters") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+        gridLineWidth = 0,
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text = "", style = list <https://rdrr.io/r/base/list.html>(color = "#000000"))
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text= ""),
+        lineWidth = 0,
+        tickWidth = 0
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "Percentage of Encounters in Aging Buckets") %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_smpl <https://jkunst.com/highcharter/reference/hc_theme_smpl.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE
+        ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_plotOptions <https://jkunst.com/highcharter/reference/hc_plotOptions.html>(
+        column = list <https://rdrr.io/r/base/list.html>(
+            color = "red",
+            dataLabels = list <https://rdrr.io/r/base/list.html>(
+                enabled = TRUE
+            )
+        )
+    )
+
+# AR Balance in Aging Buckets
+hcbucket2 <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    group_by <https://dplyr.tidyverse.org/reference/group_by.html>(bucket) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    filter <https://dplyr.tidyverse.org/reference/filter.html>(bal > 0 & bucket != "NA") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    summarise <https://dplyr.tidyverse.org/reference/summarise.html>(bal = sum <https://rdrr.io/r/base/sum.html>(bal)) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hchart <https://jkunst.com/highcharter/reference/hchart.html>("column", hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(
+      x = bucket, 
+      y = bal, 
+      color = bucket), 
+      name = "Balance") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+        gridLineWidth = 0,
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text = "", style = list <https://rdrr.io/r/base/list.html>(color = "#000000"))
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text= ""),
+        lineWidth = 0,
+        tickWidth = 0
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "Aging Buckets: AR Balance") %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_smpl <https://jkunst.com/highcharter/reference/hc_theme_smpl.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE
+        ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_plotOptions <https://jkunst.com/highcharter/reference/hc_plotOptions.html>(
+        column = list <https://rdrr.io/r/base/list.html>(
+            color = "red",
+            dataLabels = list <https://rdrr.io/r/base/list.html>(
+                enabled = TRUE
+            )
+        )
+    )
+
+# AR Balance Percentage in Aging Buckets
+hcbucket3 <- buckamtcount %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    hchart <https://jkunst.com/highcharter/reference/hchart.html>("column", hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(
+      x = bucket, 
+      y = round <https://rdrr.io/r/base/Round.html>(pctbal, 2), 
+      color = bucket), 
+      name = "Percentage of Balance") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+        gridLineWidth = 0,
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text = "", style = list <https://rdrr.io/r/base/list.html>(color = "#000000"))
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text= ""),
+        lineWidth = 0,
+        tickWidth = 0
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "Aging Buckets: AR Balance Percentage") %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_smpl <https://jkunst.com/highcharter/reference/hc_theme_smpl.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE
+        ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_plotOptions <https://jkunst.com/highcharter/reference/hc_plotOptions.html>(
+        column = list <https://rdrr.io/r/base/list.html>(
+            color = "red",
+            dataLabels = list <https://rdrr.io/r/base/list.html>(
+                enabled = TRUE
+            )
+        )
+    ) 
+
+crosstalk::bscols <https://rdrr.io/pkg/crosstalk/man/bscols.html>(
+    widths = NA,
+hcbucket,
+hcbucket4,
+hcbucket2,
+hcbucket3
+)
+|//
+
+Created with Highcharts 9.3.1Encounters in Aging Buckets34​3418​185​513​
+130-3031-6061-9091-1200510152025303540
+Created with Highcharts 9.3.1Percentage of Encounters in Aging​
+Buckets48.57​48.5725.71​25.717.14​7.1418.57​
+18.570-3031-6061-9091-1200102030405060
+Created with Highcharts 9.3.1Aging Buckets: AR Balance13 586.38​13
+586.384 166.39​4 166.39817​8171 398.14​1
+398.140-3031-6061-9091-12002.5k5k7.5k10k12.5k15k
+Created with Highcharts 9.3.1Aging Buckets: AR Balance​Percentage68.04​
+68.0420.87​20.874.09​4.097​70-3031-6061-9091-12001020304050607080
+
+
+    <#aging-percentages-by-class>Aging Percentages by Class
+
+Show code
+
+|# Primary Aging by Count
+primary_pct <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    filter <https://dplyr.tidyverse.org/reference/filter.html>(bal > 0 & bucket != "NA" & class != "Closed" & class == "Primary") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    count <https://dplyr.tidyverse.org/reference/count.html>(class, bucket) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    mutate <https://dplyr.tidyverse.org/reference/mutate.html>(percent = n/sum <https://rdrr.io/r/base/sum.html>(n) * 100)
+
+primary_two <- primary_pct %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    group_by <https://dplyr.tidyverse.org/reference/group_by.html>(class) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    filter <https://dplyr.tidyverse.org/reference/filter.html>(bucket == "0-30" | bucket == "31-60") %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    summarise <https://dplyr.tidyverse.org/reference/summarise.html>(npct = sum <https://rdrr.io/r/base/sum.html>(percent))
+
+options <https://rdrr.io/r/base/options.html>(scipen = 999, digits = 2)
+hcbucket5 <- primary_pct %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hchart <https://jkunst.com/highcharter/reference/hchart.html>("column", hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(x = bucket, y = round <https://rdrr.io/r/base/Round.html>(percent, 2)), name = "Percentage") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+        gridLineWidth = 0,
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text = "", style = list <https://rdrr.io/r/base/list.html>(color = "#000000"))
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text= ""),
+        lineWidth = 0,
+        tickWidth = 0
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "Primary Aging: 97.61%") %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_smpl <https://jkunst.com/highcharter/reference/hc_theme_smpl.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+        valueDecimals = 2, 
+        valueSuffix = '%',
+        crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE
+        ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_plotOptions <https://jkunst.com/highcharter/reference/hc_plotOptions.html>(
+        column = list <https://rdrr.io/r/base/list.html>(
+            color = "#34608D",
+            dataLabels = list <https://rdrr.io/r/base/list.html>(
+                valueDecimals = 2, 
+                valueSuffix = '%',
+                enabled = TRUE
+            )
+        )
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 300, width = 350)
+
+# Secondary Aging by Count
+second_pct <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    filter <https://dplyr.tidyverse.org/reference/filter.html>(bal > 0 & bucket != "NA" & class != "Closed" & class == "Secondary") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    count <https://dplyr.tidyverse.org/reference/count.html>(class, bucket) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    mutate <https://dplyr.tidyverse.org/reference/mutate.html>(percent = n/sum <https://rdrr.io/r/base/sum.html>(n) * 100)
+
+options <https://rdrr.io/r/base/options.html>(scipen = 999, digits = 2)
+hcbucket6 <- second_pct %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hchart <https://jkunst.com/highcharter/reference/hchart.html>("column", hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(x = bucket, y = round <https://rdrr.io/r/base/Round.html>(percent, 2)), name = "Percentage") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+        gridLineWidth = 0,
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text = "", style = list <https://rdrr.io/r/base/list.html>(color = "#000000"))
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text= ""),
+        lineWidth = 0,
+        tickWidth = 0
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "Secondary Aging: 69.23%") %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_smpl <https://jkunst.com/highcharter/reference/hc_theme_smpl.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    # pointFormat = tltip,
+        valueDecimals = 2, 
+        valueSuffix = '%',
+        crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE
+        ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_plotOptions <https://jkunst.com/highcharter/reference/hc_plotOptions.html>(
+        column = list <https://rdrr.io/r/base/list.html>(
+            color = "#440154",
+            dataLabels = list <https://rdrr.io/r/base/list.html>(
+                valueDecimals = 2, 
+                valueSuffix = '%',
+                enabled = TRUE
+            )
+        )
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 300, width = 350)
+
+# Patient Aging by Count
+patient_pct <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    filter <https://dplyr.tidyverse.org/reference/filter.html>(bal > 0 & bucket != "NA" & class != "Closed" & class == "Patient") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    count <https://dplyr.tidyverse.org/reference/count.html>(class, bucket) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    mutate <https://dplyr.tidyverse.org/reference/mutate.html>(percent = n/sum <https://rdrr.io/r/base/sum.html>(n) * 100)
+
+options <https://rdrr.io/r/base/options.html>(scipen = 999, digits = 2)
+hcbucket7 <- patient_pct %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hchart <https://jkunst.com/highcharter/reference/hchart.html>("column", hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(x = bucket, y = round <https://rdrr.io/r/base/Round.html>(percent, 2)), name = "Percentage") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+        gridLineWidth = 0,
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text = "", style = list <https://rdrr.io/r/base/list.html>(color = "#000000"))
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text= ""),
+        lineWidth = 0,
+        tickWidth = 0
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "Patient Aging: 33.33%") %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_smpl <https://jkunst.com/highcharter/reference/hc_theme_smpl.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    # pointFormat = tltip,
+        valueDecimals = 2, 
+        valueSuffix = '%',
+        crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE
+        ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_plotOptions <https://jkunst.com/highcharter/reference/hc_plotOptions.html>(
+        column = list <https://rdrr.io/r/base/list.html>(
+            color = "#4BBD85",
+            dataLabels = list <https://rdrr.io/r/base/list.html>(
+                valueDecimals = 2, 
+                valueSuffix = '%',
+                enabled = TRUE
+            )
+        )
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 300, width = 350)
+
+crosstalk::bscols <https://rdrr.io/pkg/crosstalk/man/bscols.html>(
+    widths = NA,
+hcbucket5,
+hcbucket6,
+hcbucket7
+)
+|//
+
+Created with Highcharts 9.3.1Primary Aging: 97.61%60.98​60.9836.59​
+36.592.44​2.440-3031-6091-120020406080
+Created with Highcharts 9.3.1Secondary Aging: 69.23%46.15​46.1523.08​
+23.0815.38​15.3815.38​15.380-3031-6061-9091-1200204060
+Created with Highcharts 9.3.1Patient Aging: 33.33%13.33​13.3320​2066.67​
+66.670-3061-9091-1200255075
+
+
+    <#age-and-balance-plots>Age and Balance Plots
+
+Show code
+
+|# Aging Buckets: Count, Amount & Percent
+buckamtcount %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+  hchart <https://jkunst.com/highcharter/reference/hchart.html>("scatter",
+         hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(
+    x = enc,
+    y = bal,
+    size = pctbal,
+    group = bucket
+  )
+  )%>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+      title = list <https://rdrr.io/r/base/list.html>(text = "Balance"),
+      labels = list <https://rdrr.io/r/base/list.html>(format = "${value}")
+      ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(text = "Number of Claims"),
+    labels = list <https://rdrr.io/r/base/list.html>(format = "{value}"),
+     crosshair = list <https://rdrr.io/r/base/list.html>(
+       snap = TRUE,
+       width = 2,
+       zIndex = 0)
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+  hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "Aging Buckets: Count, Amount & Percent") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  hc_subtitle <https://jkunst.com/highcharter/reference/hc_subtitle.html>(text = "Bubble size represents 
+              the percentage of the total AR balance.") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  hc_credits <https://jkunst.com/highcharter/reference/hc_credits.html>(
+    enabled = TRUE,
+    text = "HIMNI Billing Inc.",
+    href = "https://www.himni.info/"
+  ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_smpl <https://jkunst.com/highcharter/reference/hc_theme_smpl.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  hc_caption <https://jkunst.com/highcharter/reference/hc_caption.html>(
+    text = "<b>Bubble represents the different aging buckets while the 
+    size of the bubble represents the percentage of the total AR 
+    balance.</b><br><em> Excludes claims with a balance less than 
+    or equal to zero, as well as any unsubmitted claims missing 
+    information. <br></em>"
+  ) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    # pointFormat = tltip,
+        valueDecimals = 2, 
+        valuePrefix = '$',
+        crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE
+        ) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    hc_legend <https://jkunst.com/highcharter/reference/hc_legend.html>(
+    align = "right",
+    verticalAlign = "top",
+    layout = "vertical",
+    x = 0,
+    y = 100
+  )
+|//
+
+Created with Highcharts 9.3.1Number of ClaimsBalanceAging Buckets:
+Count, Amount & PercentBubble size represents the percentage of the
+total AR balance.Bubble represents the different aging buckets while the
+size of the bubble represents the percentage of the total AR balance.​
+Excludes claims with a balance less than or equal to zero, as well as
+any unsubmitted claims missing information. ​
+0-3031-6061-9091-1201020306812141618222426283234$-5000$0$5000$10000$15000HIMNI Billing Inc.
+Show code
+
+|# Claims by Age and Outstanding Balance
+options <https://rdrr.io/r/base/options.html>(scipen = 999, digits = 2)
+hcscatter_1 <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    filter <https://dplyr.tidyverse.org/reference/filter.html>(bal > 0 & payer != "NA") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hchart <https://jkunst.com/highcharter/reference/hchart.html>("scatter",
+  hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(
+    x = ageopen,
+    y = bal,
+    size = bal,
+    group = payer
+  )
+) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+      title = list <https://rdrr.io/r/base/list.html>(text = "Balance"),
+      labels = list <https://rdrr.io/r/base/list.html>(format = "${value}")
+      ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(text = "Age of Claim"),
+    labels = list <https://rdrr.io/r/base/list.html>(format = "{value} days"),
+     crosshair = list <https://rdrr.io/r/base/list.html>(
+       snap = TRUE,
+       width = 2,
+       zIndex = 0)
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+  hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "Open Claims by Age and Outstanding Balance") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  hc_subtitle <https://jkunst.com/highcharter/reference/hc_subtitle.html>(text = "Bubble size represents 
+              balance amount remaining on the claim.") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  hc_credits <https://jkunst.com/highcharter/reference/hc_credits.html>(
+    enabled = TRUE,
+    text = "HIMNI Billing Inc.",
+    href = "https://www.himni.info/"
+  ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_smpl <https://jkunst.com/highcharter/reference/hc_theme_smpl.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  hc_caption <https://jkunst.com/highcharter/reference/hc_caption.html>(
+    text = "<b>Bubble size represents the balance amount remaining on the claim.</b><br><em>
+    Excludes claims with a balance less than or equal to zero, 
+    as well as any unsubmitted claims missing information. <br></em>"
+  ) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    # pointFormat = tltip,
+        valueDecimals = 2, 
+        valuePrefix = '$',
+        crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE
+        ) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    hc_legend <https://jkunst.com/highcharter/reference/hc_legend.html>(
+    align = "right",
+    verticalAlign = "top",
+    layout = "vertical",
+    x = 0,
+    y = 100
+  ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 600, width = 600)
+
+# Unsigned Encounters by Age and Balance
+options <https://rdrr.io/r/base/options.html>(scipen = 999, digits = 2)
+hcscatter_2 <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    filter <https://dplyr.tidyverse.org/reference/filter.html>(bal > 0 & prov != "NA") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hchart <https://jkunst.com/highcharter/reference/hchart.html>("scatter",
+  hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(
+    x = ageopen,
+    y = bal,
+    size = bal,
+    group = prov, 
+    colorKey = "bal"
+  )
+) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_colorAxis <https://jkunst.com/highcharter/reference/hc_colorAxis.html>(
+      min = 0,
+      max = max <https://rdrr.io/r/base/Extremes.html>(claimsdata$bal),
+      minColor = "blue", 
+      maxColor = "red",
+      layout = "horizontal"
+      ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+      title = list <https://rdrr.io/r/base/list.html>(text = "Balance"),
+      labels = list <https://rdrr.io/r/base/list.html>(format = "${value}")
+      ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(text = "Age of Claim"),
+    labels = list <https://rdrr.io/r/base/list.html>(format = "{value} days"),
+     crosshair = list <https://rdrr.io/r/base/list.html>(
+       snap = TRUE,
+       width = 2,
+       zIndex = 0)
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+  hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "Unsigned Encounters by Age and Outstanding Balance") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  hc_subtitle <https://jkunst.com/highcharter/reference/hc_subtitle.html>(text = "Bubble size represents gross charge amount on the claim.") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  hc_credits <https://jkunst.com/highcharter/reference/hc_credits.html>(
+    enabled = TRUE,
+    text = "HIMNI Billing Inc.",
+    href = "https://www.himni.info/"
+  ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_smpl <https://jkunst.com/highcharter/reference/hc_theme_smpl.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+  hc_caption <https://jkunst.com/highcharter/reference/hc_caption.html>(
+    text = "<b>Bubble size represents 
+    the balance amount remaining on the claim.</b><br><em>
+    Excludes claims with a balance less than or equal to zero, 
+    as well as any unsubmitted claims missing information. <br></em>"
+  ) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    # pointFormat = tltip,
+        valueDecimals = 2, 
+        valuePrefix = '$',
+        crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE
+        ) %>% <https://tidyr.tidyverse.org/reference/pipe.html> 
+    hc_legend <https://jkunst.com/highcharter/reference/hc_legend.html>(
+    align = "right",
+    verticalAlign = "bottom",
+    layout = "horizontal",
+    x = 0,
+    y = 10
+  ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 600, width = 600)
+
+crosstalk::bscols <https://rdrr.io/pkg/crosstalk/man/bscols.html>(
+    widths = NA,
+hcscatter_1,
+hcscatter_2
+)
+|//
+
+Created with Highcharts 9.3.1Age of ClaimBalanceOpen Claims by Age and
+Outstanding​BalanceBubble size represents balance amount remaining on
+the claim.Bubble size represents the balance amount remaining on the
+claim.​Excludes claims with a balance less than or equal to zero, ​ as
+well as any unsubmitted claims missing information. ​
+AetnaAmbetterBCBSCignaHumanaMedicaidMedicareMeritainPatientUHC0 days50
+days100 days$-200$0$200$400$600$800$1000$1200HIMNI Billing Inc.
+Created with Highcharts 9.3.1Age of ClaimBalanceUnsigned Encounters by
+Age and​Outstanding BalanceBubble size represents gross charge amount on
+the claim.Bubble size represents the balance amount remaining on the
+claim.​Excludes claims with a balance less than or equal to zero, ​ as
+well as any unsubmitted claims missing information. ​0250500750100010…
+GibsonJohnsonSmith0 days100 days25 days50 days75
+days$0$1000$-250$250$500$750$1250HIMNI Billing Inc.
+
+
+    <#diagnosis-and-procedure-coding>Diagnosis and Procedure Coding
+
+Show code
+
+|# Primary Procedure by Provider
+hcpx1 <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    group_by <https://dplyr.tidyverse.org/reference/group_by.html>(prov, px1) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    filter <https://dplyr.tidyverse.org/reference/filter.html>(px1 != "none" & prov != "NA") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    summarise <https://dplyr.tidyverse.org/reference/summarise.html>(n = n <https://dplyr.tidyverse.org/reference/context.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    filter <https://dplyr.tidyverse.org/reference/filter.html>(n > 1) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    arrange <https://dplyr.tidyverse.org/reference/arrange.html>(desc <https://dplyr.tidyverse.org/reference/desc.html>(n)) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hchart <https://jkunst.com/highcharter/reference/hchart.html>("column", hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(x = px1, y = n, group = prov)) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+        gridLineWidth = 0,
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text = "", style = list <https://rdrr.io/r/base/list.html>(color = "#000000"))
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text= ""),
+        lineWidth = 0,
+        tickWidth = 0
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "Primary Procedure by Provider (Oct '21 - Feb '22)") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_subtitle <https://jkunst.com/highcharter/reference/hc_subtitle.html>(text = "For Procedure Codes Occurring More Than Once") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE
+        ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_smpl <https://jkunst.com/highcharter/reference/hc_theme_smpl.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_plotOptions <https://jkunst.com/highcharter/reference/hc_plotOptions.html>(
+        column = list <https://rdrr.io/r/base/list.html>(
+            dataLabels = list <https://rdrr.io/r/base/list.html>(
+                enabled = TRUE
+            )
+        )
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 550, width = 750)
+
+# Primary Procedure by Payer
+hcpx2 <- claimsdata %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    group_by <https://dplyr.tidyverse.org/reference/group_by.html>(payer, px1) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    filter <https://dplyr.tidyverse.org/reference/filter.html>(px1 != "none" & payer != "NA") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    summarise <https://dplyr.tidyverse.org/reference/summarise.html>(n = n <https://dplyr.tidyverse.org/reference/context.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    filter <https://dplyr.tidyverse.org/reference/filter.html>(n > 1) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    arrange <https://dplyr.tidyverse.org/reference/arrange.html>(desc <https://dplyr.tidyverse.org/reference/desc.html>(n)) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hchart <https://jkunst.com/highcharter/reference/hchart.html>("column", hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(x = px1, y = n, group = payer)) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+        gridLineWidth = 0,
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text = "", style = list <https://rdrr.io/r/base/list.html>(color = "#000000"))
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text= ""),
+        lineWidth = 0,
+        tickWidth = 0
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "Primary Procedure by Payer (Oct '21 - Feb '22)") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_subtitle <https://jkunst.com/highcharter/reference/hc_subtitle.html>(text = "For Procedure Codes Occurring More Than Once") %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE
+        ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_smpl <https://jkunst.com/highcharter/reference/hc_theme_smpl.html>()) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_plotOptions <https://jkunst.com/highcharter/reference/hc_plotOptions.html>(
+        column = list <https://rdrr.io/r/base/list.html>(
+            dataLabels = list <https://rdrr.io/r/base/list.html>(
+                enabled = TRUE
+            )
+        )
+    ) %>% <https://tidyr.tidyverse.org/reference/pipe.html>
+    hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 550, width = 750)
+
+crosstalk::bscols <https://rdrr.io/pkg/crosstalk/man/bscols.html>(
+    widths = NA,
+hcpx1,
+hcpx2
+)
+|//
+
+Created with Highcharts 9.3.1Primary Procedure by Provider (Oct '21 -​
+Feb '22)For Procedure Codes Occurring More Than Once3​32​214​146​63​33​
+32​212​124​42​22​22​22​
+2GibsonJohnsonSmith99214992859921399203992129920499282992840246810121416
+Created with Highcharts 9.3.1Primary Procedure by Payer (Oct '21 -​Feb
+'22)For Procedure Codes Occurring More Than Once4​44​48​82​22​22​22​25​
+54​42​22​26​62​22​22​
+2AetnaBCBSMedicareMeritainPatientUHC992149920499213992829920399212990240246810
+
+
+      Data Dictionary
+
+Below is a quick overview of the variables in the data set, their names
+and descriptions:
+
+Variable 	Name 	Description
+|enc| 	Encounter ID 	An alpha-numeric string that is a concatenation of
+three separate unique identifiers. The first two characters (“AB”)
+represent the billing client ID, the numeric string following it
+functions as the unique patient ID, and the final letter-number
+combination is the visit number for that patient.
+|type| 	Claim Type <https://publish.obsidian.md/himni/HIMT/Glossary/
+Claim+Form> 	There are two types of claims: A HCFA (CMS-1500 <https://
+www.cms.gov/Medicare/Billing/ElectronicBillingEDITrans/1500>) and a
+UB-04 (CMS-1450 <https://www.cms.gov/Medicare/Billing/
+ElectronicBillingEDITrans/15_1450>).
+|pt| 	Patient Name 	The patient’s last name.
+|dos| 	Date of Service (DOS) 	The specific date that the encounter (time at
+which a patient has been given medical treatment) occurred on.
+|today| 	Today’s Date 	The date that you’re viewing this information in the
+EHR and/or creating the report on.
+|pos| 	Place of Service (POS) 	Two-digit code indicating the setting that a
+healthcare service has been provided.
+|prov| 	Provider Name 	The provider’s last name.
+|loc| 	Location 	The location of the healthcare facility that the encounter
+took place at.
+|payer| 	Payer 	The party responsible for reimbursement of the claim, whether
+a third-party payer or the patient themselves.
+|class| 	Insurance Class 	The three classes of health insurance: Primary
+<https://www.insuranceopedia.com/definition/3616/primary-insurance>,
+Secondary <https://www.insuranceopedia.com/definition/5631/secondary-
+coverage>, and Tertiary <https://finance.zacks.com/tertiary-insurance-
+definition-10805.html>.
+|stat| 	Claim Status 	Current status of the claim.
+|billed| 	Billed Date 	Date the claim was last billed.
+|doc| 	Date Completed 	Date the claim’s balance reached $0.00 or less.
+|bal| 	Claim Balance 	Amount currently owed on the claim.
+|rej| 	Reason for Rejection 	CARC/RARC code indicating the reason for
+rejection of the claim.
+|den| 	Reason for Denial 	CARC/RARC code indicating the reason for denial of
+the claim.
+|att| 	Attention Message 	Post-adjudication warning message.
+|px1| 	Primary Procedure Code 	HCPCS Level II code for the primary procedure
+code
+|px1m| 	Primary Procedure Code Modifier 	HCPCS Level II modifier for the
+primary procedure code
+|px2| 	Secondary Procedure Code 	HCPCS Level II code for the secondary
+procedure code
+|px2m| 	Secondary Procedure Code Modifier 	HCPCS Level II modifier for the
+secondary procedure code
+|px3| 	Tertiary Procedure Code 	HCPCS Level II code for the tertiary
+procedure code
+|px3m| 	Tertiary Procedure Code Modifier 	HCPCS Level II modifier for the
+tertiary procedure code
+|dx1| 	Primary Diagnosis Code 	ICD-10-CM code for the primary/principal
+diagnosis <https://acdis.org/articles/qa-primary-principal-and-
+secondary-diagnoses-0>
+|dx2| 	Secondary Diagnosis Code 	ICD-10-CM code for the secondary diagnosis
+|dx3| 	Tertiary Diagnosis Code 	ICD-10-CM code for the tertiary diagnosis
+
+
+      Last updated on
+
+|[1] "2022-04-06 06:33:27 EDT"|//
+
+//   0 Comments Share:   // <https://twitter.com/share?
+text=Data%20Wrangling%3A%20EHR%20Healthcare%20Claims%20Data&url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fdata-wrangling-healthcare-claims%2F> // <https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fdata-wrangling-healthcare-claims%2F&title=Data%20Wrangling%3A%20EHR%20Healthcare%20Claims%20Data> // <https://www.facebook.com/sharer/sharer.php?s=100&p[url]=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fdata-wrangling-healthcare-claims%2F> // <https://pinterest.com/pin/create/link/?url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Fdata-wrangling-healthcare-claims%2F&description=Data%20Wrangling%3A%20EHR%20Healthcare%20Claims%20Data>
+
+Enjoy this blog? Get notified of new posts via email:
+
+
+      Footnotes
+
+
+      Corrections
+
+If you see mistakes or want to suggest changes, please create an issue
+<https://github.com/andrewallenbruce/issues/new> on the source repository.
+
+
+      Reuse
+
+Text and figures are licensed under Creative Commons Attribution CC BY
+4.0 <https://creativecommons.org/licenses/by/4.0/>. Source code is
+available at https://github.com/andrewallenbruce <https://github.com/
+andrewallenbruce>, unless otherwise noted. The figures that have been
+reused from other sources don't fall under this license and can be
+recognized by a note in their caption: "Figure from ...".
+
+
+      Citation
+
+For attribution, please cite this work as
+
+Bruce (2022, March 18). Andrew Bruce: Data Wrangling: EHR Healthcare Claims Data. Retrieved from https://andrewbruce.netlify.app/posts/data-wrangling-healthcare-claims///
+
+BibTeX citation
+
+@misc{bruce2022data,
+  author = {Bruce, Andrew},
+  title = {Andrew Bruce: Data Wrangling: EHR Healthcare Claims Data},
+  url = {https://andrewbruce.netlify.app/posts/data-wrangling-healthcare-claims/},
+  year = {2022}
+}//
+
+Andrew A. Bruce - 2024 - made with , and {distill} <https://
+rstudio.github.io/distill/>
+

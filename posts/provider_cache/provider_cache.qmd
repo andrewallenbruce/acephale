@@ -34,7 +34,8 @@ na_if <- fuimus:::na_if
 gelm <- \(l, e, m = "re", ...) collapse::get_elem(l = l, elem = e, regex = ifelse(m == "re", TRUE, FALSE), DF.as.list = ifelse(m == "df", TRUE, FALSE), ...)
 ```
 
-[Centers for Medicare & Medicaid Services Data API](https://data.cms.gov/api-docs)
+   - [Centers for Medicare & Medicaid Services Data API](https://data.cms.gov/api-docs)
+   = [API FAQ for data.CMS.gov | OCTOBER 2024 - VERSION 1.6](https://data.cms.gov/sites/default/files/2024-10/7ef65521-65a4-41ed-b600-3a0011f8ec4b/API%20Guide%20Formatted%201_6.pdf)
 
 # National Downloadable File
 
@@ -160,6 +161,53 @@ johnd |>
     size = "standard"
   )
 ```
+
+# New API FAQ
+
+## Finding Data
+
+> Is there a catalog of available data?
+
+Yes, the [`data.json`](https://data.cms.gov/data.json) file is an [**Open Data**](https://resources.data.gov/resources/dcat-us/) catalog containing the datasets available on our site. As new data is added, it is automatically updated to the **data.json**.
+
+In the **data.json**, there is an array called **dataset**. You can search through this array using the title of your dataset, such as `"Payroll Based Journal Daily Nurse Staffing"`. Inside of the dataset, there is an array called **distribution** which will contain all the versions of the data in all available formats for each version. In this array there are a few different types of entries:
+
+   * The first entry (with a description of 'latest') will provide a URL that will always point to the latest data, even as new versions are published.
+   * The remaining entries will provide references to the data at fixed points in time, listed in descending order by date. For example, `"https://data.cms.gov/data-api/v1/dataset/d10d792e-
+ea6e-4145-8512-34efbc1be04b/data"` will always point to the **Payroll Based Journal Daily Nurse Staffing** data from **Q2 2021**. Some datasets will have multiple historical versions available and some will only have the most recent data available.
+      * The data with mediaType of "text/csv" is downloadable as a CSV file and data with mediaType of "application/zip" is downloadable as a ZIP file.
+      * The data with a format of "API" will point to an API endpoint.
+
+> How can I get an earlier version of the data?
+
+If your data has earlier versions available, there is a "temporal" field in the distribution section of the data.json file which will indicate the time period. An example is below.
+
+Older Version Code Example in Python
+
+Finds the API link for the 2017 Medicare Inpatient Hospitals - by Provider and Service Data
+
+https://data.cms.gov/provider-summary-by-type-of-service/medicare-inpatient-hospitals/medicare-inpatient-hospitals-by-provider-and-service
+
+```python
+import requests
+
+url         = "https://data.cms.gov/data.json"
+title       = "Medicare Inpatient Hospitals - by Provider and Service"
+time_period = "2017-01-01/2017-12-31"
+response    = requests.request("GET", url)
+
+if response.ok:
+    response = response.json()
+    dataset = response['dataset']
+    for set in dataset:
+        if title == set['title']:
+            for distro in set['distribution']:
+                if 'format' in distro.keys():
+                    if distro['format'] == "API" and distro['temporal'] == time_period:
+                        print(f"API link for {title} from {time_period} is {distro['accessURL']}")
+```
+
+
 
 --------------------------------------------------------------------------------
 

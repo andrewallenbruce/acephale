@@ -1,0 +1,616 @@
+Andrew Bruce <https://andrewbrucehimni.netlify.app/>
+
+Home <https://andrewbrucehimni.netlify.app/> Projects ▾ EHR UX/UI Mockup
+<https://andrewbrucehimni.netlify.app/flex_example/flexexample> Days in
+AR Shiny App <https://himni.shinyapps.io/darguide/> The Art of DAR
+<https://artofdar.netlify.app/> HIM & I <https://himni.info/>
+About <https://andrewbrucehimni.netlify.app/about> // <https://
+www.linkedin.com/in/andybruce1> // <https://twitter.com/aabrucehimni> //
+<https://www.behance.net/andybruce1> // <https://
+andrewbrucehimni.netlify.app/index.xml> // <https://github.com/
+andrewallenbruce> ☰ <javascript:void(0);>
+
+
+  Text Wrangling: Timely Filing Limits
+
+medical-billing <https://andrewbrucehimni.netlify.app/#category:medical-
+billing> medical-coding <https://andrewbrucehimni.netlify.app/
+#category:medical-coding> data-analytics <https://
+andrewbrucehimni.netlify.app/#category:data-analytics>
+
+Coding a more intuitive framework for a Timely Filing Limits table from
+external sources for internal use.
+
+
+      Author
+
+
+      Affiliation
+
+Andrew Bruce <https://andrewbruce.netlify.app/> ORCID ID <https://
+orcid.org/0000-0001-5040-4327>
+
+ 
+
+
+      Published
+
+June 26, 2022
+
+
+      Citation
+
+Bruce, 2022 <#citation>
+
+
+      Contents
+
+  * Introduction <#introduction>
+      o Rebills on Claims Filed Timely <#rebills-on-claims-filed-timely>
+      o Proof of Timely Filing <#proof-of-timely-filing>
+      o Packages <#packages>
+      o Data <#data>
+
+
+  Introduction
+
+The /Timely Filing Limit/ is the time frame set by health insurance
+companies indicating the number of days after the Date of Service (DOS)
+a provider has to submit a claim before reimbursement of the claim can
+be contractually denied. Claims submitted after the timely limit will be
+denied with the CARC (Claim Adjustment Reason Code) /CO-29: The time
+limit for filing has expired/. For many major insurance companies,
+including Medicare and Medicaid, the filing limit is one year from the
+DOS. If the provider is contracted or in-network, the timely filing
+limit can be much shorter as specified in the contractual agreement.
+
+There should seldom be a time when claims are filed outside the filing
+limit. The only exceptions might be when you are dealing with a Medicare
+secondary and were appealing a denial prior to submitting to the
+secondary, or when an account was sent to work comp, then after much
+review was denied as not liable and now must be billed to health
+insurance. In these cases, you can appeal the claims, but you must call
+the insurance company and see what their appeal rights are. Medicare and
+Medicaid have specific appeal guidelines in their provider manuals, but
+other insurance companies vary.
+
+If you actually were outside the timely filing limit, many insurance
+companies and most provider agreements prohibit you from pursuing the
+patient for the denied balance. It is also poor consumer relations to
+make the patient pay for your office’s failure to submit the claim.
+
+
+    <#rebills-on-claims-filed-timely>Rebills on Claims Filed Timely
+
+A frustrating problem when doing account follow-up is that most
+insurance companies only hold or “pend” claims in their system for 60 to
+90 days. After that, if they are not paid or denied, they are deleted
+from their computers. A large insurance company may receive over 100,000
+claims a day and their systems cannot hold that volume of pending
+claims. When you call to follow up, they will state, “we have no record
+in our system of having received that claim.”
+
+Now your only recourse is to rebill the claim. If it is outside their
+“timely filing”, you will get a denial back. You should and must now
+appeal the denial. The first thing that you will need is proof that you
+actually did file the claim within the time window allowed.
+
+Review the application to find out the date of first submission. If the
+first submission was after the filing limit, adjust the balance as per
+client instructions. If claim history states the claim was submitted to
+wrong insurance or submitted to the correct insurance but not received,
+appeal the claim with screen shots of submission as proof of timely
+filing(POTF) and copy of clearing house acknowledgement report can also
+be used. If we have clearing house acknowledgement date, we can try and
+reprocess the claim over a call. If previous notes states, appeal is
+already sent. Reach out insurance for appeal status.
+
+
+    <#proof-of-timely-filing>Proof of Timely Filing
+
+For paper claims, you can reprint and attach the original claim, however
+some billing software will put today’s date on the reprinted claim. Ask
+your software provider to walk you through reprinting a claim with the
+original date. There is no reason to photocopy all claims just in case
+you need to prove timely filing. For electronic claims, you should have
+the claims submittal report from your clearinghouse. These should always
+be kept (in electronic format) on your computer by date in a folder that
+is regularly backed-up.
+
+
+    <#packages>Packages
+
+|library <https://rdrr.io/r/base/library.html>(tidyverse <https://tidyverse.tidyverse.org/>)
+library <https://rdrr.io/r/base/library.html>(tidytable <https://github.com/markfairbanks/tidytable>)
+library <https://rdrr.io/r/base/library.html>(rmarkdown <https://github.com/rstudio/rmarkdown>)
+library <https://rdrr.io/r/base/library.html>(lubridate <https://lubridate.tidyverse.org/>)
+library <https://rdrr.io/r/base/library.html>(htmltools <https://github.com/rstudio/htmltools>)|//
+
+
+    <#data>Data
+
+I’ll use the {datapasta} package and it’s |vector_paste_vertical()| function to copy the table from this <https://medicalbillingrcm.com/
+timely-filing-limit-in-medical-billing/> website and paste it into R as
+a vector, which gives us this character vector:
+
+|tfl_vec <- c <https://rdrr.io/r/base/c.html>(
+  "AARP\t15 Month from Date of Service (DOS)",
+  "Advantage Care\t6 Month",
+  "Advantage Freedom\t2 Years from DOS",
+  "Aetna\t120 Days from DOS",
+  "Ameri health ADM Local 360\t1 Year from DOS",
+  "American Life and Health\t12 Month",
+  "American Progressive\t1 Year",
+  "Amerigroup\t90 Days for Participating Providers/12 Months for Non-PAR Providers",
+  "Amerihealth ADM TPA\t1 Year",
+  "AmeriHealth NJ & DE\t60 Days",
+  "AMA\t2 Years from DOS",
+  "Anthem Health(Coast wise Claims)\t3 Years from DOS",
+  "Arbazo\t180 Days",
+  "Bankers Life\t15 Month from DOS",
+  "BCBS\t180 Days from Initial Claims or if its secondary 60 Days from Primary EOB",
+  "Benefit Concepts\t12 Month from DOS",
+  "BCBS COVERKIDS\t120 Days from DOS",
+  "BCBS Florida timely filing\t12 Month from DOS",
+  "BeechStreet\t90 Days from DOS",
+  "Benefit Trust Fund\t1 year from Medicare EOB",
+  "Blue Advantage HMO\t180 Days from DOS",
+  "Blue Cross PPO\t1 Year from DOS",
+  "Blue Essential\t180 Days from DOS",
+  "Blue Premier\t180 Days from DOS",
+  "Blue Shield timely filing\t1 Year from DOS",
+  "Blue shield High Mark\t60 Days from DOS",
+  "Bridgestone/Firestone\t12/31 of the following year of the service",
+  "Cigna timely filing limit\t90 Days for Participating Providers/180 Days for Non-par Providers",
+  "Cigna HealthSprings (Medicare Plans)\t120 Days",
+  "Champus\t1 Year from DOS",
+  "Citrus\t1 Year from DOS",
+  "Coventry\t180 Days from DOS",
+  "Evercare\t60 Days from DOS",
+  "First Health\t3 Month from DOS",
+  "Fire Fighter/Local 1014\t15 Month from DOS",
+  "FRA\t15 Month from DOS",
+  "FMH\t6 Month from DOS",
+  "GHI- Group health Ins\t1 Year from DOS",
+  "Great West (AH&L)\t90 Days from DOS",
+  "Healthcare Partners\t90 Days from DOS",
+  "Healthnet HMO\t90 Days from DOS",
+  "Healthnet PPO\t120 Days from DOS",
+  "Horizon NJ Plus\t365 Days from DOS",
+  "Humana\t180 Days for Physicians or 90 Days for facilities or ancillary providers",
+  "Humana\t27 Month from DOS",
+  "ILWU\t3 Years from DOS",
+  "Keystone Health Plan East\t60 Days from DOS",
+  "Local 831 Health\t1 year from DOS",
+  "Magna Care\t6 Month from DOS",
+  "Motion Picture Ind\t15 Month from DOS",
+  "Marilyn Electro IND. Benefit Fund\t1 Year from DOS",
+  "Medicaid\t95 Days from DOS",
+  "Medicare timely filing limit\t1 Year from DOS",
+  "Mega Life and Health\t15 Month from DOS",
+  "Memorial IPA\t90 Days from DOS",
+  "Monarch IPA\t90 Days from DOS",
+  "Mutual of Omaha\t1 year from DOS",
+  "Nationwide Health\t15 Month from DOS",
+  "NASI\t2 Years from DOS",
+  "Omnicare IPA\t90 Days from DOS",
+  "One Healthplan\t15 Month from DOS",
+  "Operating Engineers\t1 Year from DOS",
+  "Pacificare PPO\t90 Days from DOS",
+  "Pioneer Medical Group\t60 Days from DOS",
+  "Polk Community Health Care\t180 Days from DOS",
+  "Prospect Medical Group\t90 Days from DOS",
+  "Principle Financial\t3 Years from DOS",
+  "PUP\t180 Days from DOS",
+  "Quality Health Plan\t1 Year from DOS",
+  "SMA\t1 year from DOS",
+  "So. Ca Drug Benefit\t1 year from DOS",
+  "Secure Hoizons\t90 Days from DOS",
+  "Sun\t180 Days from DOS",
+  "Tricare\t12 Month from DOS",
+  "Troa/mediplus\t2 year from DOS",
+  "UFCW\t1 year from DOS",
+  "UHC Community\t120 Days from DOS",
+  "Union Fidelity\t1 Year from DOS",
+  "Unicare\t24 Month from DOS",
+  "UHC COMMERCIAL\t90 Days from DOS",
+  "United Teacher Associates\t15 Month from DOS",
+  "Veterans Admin\t90 Days from DOS",
+  "Vista\t120 Days from DOS",
+  "Wellcare\t180 Days from DOS",
+  "Writers Guild Health\t18 Month from DOS",
+  "Zenith\t1 Year from DOS"
+)
+
+str <https://rdrr.io/r/utils/str.html>(tfl_vec)|//
+
+| chr [1:86] "AARP\t15 Month from Date of Service (DOS)" "Advantage Care\t6 Month" "Advantage Freedom\t2 Years from DOS" "Aetna\t120 Days from DOS" "Ameri health ADM Local 360\t1 Year from DOS" ...|//
+
+|names <https://rdrr.io/r/base/names.html>(tfl_vec) <- "column"
+
+str <https://rdrr.io/r/utils/str.html>(tfl_vec)|//
+
+| Named chr [1:86] "AARP\t15 Month from Date of Service (DOS)" "Advantage Care\t6 Month" "Advantage Freedom\t2 Years from DOS" "Aetna\t120 Days from DOS" ...
+ - attr(*, "names")= chr [1:86] "column" NA NA NA ...|//
+
+|tfl_vec <- data.frame <https://rdrr.io/r/base/data.frame.html>(as.list <https://rdrr.io/r/base/list.html>(tfl_vec))
+
+glimpse <https://pillar.r-lib.org/reference/glimpse.html>(tfl_vec)|//
+
+|Rows: 1
+Columns: 86
+$ column <chr> "AARP\t15 Month from Date of Service (DOS)"
+$ NA.    <chr> "Advantage Care\t6 Month"
+$ NA..1  <chr> "Advantage Freedom\t2 Years from DOS"
+$ NA..2  <chr> "Aetna\t120 Days from DOS"
+$ NA..3  <chr> "Ameri health ADM Local 360\t1 Year from DOS"
+$ NA..4  <chr> "American Life and Health\t12 Month"
+$ NA..5  <chr> "American Progressive\t1 Year"
+$ NA..6  <chr> "Amerigroup\t90 Days for Participating Providers/12 Months for Non-PAR Providers"
+$ NA..7  <chr> "Amerihealth ADM TPA\t1 Year"
+$ NA..8  <chr> "AmeriHealth NJ & DE\t60 Days"
+$ NA..9  <chr> "AMA\t2 Years from DOS"
+$ NA..10 <chr> "Anthem Health(Coast wise Claims)\t3 Years from DOS"
+$ NA..11 <chr> "Arbazo\t180 Days"
+$ NA..12 <chr> "Bankers Life\t15 Month from DOS"
+$ NA..13 <chr> "BCBS\t180 Days from Initial Claims or if its secondary 60 Days from Primary EOB"
+$ NA..14 <chr> "Benefit Concepts\t12 Month from DOS"
+$ NA..15 <chr> "BCBS COVERKIDS\t120 Days from DOS"
+$ NA..16 <chr> "BCBS Florida timely filing\t12 Month from DOS"
+$ NA..17 <chr> "BeechStreet\t90 Days from DOS"
+$ NA..18 <chr> "Benefit Trust Fund\t1 year from Medicare EOB"
+$ NA..19 <chr> "Blue Advantage HMO\t180 Days from DOS"
+$ NA..20 <chr> "Blue Cross PPO\t1 Year from DOS"
+$ NA..21 <chr> "Blue Essential\t180 Days from DOS"
+$ NA..22 <chr> "Blue Premier\t180 Days from DOS"
+$ NA..23 <chr> "Blue Shield timely filing\t1 Year from DOS"
+$ NA..24 <chr> "Blue shield High Mark\t60 Days from DOS"
+$ NA..25 <chr> "Bridgestone/Firestone\t12/31 of the following year of the service"
+$ NA..26 <chr> "Cigna timely filing limit\t90 Days for Participating Providers/180 Days for Non-par Providers"
+$ NA..27 <chr> "Cigna HealthSprings (Medicare Plans)\t120 Days"
+$ NA..28 <chr> "Champus\t1 Year from DOS"
+$ NA..29 <chr> "Citrus\t1 Year from DOS"
+$ NA..30 <chr> "Coventry\t180 Days from DOS"
+$ NA..31 <chr> "Evercare\t60 Days from DOS"
+$ NA..32 <chr> "First Health\t3 Month from DOS"
+$ NA..33 <chr> "Fire Fighter/Local 1014\t15 Month from DOS"
+$ NA..34 <chr> "FRA\t15 Month from DOS"
+$ NA..35 <chr> "FMH\t6 Month from DOS"
+$ NA..36 <chr> "GHI- Group health Ins\t1 Year from DOS"
+$ NA..37 <chr> "Great West (AH&L)\t90 Days from DOS"
+$ NA..38 <chr> "Healthcare Partners\t90 Days from DOS"
+$ NA..39 <chr> "Healthnet HMO\t90 Days from DOS"
+$ NA..40 <chr> "Healthnet PPO\t120 Days from DOS"
+$ NA..41 <chr> "Horizon NJ Plus\t365 Days from DOS"
+$ NA..42 <chr> "Humana\t180 Days for Physicians or 90 Days for facilities or ancillary providers"
+$ NA..43 <chr> "Humana\t27 Month from DOS"
+$ NA..44 <chr> "ILWU\t3 Years from DOS"
+$ NA..45 <chr> "Keystone Health Plan East\t60 Days from DOS"
+$ NA..46 <chr> "Local 831 Health\t1 year from DOS"
+$ NA..47 <chr> "Magna Care\t6 Month from DOS"
+$ NA..48 <chr> "Motion Picture Ind\t15 Month from DOS"
+$ NA..49 <chr> "Marilyn Electro IND. Benefit Fund\t1 Year from DOS"
+$ NA..50 <chr> "Medicaid\t95 Days from DOS"
+$ NA..51 <chr> "Medicare timely filing limit\t1 Year from DOS"
+$ NA..52 <chr> "Mega Life and Health\t15 Month from DOS"
+$ NA..53 <chr> "Memorial IPA\t90 Days from DOS"
+$ NA..54 <chr> "Monarch IPA\t90 Days from DOS"
+$ NA..55 <chr> "Mutual of Omaha\t1 year from DOS"
+$ NA..56 <chr> "Nationwide Health\t15 Month from DOS"
+$ NA..57 <chr> "NASI\t2 Years from DOS"
+$ NA..58 <chr> "Omnicare IPA\t90 Days from DOS"
+$ NA..59 <chr> "One Healthplan\t15 Month from DOS"
+$ NA..60 <chr> "Operating Engineers\t1 Year from DOS"
+$ NA..61 <chr> "Pacificare PPO\t90 Days from DOS"
+$ NA..62 <chr> "Pioneer Medical Group\t60 Days from DOS"
+$ NA..63 <chr> "Polk Community Health Care\t180 Days from DOS"
+$ NA..64 <chr> "Prospect Medical Group\t90 Days from DOS"
+$ NA..65 <chr> "Principle Financial\t3 Years from DOS"
+$ NA..66 <chr> "PUP\t180 Days from DOS"
+$ NA..67 <chr> "Quality Health Plan\t1 Year from DOS"
+$ NA..68 <chr> "SMA\t1 year from DOS"
+$ NA..69 <chr> "So. Ca Drug Benefit\t1 year from DOS"
+$ NA..70 <chr> "Secure Hoizons\t90 Days from DOS"
+$ NA..71 <chr> "Sun\t180 Days from DOS"
+$ NA..72 <chr> "Tricare\t12 Month from DOS"
+$ NA..73 <chr> "Troa/mediplus\t2 year from DOS"
+$ NA..74 <chr> "UFCW\t1 year from DOS"
+$ NA..75 <chr> "UHC Community\t120 Days from DOS"
+$ NA..76 <chr> "Union Fidelity\t1 Year from DOS"
+$ NA..77 <chr> "Unicare\t24 Month from DOS"
+$ NA..78 <chr> "UHC COMMERCIAL\t90 Days from DOS"
+$ NA..79 <chr> "United Teacher Associates\t15 Month from DOS"
+$ NA..80 <chr> "Veterans Admin\t90 Days from DOS"
+$ NA..81 <chr> "Vista\t120 Days from DOS"
+$ NA..82 <chr> "Wellcare\t180 Days from DOS"
+$ NA..83 <chr> "Writers Guild Health\t18 Month from DOS"
+$ NA..84 <chr> "Zenith\t1 Year from DOS"|//
+
+|tfl_vec <- tfl_vec |>
+  tidyr::pivot_longer <https://tidyr.tidyverse.org/reference/pivot_longer.html>(
+    everything <https://tidyselect.r-lib.org/reference/everything.html>(),
+    names_to = "remove",
+    values_to = "insurance"
+  )
+
+tfl_vec|//
+
+|# A tibble: 86 × 2
+   remove insurance                                                                        
+   <chr>  <chr>                                                                            
+ 1 column "AARP\t15 Month from Date of Service (DOS)"                                      
+ 2 NA.    "Advantage Care\t6 Month"                                                        
+ 3 NA..1  "Advantage Freedom\t2 Years from DOS"                                            
+ 4 NA..2  "Aetna\t120 Days from DOS"                                                       
+ 5 NA..3  "Ameri health ADM Local 360\t1 Year from DOS"                                    
+ 6 NA..4  "American Life and Health\t12 Month"                                             
+ 7 NA..5  "American Progressive\t1 Year"                                                   
+ 8 NA..6  "Amerigroup\t90 Days for Participating Providers/12 Months for Non-PAR Providers"
+ 9 NA..7  "Amerihealth ADM TPA\t1 Year"                                                    
+10 NA..8  "AmeriHealth NJ & DE\t60 Days"                                                   
+# … with 76 more rows|//
+
+|tfl_vec <- tfl_vec |>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    company = ifelse <https://rdrr.io/r/base/ifelse.html>(
+      str_detect <https://stringr.tidyverse.org/reference/str_detect.html>(
+        insurance,
+        "\t"
+      ),
+      str_match <https://stringr.tidyverse.org/reference/str_match.html>(
+        insurance,
+        "(.*)\t"
+      )[, 2],
+      insurance
+    ),
+    limit = str_match <https://stringr.tidyverse.org/reference/str_match.html>(
+      insurance,
+      "\t(.*)"
+    )[, 2]
+  ) |>
+  select <https://dplyr.tidyverse.org/reference/select.html>(
+    company,
+    limit
+  )
+
+tfl_vec|//
+
+|# A tibble: 86 × 2
+   company                    limit                                                              
+   <chr>                      <chr>                                                              
+ 1 AARP                       15 Month from Date of Service (DOS)                                
+ 2 Advantage Care             6 Month                                                            
+ 3 Advantage Freedom          2 Years from DOS                                                   
+ 4 Aetna                      120 Days from DOS                                                  
+ 5 Ameri health ADM Local 360 1 Year from DOS                                                    
+ 6 American Life and Health   12 Month                                                           
+ 7 American Progressive       1 Year                                                             
+ 8 Amerigroup                 90 Days for Participating Providers/12 Months for Non-PAR Providers
+ 9 Amerihealth ADM TPA        1 Year                                                             
+10 AmeriHealth NJ & DE        60 Days                                                            
+# … with 76 more rows|//
+
+
+      Citations
+
+Package 	Version 	Citation
+base 	4.2.0 	R Core Team (2022 <#ref-base>)
+distill 	1.4 	Dervieux et al. (2022 <#ref-distill>)
+grateful 	0.1.11 	Rodríguez-Sánchez, Jackson, and Hutchins (2022 <#ref-
+grateful>)
+htmltools 	0.5.2 	Cheng et al. (2021 <#ref-htmltools>)
+knitr 	1.39 	Xie (2014 <#ref-knitr2014>); Xie (2015 <#ref-knitr2015>);
+Xie (2022 <#ref-knitr2022>)
+rmarkdown 	2.14 	Xie, Allaire, and Grolemund (2018 <#ref-
+rmarkdown2018>); Xie, Dervieux, and Riederer (2020 <#ref-
+rmarkdown2020>); Allaire et al. (2022 <#ref-rmarkdown2022>)
+sessioninfo 	1.2.2 	Wickham et al. (2021 <#ref-sessioninfo>)
+tidytable 	0.8.0 	Fairbanks (2022 <#ref-tidytable>)
+tidyverse 	1.3.1 	Wickham et al. (2019 <#ref-tidyverse>)
+xaringanExtra 	0.6.0 	Aden-Buie and Warkentin (2022 <#ref-xaringanExtra>)
+
+
+      Last updated on
+
+|[1] "2022-06-26 01:13:14 EDT"|//
+
+
+      Session Info
+
+|sessioninfo::session_info <https://r-lib.github.io/sessioninfo/reference/session_info.html>()|//
+
+|─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ setting  value
+ version  R version 4.2.0 (2022-04-22 ucrt)
+ os       Windows 10 x64 (build 25145)
+ system   x86_64, mingw32
+ ui       RTerm
+ language (EN)
+ collate  English_United States.utf8
+ ctype    English_United States.utf8
+ tz       America/New_York
+ date     2022-06-26
+ pandoc   2.17.1.1 @ C:/Program Files/RStudio/bin/quarto/bin/ (via rmarkdown)
+
+─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ package       * version date (UTC) lib source
+ assertthat      0.2.1   2019-03-21 [1] CRAN (R 4.2.0)
+ backports       1.4.1   2021-12-13 [1] CRAN (R 4.2.0)
+ broom           0.8.0   2022-04-13 [1] CRAN (R 4.2.0)
+ bslib           0.3.1   2021-10-06 [1] CRAN (R 4.2.0)
+ cachem          1.0.6   2021-08-19 [1] CRAN (R 4.2.0)
+ cellranger      1.1.0   2016-07-27 [1] CRAN (R 4.2.0)
+ cli             3.3.0   2022-04-25 [1] CRAN (R 4.2.0)
+ colorspace      2.0-3   2022-02-21 [1] CRAN (R 4.2.0)
+ crayon          1.5.1   2022-03-26 [1] CRAN (R 4.2.0)
+ data.table      1.14.2  2021-09-27 [1] CRAN (R 4.2.0)
+ DBI             1.1.3   2022-06-18 [1] CRAN (R 4.2.0)
+ dbplyr          2.2.0   2022-06-05 [1] CRAN (R 4.2.0)
+ digest          0.6.29  2021-12-01 [1] CRAN (R 4.2.0)
+ distill         1.4     2022-05-12 [1] CRAN (R 4.2.0)
+ downlit         0.4.1   2022-06-24 [1] CRAN (R 4.2.0)
+ dplyr         * 1.0.9   2022-04-28 [1] CRAN (R 4.2.0)
+ ellipsis        0.3.2   2021-04-29 [1] CRAN (R 4.2.0)
+ evaluate        0.15    2022-02-18 [1] CRAN (R 4.2.0)
+ fansi           1.0.3   2022-03-24 [1] CRAN (R 4.2.0)
+ fastmap         1.1.0   2021-01-25 [1] CRAN (R 4.2.0)
+ forcats       * 0.5.1   2021-01-27 [1] CRAN (R 4.2.0)
+ fs              1.5.2   2021-12-08 [1] CRAN (R 4.2.0)
+ generics        0.1.2   2022-01-31 [1] CRAN (R 4.2.0)
+ ggplot2       * 3.3.6   2022-05-03 [1] CRAN (R 4.2.0)
+ glue            1.6.2   2022-02-24 [1] CRAN (R 4.2.0)
+ grateful      * 0.1.11  2022-05-07 [1] Github (Pakillo/grateful@ba9b003)
+ gtable          0.3.0   2019-03-25 [1] CRAN (R 4.2.0)
+ haven           2.5.0   2022-04-15 [1] CRAN (R 4.2.0)
+ highr           0.9     2021-04-16 [1] CRAN (R 4.2.0)
+ hms             1.1.1   2021-09-26 [1] CRAN (R 4.2.0)
+ htmltools     * 0.5.2   2021-08-25 [1] CRAN (R 4.2.0)
+ httr            1.4.3   2022-05-04 [1] CRAN (R 4.2.0)
+ jquerylib       0.1.4   2021-04-26 [1] CRAN (R 4.2.0)
+ jsonlite        1.8.0   2022-02-22 [1] CRAN (R 4.2.0)
+ knitr         * 1.39    2022-04-26 [1] CRAN (R 4.2.0)
+ lifecycle       1.0.1   2021-09-24 [1] CRAN (R 4.2.0)
+ lubridate     * 1.8.0   2021-10-07 [1] CRAN (R 4.2.0)
+ magrittr        2.0.3   2022-03-30 [1] CRAN (R 4.2.0)
+ memoise         2.0.1   2021-11-26 [1] CRAN (R 4.2.0)
+ modelr          0.1.8   2020-05-19 [1] CRAN (R 4.2.0)
+ munsell         0.5.0   2018-06-12 [1] CRAN (R 4.2.0)
+ pillar          1.7.0   2022-02-01 [1] CRAN (R 4.2.0)
+ pkgconfig       2.0.3   2019-09-22 [1] CRAN (R 4.2.0)
+ purrr         * 0.3.4   2020-04-17 [1] CRAN (R 4.2.0)
+ R.cache         0.15.0  2021-04-30 [1] CRAN (R 4.2.0)
+ R.methodsS3     1.8.2   2022-06-13 [1] CRAN (R 4.2.0)
+ R.oo            1.25.0  2022-06-12 [1] CRAN (R 4.2.0)
+ R.utils         2.11.0  2021-09-26 [1] CRAN (R 4.2.0)
+ R6              2.5.1   2021-08-19 [1] CRAN (R 4.2.0)
+ readr         * 2.1.2   2022-01-30 [1] CRAN (R 4.2.0)
+ readxl          1.4.0   2022-03-28 [1] CRAN (R 4.2.0)
+ renv            0.15.5  2022-05-26 [1] CRAN (R 4.2.0)
+ reprex          2.0.1   2021-08-05 [1] CRAN (R 4.2.0)
+ rlang           1.0.2   2022-03-04 [1] CRAN (R 4.2.0)
+ rmarkdown     * 2.14    2022-04-25 [1] CRAN (R 4.2.0)
+ rstudioapi      0.13    2020-11-12 [1] CRAN (R 4.2.0)
+ rvest           1.0.2   2021-10-16 [1] CRAN (R 4.2.0)
+ sass            0.4.1   2022-03-23 [1] CRAN (R 4.2.0)
+ scales          1.2.0   2022-04-13 [1] CRAN (R 4.2.0)
+ sessioninfo     1.2.2   2021-12-06 [1] CRAN (R 4.2.0)
+ stringi         1.7.6   2021-11-29 [1] CRAN (R 4.2.0)
+ stringr       * 1.4.0   2019-02-10 [1] CRAN (R 4.2.0)
+ styler          1.7.0   2022-03-13 [1] CRAN (R 4.2.0)
+ tibble        * 3.1.7   2022-05-03 [1] CRAN (R 4.2.0)
+ tidyr         * 1.2.0   2022-02-01 [1] CRAN (R 4.2.0)
+ tidyselect      1.1.2   2022-02-21 [1] CRAN (R 4.2.0)
+ tidytable     * 0.8.0   2022-06-14 [1] Github (markfairbanks/tidytable@13c9b1d)
+ tidyverse     * 1.3.1   2021-04-15 [1] CRAN (R 4.2.0)
+ tzdb            0.3.0   2022-03-28 [1] CRAN (R 4.2.0)
+ utf8            1.2.2   2021-07-24 [1] CRAN (R 4.2.0)
+ uuid            1.1-0   2022-04-19 [1] CRAN (R 4.2.0)
+ vctrs           0.4.1   2022-04-13 [1] CRAN (R 4.2.0)
+ withr           2.5.0   2022-03-03 [1] CRAN (R 4.2.0)
+ xaringanExtra   0.6.0   2022-06-07 [1] CRAN (R 4.2.0)
+ xfun            0.31    2022-05-10 [1] CRAN (R 4.2.0)
+ xml2            1.3.3   2021-11-30 [1] CRAN (R 4.2.0)
+ yaml            2.3.5   2022-02-21 [1] CRAN (R 4.2.0)
+
+ [1] C:/Users/andyb/AppData/Local/R/win-library/4.2
+ [2] C:/Program Files/R/R-4.2.0/library
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────|//
+
+//   0 Comments Share:   // <https://twitter.com/share?
+text=Text%20Wrangling%3A%20Timely%20Filing%20Limits&url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Ftext-wrangling-timely-filing-limits%2F> // <https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Ftext-wrangling-timely-filing-limits%2F&title=Text%20Wrangling%3A%20Timely%20Filing%20Limits> // <https://www.facebook.com/sharer/sharer.php?s=100&p[url]=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Ftext-wrangling-timely-filing-limits%2F> // <https://pinterest.com/pin/create/link/?url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2Ftext-wrangling-timely-filing-limits%2F&description=Text%20Wrangling%3A%20Timely%20Filing%20Limits>
+
+Enjoy this blog? Get notified of new posts via email:
+
+
+      Footnotes
+
+
+      References
+
+Aden-Buie, Garrick, and Matthew T. Warkentin. 2022. /xaringanExtra:
+Extras and Extensions for ’Xaringan’ Slides/. https://CRAN.R-
+project.org/package=xaringanExtra <https://cran.r-project.org/
+package=xaringanExtra>.
+Allaire, JJ, Yihui Xie, Jonathan McPherson, Javier Luraschi, Kevin
+Ushey, Aron Atkins, Hadley Wickham, Joe Cheng, Winston Chang, and
+Richard Iannone. 2022. /Rmarkdown: Dynamic Documents for r/. https://
+github.com/rstudio/rmarkdown <https://github.com/rstudio/rmarkdown>.
+Cheng, Joe, Carson Sievert, Barret Schloerke, Winston Chang, Yihui Xie,
+and Jeff Allen. 2021. /Htmltools: Tools for HTML/. https://CRAN.R-
+project.org/package=htmltools <https://cran.r-project.org/
+package=htmltools>.
+Dervieux, Christophe, JJ Allaire, Rich Iannone, Alison Presmanes Hill,
+and Yihui Xie. 2022. /Distill: ’R Markdown’ Format for Scientific and
+Technical Writing/. https://CRAN.R-project.org/package=distill <https://
+cran.r-project.org/package=distill>.
+Fairbanks, Mark. 2022. /Tidytable: Tidy Interface to ’Data.table’/.
+https://github.com/markfairbanks/tidytable <https://github.com/
+markfairbanks/tidytable>.
+R Core Team. 2022. /R: A Language and Environment for Statistical
+Computing/. Vienna, Austria: R Foundation for Statistical Computing.
+https://www.R-project.org/ <https://www.r-project.org/>.
+Rodríguez-Sánchez, Francisco, Connor P. Jackson, and Shaurita D.
+Hutchins. 2022. /Grateful: Facilitate Citation of r Packages/. https://
+github.com/Pakillo/grateful <https://github.com/Pakillo/grateful>.
+Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy
+D’Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019.
+“Welcome to the tidyverse.” /Journal of Open Source Software/ 4 (43):
+1686. https://doi.org/10.21105/joss.01686 <https://doi.org/10.21105/
+joss.01686>.
+Wickham, Hadley, Winston Chang, Robert Flight, Kirill Müller, and Jim
+Hester. 2021. /Sessioninfo: R Session Information/. https://CRAN.R-
+project.org/package=sessioninfo <https://cran.r-project.org/
+package=sessioninfo>.
+Xie, Yihui. 2014. “Knitr: A Comprehensive Tool for Reproducible Research
+in R.” In /Implementing Reproducible Computational Research/, edited by
+Victoria Stodden, Friedrich Leisch, and Roger D. Peng. Chapman; Hall/
+CRC. http://www.crcpress.com/product/isbn/9781466561595 <http://
+www.crcpress.com/product/isbn/9781466561595>.
+———. 2015. /Dynamic Documents with R and Knitr/. 2nd ed. Boca Raton,
+Florida: Chapman; Hall/CRC. https://yihui.org/knitr/ <https://yihui.org/
+knitr/>.
+———. 2022. /Knitr: A General-Purpose Package for Dynamic Report
+Generation in r/. https://yihui.org/knitr/ <https://yihui.org/knitr/>.
+Xie, Yihui, J. J. Allaire, and Garrett Grolemund. 2018. /R Markdown: The
+Definitive Guide/. Boca Raton, Florida: Chapman; Hall/CRC. https://
+bookdown.org/yihui/rmarkdown <https://bookdown.org/yihui/rmarkdown>.
+Xie, Yihui, Christophe Dervieux, and Emily Riederer. 2020. /R Markdown
+Cookbook/. Boca Raton, Florida: Chapman; Hall/CRC. https://bookdown.org/
+yihui/rmarkdown-cookbook <https://bookdown.org/yihui/rmarkdown-cookbook>.
+
+
+      Corrections
+
+If you see mistakes or want to suggest changes, please create an issue
+<https://github.com/andrewallenbruce/issues/new> on the source repository.
+
+
+      Reuse
+
+Text and figures are licensed under Creative Commons Attribution CC BY
+4.0 <https://creativecommons.org/licenses/by/4.0/>. Source code is
+available at https://github.com/andrewallenbruce <https://github.com/
+andrewallenbruce>, unless otherwise noted. The figures that have been
+reused from other sources don't fall under this license and can be
+recognized by a note in their caption: "Figure from ...".
+
+
+      Citation
+
+For attribution, please cite this work as
+
+Bruce (2022, June 26). Andrew Bruce: Text Wrangling: Timely Filing Limits. Retrieved from https://andrewbruce.netlify.app/posts/text-wrangling-timely-filing-limits///
+
+BibTeX citation
+
+@misc{bruce2022text,
+  author = {Bruce, Andrew},
+  title = {Andrew Bruce: Text Wrangling: Timely Filing Limits},
+  url = {https://andrewbruce.netlify.app/posts/text-wrangling-timely-filing-limits/},
+  year = {2022}
+}//
+
+Andrew A. Bruce - 2024 - made with , and {distill} <https://
+rstudio.github.io/distill/>
+

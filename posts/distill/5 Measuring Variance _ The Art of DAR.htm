@@ -1,0 +1,328 @@
+Skip to main content <#content>
+
+
+  The Art of DAR <https://artofdar.netlify.app/>
+
+//Show table of contents
+
+
+    Table of contents
+
+  * Welcome <https://artofdar.netlify.app/>
+  * Preface <https://artofdar.netlify.app/preface>
+  * The Revenue Cycle
+  * 1 Introduction <https://artofdar.netlify.app/introduction>
+  * Days in AR
+  * 2 DAR Formulas <https://artofdar.netlify.app/dar-formulas>
+  * 3 DAR Ratios <https://artofdar.netlify.app/dar-ratios>
+  * 4 DAR Percentages <https://artofdar.netlify.app/dar-percentages>
+  * KPIs
+  * 5 Measuring Variance <https://artofdar.netlify.app/measuring-variance>
+  * 6 Aging <https://artofdar.netlify.app/aging>
+  * 7 Payer Mix <https://artofdar.netlify.app/payer-mix>
+
+View book source // <https://github.com/>
+
+
+  5 Measuring Variance// <#measuring-variance>
+
+
+    Objectives// <#objectives-5>
+
+In this section, we will discuss:
+
+ 1.
+
+    The three numbers that you will need to calculate *Days in AR*.
+
+ 2.
+
+    What those three numbers mean and where to find them.
+
+ 3.
+
+    The steps in the calculation of *Days in AR*.
+
+------------------------------------------------------------------------
+
+
+    5.1 Standard Deviation// <#standard-deviation>
+
+The single measure of variation that reveals more than others, the
+standard deviation measures variation in a set of values relative to the
+mean. The bigger the standard deviation, the greater the range of
+variation relative to the mean. The standard deviation can be determined
+as follows:
+
+ 1.
+
+    Calculate the mean of the set of values.
+
+ 2.
+
+    Subtract each individual value in the set from the mean, resulting
+    in a list of values that represent the differences of the individual
+    values from the mean.
+
+ 3.
+
+    Square each of the values calculated in Step 2.
+
+ 4.
+
+    Sum the values calculated in Step 3.
+
+ 5.
+
+    Divide the value calculated in Step 4 by the total number of values.
+
+ 6.
+
+    Calculate the square root of the result from Step 5.
+
+
+
+    5.2 Multivariate Analysis Visualization// <#multivariate-analysis-
+    visualization>
+
+cl_Lcl_Kcl_Jcl_Icl_Hcl_Gcl_Fcl_Ecl_Dcl_Ccl_Bcl_AClient200,000400,000600,000GCt0100,000200,000300,000400,000500,000600,000Adjust50,000100,000150,000200,000Pmts200,000400,000600,000EARB5,00010,00015,00020,000ADC50100150200250DAR20406080100ADtB5001,0001,5002,0002,500Visits0.00.10.20.30.40.50.6NewPtRate0.20.40.60.81.0PmtRate050100150200250300PPV5001,0001,5002,0002,500RVUs200400600800CPV
+
+
+    5.3 Tukey’s Control Chart// <#tukeys-control-chart>
+
+In the absence of sufficient historical data, it would seem impossible
+to determine anything from, say, 12 data points. What legitimate insight
+could you offer from analysis of such little information? Let me
+introduce you to *Tukey’s Chart*. In essence, statistician and
+mathematician John Tukey came up with the next best thing: dividing your
+sample into medians and fourths to overcome insufficient observations
+per period. It’s not perfect, but it is an excellent way to measure
+variance in a small dataset of time-based observations.
+
+The procedure for calculating control limits is to calculate the
+difference between the *Upper Fourth* and the *Lower Fourth* of the
+data, a concept Tukey named the /Fourth Spread/.
+
+The *median* is the point where half the data are below the /mid-point/
+of a set of data and half the data are above it.
+
+A *Lower Fourth* is similar to the *25% quartile*, the median of the
+first half of the data (25% of the data are below this value.)
+
+An *Upper Fourth* is similar to the *75% quartile* and is the median of
+the upper half of the data (75% of the data are below this value.)
+
+The difference between the two Fourths is referred to as the *Fourth
+Spread*.
+
+The *Upper Control Limit (UCL)* is calculated as the /sum/ of the *Upper
+Fourth* and *1.5 times the Fourth Spread*.
+
+The *Lower Control Limit (LCL)* is calculated as the /difference/
+between the *Lower Fourth* and *1.5 times the Fourth Spread*.
+
+
+      5.3.1 Calculation of Tukey’s Control Limits// <#calculation-of-
+      tukeys-control-limits>
+
+
+I’ll use the |GCt| column of data from this dataset, calculate the
+control limits, then plot the LCL and UCL on a graph and analyze the
+results:
+
+
+Mon
+DAR
+Status
+GCt
+EARB
+dart_diff
+Jan
+27.43
+Pass
+$325,982.00
+$288,432.52
+-12.0158532372953
+Feb
+28.95
+Pass
+$297,731.74
+$307,871.08
+-10.4914519503362
+Mar
+39.63
+Fail
+$198,655.14
+$253,976.56
+0.187870108470385
+Apr
+64.04
+Fail
+$86,047.00
+$183,684.90
+24.5961286854858
+May
+51.20
+Fail
+$123,654.00
+$204,227.59
+11.7547613502192
+Jun
+46.44
+Fail
+$131,440.28
+$203,460.47
+6.99292679078286
+Jul
+36.79
+Pass
+$153,991.00
+$182,771.32
+-2.65122036352773
+Aug
+33.50
+Pass
+$156,975.00
+$169,633.64
+-5.94512524287307
+Sep
+36.63
+Pass
+$146,878.12
+$179,347.72
+-2.81305236886202
+Oct
+33.70
+Pass
+$163,799.44
+$178,051.11
+-5.74778827571084
+Nov
+32.25
+Pass
+$151,410.74
+$162,757.49
+-7.19679422542945
+Dec
+36.64
+Pass
+$169,094.46
+$199,849.30
+-2.80673107031419
+
+
+ 1. Calculate the *median*. If the number of observations is odd, use
+    the value in the middle. If there is an even number of observations,
+    take the average of the two middle-ranked numbers.
+
+|## [1] 155483|
+
+
+ 2. Divide the data set into two halves using the median. Include the
+    median in both halves if the median is one of the observed data points.
+
+|## [1]  86047.0 123654.0 131440.3 146878.1 151410.7 153991.0|
+
+|## [1] 156975.0 163799.4 169094.5 198655.1 297731.7 325982.0|
+
+
+ 3. The *Lower Fourth* data point is the *median* of the lowest 50% of
+    the data - data from the smallest number up to (or including) the
+    median.
+
+|## [1] 139159.2|
+
+
+ 4. The *Upper Fourth* is the *median* of the top 50% of the data -
+    numbers ranging from (or including) the median of the full data set
+    to the highest value.
+
+|## [1] 183874.8|
+
+
+ 5. Calculate the *Fourth Spread* as the difference between the two Fourths.
+
+|## [1] 44715.6|
+
+
+ 6.
+
+    Calculate the *UCL* and *LCL* using the following two formulas:
+
+      *
+
+        *LCL* = Lower Fourth - (1.5 x Fourth Spread)
+
+      *
+
+        *UCL* = Upper Fourth + (1.5 x Fourth Spread)
+
+|## [1] 72085.8|
+
+|## [1] 250948.2|
+
+
+Median
+Lower 4th
+Upper 4th
+4th Spread
+LCL
+UCL
+155483
+139159.2
+183874.8
+44715.6
+72085.8
+250948.2
+------------------------------------------------------------------------
+JanFebMarAprMayJunJulAugSepOctNovDec$100,000$150,000$200,000$250,000$300,000
+
+.cls-1 {fill: #3f4f75;} .cls-2 {fill: #80cfbe;} .cls-3 {fill: #fff;}
+plotly-logomark<https://plotly.com/>
+
+------------------------------------------------------------------------
+JanFebMarAprMayJunJulAugSepOctNovDecJanFebMarAprMayJunJulAugSepOctNovDec
+
+.cls-1 {fill: #3f4f75;} .cls-2 {fill: #80cfbe;} .cls-3 {fill: #fff;}
+plotly-logomark<https://plotly.com/>
+
+
+The chart shows that for total Gross Charges, January and February are
+the only months not within the control limits. For Ending AR Balance,
+February is the only month out of bounds, ending up just barely beyond
+the UCL.
+
+In interpreting a control chart, we rely on the source of the control
+limits to define the reference point. If control limits were derived
+from historical patterns, we would compare the dates to historical
+patterns. If control limits were calculated from expected patterns
+(e.g., risk-adjusted patterns), the comparison group is the pattern
+expected.
+
+The reference here is not historical patterns, but total Gross Charges
+and Ending AR balances that will result in the targeted Days in AR
+benchmark.
+
+
+4 DAR Percentages <https://artofdar.netlify.app/dar-percentages>
+6 Aging <https://artofdar.netlify.app/aging>
+
+
+    On this page
+
+  * 5 Measuring Variance <#measuring-variance>
+  * Objectives <#objectives-5>
+  * 5.1 Standard Deviation <#standard-deviation>
+  * 5.2 Multivariate Analysis Visualization <#multivariate-analysis-
+    visualization>
+  * 5.3 Tukey’s Control Chart <#tukeys-control-chart>
+      o 5.3.1 Calculation of Tukey’s Control Limits <#calculation-of-
+        tukeys-control-limits>
+
+  * View source // <https://github.com//blob/master/variance.Rmd>
+  * Edit this page // <https://github.com//edit/master/variance.Rmd>
+
+"*The Art of DAR*" was written by Andrew Bruce.
+
+This book was built by the bookdown <https://bookdown.org/> R package.
+

@@ -1,0 +1,1066 @@
+Andrew Bruce <https://andrewbrucehimni.netlify.app/>
+
+Home <https://andrewbrucehimni.netlify.app/> Projects ▾ EHR UX/UI Mockup
+<https://andrewbrucehimni.netlify.app/flex_example/flexexample> Days in
+AR Shiny App <https://himni.shinyapps.io/darguide/> The Art of DAR
+<https://artofdar.netlify.app/> HIM & I <https://himni.info/>
+About <https://andrewbrucehimni.netlify.app/about> // <https://
+www.linkedin.com/in/andybruce1> // <https://twitter.com/aabrucehimni> //
+<https://www.behance.net/andybruce1> // <https://
+andrewbrucehimni.netlify.app/index.xml> // <https://github.com/
+andrewallenbruce> ☰ <javascript:void(0);>
+
+
+  Anscombe’s Quartet: Healthcare Edition
+
+healthcare <https://andrewbrucehimni.netlify.app/#category:healthcare>
+anscombes-quartet <https://andrewbrucehimni.netlify.app/
+#category:anscombes-quartet> data-analytics <https://
+andrewbrucehimni.netlify.app/#category:data-analytics> rstats <https://
+andrewbrucehimni.netlify.app/#category:rstats> r-bloggers <https://
+andrewbrucehimni.netlify.app/#category:r-bloggers>
+
+A healthcare-centric take on the famous quartet.
+
+
+      Author
+
+
+      Affiliation
+
+Andrew Bruce <https://andrewbruce.netlify.app/> ORCID ID <https://
+orcid.org/0000-0001-5040-4327>
+
+ 
+
+
+      Published
+
+April 14, 2022
+
+
+      Citation
+
+Bruce, 2022 <#citation>
+
+
+      Contents
+
+  * Introduction <#introduction>
+      o Bar Graph <#bar-graph>
+      o Scatterplots <#scatterplots>
+  * Healthcare Examples <#healthcare-examples>
+
+|library <https://rdrr.io/r/base/library.html>(tidyverse <https://tidyverse.tidyverse.org/>)
+library <https://rdrr.io/r/base/library.html>(reactable <https://glin.github.io/reactable/>)
+library <https://rdrr.io/r/base/library.html>(reactablefmtr <https://kcuilla.github.io/reactablefmtr/>)
+library <https://rdrr.io/r/base/library.html>(htmltools <https://github.com/rstudio/htmltools>)
+library <https://rdrr.io/r/base/library.html>(anscombiser <https://paulnorthrop.github.io/anscombiser/>)
+library <https://rdrr.io/r/base/library.html>(highcharter <https://jkunst.com/highcharter/>)
+|//
+
+
+  Introduction
+
+Francis Anscombe <https://en.wikipedia.org/wiki/Frank_Anscombe> was an
+English statistician.
+
+Things he did in his life had names like the Anscombe Transform
+<https://en.wikipedia.org/wiki/Anscombe_transform> and the theory of
+Subjective Probability <https://en.wikipedia.org/wiki/Bayesian_probability>.
+
+Oh, and his brother-in-law was some dude named John Tukey <https://
+en.wikipedia.org/wiki/John_Tukey>.
+
+That’s all fine and good, but I want to talk about what has come to be
+known as Anscombe’s Quartet <https://en.wikipedia.org/wiki/
+Anscombe%27s_quartet>:
+
+|x1 <- c <https://rdrr.io/r/base/c.html>(10, 8, 13, 9, 11, 14, 6, 4, 12, 7, 5)
+y1 <- c <https://rdrr.io/r/base/c.html>(8.04, 6.95, 7.58, 8.81, 8.33, 9.96, 7.24, 4.26, 10.84, 4.82, 5.68)
+
+x2 <- c <https://rdrr.io/r/base/c.html>(10, 8, 13, 9, 11, 14, 6, 4, 12, 7, 5)
+y2 <- c <https://rdrr.io/r/base/c.html>(9.14, 8.14, 8.74, 8.77, 9.26, 8.1, 6.13, 3.1, 9.13, 7.26, 4.74)
+
+x3 <- c <https://rdrr.io/r/base/c.html>(10, 8, 13, 9, 11, 14, 6, 4, 12, 7, 5)
+y3 <- c <https://rdrr.io/r/base/c.html>(7.46, 6.77, 12.74, 7.11, 7.81, 8.84, 6.08, 5.39, 8.15, 6.42, 5.73)
+
+x4 <- c <https://rdrr.io/r/base/c.html>(8, 8, 8, 8, 8, 8, 8, 19, 8, 8, 8)
+y4 <- c <https://rdrr.io/r/base/c.html>(6.58, 5.76, 7.71, 8.84, 8.47, 7.04, 5.25, 12.5, 5.56, 7.91, 6.89)
+
+quartet <- as.data.frame <https://rdrr.io/r/base/as.data.frame.html>(cbind <https://rdrr.io/r/base/cbind.html>(x1, y1, x2, y2, x3, y3, x4, y4))
+|//
+
+Show code
+
+|quart_tbl <- reactable <https://glin.github.io/reactable/reference/reactable.html>(
+  quartet,
+  pagination = FALSE,
+  outlined = TRUE,
+  defaultColDef = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      footerStyle = list <https://rdrr.io/r/base/list.html>(fontWeight = "bold"),
+      headerClass = "col-header",
+      footerClass = "col-footer",
+      align = "left"
+      ),
+    columnGroups = list <https://rdrr.io/r/base/list.html>(
+    colGroup <https://glin.github.io/reactable/reference/colGroup.html>(name = "I", 
+      columns = c <https://rdrr.io/r/base/c.html>("x1", "y1")),
+    colGroup <https://glin.github.io/reactable/reference/colGroup.html>(name = "II", 
+      columns = c <https://rdrr.io/r/base/c.html>("x2", "y2")),
+    colGroup <https://glin.github.io/reactable/reference/colGroup.html>(name = "III", 
+      columns = c <https://rdrr.io/r/base/c.html>("x3", "y3")),
+    colGroup <https://glin.github.io/reactable/reference/colGroup.html>(name = "IV", 
+      columns = c <https://rdrr.io/r/base/c.html>("x4", "y4"))
+  ),
+  columns = list <https://rdrr.io/r/base/list.html>(x1 = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      footer = function(values) 
+          sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+    name = "x",
+      format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        digits = 1
+        ),
+      defaultSortOrder = "desc",
+      align = "center"
+    ),
+    y1 = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      style = list <https://rdrr.io/r/base/list.html>(
+        borderRight = "1px solid rgba(0, 0, 0, 0.1)"),
+      footer = 
+        function(values) 
+          sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", 
+                  mean <https://rdrr.io/r/base/mean.html>(values)),
+    name = "y",
+      format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        digits = 1
+        ),
+      defaultSortOrder = "desc",
+      align = "center",
+     
+    ),
+    x2 = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      footer = 
+        function(values) 
+          sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", 
+                  mean <https://rdrr.io/r/base/mean.html>(values)),
+    name = "x",
+      format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        digits = 1
+        ),
+      defaultSortOrder = "desc",
+      align = "center"
+    ),
+    y2 = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      style = list <https://rdrr.io/r/base/list.html>(
+        borderRight = "1px solid rgba(0, 0, 0, 0.1)"),
+      footer = 
+        function(values) 
+          sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", 
+                  mean <https://rdrr.io/r/base/mean.html>(values)),
+    name = "y",
+      format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        digits = 1
+        ),
+      defaultSortOrder = "desc",
+      align = "center"
+    ),
+    x3 = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      footer = 
+        function(values) 
+          sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", 
+                  mean <https://rdrr.io/r/base/mean.html>(values)),
+    name = "x",
+      format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        digits = 1
+        ),
+      defaultSortOrder = "desc",
+      align = "center"
+    ),
+    y3 = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      style = list <https://rdrr.io/r/base/list.html>(
+        borderRight = "1px solid rgba(0, 0, 0, 0.1)"),
+      footer = 
+        function(values) 
+          sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", 
+                  mean <https://rdrr.io/r/base/mean.html>(values)),
+    name = "y",
+      format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        digits = 1
+        ),
+      defaultSortOrder = "desc",
+      align = "center"
+    ),
+    x4 = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      footer = 
+        function(values) 
+          sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", 
+                  mean <https://rdrr.io/r/base/mean.html>(values)),
+    name = "x",
+      format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        digits = 1
+        ),
+      defaultSortOrder = "desc",
+      align = "center"
+    ),
+    y4 = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      footer = 
+        function(values) 
+          sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", 
+                  mean <https://rdrr.io/r/base/mean.html>(values)),
+    name = "y",
+      format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        digits = 1
+        ),
+      defaultSortOrder = "desc",
+      align = "center"
+    ),
+    html = TRUE
+  ),
+  compact = FALSE,
+  class = "rcm-tbl"
+)
+
+div <https://rdrr.io/pkg/htmltools/man/builder.html>(
+  class = "rcm-analysis",
+  div <https://rdrr.io/pkg/htmltools/man/builder.html>(
+    class = "rcm-header",
+    div <https://rdrr.io/pkg/htmltools/man/builder.html>(class = "rcm-title", "Anscombe's Quartet"),
+    "Francis Anscombe, American Statistician: Graphs in Statistical Analysis (1973)"
+  ),
+  quart_tbl
+)
+|//
+
+Anscombe's Quartet
+Francis Anscombe, American Statistician: Graphs in Statistical Analysis
+(1973)
+I
+II
+III
+IV
+x
+y
+x
+y
+x
+y
+x
+y
+6.0
+7.2
+6.0
+6.1
+6.0
+6.1
+8.0
+5.3
+12.0
+10.8
+12.0
+9.1
+12.0
+8.2
+8.0
+5.6
+8.0
+7.0
+8.0
+8.1
+8.0
+6.8
+8.0
+5.8
+10.0
+8.0
+10.0
+9.1
+10.0
+7.5
+8.0
+6.6
+5.0
+5.7
+5.0
+4.7
+5.0
+5.7
+8.0
+6.9
+14.0
+10.0
+14.0
+8.1
+14.0
+8.8
+8.0
+7.0
+13.0
+7.6
+13.0
+8.7
+13.0
+12.7
+8.0
+7.7
+7.0
+4.8
+7.0
+7.3
+7.0
+6.4
+8.0
+7.9
+11.0
+8.3
+11.0
+9.3
+11.0
+7.8
+8.0
+8.5
+9.0
+8.8
+9.0
+8.8
+9.0
+7.1
+8.0
+8.8
+4.0
+4.3
+4.0
+3.1
+4.0
+5.4
+19.0
+12.5
+9.00
+7.50
+9.00
+7.50
+9.00
+7.50
+9.00
+7.50
+
+In 1973, Anscombe constructed the four data sets you see above. Each set
+consists of eleven points for an xx coordinate and a yy coordinate. The
+xx values are the same for the first three datasets.
+
+And they have nearly /identical/ summary statistics:
+
+Property 	Value
+Mean of xx 	9
+Mean of yy 	7.50
+Variance of xx 	11
+Variance of yy 	4.125
+Correlation between xx and yy 	0.816
+Linear Regression line 	yy = 3.00 + 0.500xx
+RR Squared 	0.67
+
+Why is this important?
+
+Why did he do this?
+
+/Because exploring and visualizing a dataset is important./
+
+Compare the four sets in the table to the following graphs:
+
+Show code
+
+|library <https://rdrr.io/r/base/library.html>(pairsD3 <http://github.com/garthtarr/pairsD3/>)
+pairsD3 <https://rdrr.io/pkg/pairsD3/man/pairsD3.html>(
+  quartet,
+  cex = 3,
+  opacity = 0.9,
+  width = 800
+  )
+|//
+
+5106810510468510681012101568101251068105104685106810121015681012x1y1x2y2x3y3x4y4
+
+
+    <#bar-graph>Bar Graph
+
+Show code
+
+|library <https://rdrr.io/r/base/library.html>(billboarder <https://github.com/dreamRs/billboarder>)
+set_theme <https://rdrr.io/pkg/billboarder/man/billboard-theme.html>("datalab")
+
+quartet2 <- quartet %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+  mutate <https://dplyr.tidyverse.org/reference/mutate.html>(
+    row = row_number <https://dplyr.tidyverse.org/reference/ranking.html>()
+  ) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+  tidyr::pivot_longer <https://tidyr.tidyverse.org/reference/pivot_longer.html>(
+    !row,
+    names_to = "set",
+    values_to = "values"
+  )
+
+billboarder <https://rdrr.io/pkg/billboarder/man/billboarder.html>(
+  width = 700,
+  height = 400
+) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html> 
+  bb_barchart <https://rdrr.io/pkg/billboarder/man/bb_barchart.html>(
+    data = quartet2,
+    color = "#102246",
+    mapping = bbaes <https://rdrr.io/pkg/billboarder/man/billboard-aes.html>(x = set, y = values, group = row)
+  ) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html> 
+  bb_legend <https://rdrr.io/pkg/billboarder/man/bb_legend.html>(show = FALSE) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+  bb_labs <https://rdrr.io/pkg/billboarder/man/bb_labs.html>(
+    title = "Anscombe's Quartet",
+    y = "Values",
+    x = "Variables"
+  )
+|//
+
+Variablesx1y1x2y2x3y3x4y4Values02468101214161820Anscombe's Quartet
+
+y4
+1	6.58
+2	5.76
+3	7.71
+4	8.84
+5	8.47
+6	7.04
+7	5.25
+8	12.5
+9	5.56
+10	7.91
+11	6.89
+
+
+    <#scatterplots>Scatterplots
+
+Show code
+
+|xf <- c <https://rdrr.io/r/base/c.html>(4, 6, 8, 10, 12, 14, 19)
+yf <- c <https://rdrr.io/r/base/c.html>(5, 6, 7, 8, 9, 10, 12.5)
+fit <- as.data.frame <https://rdrr.io/r/base/as.data.frame.html>(cbind <https://rdrr.io/r/base/cbind.html>(xf, yf))
+
+# Set 1
+quart_hc1 <- hchart <https://jkunst.com/highcharter/reference/hchart.html>(quartet, "scatter",
+       hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(x1, y1)) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+hc_add_series <https://jkunst.com/highcharter/reference/hc_add_series.html>(fit, "line", 
+        hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(xf, yf)
+        )%>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html> 
+hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(text = "y1"),
+    labels = list <https://rdrr.io/r/base/list.html>(format = "{value}"),
+     crosshair = list <https://rdrr.io/r/base/list.html>(
+       snap = TRUE,
+       width = 2,
+       zIndex = 0)
+    ) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(text = "x1"),
+    labels = list <https://rdrr.io/r/base/list.html>(format = "{value}"),
+     crosshair = list <https://rdrr.io/r/base/list.html>(
+       snap = TRUE,
+       width = 2,
+       zIndex = 0)
+    ) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+  hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_smpl <https://jkunst.com/highcharter/reference/hc_theme_smpl.html>()) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+    hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    valueDecimals = 2,
+    crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html> 
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(min = 4)
+
+# Set 2
+quart_hc2 <- hchart <https://jkunst.com/highcharter/reference/hchart.html>(quartet, "scatter",
+       hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(x2, y2)) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+hc_add_series <https://jkunst.com/highcharter/reference/hc_add_series.html>(fit, "line", 
+        hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(xf, yf)
+        )%>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html> 
+hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(text = "y2"),
+    labels = list <https://rdrr.io/r/base/list.html>(format = "{value}"),
+     crosshair = list <https://rdrr.io/r/base/list.html>(
+       snap = TRUE,
+       width = 2,
+       zIndex = 0)
+    ) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(text = "x2"),
+    labels = list <https://rdrr.io/r/base/list.html>(format = "{value}"),
+     crosshair = list <https://rdrr.io/r/base/list.html>(
+       snap = TRUE,
+       width = 2,
+       zIndex = 0)
+    ) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+  hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_smpl <https://jkunst.com/highcharter/reference/hc_theme_smpl.html>()) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+    hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    valueDecimals = 2,
+    crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html> 
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(min = 4)
+
+# Set 3
+quart_hc3 <- hchart <https://jkunst.com/highcharter/reference/hchart.html>(quartet, "scatter",
+       hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(x3, y3)) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+hc_add_series <https://jkunst.com/highcharter/reference/hc_add_series.html>(fit, "line", 
+        hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(xf, yf)
+        )%>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html> 
+hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(text = "y3"),
+    labels = list <https://rdrr.io/r/base/list.html>(format = "{value}"),
+     crosshair = list <https://rdrr.io/r/base/list.html>(
+       snap = TRUE,
+       width = 2,
+       zIndex = 0)
+    ) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(text = "x3"),
+    labels = list <https://rdrr.io/r/base/list.html>(format = "{value}"),
+     crosshair = list <https://rdrr.io/r/base/list.html>(
+       snap = TRUE,
+       width = 2,
+       zIndex = 0)
+    ) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+  hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_smpl <https://jkunst.com/highcharter/reference/hc_theme_smpl.html>()) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+    hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    valueDecimals = 2,
+    crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html> 
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(min = 4)
+
+# Set 4
+quart_hc4 <- hchart <https://jkunst.com/highcharter/reference/hchart.html>(quartet, "scatter",
+       hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(x4, y4)) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+hc_add_series <https://jkunst.com/highcharter/reference/hc_add_series.html>(fit, "line", 
+        hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(xf, yf)
+        )%>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html> 
+hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(text = "y4"),
+    labels = list <https://rdrr.io/r/base/list.html>(format = "{value}"),
+     crosshair = list <https://rdrr.io/r/base/list.html>(
+       snap = TRUE,
+       width = 2,
+       zIndex = 0)
+    ) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+    title = list <https://rdrr.io/r/base/list.html>(text = "x4"),
+    labels = list <https://rdrr.io/r/base/list.html>(format = "{value}"),
+     crosshair = list <https://rdrr.io/r/base/list.html>(
+       snap = TRUE,
+       width = 2,
+       zIndex = 0)
+    ) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+  hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_smpl <https://jkunst.com/highcharter/reference/hc_theme_smpl.html>()) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+    hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    valueDecimals = 2,
+    crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html> 
+  hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(min = 4)
+|//
+
+Created with Highcharts 9.3.1x1y146810121416184681012214
+Created with Highcharts 9.3.1x2y246810121416182468101214
+Created with Highcharts 9.3.1x3y346810121416184567891011121314
+Created with Highcharts 9.3.1x4y4468101214161845678910111213
+
+Anscombe specifically constructed this quartet to emphasize the
+importance of visualizing data before beginning to analyze it. What
+would you expect from John Tukey’s in-law?
+
+
+  Healthcare Examples
+
+Now, what does this have to do with healthcare, medical billing and
+coding, the revenue cycle, etc.? Glad you asked: /summary statistics are
+not to be trusted on their own./
+
+Lets say I have the following data from a client:
+
+Show code
+
+|rcm_1half <- rcmann %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html> 
+    filter <https://dplyr.tidyverse.org/reference/filter.html>(date <= "2021-06-30") %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html> 
+    select <https://dplyr.tidyverse.org/reference/select.html>(date,
+        visit,
+        uniqpt,
+        newpt,
+        em,
+        rvu
+    )
+
+rcm_tb1 <- rcm_1half %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html> 
+  reactable <https://glin.github.io/reactable/reference/reactable.html>(
+    pagination = FALSE,
+    outlined = TRUE,
+    defaultColDef = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      footerStyle = list <https://rdrr.io/r/base/list.html>(fontWeight = "bold"),
+      headerClass = "col-header",
+      footerClass = "col-footer",
+      align = "left"
+      ),
+    columns = list <https://rdrr.io/r/base/list.html>(
+      date = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Date",
+        footer = "Averages"
+        ),
+      visit = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Visits",
+        footer = function(values) 
+          sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        digits = 0
+        ),
+      defaultSortOrder = "desc"
+    ),
+    uniqpt = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Patients",
+        footer = function(values) 
+          sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        digits = 0
+        ),
+      defaultSortOrder = "desc"
+    ),
+    newpt = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "New Patients",
+        footer = function(values) 
+          sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        digits = 0
+        ),
+      defaultSortOrder = "desc"
+    ),
+    em = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "E/M Visits",
+        footer = function(values) 
+          sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        digits = 0
+        ),
+      defaultSortOrder = "desc"
+    ),
+    rvu = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "RVUs",
+        footer = function(values) 
+          sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        digits = 2
+        ),
+      defaultSortOrder = "desc"
+      ),
+    html = TRUE
+  ),
+  compact = FALSE,
+  class = "rcm-tbl"
+)
+
+div <https://rdrr.io/pkg/htmltools/man/builder.html>(
+  class = "rcm-analysis",
+  div <https://rdrr.io/pkg/htmltools/man/builder.html>(
+    class = "rcm-header",
+    div <https://rdrr.io/pkg/htmltools/man/builder.html>(class = "rcm-title", "Encounter Related Data: Q1 through Q2 2021")
+  ),
+  rcm_tb1
+)
+|//
+
+Encounter Related Data: Q1 through Q2 2021
+Date
+Visits
+Patients
+New Patients
+E/M Visits
+RVUs
+2021-01-31
+1473
+1162
+120
+1130
+1474.35
+2021-02-28
+1031
+758
+61
+813
+995.60
+2021-03-31
+553
+428
+32
+427
+517.34
+2021-04-30
+713
+609
+123
+550
+739.50
+2021-05-31
+723
+578
+77
+572
+754.64
+2021-06-30
+813
+636
+93
+599
+863.41
+Averages
+884.33
+695.17
+84.33
+681.83
+890.81
+Show code
+
+|rcm_2half <- rcmann %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html> 
+    filter <https://dplyr.tidyverse.org/reference/filter.html>(date > "2021-06-30") %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html> 
+    select <https://dplyr.tidyverse.org/reference/select.html>(
+        visit,
+        uniqpt,
+        newpt,
+        em,
+        rvu
+    )
+rcm_1half2 <- rcm_1half %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html> 
+  select <https://dplyr.tidyverse.org/reference/select.html>(!(date))
+
+rcm_2half_new <- mimic <https://paulnorthrop.github.io/anscombiser/reference/mimic.html>(rcm_2half, rcm_1half2)
+
+rcm_2half_new <- as.data.frame <https://rdrr.io/r/base/as.data.frame.html>(rcm_2half_new)
+
+rcm_2half_new <- rcm_2half_new %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html> 
+    rename <https://dplyr.tidyverse.org/reference/rename.html>(
+        visit = new1,
+        uniqpt = new2,
+        newpt = new3,
+        em = new4,
+        rvu = new5
+    )
+
+date <- c <https://rdrr.io/r/base/c.html>(
+  "2021-07-31", 
+  "2021-08-31", 
+  "2021-09-30", 
+  "2021-10-31", 
+  "2021-11-30", 
+  "2021-12-31"
+  )
+
+rcm_2half <- cbind <https://rdrr.io/r/base/cbind.html>(date, rcm_2half_new)
+
+rcm_tb2 <- rcm_2half %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html> 
+  reactable <https://glin.github.io/reactable/reference/reactable.html>(
+    pagination = FALSE,
+    outlined = TRUE,
+    defaultColDef = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+      footerStyle = list <https://rdrr.io/r/base/list.html>(fontWeight = "bold"),
+      headerClass = "col-header",
+      footerClass = "col-footer",
+      align = "left"
+      ),
+    columns = list <https://rdrr.io/r/base/list.html>(
+      date = colDef <https://glin.github.io/reactable/reference/colDef.html>(name = "Date",
+        footer = "Averages"
+        ),
+      visit = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Visits",
+        footer = function(values) 
+          sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        digits = 0
+        ),
+      defaultSortOrder = "desc"
+    ),
+    uniqpt = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "Patients",
+        footer = function(values) 
+          sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        digits = 0
+        ),
+      defaultSortOrder = "desc"
+    ),
+    newpt = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "New Patients",
+        footer = function(values) 
+          sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        digits = 0
+        ),
+      defaultSortOrder = "desc"
+    ),
+    em = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "E/M Visits",
+        footer = function(values) 
+          sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        digits = 0
+        ),
+      defaultSortOrder = "desc"
+    ),
+    rvu = colDef <https://glin.github.io/reactable/reference/colDef.html>(
+        name = "RVUs",
+        footer = function(values) 
+          sprintf <https://rdrr.io/r/base/sprintf.html>("%.2f", mean <https://rdrr.io/r/base/mean.html>(values)),
+        format = colFormat <https://glin.github.io/reactable/reference/colFormat.html>(
+        digits = 2
+        ),
+      defaultSortOrder = "desc"
+      ),
+    html = TRUE
+  ),
+  compact = FALSE,
+  class = "rcm-tbl"
+)
+
+div <https://rdrr.io/pkg/htmltools/man/builder.html>(
+  class = "rcm-analysis",
+  div <https://rdrr.io/pkg/htmltools/man/builder.html>(
+    class = "rcm-header",
+    div <https://rdrr.io/pkg/htmltools/man/builder.html>(class = "rcm-title", "Encounter Related Data: Q3 through Q4 2021")
+  ),
+  rcm_tb2
+)
+|//
+
+Encounter Related Data: Q3 through Q4 2021
+Date
+Visits
+Patients
+New Patients
+E/M Visits
+RVUs
+2021-07-31
+1397
+1113
+137
+1084
+1402.69
+2021-08-31
+891
+645
+28
+707
+830.36
+2021-09-30
+519
+451
+75
+402
+522.10
+2021-10-31
+1018
+793
+92
+755
+1032.52
+2021-11-30
+537
+431
+91
+416
+570.89
+2021-12-31
+944
+738
+84
+727
+986.28
+Averages
+884.33
+695.17
+84.33
+681.83
+890.81
+Show code
+
+|rcm_1half_visum <- rcm_1half %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html> 
+  select <https://dplyr.tidyverse.org/reference/select.html>(visit) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html> 
+  summarise <https://dplyr.tidyverse.org/reference/summarise.html>(visit = mean <https://rdrr.io/r/base/mean.html>(visit))
+
+rcm_2half_visum <- rcm_2half %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html> 
+  select <https://dplyr.tidyverse.org/reference/select.html>(visit) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html> 
+  summarise <https://dplyr.tidyverse.org/reference/summarise.html>(visit = mean <https://rdrr.io/r/base/mean.html>(visit))
+
+rcm_visum <- rbind <https://rdrr.io/r/base/cbind.html>(rcm_1half_visum, rcm_2half_visum)
+
+yhalf <- c <https://rdrr.io/r/base/c.html>("1H2021", "2H2021")
+
+rcm_visum_2021 <- cbind <https://rdrr.io/r/base/cbind.html>(yhalf, rcm_visum)
+
+# Six Month Average Number of Visits
+hc_visum <- hchart <https://jkunst.com/highcharter/reference/hchart.html>(rcm_visum_2021, "column", 
+       hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(yhalf, round <https://rdrr.io/r/base/Round.html>(visit, 0), color = yhalf)) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+  hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+        gridLineWidth = 0,
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text = " ", style = list <https://rdrr.io/r/base/list.html>(color = "#000000"))
+    ) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+    hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text= " "),
+        lineWidth = 0,
+        tickWidth = 0
+    ) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html> 
+  hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "Patient Visits 2021") %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+  hc_subtitle <https://jkunst.com/highcharter/reference/hc_subtitle.html>(text = "Six Month Averages") %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+  hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_smpl <https://jkunst.com/highcharter/reference/hc_theme_smpl.html>()) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+  hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+    hc_plotOptions <https://jkunst.com/highcharter/reference/hc_plotOptions.html>(
+        column = list <https://rdrr.io/r/base/list.html>(
+            #color = "#4BBD85",
+            dataLabels = list <https://rdrr.io/r/base/list.html>(
+                valueDecimals = 2, 
+                valueSuffix = '%',
+                enabled = TRUE)
+        )
+    ) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+    hc_size <https://jkunst.com/highcharter/reference/hc_size.html>(height = 400, width = 350)
+
+rcm_1halfvis <- rcm_1half %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html> 
+  select <https://dplyr.tidyverse.org/reference/select.html>(
+    date,
+    visit
+  )
+
+rcm_1halfvis$date <- as.character <https://rdrr.io/r/base/character.html>(rcm_1halfvis$date)
+
+rcm_2halfvis <- rcm_2half %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html> 
+  select <https://dplyr.tidyverse.org/reference/select.html>(
+    date,
+    visit
+  )
+
+# Number of Visits - First Half of 2021
+hc_1hvis <- hchart <https://jkunst.com/highcharter/reference/hchart.html>(rcm_1halfvis, "column", 
+       hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(date, round <https://rdrr.io/r/base/Round.html>(visit, 0), color = date)) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+  hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+        gridLineWidth = 0,
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text = " ", style = list <https://rdrr.io/r/base/list.html>(color = "#000000"))
+    ) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+    hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text= " "),
+        lineWidth = 0,
+        tickWidth = 0
+    ) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html> 
+  hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "Average Patient Visits: 884") %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+  hc_subtitle <https://jkunst.com/highcharter/reference/hc_subtitle.html>(text = "January to June 2021") %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+  hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_smpl <https://jkunst.com/highcharter/reference/hc_theme_smpl.html>()) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+  hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+    hc_plotOptions <https://jkunst.com/highcharter/reference/hc_plotOptions.html>(
+        column = list <https://rdrr.io/r/base/list.html>(
+            #color = "#4BBD85",
+            dataLabels = list <https://rdrr.io/r/base/list.html>(
+                valueDecimals = 2, 
+                valueSuffix = '%',
+                enabled = TRUE)
+        )
+    )
+
+# Number of Visits - Second Half of 2021
+hc_2hvis <- hchart <https://jkunst.com/highcharter/reference/hchart.html>(rcm_2halfvis, "column", 
+       hcaes <https://jkunst.com/highcharter/reference/hcaes.html>(date, round <https://rdrr.io/r/base/Round.html>(visit, 0), color = date)) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+  hc_yAxis <https://jkunst.com/highcharter/reference/hc_yAxis.html>(
+        gridLineWidth = 0,
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text = " ", style = list <https://rdrr.io/r/base/list.html>(color = "#000000"))
+    ) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+    hc_xAxis <https://jkunst.com/highcharter/reference/hc_xAxis.html>(
+        labels = list <https://rdrr.io/r/base/list.html>(style = list <https://rdrr.io/r/base/list.html>(color =  "#000000")),
+        title = list <https://rdrr.io/r/base/list.html>(text= " "),
+        lineWidth = 0,
+        tickWidth = 0
+    ) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html> 
+  hc_title <https://jkunst.com/highcharter/reference/hc_title.html>(text = "Average Patient Visits: 884") %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+  hc_subtitle <https://jkunst.com/highcharter/reference/hc_subtitle.html>(text = "July to December 2021") %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+  hc_add_theme <https://jkunst.com/highcharter/reference/hc_add_theme.html>(hc_theme_smpl <https://jkunst.com/highcharter/reference/hc_theme_smpl.html>()) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+  hc_tooltip <https://jkunst.com/highcharter/reference/hc_tooltip.html>(
+    useHTML = TRUE,
+    crosshairs = TRUE,
+    borderWidth = 1,
+    sort = TRUE) %>% <https://rdrr.io/pkg/billboarder/man/billboarder-exports.html>
+    hc_plotOptions <https://jkunst.com/highcharter/reference/hc_plotOptions.html>(
+        column = list <https://rdrr.io/r/base/list.html>(
+            #color = "#4BBD85",
+            dataLabels = list <https://rdrr.io/r/base/list.html>(
+                valueDecimals = 2, 
+                valueSuffix = '%',
+                enabled = TRUE)
+        )
+    )
+
+crosstalk::bscols <https://rdrr.io/pkg/crosstalk/man/bscols.html>(
+    widths = NA,
+hc_1hvis,
+hc_2hvis
+)
+|//
+
+Created with Highcharts 9.3.1Average Patient Visits: 884January to June
+20211 473​1 4731 031​1 031553​553713​713723​723813​
+8132021-01-312021-02-282021-03-312021-04-302021-05-312021-06-3002505007501000125015001750
+Created with Highcharts 9.3.1Average Patient Visits: 884July to December
+20211 397​1 397891​891519​5191 018​1 018537​537944​
+9442021-07-312021-08-312021-09-302021-10-312021-11-302021-12-310250500750100012501500
+
+//   0 Comments Share:   // <https://twitter.com/share?
+text=Anscombe%27s%20Quartet%3A%20Healthcare%20Edition&url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2F2022-04-12-anscombes-quartet-healthcare-edition%2F> // <https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2F2022-04-12-anscombes-quartet-healthcare-edition%2F&title=Anscombe%27s%20Quartet%3A%20Healthcare%20Edition> // <https://www.facebook.com/sharer/sharer.php?s=100&p[url]=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2F2022-04-12-anscombes-quartet-healthcare-edition%2F> // <https://pinterest.com/pin/create/link/?url=https%3A%2F%2Fandrewbruce.netlify.app%2Fposts%2F2022-04-12-anscombes-quartet-healthcare-edition%2F&description=Anscombe%27s%20Quartet%3A%20Healthcare%20Edition>
+
+Enjoy this blog? Get notified of new posts via email:
+
+
+      Footnotes
+
+
+      Corrections
+
+If you see mistakes or want to suggest changes, please create an issue
+<https://github.com/andrewallenbruce/issues/new> on the source repository.
+
+
+      Reuse
+
+Text and figures are licensed under Creative Commons Attribution CC BY
+4.0 <https://creativecommons.org/licenses/by/4.0/>. Source code is
+available at https://github.com/andrewallenbruce <https://github.com/
+andrewallenbruce>, unless otherwise noted. The figures that have been
+reused from other sources don't fall under this license and can be
+recognized by a note in their caption: "Figure from ...".
+
+
+      Citation
+
+For attribution, please cite this work as
+
+Bruce (2022, April 14). Andrew Bruce: Anscombe's Quartet: Healthcare Edition. Retrieved from https://andrewbruce.netlify.app/posts/2022-04-12-anscombes-quartet-healthcare-edition///
+
+BibTeX citation
+
+@misc{bruce2022anscombe's,
+  author = {Bruce, Andrew},
+  title = {Andrew Bruce: Anscombe's Quartet: Healthcare Edition},
+  url = {https://andrewbruce.netlify.app/posts/2022-04-12-anscombes-quartet-healthcare-edition/},
+  year = {2022}
+}//
+
+Andrew A. Bruce - 2024 - made with , and {distill} <https://
+rstudio.github.io/distill/>
+
