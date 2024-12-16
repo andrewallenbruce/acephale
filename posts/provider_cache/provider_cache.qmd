@@ -12,14 +12,14 @@ editor_options:
 #| message: false
 #| warning: false
 knitr::opts_chunk$set(
-  dev = "ragg_png",
-  dpi = 320,
-  out.width = "100%",
-  fig.width = 8,
-  fig.asp = 0.818,
+  dev        = "ragg_png",
+  dpi        = 320,
+  out.width  = "100%",
+  fig.width  = 8,
+  fig.asp    = 0.818,
   fig.retina = 2,
-  fig.align = "center",
-  fig.show = "hold"
+  fig.align  = "center",
+  fig.show   = "hold"
 )
 options(scipen = 999, digits = 3)
 
@@ -30,19 +30,19 @@ library(codex)
 library(httr2)
 
 na_if <- fuimus:::na_if
-
-gelm <- \(l, e, m = "re", ...) collapse::get_elem(l = l, elem = e, regex = ifelse(m == "re", TRUE, FALSE), DF.as.list = ifelse(m == "df", TRUE, FALSE), ...)
+gelm  <- fuimus:::gelm
 ```
-
-   - [Centers for Medicare & Medicaid Services Data API](https://data.cms.gov/api-docs)
-   = [API FAQ for data.CMS.gov | OCTOBER 2024 - VERSION 1.6](https://data.cms.gov/sites/default/files/2024-10/7ef65521-65a4-41ed-b600-3a0011f8ec4b/API%20Guide%20Formatted%201_6.pdf)
 
 # National Downloadable File
 
 >   **Previous Work**
 >
->   * [provider(gh issue #60) - version 1](https://github.com/andrewallenbruce/provider/issues/60#issue-2000723817)
->   * [provider(gh issue #60) - version 2](https://github.com/andrewallenbruce/provider/issues/60#issuecomment-1820270391)
+>   * [provider #60 - version 1](https://github.com/andrewallenbruce/provider/issues/60#issue-2000723817)
+>   * [provider #60 - version 2](https://github.com/andrewallenbruce/provider/issues/60#issuecomment-1820270391)
+
+
+   * [Centers for Medicare & Medicaid Services Data API](https://data.cms.gov/api-docs)
+   * [API FAQ for data.CMS.gov | OCTOBER 2024 - VERSION 1.6](https://data.cms.gov/sites/default/files/2024-10/7ef65521-65a4-41ed-b600-3a0011f8ec4b/API%20Guide%20Formatted%201_6.pdf)
 
 ```{r}
 #| label: ndf
@@ -66,11 +66,7 @@ meta_ndf <- \(fname) {
          check_type     = FALSE,
          simplifyVector = TRUE)
   
-  distro <- gelm(
-    gelm(
-      x,
-      "distribution"), 
-    "identifier")
+  distro <- gelm(gelm(x, "distribution"), "identifier")
   
   y <- request(
     paste0(
@@ -87,13 +83,9 @@ meta_ndf <- \(fname) {
          check_type = FALSE,
          simplifyVector = TRUE)
   
-  z <- gelm(gelm(gelm(
-        y, 
-        "schema"), 
-      distro), 
-    "fields")
+  z <- gelm(gelm(gelm(y, "schema"), distro), "fields")
   
-  out <- list(
+  list(
     title        = gelm(x, "title"),
     description  = gelm(x, "description"),
     identifier   = gelm(gelm(x, "identifier"), "identifier"),
@@ -101,26 +93,36 @@ meta_ndf <- \(fname) {
     issued       = gelm(x, "issued"), 
     modified     = gelm(x, "modified")[[1]], 
     released     = gelm(x, "released"),
-    dimension    = str_glue('{gelm(gelm(y, "count"), is.numeric)} x {gelm(gelm(z, "record_number"), "length")}'), 
-    fields       = delist(getelem(z[names(z)], "description")),
+    dimensions   = paste0(gelm(gelm(y, "count"), is.numeric), " x ", gelm(gelm(z, "record_number"), "length")), 
+    fields       = names(z),
     site         = gelm(x, "landingPage"),
     csv          = gelm(gelm(gelm(x, "distribution"), "data"), "downloadURL", m = "df"),
     dictionary   = paste0("https://data.cms.gov/provider-data/sites/default/files/data_dictionaries/physician/DOC_Data_Dictionary.pdf"))
-  
-  out
 }
-
-meta_ndf("affiliations")
-
-meta_ndf("clinicians")
 ```
 
+### Field Comparison
+
+```{r}
+#| label: affcols
+#| layout-ncol: 2
+aff <- provider::affiliations(npi = 1558595660, na.rm = FALSE, tidy = FALSE)
+cat(utils::formatOL(meta_ndf("affiliations")$fields, offset = 0), sep = "\n")
+cat(utils::formatOL(names(aff), offset = 0), sep = "\n")
+```
+
+```{r}
+#| label: clncols
+#| layout-ncol: 2
+cln <- provider::clinicians(npi = 1558595660, na.rm = FALSE, tidy = FALSE)
+cat(utils::formatOL(meta_ndf("clinicians")$fields), sep = "\n")
+cat(utils::formatOL(names(cln), offset = 1), sep = "\n")
+```
 
 ## pointblank
 
 ```{r}
 #| label: pointblank
-
 library(pointblank)
 
 johnd <- affiliations(npi = 1558595660, na.rm = FALSE)
@@ -161,6 +163,8 @@ johnd |>
     size = "standard"
   )
 ```
+
+--------------------------------------------------------------------------------
 
 # New API FAQ
 
@@ -207,131 +211,7 @@ if response.ok:
                         print(f"API link for {title} from {time_period} is {distro['accessURL']}")
 ```
 
-
-
 --------------------------------------------------------------------------------
-
-# Codebook
-
-## Code
-
-```{r}
-#| label: code
-code <- \(variable, levels, labels) {
-  dplyr::tibble(
-    variable = variable, 
-    level = levels, 
-    label = labels)
-}
-
-code(
-  "SEX", 
-  levels = c(0, 1), 
-  labels = c("Male", "Female"))
-```
-
-## Codebook
-
-```{r}
-#| label: codebook
-codebook <- \(...) {
-  
-  map <- rlang::list2(...)
-  
-  names(map) <- purrr::map_chr(map, \(x) x$variable[1])
-  
-  return(map)
-}
-
-codebook(
-  code("SEX", 
-       levels = 0:1, 
-       labels = c("Male", "Female")), 
-  code("STUDY", 
-       levels = 1:3, 
-       labels = c("S1", "S2", "S3")))
-```
-
-## Encode
-
-```{r}
-#| label: encode
-encode <- \(data, codebook) {
-  
-  mapped_vars <- names(codebook)
-  
-  mapped_data <- purrr::map2(data, names(data), \(x, var, m) {
-      
-      if (!var %in% mapped_vars) return(x)
-      
-      x <- factor(x, levels = m[[var]]$level, labels = m[[var]]$label)
-      
-      return(x)
-    },
-    m <- codebook
-  )
-  dplyr::as_tibble(mapped_data)
-}
-
-labels <- codebook(
-  code("SEX", 
-       levels = 0:1, 
-       labels = c("Male", "Female")), 
-  code("STUDY", 
-       levels = 1:3, 
-       labels = c("S1", "S2", "S3"))
-  )
-
-dataset <- data.frame(
-  STUDY = c(1, 1, 1, 2, 2, 2),
-  SEX   = c(0, 0, 1, 1, 1, 0),
-  AGE   = c(32, 18, 64, 52, 26, 80)
-)
-
-encode(dataset, labels)
-```
-
-## Decode
-
-```{r}
-#| label: decode
-decode <- \(data, codebook) {
-  
-  mapped_vars <- names(codebook)
-  
-  mapped_data <- purrr::map2(data, names(data), \(x, var, m) {
-    
-      if (!var %in% mapped_vars) return(x)
-    
-      x_chr <- as.character(x)
-      
-      x_lvl <- m[[var]]$level
-      
-      x_lab <- m[[var]]$label
-      
-      x <- x_lvl[match(x_chr, x_lab)]
-      
-      return(x)
-    },
-    m <- codebook
-  )
-  dplyr::as_tibble(mapped_data)
-}
-
-labels <- codebook(
- code("SEX", levels = c(0, 1), labels = c("Male", "Female")),
- code("STUDY", levels = c(1, 2, 3), labels = c("S1", "S2", "S3")))
-
-dataset <- data.frame(
-  STUDY = factor(c("S1", "S1", "S1", "S2", "S2", "S2")),
-  SEX   = factor(c("Male", "Male", "Female", "Female", "Female", "Male")),
-  AGE   = c(32, 18, 64, 52, 26, 80))
-
-decode(dataset, labels)
-```
-
---------------------------------------------------------------------------------
-
 
 ## Session Information 
 
