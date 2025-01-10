@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.39">
+<meta name="generator" content="quarto-1.7.5">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Andrew Allen Bruce">
 <meta name="dcterms.date" content="2024-12-14">
@@ -68,10 +68,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-cc6107df646ca5ad5b0f4c970cb58fb1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-da7b354487f90914484048dd3c24fe95.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-1ca5a79d274462985c6a5f2263972063.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light"><script id="quarto-search-options" type="application/json">{
+<link href="../../site_libs/bootstrap/bootstrap-531d0dfb34ea996abbcba6b39d7efbab.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light"><script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
   "collapse-after": 3,
@@ -468,6 +468,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 16  2024       1 101YP2500X Professional Counse… Indivi… Behavio… Counselor     
 # ℹ 6 more variables: specialization &lt;chr&gt;, definition &lt;chr&gt;, notes &lt;chr&gt;,
 #   modified &lt;date&gt;, effective &lt;date&gt;, deactivated &lt;date&gt;</code></pre>
+</div>
+</div>
+</section><section id="footnotes" class="level2" data-number="4.2"><h2 data-number="4.2" class="anchored" data-anchor-id="footnotes">
+<span class="header-section-number">4.2</span> Footnotes</h2>
+<div class="cell">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">arktax</span><span class="fu">::</span><span class="fu"><a href="https://andrewallenbruce.github.io/arktax/reference/crosswalk_footnotes.html">crosswalk_footnotes</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 50 × 3
+   taxonomy_code specialty_code footnote                                        
+   &lt;chr&gt;         &lt;chr&gt;          &lt;glue&gt;                                          
+ 1 251V00000X    61             (1) Medicare no longer enrolls this provider ty…
+ 2 &lt;NA&gt;          73             (2) This is an arrangement whereby immunization…
+ 3 &lt;NA&gt;          88             (4) Because the Medicare Provider Type Physicia…
+ 4 208D00000X    99             (6) Medicare specialty code designation is for …
+ 5 332800000X    A9             (13) Medicare specialty code designation is for…
+ 6 332B00000X    87             (3) Medicare carriers use Specialty Code 87 for…
+ 7 156FX1800X    96             (5) Because the Medicare Provider Type indicate…
+ 8 282N00000X    A0             (7) Medicare specialty code designation is for …
+ 9 282N00000X    A0             (7) Medicare specialty code designation is for …
+10 282NC2000X    A0             (7) Medicare specialty code designation is for …
+# ℹ 40 more rows</code></pre>
 </div>
 </div>
 </section><section id="taxonomy" class="level2" data-number="4.3"><h2 data-number="4.3" class="anchored" data-anchor-id="taxonomy">
@@ -1077,19 +1098,19 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a><span class="in">```{r setup}</span></span>
-<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a><span class="in">#| echo: false</span></span>
-<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a><span class="in">#| message: false</span></span>
-<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a><span class="in">#| warning: false</span></span>
-<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a><span class="in">#| comment: ""</span></span>
-<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a><span class="in">#| dev: "ragg_png"</span></span>
-<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a><span class="in">#| out.width: "100%"</span></span>
-<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a><span class="in">#| fig.align: "center"</span></span>
-<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a><span class="in">#| fig.width: 8</span></span>
-<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a><span class="in">library(tidyverse)</span></span>
-<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a><span class="in">library(collapsibleTree)</span></span>
-<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a><span class="in">library(provider)</span></span>
-<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a><span class="in">library(codex)</span></span>
-<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a><span class="in">library(arktax)</span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a><span class="co">#| comment: ""</span></span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a><span class="co">#| dev: "ragg_png"</span></span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a><span class="co">#| out.width: "100%"</span></span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig.align: "center"</span></span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig.width: 8</span></span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(collapsibleTree)</span>
+<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(provider)</span>
+<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(codex)</span>
+<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(arktax)</span>
 <span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a><span class="fu">### Key Points</span></span>
@@ -1173,7 +1194,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb23-111"><a href="#cb23-111" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb23-112"><a href="#cb23-112" aria-hidden="true" tabindex="-1"></a>:::</span>
 <span id="cb23-113"><a href="#cb23-113" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-114"><a href="#cb23-114" aria-hidden="true" tabindex="-1"></a>&lt;hr&gt;</span>
+<span id="cb23-114"><a href="#cb23-114" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">hr</span><span class="dt">&gt;</span></span>
 <span id="cb23-115"><a href="#cb23-115" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb23-116"><a href="#cb23-116" aria-hidden="true" tabindex="-1"></a><span class="fu"># `arktax`</span></span>
 <span id="cb23-117"><a href="#cb23-117" aria-hidden="true" tabindex="-1"></a></span>
@@ -1221,7 +1242,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb23-171"><a href="#cb23-171" aria-hidden="true" tabindex="-1"></a>arktax<span class="sc">::</span><span class="fu">taxonomy_definition</span>()</span>
 <span id="cb23-172"><a href="#cb23-172" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb23-173"><a href="#cb23-173" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-174"><a href="#cb23-174" aria-hidden="true" tabindex="-1"></a>&lt;hr&gt;</span>
+<span id="cb23-174"><a href="#cb23-174" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">hr</span><span class="dt">&gt;</span></span>
 <span id="cb23-175"><a href="#cb23-175" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb23-176"><a href="#cb23-176" aria-hidden="true" tabindex="-1"></a><span class="fu"># Medicare Crosswalk</span></span>
 <span id="cb23-177"><a href="#cb23-177" aria-hidden="true" tabindex="-1"></a></span>
@@ -1329,7 +1350,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb23-291"><a href="#cb23-291" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">specialty_type =</span> stringr<span class="sc">::</span><span class="fu">str_squish</span>(specialty_type))</span>
 <span id="cb23-292"><a href="#cb23-292" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb23-293"><a href="#cb23-293" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-294"><a href="#cb23-294" aria-hidden="true" tabindex="-1"></a>&lt;hr&gt;</span>
+<span id="cb23-294"><a href="#cb23-294" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">hr</span><span class="dt">&gt;</span></span>
 <span id="cb23-295"><a href="#cb23-295" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb23-296"><a href="#cb23-296" aria-hidden="true" tabindex="-1"></a><span class="fu">## Sources</span></span>
 <span id="cb23-297"><a href="#cb23-297" aria-hidden="true" tabindex="-1"></a></span>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.39">
+<meta name="generator" content="quarto-1.7.5">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Andrew Allen Bruce">
 <meta name="dcterms.date" content="2024-12-14">
@@ -68,10 +68,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-cc6107df646ca5ad5b0f4c970cb58fb1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-da7b354487f90914484048dd3c24fe95.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-1ca5a79d274462985c6a5f2263972063.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-531d0dfb34ea996abbcba6b39d7efbab.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <link href="../../site_libs/quarto-contrib/material-icons-0.14.2/mi.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -1447,29 +1447,29 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb64-23"><a href="#cb64-23" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb64-24"><a href="#cb64-24" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb64-25"><a href="#cb64-25" aria-hidden="true" tabindex="-1"></a><span class="in">```{r setup}</span></span>
-<span id="cb64-26"><a href="#cb64-26" aria-hidden="true" tabindex="-1"></a><span class="in">#| message: false</span></span>
-<span id="cb64-27"><a href="#cb64-27" aria-hidden="true" tabindex="-1"></a><span class="in">#| warning: false</span></span>
-<span id="cb64-28"><a href="#cb64-28" aria-hidden="true" tabindex="-1"></a><span class="in">#| echo: false</span></span>
-<span id="cb64-29"><a href="#cb64-29" aria-hidden="true" tabindex="-1"></a><span class="in">#| cache: false</span></span>
+<span id="cb64-26"><a href="#cb64-26" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb64-27"><a href="#cb64-27" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb64-28"><a href="#cb64-28" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb64-29"><a href="#cb64-29" aria-hidden="true" tabindex="-1"></a><span class="co">#| cache: false</span></span>
 <span id="cb64-30"><a href="#cb64-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-31"><a href="#cb64-31" aria-hidden="true" tabindex="-1"></a><span class="in">knitr::opts_chunk$set(</span></span>
-<span id="cb64-32"><a href="#cb64-32" aria-hidden="true" tabindex="-1"></a><span class="in">  collapse  = FALSE,</span></span>
-<span id="cb64-33"><a href="#cb64-33" aria-hidden="true" tabindex="-1"></a><span class="in">  echo      = TRUE, </span></span>
-<span id="cb64-34"><a href="#cb64-34" aria-hidden="true" tabindex="-1"></a><span class="in">  message   = FALSE, </span></span>
-<span id="cb64-35"><a href="#cb64-35" aria-hidden="true" tabindex="-1"></a><span class="in">  warning   = FALSE,</span></span>
-<span id="cb64-36"><a href="#cb64-36" aria-hidden="true" tabindex="-1"></a><span class="in">  error     = TRUE,</span></span>
-<span id="cb64-37"><a href="#cb64-37" aria-hidden="true" tabindex="-1"></a><span class="in">  comment   = "",</span></span>
-<span id="cb64-38"><a href="#cb64-38" aria-hidden="true" tabindex="-1"></a><span class="in">  dpi       = 600, </span></span>
-<span id="cb64-39"><a href="#cb64-39" aria-hidden="true" tabindex="-1"></a><span class="in">  dev       = "ragg_png",</span></span>
-<span id="cb64-40"><a href="#cb64-40" aria-hidden="true" tabindex="-1"></a><span class="in">  out.width = "100%",</span></span>
-<span id="cb64-41"><a href="#cb64-41" aria-hidden="true" tabindex="-1"></a><span class="in">  fig.align = "center",</span></span>
-<span id="cb64-42"><a href="#cb64-42" aria-hidden="true" tabindex="-1"></a><span class="in">  fig.width = 8</span></span>
-<span id="cb64-43"><a href="#cb64-43" aria-hidden="true" tabindex="-1"></a><span class="in">)</span></span>
-<span id="cb64-44"><a href="#cb64-44" aria-hidden="true" tabindex="-1"></a><span class="in">options(scipen = 999)</span></span>
-<span id="cb64-45"><a href="#cb64-45" aria-hidden="true" tabindex="-1"></a><span class="in">library(tidyverse)</span></span>
-<span id="cb64-46"><a href="#cb64-46" aria-hidden="true" tabindex="-1"></a><span class="in">library(fuimus)</span></span>
-<span id="cb64-47"><a href="#cb64-47" aria-hidden="true" tabindex="-1"></a><span class="in">library(rlang)</span></span>
-<span id="cb64-48"><a href="#cb64-48" aria-hidden="true" tabindex="-1"></a><span class="in">library(cli)</span></span>
+<span id="cb64-31"><a href="#cb64-31" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(</span>
+<span id="cb64-32"><a href="#cb64-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">collapse  =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb64-33"><a href="#cb64-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">echo      =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb64-34"><a href="#cb64-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">message   =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb64-35"><a href="#cb64-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">warning   =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb64-36"><a href="#cb64-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">error     =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb64-37"><a href="#cb64-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">comment   =</span> <span class="st">""</span>,</span>
+<span id="cb64-38"><a href="#cb64-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">dpi       =</span> <span class="dv">600</span>, </span>
+<span id="cb64-39"><a href="#cb64-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">dev       =</span> <span class="st">"ragg_png"</span>,</span>
+<span id="cb64-40"><a href="#cb64-40" aria-hidden="true" tabindex="-1"></a>  <span class="at">out.width =</span> <span class="st">"100%"</span>,</span>
+<span id="cb64-41"><a href="#cb64-41" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.align =</span> <span class="st">"center"</span>,</span>
+<span id="cb64-42"><a href="#cb64-42" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.width =</span> <span class="dv">8</span></span>
+<span id="cb64-43"><a href="#cb64-43" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb64-44"><a href="#cb64-44" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen =</span> <span class="dv">999</span>)</span>
+<span id="cb64-45"><a href="#cb64-45" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb64-46"><a href="#cb64-46" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fuimus)</span>
+<span id="cb64-47"><a href="#cb64-47" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rlang)</span>
+<span id="cb64-48"><a href="#cb64-48" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(cli)</span>
 <span id="cb64-49"><a href="#cb64-49" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb64-50"><a href="#cb64-50" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb64-51"><a href="#cb64-51" aria-hidden="true" tabindex="-1"></a></span>
@@ -1480,13 +1480,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb64-56"><a href="#cb64-56" aria-hidden="true" tabindex="-1"></a>The following is an excerpt from the CMS document on the NPI check digit calculation, <span class="co">[</span><span class="ot">Requirements for National Provider Identifier (NPI) and NPI Check Digit (2004-01-23)</span><span class="co">](https://www.cms.gov/Regulations-and-Guidance/Administrative-Simplification/NationalProvIdentStand/Downloads/NPIcheckdigit.pdf)</span>.</span>
 <span id="cb64-57"><a href="#cb64-57" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb64-58"><a href="#cb64-58" aria-hidden="true" tabindex="-1"></a><span class="fu">### NPI Requirements {#sec-requirements}</span></span>
-<span id="cb64-59"><a href="#cb64-59" aria-hidden="true" tabindex="-1"></a>|                              |                                                                                     |</span>
-<span id="cb64-60"><a href="#cb64-60" aria-hidden="true" tabindex="-1"></a>|------------------------------|-------------------------------------------------------------------------------------|</span>
-<span id="cb64-61"><a href="#cb64-61" aria-hidden="true" tabindex="-1"></a>| {{&lt; mi wrong_location size=40px &gt;}}    | Consists of **10** numeric digits, the 10&lt;sup&gt;th&lt;/sup&gt; being the check digit. |</span>
-<span id="cb64-62"><a href="#cb64-62" aria-hidden="true" tabindex="-1"></a>| {{&lt; mi password size=40px &gt;}}       | Has no embedded intelligence.                                                      |</span>
-<span id="cb64-63"><a href="#cb64-63" aria-hidden="true" tabindex="-1"></a>| {{&lt; mi dialpad size=60px &gt;}}  | Begins with a <span class="in">`1`</span> or <span class="in">`2`</span>.^<span class="co">[</span><span class="ot">Use of other first digits for the NPI must be coordinated with the use of first digits by the standard health plan identifier, when it is adopted.</span><span class="co">]</span> |</span>
-<span id="cb64-64"><a href="#cb64-64" aria-hidden="true" tabindex="-1"></a>| {{&lt; mi pattern size=40px &gt;}}           | Generated by a scattering algorithm using all possible numeric combinations.     |</span>
-<span id="cb64-65"><a href="#cb64-65" aria-hidden="true" tabindex="-1"></a>| {{&lt; mi fingerprint size=40px &gt;}}       | Be unique, without requiring database access for verification.                      |</span>
+<span id="cb64-59"><a href="#cb64-59" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>                              <span class="pp">|</span>                                                                                     <span class="pp">|</span></span>
+<span id="cb64-60"><a href="#cb64-60" aria-hidden="true" tabindex="-1"></a><span class="pp">|------------------------------|-------------------------------------------------------------------------------------|</span></span>
+<span id="cb64-61"><a href="#cb64-61" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> {{&lt; mi wrong_location size=40px &gt;}}    <span class="pp">|</span> Consists of **10** numeric digits, the 10<span class="dt">&lt;</span><span class="kw">sup</span><span class="dt">&gt;</span>th<span class="dt">&lt;/</span><span class="kw">sup</span><span class="dt">&gt;</span> being the check digit. <span class="pp">|</span></span>
+<span id="cb64-62"><a href="#cb64-62" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> {{&lt; mi password size=40px &gt;}}       <span class="pp">|</span> Has no embedded intelligence.                                                      <span class="pp">|</span></span>
+<span id="cb64-63"><a href="#cb64-63" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> {{&lt; mi dialpad size=60px &gt;}}  <span class="pp">|</span> Begins with a <span class="in">`1`</span> or <span class="in">`2`</span>.^<span class="co">[</span><span class="ot">Use of other first digits for the NPI must be coordinated with the use of first digits by the standard health plan identifier, when it is adopted.</span><span class="co">]</span> <span class="pp">|</span></span>
+<span id="cb64-64"><a href="#cb64-64" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> {{&lt; mi pattern size=40px &gt;}}           <span class="pp">|</span> Generated by a scattering algorithm using all possible numeric combinations.     <span class="pp">|</span></span>
+<span id="cb64-65"><a href="#cb64-65" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> {{&lt; mi fingerprint size=40px &gt;}}       <span class="pp">|</span> Be unique, without requiring database access for verification.                      <span class="pp">|</span></span>
 <span id="cb64-66"><a href="#cb64-66" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb64-67"><a href="#cb64-67" aria-hidden="true" tabindex="-1"></a><span class="fu">## NPI Check Digit {#sec-checkdigit}</span></span>
 <span id="cb64-68"><a href="#cb64-68" aria-hidden="true" tabindex="-1"></a></span>
@@ -1751,183 +1751,183 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb64-355"><a href="#cb64-355" aria-hidden="true" tabindex="-1"></a><span class="ss">      + </span>Coerce to <span class="in">`&lt;character&gt;`</span> if <span class="in">`x`</span> is a <span class="in">`&lt;numeric&gt;`</span> vector</span>
 <span id="cb64-356"><a href="#cb64-356" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb64-357"><a href="#cb64-357" aria-hidden="true" tabindex="-1"></a><span class="in">```{r filename="input_validation.R"}</span></span>
-<span id="cb64-358"><a href="#cb64-358" aria-hidden="true" tabindex="-1"></a><span class="in">#| error: true</span></span>
-<span id="cb64-359"><a href="#cb64-359" aria-hidden="true" tabindex="-1"></a><span class="in">#| message: true</span></span>
-<span id="cb64-360"><a href="#cb64-360" aria-hidden="true" tabindex="-1"></a><span class="in"># Abort if `x` is `length(x) != 1`</span></span>
-<span id="cb64-361"><a href="#cb64-361" aria-hidden="true" tabindex="-1"></a><span class="in">check_length &lt;- function(x) {</span></span>
-<span id="cb64-362"><a href="#cb64-362" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-363"><a href="#cb64-363" aria-hidden="true" tabindex="-1"></a><span class="in">  arg  &lt;- rlang::caller_arg(x)</span></span>
-<span id="cb64-364"><a href="#cb64-364" aria-hidden="true" tabindex="-1"></a><span class="in">  call &lt;- rlang::caller_env()</span></span>
-<span id="cb64-365"><a href="#cb64-365" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-366"><a href="#cb64-366" aria-hidden="true" tabindex="-1"></a><span class="in">  if (length(x) != 1) {</span></span>
-<span id="cb64-367"><a href="#cb64-367" aria-hidden="true" tabindex="-1"></a><span class="in">    cli::cli_abort(</span></span>
-<span id="cb64-368"><a href="#cb64-368" aria-hidden="true" tabindex="-1"></a><span class="in">      "{.arg {arg}} must be of length 1.", </span></span>
-<span id="cb64-369"><a href="#cb64-369" aria-hidden="true" tabindex="-1"></a><span class="in">      arg = arg, </span></span>
-<span id="cb64-370"><a href="#cb64-370" aria-hidden="true" tabindex="-1"></a><span class="in">      call = call,</span></span>
-<span id="cb64-371"><a href="#cb64-371" aria-hidden="true" tabindex="-1"></a><span class="in">      class = "check_length"</span></span>
-<span id="cb64-372"><a href="#cb64-372" aria-hidden="true" tabindex="-1"></a><span class="in">      )</span></span>
-<span id="cb64-373"><a href="#cb64-373" aria-hidden="true" tabindex="-1"></a><span class="in">  }</span></span>
-<span id="cb64-374"><a href="#cb64-374" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb64-358"><a href="#cb64-358" aria-hidden="true" tabindex="-1"></a><span class="co">#| error: true</span></span>
+<span id="cb64-359"><a href="#cb64-359" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: true</span></span>
+<span id="cb64-360"><a href="#cb64-360" aria-hidden="true" tabindex="-1"></a><span class="co"># Abort if `x` is `length(x) != 1`</span></span>
+<span id="cb64-361"><a href="#cb64-361" aria-hidden="true" tabindex="-1"></a>check_length <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb64-362"><a href="#cb64-362" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-363"><a href="#cb64-363" aria-hidden="true" tabindex="-1"></a>  arg  <span class="ot">&lt;-</span> rlang<span class="sc">::</span><span class="fu">caller_arg</span>(x)</span>
+<span id="cb64-364"><a href="#cb64-364" aria-hidden="true" tabindex="-1"></a>  call <span class="ot">&lt;-</span> rlang<span class="sc">::</span><span class="fu">caller_env</span>()</span>
+<span id="cb64-365"><a href="#cb64-365" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-366"><a href="#cb64-366" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(x) <span class="sc">!=</span> <span class="dv">1</span>) {</span>
+<span id="cb64-367"><a href="#cb64-367" aria-hidden="true" tabindex="-1"></a>    cli<span class="sc">::</span><span class="fu">cli_abort</span>(</span>
+<span id="cb64-368"><a href="#cb64-368" aria-hidden="true" tabindex="-1"></a>      <span class="st">"{.arg {arg}} must be of length 1."</span>, </span>
+<span id="cb64-369"><a href="#cb64-369" aria-hidden="true" tabindex="-1"></a>      <span class="at">arg =</span> arg, </span>
+<span id="cb64-370"><a href="#cb64-370" aria-hidden="true" tabindex="-1"></a>      <span class="at">call =</span> call,</span>
+<span id="cb64-371"><a href="#cb64-371" aria-hidden="true" tabindex="-1"></a>      <span class="at">class =</span> <span class="st">"check_length"</span></span>
+<span id="cb64-372"><a href="#cb64-372" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb64-373"><a href="#cb64-373" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb64-374"><a href="#cb64-374" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb64-375"><a href="#cb64-375" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-376"><a href="#cb64-376" aria-hidden="true" tabindex="-1"></a><span class="in"># If `x` is a `&lt;numeric&gt;` </span></span>
-<span id="cb64-377"><a href="#cb64-377" aria-hidden="true" tabindex="-1"></a><span class="in"># vector, coerce to `&lt;character&gt;`</span></span>
-<span id="cb64-378"><a href="#cb64-378" aria-hidden="true" tabindex="-1"></a><span class="in">numeric_to_char &lt;- function(x) {</span></span>
-<span id="cb64-379"><a href="#cb64-379" aria-hidden="true" tabindex="-1"></a><span class="in">  if (!rlang::is_character(x)) { </span></span>
-<span id="cb64-380"><a href="#cb64-380" aria-hidden="true" tabindex="-1"></a><span class="in">    as.character(x)</span></span>
-<span id="cb64-381"><a href="#cb64-381" aria-hidden="true" tabindex="-1"></a><span class="in">  } else {</span></span>
-<span id="cb64-382"><a href="#cb64-382" aria-hidden="true" tabindex="-1"></a><span class="in">    x  </span></span>
-<span id="cb64-383"><a href="#cb64-383" aria-hidden="true" tabindex="-1"></a><span class="in">  }</span></span>
-<span id="cb64-384"><a href="#cb64-384" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb64-376"><a href="#cb64-376" aria-hidden="true" tabindex="-1"></a><span class="co"># If `x` is a `&lt;numeric&gt;` </span></span>
+<span id="cb64-377"><a href="#cb64-377" aria-hidden="true" tabindex="-1"></a><span class="co"># vector, coerce to `&lt;character&gt;`</span></span>
+<span id="cb64-378"><a href="#cb64-378" aria-hidden="true" tabindex="-1"></a>numeric_to_char <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb64-379"><a href="#cb64-379" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span>rlang<span class="sc">::</span><span class="fu">is_character</span>(x)) { </span>
+<span id="cb64-380"><a href="#cb64-380" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.character</span>(x)</span>
+<span id="cb64-381"><a href="#cb64-381" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb64-382"><a href="#cb64-382" aria-hidden="true" tabindex="-1"></a>    x  </span>
+<span id="cb64-383"><a href="#cb64-383" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb64-384"><a href="#cb64-384" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb64-385"><a href="#cb64-385" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-386"><a href="#cb64-386" aria-hidden="true" tabindex="-1"></a><span class="in"># Abort if any of `x`'s </span></span>
-<span id="cb64-387"><a href="#cb64-387" aria-hidden="true" tabindex="-1"></a><span class="in"># elements are not numbers</span></span>
-<span id="cb64-388"><a href="#cb64-388" aria-hidden="true" tabindex="-1"></a><span class="in">check_chars_numeric &lt;- function(x) {</span></span>
-<span id="cb64-389"><a href="#cb64-389" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-390"><a href="#cb64-390" aria-hidden="true" tabindex="-1"></a><span class="in">  arg  &lt;- rlang::caller_arg(x)</span></span>
-<span id="cb64-391"><a href="#cb64-391" aria-hidden="true" tabindex="-1"></a><span class="in">  call &lt;- rlang::caller_env()</span></span>
-<span id="cb64-392"><a href="#cb64-392" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-393"><a href="#cb64-393" aria-hidden="true" tabindex="-1"></a><span class="in">  if (!stringfish::sf_grepl(x, "^[0-9]{1,10}$")) {</span></span>
-<span id="cb64-394"><a href="#cb64-394" aria-hidden="true" tabindex="-1"></a><span class="in">    cli::cli_abort(</span></span>
-<span id="cb64-395"><a href="#cb64-395" aria-hidden="true" tabindex="-1"></a><span class="in">      "An {.arg {arg}} must contain numbers only.", </span></span>
-<span id="cb64-396"><a href="#cb64-396" aria-hidden="true" tabindex="-1"></a><span class="in">      arg = arg, </span></span>
-<span id="cb64-397"><a href="#cb64-397" aria-hidden="true" tabindex="-1"></a><span class="in">      call = call,</span></span>
-<span id="cb64-398"><a href="#cb64-398" aria-hidden="true" tabindex="-1"></a><span class="in">      class = "check_chars_numeric"</span></span>
-<span id="cb64-399"><a href="#cb64-399" aria-hidden="true" tabindex="-1"></a><span class="in">      )</span></span>
-<span id="cb64-400"><a href="#cb64-400" aria-hidden="true" tabindex="-1"></a><span class="in">  }</span></span>
-<span id="cb64-401"><a href="#cb64-401" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb64-386"><a href="#cb64-386" aria-hidden="true" tabindex="-1"></a><span class="co"># Abort if any of `x`'s </span></span>
+<span id="cb64-387"><a href="#cb64-387" aria-hidden="true" tabindex="-1"></a><span class="co"># elements are not numbers</span></span>
+<span id="cb64-388"><a href="#cb64-388" aria-hidden="true" tabindex="-1"></a>check_chars_numeric <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb64-389"><a href="#cb64-389" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-390"><a href="#cb64-390" aria-hidden="true" tabindex="-1"></a>  arg  <span class="ot">&lt;-</span> rlang<span class="sc">::</span><span class="fu">caller_arg</span>(x)</span>
+<span id="cb64-391"><a href="#cb64-391" aria-hidden="true" tabindex="-1"></a>  call <span class="ot">&lt;-</span> rlang<span class="sc">::</span><span class="fu">caller_env</span>()</span>
+<span id="cb64-392"><a href="#cb64-392" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-393"><a href="#cb64-393" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span>stringfish<span class="sc">::</span><span class="fu">sf_grepl</span>(x, <span class="st">"^[0-9]{1,10}$"</span>)) {</span>
+<span id="cb64-394"><a href="#cb64-394" aria-hidden="true" tabindex="-1"></a>    cli<span class="sc">::</span><span class="fu">cli_abort</span>(</span>
+<span id="cb64-395"><a href="#cb64-395" aria-hidden="true" tabindex="-1"></a>      <span class="st">"An {.arg {arg}} must contain numbers only."</span>, </span>
+<span id="cb64-396"><a href="#cb64-396" aria-hidden="true" tabindex="-1"></a>      <span class="at">arg =</span> arg, </span>
+<span id="cb64-397"><a href="#cb64-397" aria-hidden="true" tabindex="-1"></a>      <span class="at">call =</span> call,</span>
+<span id="cb64-398"><a href="#cb64-398" aria-hidden="true" tabindex="-1"></a>      <span class="at">class =</span> <span class="st">"check_chars_numeric"</span></span>
+<span id="cb64-399"><a href="#cb64-399" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb64-400"><a href="#cb64-400" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb64-401"><a href="#cb64-401" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb64-402"><a href="#cb64-402" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-403"><a href="#cb64-403" aria-hidden="true" tabindex="-1"></a><span class="in"># Abort if `x` is not </span></span>
-<span id="cb64-404"><a href="#cb64-404" aria-hidden="true" tabindex="-1"></a><span class="in"># 10 characters long</span></span>
-<span id="cb64-405"><a href="#cb64-405" aria-hidden="true" tabindex="-1"></a><span class="in">check_nchars_10 &lt;- function(x) {</span></span>
-<span id="cb64-406"><a href="#cb64-406" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-407"><a href="#cb64-407" aria-hidden="true" tabindex="-1"></a><span class="in">  arg  &lt;- rlang::caller_arg(x)</span></span>
-<span id="cb64-408"><a href="#cb64-408" aria-hidden="true" tabindex="-1"></a><span class="in">  call &lt;- rlang::caller_env()</span></span>
-<span id="cb64-409"><a href="#cb64-409" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-410"><a href="#cb64-410" aria-hidden="true" tabindex="-1"></a><span class="in">  if (stringfish::sf_nchar(x) != 10L) {</span></span>
-<span id="cb64-411"><a href="#cb64-411" aria-hidden="true" tabindex="-1"></a><span class="in">    cli::cli_abort(</span></span>
-<span id="cb64-412"><a href="#cb64-412" aria-hidden="true" tabindex="-1"></a><span class="in">      "An {.arg {arg}} must be 10 characters long.", </span></span>
-<span id="cb64-413"><a href="#cb64-413" aria-hidden="true" tabindex="-1"></a><span class="in">      arg = arg, </span></span>
-<span id="cb64-414"><a href="#cb64-414" aria-hidden="true" tabindex="-1"></a><span class="in">      call = call,</span></span>
-<span id="cb64-415"><a href="#cb64-415" aria-hidden="true" tabindex="-1"></a><span class="in">      class = "check_nchars_10"</span></span>
-<span id="cb64-416"><a href="#cb64-416" aria-hidden="true" tabindex="-1"></a><span class="in">      )</span></span>
-<span id="cb64-417"><a href="#cb64-417" aria-hidden="true" tabindex="-1"></a><span class="in">  }</span></span>
-<span id="cb64-418"><a href="#cb64-418" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb64-403"><a href="#cb64-403" aria-hidden="true" tabindex="-1"></a><span class="co"># Abort if `x` is not </span></span>
+<span id="cb64-404"><a href="#cb64-404" aria-hidden="true" tabindex="-1"></a><span class="co"># 10 characters long</span></span>
+<span id="cb64-405"><a href="#cb64-405" aria-hidden="true" tabindex="-1"></a>check_nchars_10 <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb64-406"><a href="#cb64-406" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-407"><a href="#cb64-407" aria-hidden="true" tabindex="-1"></a>  arg  <span class="ot">&lt;-</span> rlang<span class="sc">::</span><span class="fu">caller_arg</span>(x)</span>
+<span id="cb64-408"><a href="#cb64-408" aria-hidden="true" tabindex="-1"></a>  call <span class="ot">&lt;-</span> rlang<span class="sc">::</span><span class="fu">caller_env</span>()</span>
+<span id="cb64-409"><a href="#cb64-409" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-410"><a href="#cb64-410" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (stringfish<span class="sc">::</span><span class="fu">sf_nchar</span>(x) <span class="sc">!=</span> <span class="dv">10</span>L) {</span>
+<span id="cb64-411"><a href="#cb64-411" aria-hidden="true" tabindex="-1"></a>    cli<span class="sc">::</span><span class="fu">cli_abort</span>(</span>
+<span id="cb64-412"><a href="#cb64-412" aria-hidden="true" tabindex="-1"></a>      <span class="st">"An {.arg {arg}} must be 10 characters long."</span>, </span>
+<span id="cb64-413"><a href="#cb64-413" aria-hidden="true" tabindex="-1"></a>      <span class="at">arg =</span> arg, </span>
+<span id="cb64-414"><a href="#cb64-414" aria-hidden="true" tabindex="-1"></a>      <span class="at">call =</span> call,</span>
+<span id="cb64-415"><a href="#cb64-415" aria-hidden="true" tabindex="-1"></a>      <span class="at">class =</span> <span class="st">"check_nchars_10"</span></span>
+<span id="cb64-416"><a href="#cb64-416" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb64-417"><a href="#cb64-417" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb64-418"><a href="#cb64-418" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb64-419"><a href="#cb64-419" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-420"><a href="#cb64-420" aria-hidden="true" tabindex="-1"></a><span class="in"># Must begin with 1 or 2</span></span>
-<span id="cb64-421"><a href="#cb64-421" aria-hidden="true" tabindex="-1"></a><span class="in">check_first_char &lt;- function(x) {</span></span>
-<span id="cb64-422"><a href="#cb64-422" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-423"><a href="#cb64-423" aria-hidden="true" tabindex="-1"></a><span class="in">  arg  &lt;- rlang::caller_arg(x)</span></span>
-<span id="cb64-424"><a href="#cb64-424" aria-hidden="true" tabindex="-1"></a><span class="in">  call &lt;- rlang::caller_env()</span></span>
-<span id="cb64-425"><a href="#cb64-425" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-426"><a href="#cb64-426" aria-hidden="true" tabindex="-1"></a><span class="in">  if (!stringfish::sf_substr(x, 1, 1) %in% c("1", "2")) {</span></span>
-<span id="cb64-427"><a href="#cb64-427" aria-hidden="true" tabindex="-1"></a><span class="in">    cli::cli_abort(</span></span>
-<span id="cb64-428"><a href="#cb64-428" aria-hidden="true" tabindex="-1"></a><span class="in">      "An {.arg {arg}} must start with a 1 or 2.", </span></span>
-<span id="cb64-429"><a href="#cb64-429" aria-hidden="true" tabindex="-1"></a><span class="in">      arg = arg, </span></span>
-<span id="cb64-430"><a href="#cb64-430" aria-hidden="true" tabindex="-1"></a><span class="in">      call = call,</span></span>
-<span id="cb64-431"><a href="#cb64-431" aria-hidden="true" tabindex="-1"></a><span class="in">      class = "check_first_char"</span></span>
-<span id="cb64-432"><a href="#cb64-432" aria-hidden="true" tabindex="-1"></a><span class="in">      )</span></span>
-<span id="cb64-433"><a href="#cb64-433" aria-hidden="true" tabindex="-1"></a><span class="in">  }</span></span>
-<span id="cb64-434"><a href="#cb64-434" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb64-420"><a href="#cb64-420" aria-hidden="true" tabindex="-1"></a><span class="co"># Must begin with 1 or 2</span></span>
+<span id="cb64-421"><a href="#cb64-421" aria-hidden="true" tabindex="-1"></a>check_first_char <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb64-422"><a href="#cb64-422" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-423"><a href="#cb64-423" aria-hidden="true" tabindex="-1"></a>  arg  <span class="ot">&lt;-</span> rlang<span class="sc">::</span><span class="fu">caller_arg</span>(x)</span>
+<span id="cb64-424"><a href="#cb64-424" aria-hidden="true" tabindex="-1"></a>  call <span class="ot">&lt;-</span> rlang<span class="sc">::</span><span class="fu">caller_env</span>()</span>
+<span id="cb64-425"><a href="#cb64-425" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-426"><a href="#cb64-426" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span>stringfish<span class="sc">::</span><span class="fu">sf_substr</span>(x, <span class="dv">1</span>, <span class="dv">1</span>) <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"1"</span>, <span class="st">"2"</span>)) {</span>
+<span id="cb64-427"><a href="#cb64-427" aria-hidden="true" tabindex="-1"></a>    cli<span class="sc">::</span><span class="fu">cli_abort</span>(</span>
+<span id="cb64-428"><a href="#cb64-428" aria-hidden="true" tabindex="-1"></a>      <span class="st">"An {.arg {arg}} must start with a 1 or 2."</span>, </span>
+<span id="cb64-429"><a href="#cb64-429" aria-hidden="true" tabindex="-1"></a>      <span class="at">arg =</span> arg, </span>
+<span id="cb64-430"><a href="#cb64-430" aria-hidden="true" tabindex="-1"></a>      <span class="at">call =</span> call,</span>
+<span id="cb64-431"><a href="#cb64-431" aria-hidden="true" tabindex="-1"></a>      <span class="at">class =</span> <span class="st">"check_first_char"</span></span>
+<span id="cb64-432"><a href="#cb64-432" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb64-433"><a href="#cb64-433" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb64-434"><a href="#cb64-434" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb64-435"><a href="#cb64-435" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb64-436"><a href="#cb64-436" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb64-437"><a href="#cb64-437" aria-hidden="true" tabindex="-1"></a><span class="fu">## CLI Messages</span></span>
 <span id="cb64-438"><a href="#cb64-438" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb64-439"><a href="#cb64-439" aria-hidden="true" tabindex="-1"></a><span class="in">```{r filename="cli_messages.R"}</span></span>
-<span id="cb64-440"><a href="#cb64-440" aria-hidden="true" tabindex="-1"></a><span class="in">npi_inform &lt;- function(x, msg) {</span></span>
-<span id="cb64-441"><a href="#cb64-441" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-442"><a href="#cb64-442" aria-hidden="true" tabindex="-1"></a><span class="in">  arg  &lt;- rlang::caller_arg(x)</span></span>
-<span id="cb64-443"><a href="#cb64-443" aria-hidden="true" tabindex="-1"></a><span class="in">  call &lt;- rlang::caller_env()</span></span>
-<span id="cb64-444"><a href="#cb64-444" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-445"><a href="#cb64-445" aria-hidden="true" tabindex="-1"></a><span class="in">  rlang::inform(</span></span>
-<span id="cb64-446"><a href="#cb64-446" aria-hidden="true" tabindex="-1"></a><span class="in">    message = (</span></span>
-<span id="cb64-447"><a href="#cb64-447" aria-hidden="true" tabindex="-1"></a><span class="in">      c("*" = glue::glue("{msg}: {x}"))),</span></span>
-<span id="cb64-448"><a href="#cb64-448" aria-hidden="true" tabindex="-1"></a><span class="in">    use_cli_format = TRUE,</span></span>
-<span id="cb64-449"><a href="#cb64-449" aria-hidden="true" tabindex="-1"></a><span class="in">    arg = arg,</span></span>
-<span id="cb64-450"><a href="#cb64-450" aria-hidden="true" tabindex="-1"></a><span class="in">    call = call,</span></span>
-<span id="cb64-451"><a href="#cb64-451" aria-hidden="true" tabindex="-1"></a><span class="in">    class = "npi_inform"</span></span>
-<span id="cb64-452"><a href="#cb64-452" aria-hidden="true" tabindex="-1"></a><span class="in">  )</span></span>
-<span id="cb64-453"><a href="#cb64-453" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb64-440"><a href="#cb64-440" aria-hidden="true" tabindex="-1"></a>npi_inform <span class="ot">&lt;-</span> <span class="cf">function</span>(x, msg) {</span>
+<span id="cb64-441"><a href="#cb64-441" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-442"><a href="#cb64-442" aria-hidden="true" tabindex="-1"></a>  arg  <span class="ot">&lt;-</span> rlang<span class="sc">::</span><span class="fu">caller_arg</span>(x)</span>
+<span id="cb64-443"><a href="#cb64-443" aria-hidden="true" tabindex="-1"></a>  call <span class="ot">&lt;-</span> rlang<span class="sc">::</span><span class="fu">caller_env</span>()</span>
+<span id="cb64-444"><a href="#cb64-444" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-445"><a href="#cb64-445" aria-hidden="true" tabindex="-1"></a>  rlang<span class="sc">::</span><span class="fu">inform</span>(</span>
+<span id="cb64-446"><a href="#cb64-446" aria-hidden="true" tabindex="-1"></a>    <span class="at">message =</span> (</span>
+<span id="cb64-447"><a href="#cb64-447" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"*"</span> <span class="ot">=</span> glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"{msg}: {x}"</span>))),</span>
+<span id="cb64-448"><a href="#cb64-448" aria-hidden="true" tabindex="-1"></a>    <span class="at">use_cli_format =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb64-449"><a href="#cb64-449" aria-hidden="true" tabindex="-1"></a>    <span class="at">arg =</span> arg,</span>
+<span id="cb64-450"><a href="#cb64-450" aria-hidden="true" tabindex="-1"></a>    <span class="at">call =</span> call,</span>
+<span id="cb64-451"><a href="#cb64-451" aria-hidden="true" tabindex="-1"></a>    <span class="at">class =</span> <span class="st">"npi_inform"</span></span>
+<span id="cb64-452"><a href="#cb64-452" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb64-453"><a href="#cb64-453" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb64-454"><a href="#cb64-454" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-455"><a href="#cb64-455" aria-hidden="true" tabindex="-1"></a><span class="in">npi_alert_invalid &lt;- function(x, y) {</span></span>
-<span id="cb64-456"><a href="#cb64-456" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-457"><a href="#cb64-457" aria-hidden="true" tabindex="-1"></a><span class="in">  arg  &lt;- rlang::caller_arg(x)</span></span>
-<span id="cb64-458"><a href="#cb64-458" aria-hidden="true" tabindex="-1"></a><span class="in">  call &lt;- rlang::caller_env()</span></span>
-<span id="cb64-459"><a href="#cb64-459" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-460"><a href="#cb64-460" aria-hidden="true" tabindex="-1"></a><span class="in">  rlang::inform(</span></span>
-<span id="cb64-461"><a href="#cb64-461" aria-hidden="true" tabindex="-1"></a><span class="in">    message = (c("x" = "NPI is invalid")),</span></span>
-<span id="cb64-462"><a href="#cb64-462" aria-hidden="true" tabindex="-1"></a><span class="in">    body = (c("!" = glue::glue("{x} != {y}"))),</span></span>
-<span id="cb64-463"><a href="#cb64-463" aria-hidden="true" tabindex="-1"></a><span class="in">    use_cli_format = TRUE,</span></span>
-<span id="cb64-464"><a href="#cb64-464" aria-hidden="true" tabindex="-1"></a><span class="in">    arg = arg,</span></span>
-<span id="cb64-465"><a href="#cb64-465" aria-hidden="true" tabindex="-1"></a><span class="in">    call = call,</span></span>
-<span id="cb64-466"><a href="#cb64-466" aria-hidden="true" tabindex="-1"></a><span class="in">    class = "npi_alert_invalid"</span></span>
-<span id="cb64-467"><a href="#cb64-467" aria-hidden="true" tabindex="-1"></a><span class="in">  )</span></span>
-<span id="cb64-468"><a href="#cb64-468" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb64-455"><a href="#cb64-455" aria-hidden="true" tabindex="-1"></a>npi_alert_invalid <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y) {</span>
+<span id="cb64-456"><a href="#cb64-456" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-457"><a href="#cb64-457" aria-hidden="true" tabindex="-1"></a>  arg  <span class="ot">&lt;-</span> rlang<span class="sc">::</span><span class="fu">caller_arg</span>(x)</span>
+<span id="cb64-458"><a href="#cb64-458" aria-hidden="true" tabindex="-1"></a>  call <span class="ot">&lt;-</span> rlang<span class="sc">::</span><span class="fu">caller_env</span>()</span>
+<span id="cb64-459"><a href="#cb64-459" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-460"><a href="#cb64-460" aria-hidden="true" tabindex="-1"></a>  rlang<span class="sc">::</span><span class="fu">inform</span>(</span>
+<span id="cb64-461"><a href="#cb64-461" aria-hidden="true" tabindex="-1"></a>    <span class="at">message =</span> (<span class="fu">c</span>(<span class="st">"x"</span> <span class="ot">=</span> <span class="st">"NPI is invalid"</span>)),</span>
+<span id="cb64-462"><a href="#cb64-462" aria-hidden="true" tabindex="-1"></a>    <span class="at">body =</span> (<span class="fu">c</span>(<span class="st">"!"</span> <span class="ot">=</span> glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"{x} != {y}"</span>))),</span>
+<span id="cb64-463"><a href="#cb64-463" aria-hidden="true" tabindex="-1"></a>    <span class="at">use_cli_format =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb64-464"><a href="#cb64-464" aria-hidden="true" tabindex="-1"></a>    <span class="at">arg =</span> arg,</span>
+<span id="cb64-465"><a href="#cb64-465" aria-hidden="true" tabindex="-1"></a>    <span class="at">call =</span> call,</span>
+<span id="cb64-466"><a href="#cb64-466" aria-hidden="true" tabindex="-1"></a>    <span class="at">class =</span> <span class="st">"npi_alert_invalid"</span></span>
+<span id="cb64-467"><a href="#cb64-467" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb64-468"><a href="#cb64-468" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb64-469"><a href="#cb64-469" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-470"><a href="#cb64-470" aria-hidden="true" tabindex="-1"></a><span class="in">npi_alert_valid &lt;- function(x, y) {</span></span>
-<span id="cb64-471"><a href="#cb64-471" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-472"><a href="#cb64-472" aria-hidden="true" tabindex="-1"></a><span class="in">  arg  &lt;- rlang::caller_arg(x)</span></span>
-<span id="cb64-473"><a href="#cb64-473" aria-hidden="true" tabindex="-1"></a><span class="in">  call &lt;- rlang::caller_env()</span></span>
-<span id="cb64-474"><a href="#cb64-474" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-475"><a href="#cb64-475" aria-hidden="true" tabindex="-1"></a><span class="in">  rlang::inform(</span></span>
-<span id="cb64-476"><a href="#cb64-476" aria-hidden="true" tabindex="-1"></a><span class="in">    message = (c("v" = "NPI is valid")),</span></span>
-<span id="cb64-477"><a href="#cb64-477" aria-hidden="true" tabindex="-1"></a><span class="in">    body = (c("&gt;" = glue::glue("{x} == {y}"))),</span></span>
-<span id="cb64-478"><a href="#cb64-478" aria-hidden="true" tabindex="-1"></a><span class="in">    use_cli_format = TRUE,</span></span>
-<span id="cb64-479"><a href="#cb64-479" aria-hidden="true" tabindex="-1"></a><span class="in">    arg = arg,</span></span>
-<span id="cb64-480"><a href="#cb64-480" aria-hidden="true" tabindex="-1"></a><span class="in">    call = call,</span></span>
-<span id="cb64-481"><a href="#cb64-481" aria-hidden="true" tabindex="-1"></a><span class="in">    class = "npi_alert_valid"</span></span>
-<span id="cb64-482"><a href="#cb64-482" aria-hidden="true" tabindex="-1"></a><span class="in">  )</span></span>
-<span id="cb64-483"><a href="#cb64-483" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb64-470"><a href="#cb64-470" aria-hidden="true" tabindex="-1"></a>npi_alert_valid <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y) {</span>
+<span id="cb64-471"><a href="#cb64-471" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-472"><a href="#cb64-472" aria-hidden="true" tabindex="-1"></a>  arg  <span class="ot">&lt;-</span> rlang<span class="sc">::</span><span class="fu">caller_arg</span>(x)</span>
+<span id="cb64-473"><a href="#cb64-473" aria-hidden="true" tabindex="-1"></a>  call <span class="ot">&lt;-</span> rlang<span class="sc">::</span><span class="fu">caller_env</span>()</span>
+<span id="cb64-474"><a href="#cb64-474" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-475"><a href="#cb64-475" aria-hidden="true" tabindex="-1"></a>  rlang<span class="sc">::</span><span class="fu">inform</span>(</span>
+<span id="cb64-476"><a href="#cb64-476" aria-hidden="true" tabindex="-1"></a>    <span class="at">message =</span> (<span class="fu">c</span>(<span class="st">"v"</span> <span class="ot">=</span> <span class="st">"NPI is valid"</span>)),</span>
+<span id="cb64-477"><a href="#cb64-477" aria-hidden="true" tabindex="-1"></a>    <span class="at">body =</span> (<span class="fu">c</span>(<span class="st">"&gt;"</span> <span class="ot">=</span> glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"{x} == {y}"</span>))),</span>
+<span id="cb64-478"><a href="#cb64-478" aria-hidden="true" tabindex="-1"></a>    <span class="at">use_cli_format =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb64-479"><a href="#cb64-479" aria-hidden="true" tabindex="-1"></a>    <span class="at">arg =</span> arg,</span>
+<span id="cb64-480"><a href="#cb64-480" aria-hidden="true" tabindex="-1"></a>    <span class="at">call =</span> call,</span>
+<span id="cb64-481"><a href="#cb64-481" aria-hidden="true" tabindex="-1"></a>    <span class="at">class =</span> <span class="st">"npi_alert_valid"</span></span>
+<span id="cb64-482"><a href="#cb64-482" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb64-483"><a href="#cb64-483" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb64-484"><a href="#cb64-484" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb64-485"><a href="#cb64-485" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb64-486"><a href="#cb64-486" aria-hidden="true" tabindex="-1"></a><span class="fu">## Constructor Function</span></span>
 <span id="cb64-487"><a href="#cb64-487" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb64-488"><a href="#cb64-488" aria-hidden="true" tabindex="-1"></a><span class="in">```{r filename="npi_constructor.R"}</span></span>
-<span id="cb64-489"><a href="#cb64-489" aria-hidden="true" tabindex="-1"></a><span class="in">npi_constructor &lt;- function(npi, verbose = TRUE) {</span></span>
-<span id="cb64-490"><a href="#cb64-490" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-491"><a href="#cb64-491" aria-hidden="true" tabindex="-1"></a><span class="in">  npi &lt;- numeric_to_char(npi)</span></span>
-<span id="cb64-492"><a href="#cb64-492" aria-hidden="true" tabindex="-1"></a><span class="in">  check_length(npi)</span></span>
-<span id="cb64-493"><a href="#cb64-493" aria-hidden="true" tabindex="-1"></a><span class="in">  check_nchars_10(npi)</span></span>
-<span id="cb64-494"><a href="#cb64-494" aria-hidden="true" tabindex="-1"></a><span class="in">  check_chars_numeric(npi)</span></span>
-<span id="cb64-495"><a href="#cb64-495" aria-hidden="true" tabindex="-1"></a><span class="in">  check_first_char(npi)</span></span>
-<span id="cb64-496"><a href="#cb64-496" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-497"><a href="#cb64-497" aria-hidden="true" tabindex="-1"></a><span class="in">  p &lt;- \(..., ss = "") paste0(..., collapse = ss)</span></span>
-<span id="cb64-498"><a href="#cb64-498" aria-hidden="true" tabindex="-1"></a><span class="in">  s &lt;- \(x) unlist(strsplit(x, ""), use.names = FALSE)</span></span>
-<span id="cb64-499"><a href="#cb64-499" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-500"><a href="#cb64-500" aria-hidden="true" tabindex="-1"></a><span class="in">  id &lt;- rev(s(npi)[1:9])</span></span>
-<span id="cb64-501"><a href="#cb64-501" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-502"><a href="#cb64-502" aria-hidden="true" tabindex="-1"></a><span class="in">  if (verbose) {</span></span>
-<span id="cb64-503"><a href="#cb64-503" aria-hidden="true" tabindex="-1"></a><span class="in">    npi_inform(npi, "Testing NPI candidate")</span></span>
-<span id="cb64-504"><a href="#cb64-504" aria-hidden="true" tabindex="-1"></a><span class="in">    npi_inform(p(id, ss = ""), "Reverse 9-digit identifier")</span></span>
-<span id="cb64-505"><a href="#cb64-505" aria-hidden="true" tabindex="-1"></a><span class="in">  }</span></span>
-<span id="cb64-506"><a href="#cb64-506" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-507"><a href="#cb64-507" aria-hidden="true" tabindex="-1"></a><span class="in">  idx     &lt;- c(1, 3, 5, 7, 9)</span></span>
-<span id="cb64-508"><a href="#cb64-508" aria-hidden="true" tabindex="-1"></a><span class="in">  id      &lt;- as.numeric(id)</span></span>
-<span id="cb64-509"><a href="#cb64-509" aria-hidden="true" tabindex="-1"></a><span class="in">  id[idx] &lt;- as.numeric(id[idx]) * 2</span></span>
-<span id="cb64-510"><a href="#cb64-510" aria-hidden="true" tabindex="-1"></a><span class="in">  id[idx] &lt;- ifelse(id[idx] &gt; 9, id[idx] - 9, id[idx])</span></span>
-<span id="cb64-511"><a href="#cb64-511" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-512"><a href="#cb64-512" aria-hidden="true" tabindex="-1"></a><span class="in">  if (verbose) {</span></span>
-<span id="cb64-513"><a href="#cb64-513" aria-hidden="true" tabindex="-1"></a><span class="in">    npi_inform(p(id, ss = " "), "Double &amp; reduce alternates")</span></span>
-<span id="cb64-514"><a href="#cb64-514" aria-hidden="true" tabindex="-1"></a><span class="in">  }</span></span>
-<span id="cb64-515"><a href="#cb64-515" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-516"><a href="#cb64-516" aria-hidden="true" tabindex="-1"></a><span class="in">  id   &lt;- sum(id)</span></span>
-<span id="cb64-517"><a href="#cb64-517" aria-hidden="true" tabindex="-1"></a><span class="in">  cn   &lt;- id + 24</span></span>
-<span id="cb64-518"><a href="#cb64-518" aria-hidden="true" tabindex="-1"></a><span class="in">  ml   &lt;- ceiling(cn / 10) * 10</span></span>
-<span id="cb64-519"><a href="#cb64-519" aria-hidden="true" tabindex="-1"></a><span class="in">  ck   &lt;- ml - cn</span></span>
-<span id="cb64-520"><a href="#cb64-520" aria-hidden="true" tabindex="-1"></a><span class="in">  test &lt;- substr(npi, 1, 9)</span></span>
-<span id="cb64-521"><a href="#cb64-521" aria-hidden="true" tabindex="-1"></a><span class="in">  test &lt;- p(test, ck)</span></span>
-<span id="cb64-522"><a href="#cb64-522" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-523"><a href="#cb64-523" aria-hidden="true" tabindex="-1"></a><span class="in">  if (verbose) {</span></span>
-<span id="cb64-524"><a href="#cb64-524" aria-hidden="true" tabindex="-1"></a><span class="in">    </span></span>
-<span id="cb64-525"><a href="#cb64-525" aria-hidden="true" tabindex="-1"></a><span class="in">    npi_inform(p(p(c(id, 24), ss = " + "), p(" = ", cn)), "Add 24 to sum digits")</span></span>
-<span id="cb64-526"><a href="#cb64-526" aria-hidden="true" tabindex="-1"></a><span class="in">    npi_inform(p(p("⌈", cn, "⌉"), p(" = ", ml)) ,"Next multiple of 10")</span></span>
-<span id="cb64-527"><a href="#cb64-527" aria-hidden="true" tabindex="-1"></a><span class="in">    npi_inform(p(p(c(ml, cn), ss = " - "), p(" = ", ck)), "Find check digit")</span></span>
-<span id="cb64-528"><a href="#cb64-528" aria-hidden="true" tabindex="-1"></a><span class="in">    npi_inform(p(test, ss = ""), "Append check digit")</span></span>
-<span id="cb64-529"><a href="#cb64-529" aria-hidden="true" tabindex="-1"></a><span class="in">    </span></span>
-<span id="cb64-530"><a href="#cb64-530" aria-hidden="true" tabindex="-1"></a><span class="in">    if (identical(test, npi)) npi_alert_valid(test, npi)</span></span>
-<span id="cb64-531"><a href="#cb64-531" aria-hidden="true" tabindex="-1"></a><span class="in">    if (!identical(test, npi)) npi_alert_invalid(test, npi)</span></span>
-<span id="cb64-532"><a href="#cb64-532" aria-hidden="true" tabindex="-1"></a><span class="in">  }</span></span>
-<span id="cb64-533"><a href="#cb64-533" aria-hidden="true" tabindex="-1"></a><span class="in">  invisible(test)</span></span>
-<span id="cb64-534"><a href="#cb64-534" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb64-489"><a href="#cb64-489" aria-hidden="true" tabindex="-1"></a>npi_constructor <span class="ot">&lt;-</span> <span class="cf">function</span>(npi, <span class="at">verbose =</span> <span class="cn">TRUE</span>) {</span>
+<span id="cb64-490"><a href="#cb64-490" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-491"><a href="#cb64-491" aria-hidden="true" tabindex="-1"></a>  npi <span class="ot">&lt;-</span> <span class="fu">numeric_to_char</span>(npi)</span>
+<span id="cb64-492"><a href="#cb64-492" aria-hidden="true" tabindex="-1"></a>  <span class="fu">check_length</span>(npi)</span>
+<span id="cb64-493"><a href="#cb64-493" aria-hidden="true" tabindex="-1"></a>  <span class="fu">check_nchars_10</span>(npi)</span>
+<span id="cb64-494"><a href="#cb64-494" aria-hidden="true" tabindex="-1"></a>  <span class="fu">check_chars_numeric</span>(npi)</span>
+<span id="cb64-495"><a href="#cb64-495" aria-hidden="true" tabindex="-1"></a>  <span class="fu">check_first_char</span>(npi)</span>
+<span id="cb64-496"><a href="#cb64-496" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-497"><a href="#cb64-497" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> \(..., <span class="at">ss =</span> <span class="st">""</span>) <span class="fu">paste0</span>(..., <span class="at">collapse =</span> ss)</span>
+<span id="cb64-498"><a href="#cb64-498" aria-hidden="true" tabindex="-1"></a>  s <span class="ot">&lt;-</span> \(x) <span class="fu">unlist</span>(<span class="fu">strsplit</span>(x, <span class="st">""</span>), <span class="at">use.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb64-499"><a href="#cb64-499" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-500"><a href="#cb64-500" aria-hidden="true" tabindex="-1"></a>  id <span class="ot">&lt;-</span> <span class="fu">rev</span>(<span class="fu">s</span>(npi)[<span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>])</span>
+<span id="cb64-501"><a href="#cb64-501" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-502"><a href="#cb64-502" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (verbose) {</span>
+<span id="cb64-503"><a href="#cb64-503" aria-hidden="true" tabindex="-1"></a>    <span class="fu">npi_inform</span>(npi, <span class="st">"Testing NPI candidate"</span>)</span>
+<span id="cb64-504"><a href="#cb64-504" aria-hidden="true" tabindex="-1"></a>    <span class="fu">npi_inform</span>(<span class="fu">p</span>(id, <span class="at">ss =</span> <span class="st">""</span>), <span class="st">"Reverse 9-digit identifier"</span>)</span>
+<span id="cb64-505"><a href="#cb64-505" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb64-506"><a href="#cb64-506" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-507"><a href="#cb64-507" aria-hidden="true" tabindex="-1"></a>  idx     <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>, <span class="dv">9</span>)</span>
+<span id="cb64-508"><a href="#cb64-508" aria-hidden="true" tabindex="-1"></a>  id      <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(id)</span>
+<span id="cb64-509"><a href="#cb64-509" aria-hidden="true" tabindex="-1"></a>  id[idx] <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(id[idx]) <span class="sc">*</span> <span class="dv">2</span></span>
+<span id="cb64-510"><a href="#cb64-510" aria-hidden="true" tabindex="-1"></a>  id[idx] <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(id[idx] <span class="sc">&gt;</span> <span class="dv">9</span>, id[idx] <span class="sc">-</span> <span class="dv">9</span>, id[idx])</span>
+<span id="cb64-511"><a href="#cb64-511" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-512"><a href="#cb64-512" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (verbose) {</span>
+<span id="cb64-513"><a href="#cb64-513" aria-hidden="true" tabindex="-1"></a>    <span class="fu">npi_inform</span>(<span class="fu">p</span>(id, <span class="at">ss =</span> <span class="st">" "</span>), <span class="st">"Double &amp; reduce alternates"</span>)</span>
+<span id="cb64-514"><a href="#cb64-514" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb64-515"><a href="#cb64-515" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-516"><a href="#cb64-516" aria-hidden="true" tabindex="-1"></a>  id   <span class="ot">&lt;-</span> <span class="fu">sum</span>(id)</span>
+<span id="cb64-517"><a href="#cb64-517" aria-hidden="true" tabindex="-1"></a>  cn   <span class="ot">&lt;-</span> id <span class="sc">+</span> <span class="dv">24</span></span>
+<span id="cb64-518"><a href="#cb64-518" aria-hidden="true" tabindex="-1"></a>  ml   <span class="ot">&lt;-</span> <span class="fu">ceiling</span>(cn <span class="sc">/</span> <span class="dv">10</span>) <span class="sc">*</span> <span class="dv">10</span></span>
+<span id="cb64-519"><a href="#cb64-519" aria-hidden="true" tabindex="-1"></a>  ck   <span class="ot">&lt;-</span> ml <span class="sc">-</span> cn</span>
+<span id="cb64-520"><a href="#cb64-520" aria-hidden="true" tabindex="-1"></a>  test <span class="ot">&lt;-</span> <span class="fu">substr</span>(npi, <span class="dv">1</span>, <span class="dv">9</span>)</span>
+<span id="cb64-521"><a href="#cb64-521" aria-hidden="true" tabindex="-1"></a>  test <span class="ot">&lt;-</span> <span class="fu">p</span>(test, ck)</span>
+<span id="cb64-522"><a href="#cb64-522" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-523"><a href="#cb64-523" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (verbose) {</span>
+<span id="cb64-524"><a href="#cb64-524" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb64-525"><a href="#cb64-525" aria-hidden="true" tabindex="-1"></a>    <span class="fu">npi_inform</span>(<span class="fu">p</span>(<span class="fu">p</span>(<span class="fu">c</span>(id, <span class="dv">24</span>), <span class="at">ss =</span> <span class="st">" + "</span>), <span class="fu">p</span>(<span class="st">" = "</span>, cn)), <span class="st">"Add 24 to sum digits"</span>)</span>
+<span id="cb64-526"><a href="#cb64-526" aria-hidden="true" tabindex="-1"></a>    <span class="fu">npi_inform</span>(<span class="fu">p</span>(<span class="fu">p</span>(<span class="st">"⌈"</span>, cn, <span class="st">"⌉"</span>), <span class="fu">p</span>(<span class="st">" = "</span>, ml)) ,<span class="st">"Next multiple of 10"</span>)</span>
+<span id="cb64-527"><a href="#cb64-527" aria-hidden="true" tabindex="-1"></a>    <span class="fu">npi_inform</span>(<span class="fu">p</span>(<span class="fu">p</span>(<span class="fu">c</span>(ml, cn), <span class="at">ss =</span> <span class="st">" - "</span>), <span class="fu">p</span>(<span class="st">" = "</span>, ck)), <span class="st">"Find check digit"</span>)</span>
+<span id="cb64-528"><a href="#cb64-528" aria-hidden="true" tabindex="-1"></a>    <span class="fu">npi_inform</span>(<span class="fu">p</span>(test, <span class="at">ss =</span> <span class="st">""</span>), <span class="st">"Append check digit"</span>)</span>
+<span id="cb64-529"><a href="#cb64-529" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb64-530"><a href="#cb64-530" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">identical</span>(test, npi)) <span class="fu">npi_alert_valid</span>(test, npi)</span>
+<span id="cb64-531"><a href="#cb64-531" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">identical</span>(test, npi)) <span class="fu">npi_alert_invalid</span>(test, npi)</span>
+<span id="cb64-532"><a href="#cb64-532" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb64-533"><a href="#cb64-533" aria-hidden="true" tabindex="-1"></a>  <span class="fu">invisible</span>(test)</span>
+<span id="cb64-534"><a href="#cb64-534" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb64-535"><a href="#cb64-535" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb64-536"><a href="#cb64-536" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb64-537"><a href="#cb64-537" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Test Validations</span></span>
@@ -1982,26 +1982,26 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb64-596"><a href="#cb64-596" aria-hidden="true" tabindex="-1"></a><span class="fu">## Minimal Validator</span></span>
 <span id="cb64-597"><a href="#cb64-597" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb64-598"><a href="#cb64-598" aria-hidden="true" tabindex="-1"></a><span class="in">```{r filename="is_valid_npi.R"}</span></span>
-<span id="cb64-599"><a href="#cb64-599" aria-hidden="true" tabindex="-1"></a><span class="in">smash &lt;- \(...) paste0(..., collapse = "")</span></span>
-<span id="cb64-600"><a href="#cb64-600" aria-hidden="true" tabindex="-1"></a><span class="in">splat &lt;- \(x)   unlist(strsplit(x, ""), use.names = FALSE)</span></span>
-<span id="cb64-601"><a href="#cb64-601" aria-hidden="true" tabindex="-1"></a><span class="in">idx   &lt;- c(1, 3, 5, 7, 9)</span></span>
+<span id="cb64-599"><a href="#cb64-599" aria-hidden="true" tabindex="-1"></a>smash <span class="ot">&lt;-</span> \(...) <span class="fu">paste0</span>(..., <span class="at">collapse =</span> <span class="st">""</span>)</span>
+<span id="cb64-600"><a href="#cb64-600" aria-hidden="true" tabindex="-1"></a>splat <span class="ot">&lt;-</span> \(x)   <span class="fu">unlist</span>(<span class="fu">strsplit</span>(x, <span class="st">""</span>), <span class="at">use.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb64-601"><a href="#cb64-601" aria-hidden="true" tabindex="-1"></a>idx   <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>, <span class="dv">9</span>)</span>
 <span id="cb64-602"><a href="#cb64-602" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-603"><a href="#cb64-603" aria-hidden="true" tabindex="-1"></a><span class="in">is_valid_npi &lt;- function(x) {</span></span>
-<span id="cb64-604"><a href="#cb64-604" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-605"><a href="#cb64-605" aria-hidden="true" tabindex="-1"></a><span class="in">  stopifnot(stringfish::sf_grepl(x, "^[12][0-9]{9}$"))</span></span>
-<span id="cb64-606"><a href="#cb64-606" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-607"><a href="#cb64-607" aria-hidden="true" tabindex="-1"></a><span class="in">  id &lt;- as.numeric(cheapr::cheapr_rev(splat(x)[1:9]))</span></span>
-<span id="cb64-608"><a href="#cb64-608" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-609"><a href="#cb64-609" aria-hidden="true" tabindex="-1"></a><span class="in">  id[idx] &lt;- id[idx] * 2</span></span>
-<span id="cb64-610"><a href="#cb64-610" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-611"><a href="#cb64-611" aria-hidden="true" tabindex="-1"></a><span class="in">  id[idx] &lt;- codex::iif_else(id[idx] &gt; 9, id[idx] - 9, id[idx])</span></span>
-<span id="cb64-612"><a href="#cb64-612" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-613"><a href="#cb64-613" aria-hidden="true" tabindex="-1"></a><span class="in">  id   &lt;- sum(id) + 24</span></span>
-<span id="cb64-614"><a href="#cb64-614" aria-hidden="true" tabindex="-1"></a><span class="in">  ck   &lt;- (ceiling(id / 10) * 10) - id</span></span>
-<span id="cb64-615"><a href="#cb64-615" aria-hidden="true" tabindex="-1"></a><span class="in">  test &lt;- smash(codex::sf_sub(x, start = 1, stop = 9), ck)</span></span>
-<span id="cb64-616"><a href="#cb64-616" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
-<span id="cb64-617"><a href="#cb64-617" aria-hidden="true" tabindex="-1"></a><span class="in">  identical(test, x)</span></span>
-<span id="cb64-618"><a href="#cb64-618" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb64-603"><a href="#cb64-603" aria-hidden="true" tabindex="-1"></a>is_valid_npi <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb64-604"><a href="#cb64-604" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-605"><a href="#cb64-605" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(stringfish<span class="sc">::</span><span class="fu">sf_grepl</span>(x, <span class="st">"^[12][0-9]{9}$"</span>))</span>
+<span id="cb64-606"><a href="#cb64-606" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-607"><a href="#cb64-607" aria-hidden="true" tabindex="-1"></a>  id <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(cheapr<span class="sc">::</span><span class="fu">cheapr_rev</span>(<span class="fu">splat</span>(x)[<span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>]))</span>
+<span id="cb64-608"><a href="#cb64-608" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-609"><a href="#cb64-609" aria-hidden="true" tabindex="-1"></a>  id[idx] <span class="ot">&lt;-</span> id[idx] <span class="sc">*</span> <span class="dv">2</span></span>
+<span id="cb64-610"><a href="#cb64-610" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-611"><a href="#cb64-611" aria-hidden="true" tabindex="-1"></a>  id[idx] <span class="ot">&lt;-</span> codex<span class="sc">::</span><span class="fu">iif_else</span>(id[idx] <span class="sc">&gt;</span> <span class="dv">9</span>, id[idx] <span class="sc">-</span> <span class="dv">9</span>, id[idx])</span>
+<span id="cb64-612"><a href="#cb64-612" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-613"><a href="#cb64-613" aria-hidden="true" tabindex="-1"></a>  id   <span class="ot">&lt;-</span> <span class="fu">sum</span>(id) <span class="sc">+</span> <span class="dv">24</span></span>
+<span id="cb64-614"><a href="#cb64-614" aria-hidden="true" tabindex="-1"></a>  ck   <span class="ot">&lt;-</span> (<span class="fu">ceiling</span>(id <span class="sc">/</span> <span class="dv">10</span>) <span class="sc">*</span> <span class="dv">10</span>) <span class="sc">-</span> id</span>
+<span id="cb64-615"><a href="#cb64-615" aria-hidden="true" tabindex="-1"></a>  test <span class="ot">&lt;-</span> <span class="fu">smash</span>(codex<span class="sc">::</span><span class="fu">sf_sub</span>(x, <span class="at">start =</span> <span class="dv">1</span>, <span class="at">stop =</span> <span class="dv">9</span>), ck)</span>
+<span id="cb64-616"><a href="#cb64-616" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-617"><a href="#cb64-617" aria-hidden="true" tabindex="-1"></a>  <span class="fu">identical</span>(test, x)</span>
+<span id="cb64-618"><a href="#cb64-618" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb64-619"><a href="#cb64-619" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb64-620"><a href="#cb64-620" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb64-621"><a href="#cb64-621" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Test Validator</span></span>
