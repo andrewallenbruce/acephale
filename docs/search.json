@@ -128,72 +128,100 @@
   {
     "objectID": "posts/packaging/packaging.html",
     "href": "posts/packaging/packaging.html",
-    "title": "R Packaging Workflow",
+    "title": "Tips & Tricks: R Package Creation/Maintenance",
     "section": "",
-    "text": "initialize_package.R\n\n#' Initialize a new R package\n#'\n#' @param pkgname `&lt;chr&gt;` name of package\n#'\n#' @returns nothing\n#'\n#' @examplesIf FALSE\n#' initialize_package(\"package\")\n#'\n#' @autoglobal\n#'\n#' @noRd\ninitialize_package &lt;- \\(pkgname) {\n  \n  local  &lt;- \"C:/Users/Andrew/Desktop/Repositories/\"\n  github &lt;- \"https://github.com/andrewallenbruce/\"\n  \n  usethis::create_package(\n    path = glue::glue(\"{local}{pkgname}\"),\n    fields = list(\n      Package = glue::glue(\"{pkgname}\"),\n      \"Authors@R\" = utils::person(\n        given = c(\"Andrew\", \"Allen\"), \n        family = \"Bruce\", \n        email = \"andrewallenbruce@gmail.com\", \n        role = c(\"aut\", \"cre\", \"cph\")),\n      Maintainer = \"Andrew Allen Bruce &lt;andrewallenbruce@gmail.com&gt;\",\n      URL = glue::glue(\"{github}{pkgname}\"),\n      BugReports = glue::glue(\"{github}{pkgname}/issues\"))\n  )\n}\n\n\n\n\nusethis::use_git()\n\n\nWill ask you to commit files to Git. Say YES.\n\n\n\nusethis::use_github()\n\n\nWill ask you to commit files to GitHub. Say YES.\n\n\n\nusethis::use_mit_license(copyright_holder = \"Andrew Allen Bruce\")\nusethis::use_code_of_conduct(contact = \"andrewallenbruce@gmail.com\")\nusethis::use_package_doc()\nusethis::use_news_md()\n\n\n\nusethis::use_readme_rmd()\n\n\n&lt;!-- badges: start --&gt;\n\n![GitHub R package version](https://img.shields.io/github/r-package/v/andrewallenbruce/PACKAGE?style=flat-square&logo=R&label=Package&color=%23192a38)\n[![Code size](https://img.shields.io/github/languages/code-size/andrewallenbruce/PACKAGE.svg)](https://github.com/andrewallenbruce/PACKAGE)\n[![Last commit](https://img.shields.io/github/last-commit/andrewallenbruce/PACKAGE.svg)](https://github.com/andrewallenbruce/PACKAGE/commits/master)\n[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://choosealicense.com/licenses/mit/)\n\n&lt;!-- badges: end --&gt;\n\n\nroxyglobals::use_roxyglobals()\n\nIn the DESCRIPTION file, make sure the following two fields are as follows:\nConfig/roxyglobals/filename: generated-globals.R\nConfig/roxyglobals/unique: TRUE\n\n\nusethis::use_testthat(parallel = TRUE)\nusethis::use_test(\"add-test\")\n\n\n\nusethis::use_pkgdown_github_pages()\nusethis::use_vignette(\"getting-started\", \"Getting Started\")\n\nCopy and paste into _pkgdown.yml file:\nurl: https://andrewallenbruce.github.io/codex/\n\ntemplate:\n  bootstrap: 5\n  light-switch: true\n  bslib:\n    base_font: {google: \"Roboto\"}\n    heading_font: {google: \"Roboto Slab\"}\n    code_font: {google: \"Source Code Pro\"}\n\nnavbar:\n  structure:\n    left:\n    - intro\n    - reference\n    - articles\n    - tutorials\n    - news\n    right:\n    - search\n    - github\n    - lightswitch\n  components:\n    reference:\n      text: Reference\n      href: reference/index.html\n    search:\n      search: []\n    lightswitch:\n      icon: fa-sun\n      aria-label: Light switch\n      id: lightswitch\n      menu:\n      - text: Light\n        theme: light\n        icon: fa-sun\n      - text: Dark\n        theme: dark\n        icon: fa-moon\n      - text: Auto\n        theme: auto\n        icon: fa-adjust\n    news:\n      text: Changelog\n      href: news/index.html\n    github:\n      icon: fab fa-github fa-lg\n      href: https://github.com/andrewallenbruce/codex/\n      aria-label: GitHub\nFunction Reference Example:\nreference:\n\n- title: Classifications\n  desc: &gt;\n    Classification systems for added context and dimensionality reduction.\n  contents:\n  - betos\n  - ndc_lookup\n  - taxonomies\n  - taxonomy_codes\n  - taxonomy_crosswalk\n\n- title: Utilities\n  desc: &gt;\n    Various helper functions.\n  contents:\n  - change\n  - geomean\n  - years_df\n  - duration_vec\n  - summary_stats\n  - add_counties\n\n\ndevtools::check()\ndevtools::build_rmd(\"README.Rmd\")\nusethis::use_tidy_description()"
+    "text": "initialize_package.R\n\ninitialize_package &lt;- \\(pkgname,\n                        local = \"C:/Users/Andrew/Desktop/Repositories/\",\n                        github = \"https://github.com/andrewallenbruce/\") {\n  \n  usethis::create_package(\n    path          = glue::glue(\"{local}{pkgname}\"),\n    fields        = list(\n    Package       = glue::glue(\"{pkgname}\"),\n    \"Authors@R\"   = utils::person(\n    given         = c(\"Andrew\", \"Allen\"), \n    family        = \"Bruce\", \n    email         = \"andrewallenbruce@gmail.com\", \n    role          = c(\"aut\", \"cre\", \"cph\")),\n    Maintainer    = \"Andrew Allen Bruce &lt;andrewallenbruce@gmail.com&gt;\",\n    URL           = glue::glue(\"{github}{pkgname}\"),\n    BugReports    = glue::glue(\"{github}{pkgname}/issues\"))\n  )\n}\n\n\n\n\nWill ask you to commit files to Git. Say YES.\n\n\nuse_git()\n\n\nWill ask you to commit files to GitHub. Say YES.\n\n\n\nuse_github()\n\n\n\nuse_mit_license(\"Andrew Allen Bruce\")\n\n\n\nuse_code_of_conduct(contact = \"andrewallenbruce@gmail.com\")\n\n\n\nuse_package_doc()\n\n\n\nuse_news_md()\n\n\n\nroxyglobals::use_roxyglobals()\n\nIn the DESCRIPTION file, make sure the following two fields are filled out:\nConfig/roxyglobals/filename: generated-globals.R\nConfig/roxyglobals/unique: TRUE\n\n\nuse_testthat(parallel = TRUE)\n\n\n\nuse_test(\"add-test\")\n\n\n\nuse_pkgdown_github_pages()\n\n\n\n\n_pkgdown.yml\n\nurl: https://andrewallenbruce.github.io/pkgname/\n\ntemplate:\n  bootstrap: 5\n  light-switch: true\n  bslib:\n    base_font: {google: \"Roboto\"}\n    heading_font: {google: \"Roboto Slab\"}\n    code_font: {google: \"Source Code Pro\"}\n\nnavbar:\n  structure:\n    left:\n    - intro\n    - reference\n    - articles\n    - tutorials\n    - news\n    right:\n    - search\n    - github\n    - lightswitch\n  components:\n    reference:\n      text: Reference\n      href: reference/index.html\n    search:\n      search: []\n    lightswitch:\n      icon: fa-sun\n      aria-label: Light switch\n      id: lightswitch\n      menu:\n      - text: Light\n        theme: light\n        icon: fa-sun\n      - text: Dark\n        theme: dark\n        icon: fa-moon\n      - text: Auto\n        theme: auto\n        icon: fa-adjust\n    news:\n      text: Changelog\n      href: news/index.html\n    github:\n      icon: fab fa-github fa-lg\n      href: https://github.com/andrewallenbruce/pkgname/\n      aria-label: GitHub\n\n\n\n\n_pkgdown.yml\n\nreference:\n\n- title: Classifications\n  desc: &gt;\n    Classification systems for added context and dimensionality reduction.\n  contents:\n  - betos\n  - ndc_lookup\n  - taxonomies\n  - taxonomy_codes\n  - taxonomy_crosswalk\n\n- title: Utilities\n  desc: &gt;\n    Various helper functions.\n  contents:\n  - change\n  - geomean\n  - years_df\n  - duration_vec\n  - summary_stats\n  - add_counties\n\n\n\nuse_vignette(\"getting-started\", \"Getting Started\")\n\n\n\nuse_readme_rmd()\n\n\n\nglue::glue('\n&lt;!-- badges: start --&gt;\n\n![GitHub R package version](https://img.shields.io/github/r-package/v/andrewallenbruce/{PACKAGE}?style=flat-square&logo=R&label=Package&color=%23192a38)\n[![Code size](https://img.shields.io/github/languages/code-size/andrewallenbruce/{PACKAGE}.svg)](https://github.com/andrewallenbruce/{PACKAGE})\n[![Last commit](https://img.shields.io/github/last-commit/andrewallenbruce/{PACKAGE}.svg)](https://github.com/andrewallenbruce/{PACKAGE}/commits/master)\n[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://choosealicense.com/licenses/mit/)\n\n&lt;!-- badges: end --&gt;\n', \nPACKAGE = \"pkgname\", \nsep = \"\\n\")\n\n&lt;!-- badges: start --&gt;\n\n![GitHub R package version](https://img.shields.io/github/r-package/v/andrewallenbruce/pkgname?style=flat-square&logo=R&label=Package&color=%23192a38)\n[![Code size](https://img.shields.io/github/languages/code-size/andrewallenbruce/pkgname.svg)](https://github.com/andrewallenbruce/pkgname)\n[![Last commit](https://img.shields.io/github/last-commit/andrewallenbruce/pkgname.svg)](https://github.com/andrewallenbruce/pkgname/commits/master)\n[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://choosealicense.com/licenses/mit/)\n\n&lt;!-- badges: end --&gt;\n\n\n\n\nbuild_rmd(\"README.Rmd\")\n\nError in build_rmd(\"README.Rmd\"): could not find function \"build_rmd\"\n\n\n\n\ndevtools::check()\n\n\n\nuse_tidy_description()"
   },
   {
     "objectID": "posts/packaging/packaging.html#connect-to-git",
     "href": "posts/packaging/packaging.html#connect-to-git",
-    "title": "R Packaging Workflow",
+    "title": "Tips & Tricks: R Package Creation/Maintenance",
     "section": "",
-    "text": "usethis::use_git()\n\n\nWill ask you to commit files to Git. Say YES."
+    "text": "Will ask you to commit files to Git. Say YES.\n\n\nuse_git()\n\n\nWill ask you to commit files to GitHub. Say YES."
   },
   {
-    "objectID": "posts/packaging/packaging.html#create-repository-on-github",
-    "href": "posts/packaging/packaging.html#create-repository-on-github",
-    "title": "R Packaging Workflow",
+    "objectID": "posts/packaging/packaging.html#create-github-repository",
+    "href": "posts/packaging/packaging.html#create-github-repository",
+    "title": "Tips & Tricks: R Package Creation/Maintenance",
     "section": "",
-    "text": "usethis::use_github()\n\n\nWill ask you to commit files to GitHub. Say YES."
+    "text": "use_github()"
   },
   {
-    "objectID": "posts/packaging/packaging.html#add-license-coc-package-document-and-news",
-    "href": "posts/packaging/packaging.html#add-license-coc-package-document-and-news",
-    "title": "R Packaging Workflow",
+    "objectID": "posts/packaging/packaging.html#add-license",
+    "href": "posts/packaging/packaging.html#add-license",
+    "title": "Tips & Tricks: R Package Creation/Maintenance",
     "section": "",
-    "text": "usethis::use_mit_license(copyright_holder = \"Andrew Allen Bruce\")\nusethis::use_code_of_conduct(contact = \"andrewallenbruce@gmail.com\")\nusethis::use_package_doc()\nusethis::use_news_md()"
+    "text": "use_mit_license(\"Andrew Allen Bruce\")"
   },
   {
-    "objectID": "posts/packaging/packaging.html#add-readme.rmd",
-    "href": "posts/packaging/packaging.html#add-readme.rmd",
-    "title": "R Packaging Workflow",
+    "objectID": "posts/packaging/packaging.html#add-code-of-conduct",
+    "href": "posts/packaging/packaging.html#add-code-of-conduct",
+    "title": "Tips & Tricks: R Package Creation/Maintenance",
     "section": "",
-    "text": "usethis::use_readme_rmd()\n\n\n&lt;!-- badges: start --&gt;\n\n![GitHub R package version](https://img.shields.io/github/r-package/v/andrewallenbruce/PACKAGE?style=flat-square&logo=R&label=Package&color=%23192a38)\n[![Code size](https://img.shields.io/github/languages/code-size/andrewallenbruce/PACKAGE.svg)](https://github.com/andrewallenbruce/PACKAGE)\n[![Last commit](https://img.shields.io/github/last-commit/andrewallenbruce/PACKAGE.svg)](https://github.com/andrewallenbruce/PACKAGE/commits/master)\n[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://choosealicense.com/licenses/mit/)\n\n&lt;!-- badges: end --&gt;"
+    "text": "use_code_of_conduct(contact = \"andrewallenbruce@gmail.com\")"
   },
   {
-    "objectID": "posts/packaging/packaging.html#use-roxyglobals",
-    "href": "posts/packaging/packaging.html#use-roxyglobals",
-    "title": "R Packaging Workflow",
+    "objectID": "posts/packaging/packaging.html#add-package-document",
+    "href": "posts/packaging/packaging.html#add-package-document",
+    "title": "Tips & Tricks: R Package Creation/Maintenance",
     "section": "",
-    "text": "roxyglobals::use_roxyglobals()\n\nIn the DESCRIPTION file, make sure the following two fields are as follows:\nConfig/roxyglobals/filename: generated-globals.R\nConfig/roxyglobals/unique: TRUE"
+    "text": "use_package_doc()"
   },
   {
-    "objectID": "posts/packaging/packaging.html#use-testthat",
-    "href": "posts/packaging/packaging.html#use-testthat",
-    "title": "R Packaging Workflow",
+    "objectID": "posts/packaging/packaging.html#add-newschangelog",
+    "href": "posts/packaging/packaging.html#add-newschangelog",
+    "title": "Tips & Tricks: R Package Creation/Maintenance",
     "section": "",
-    "text": "usethis::use_testthat(parallel = TRUE)\nusethis::use_test(\"add-test\")"
+    "text": "use_news_md()"
+  },
+  {
+    "objectID": "posts/packaging/packaging.html#set-up-roxyglobals",
+    "href": "posts/packaging/packaging.html#set-up-roxyglobals",
+    "title": "Tips & Tricks: R Package Creation/Maintenance",
+    "section": "",
+    "text": "roxyglobals::use_roxyglobals()\n\nIn the DESCRIPTION file, make sure the following two fields are filled out:\nConfig/roxyglobals/filename: generated-globals.R\nConfig/roxyglobals/unique: TRUE"
+  },
+  {
+    "objectID": "posts/packaging/packaging.html#set-up-testthat",
+    "href": "posts/packaging/packaging.html#set-up-testthat",
+    "title": "Tips & Tricks: R Package Creation/Maintenance",
+    "section": "",
+    "text": "use_testthat(parallel = TRUE)\n\n\n\nuse_test(\"add-test\")"
   },
   {
     "objectID": "posts/packaging/packaging.html#create-pkgdown-site",
     "href": "posts/packaging/packaging.html#create-pkgdown-site",
-    "title": "R Packaging Workflow",
+    "title": "Tips & Tricks: R Package Creation/Maintenance",
     "section": "",
-    "text": "usethis::use_pkgdown_github_pages()\nusethis::use_vignette(\"getting-started\", \"Getting Started\")\n\nCopy and paste into _pkgdown.yml file:\nurl: https://andrewallenbruce.github.io/codex/\n\ntemplate:\n  bootstrap: 5\n  light-switch: true\n  bslib:\n    base_font: {google: \"Roboto\"}\n    heading_font: {google: \"Roboto Slab\"}\n    code_font: {google: \"Source Code Pro\"}\n\nnavbar:\n  structure:\n    left:\n    - intro\n    - reference\n    - articles\n    - tutorials\n    - news\n    right:\n    - search\n    - github\n    - lightswitch\n  components:\n    reference:\n      text: Reference\n      href: reference/index.html\n    search:\n      search: []\n    lightswitch:\n      icon: fa-sun\n      aria-label: Light switch\n      id: lightswitch\n      menu:\n      - text: Light\n        theme: light\n        icon: fa-sun\n      - text: Dark\n        theme: dark\n        icon: fa-moon\n      - text: Auto\n        theme: auto\n        icon: fa-adjust\n    news:\n      text: Changelog\n      href: news/index.html\n    github:\n      icon: fab fa-github fa-lg\n      href: https://github.com/andrewallenbruce/codex/\n      aria-label: GitHub\nFunction Reference Example:\nreference:\n\n- title: Classifications\n  desc: &gt;\n    Classification systems for added context and dimensionality reduction.\n  contents:\n  - betos\n  - ndc_lookup\n  - taxonomies\n  - taxonomy_codes\n  - taxonomy_crosswalk\n\n- title: Utilities\n  desc: &gt;\n    Various helper functions.\n  contents:\n  - change\n  - geomean\n  - years_df\n  - duration_vec\n  - summary_stats\n  - add_counties"
+    "text": "use_pkgdown_github_pages()\n\n\n\n\n_pkgdown.yml\n\nurl: https://andrewallenbruce.github.io/pkgname/\n\ntemplate:\n  bootstrap: 5\n  light-switch: true\n  bslib:\n    base_font: {google: \"Roboto\"}\n    heading_font: {google: \"Roboto Slab\"}\n    code_font: {google: \"Source Code Pro\"}\n\nnavbar:\n  structure:\n    left:\n    - intro\n    - reference\n    - articles\n    - tutorials\n    - news\n    right:\n    - search\n    - github\n    - lightswitch\n  components:\n    reference:\n      text: Reference\n      href: reference/index.html\n    search:\n      search: []\n    lightswitch:\n      icon: fa-sun\n      aria-label: Light switch\n      id: lightswitch\n      menu:\n      - text: Light\n        theme: light\n        icon: fa-sun\n      - text: Dark\n        theme: dark\n        icon: fa-moon\n      - text: Auto\n        theme: auto\n        icon: fa-adjust\n    news:\n      text: Changelog\n      href: news/index.html\n    github:\n      icon: fab fa-github fa-lg\n      href: https://github.com/andrewallenbruce/pkgname/\n      aria-label: GitHub\n\n\n\n\n_pkgdown.yml\n\nreference:\n\n- title: Classifications\n  desc: &gt;\n    Classification systems for added context and dimensionality reduction.\n  contents:\n  - betos\n  - ndc_lookup\n  - taxonomies\n  - taxonomy_codes\n  - taxonomy_crosswalk\n\n- title: Utilities\n  desc: &gt;\n    Various helper functions.\n  contents:\n  - change\n  - geomean\n  - years_df\n  - duration_vec\n  - summary_stats\n  - add_counties\n\n\n\nuse_vignette(\"getting-started\", \"Getting Started\")"
   },
   {
-    "objectID": "posts/packaging/packaging.html#run-commit-and-push",
-    "href": "posts/packaging/packaging.html#run-commit-and-push",
-    "title": "R Packaging Workflow",
+    "objectID": "posts/packaging/packaging.html#add-readme.rmd",
+    "href": "posts/packaging/packaging.html#add-readme.rmd",
+    "title": "Tips & Tricks: R Package Creation/Maintenance",
     "section": "",
-    "text": "devtools::check()\ndevtools::build_rmd(\"README.Rmd\")\nusethis::use_tidy_description()"
+    "text": "use_readme_rmd()\n\n\n\nglue::glue('\n&lt;!-- badges: start --&gt;\n\n![GitHub R package version](https://img.shields.io/github/r-package/v/andrewallenbruce/{PACKAGE}?style=flat-square&logo=R&label=Package&color=%23192a38)\n[![Code size](https://img.shields.io/github/languages/code-size/andrewallenbruce/{PACKAGE}.svg)](https://github.com/andrewallenbruce/{PACKAGE})\n[![Last commit](https://img.shields.io/github/last-commit/andrewallenbruce/{PACKAGE}.svg)](https://github.com/andrewallenbruce/{PACKAGE}/commits/master)\n[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://choosealicense.com/licenses/mit/)\n\n&lt;!-- badges: end --&gt;\n', \nPACKAGE = \"pkgname\", \nsep = \"\\n\")\n\n&lt;!-- badges: start --&gt;\n\n![GitHub R package version](https://img.shields.io/github/r-package/v/andrewallenbruce/pkgname?style=flat-square&logo=R&label=Package&color=%23192a38)\n[![Code size](https://img.shields.io/github/languages/code-size/andrewallenbruce/pkgname.svg)](https://github.com/andrewallenbruce/pkgname)\n[![Last commit](https://img.shields.io/github/last-commit/andrewallenbruce/pkgname.svg)](https://github.com/andrewallenbruce/pkgname/commits/master)\n[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://choosealicense.com/licenses/mit/)\n\n&lt;!-- badges: end --&gt;\n\n\n\n\nbuild_rmd(\"README.Rmd\")\n\nError in build_rmd(\"README.Rmd\"): could not find function \"build_rmd\""
+  },
+  {
+    "objectID": "posts/packaging/packaging.html#run-rcmdchk",
+    "href": "posts/packaging/packaging.html#run-rcmdchk",
+    "title": "Tips & Tricks: R Package Creation/Maintenance",
+    "section": "",
+    "text": "devtools::check()\n\n\n\nuse_tidy_description()"
+  },
+  {
+    "objectID": "posts/packaging/packaging.html#use-gert-to-force-commitpush",
+    "href": "posts/packaging/packaging.html#use-gert-to-force-commitpush",
+    "title": "Tips & Tricks: R Package Creation/Maintenance",
+    "section": "\n5.1 Use {gert} to Force Commit/Push",
+    "text": "5.1 Use {gert} to Force Commit/Push\n\nWhen RStudio won’t let you commit files & push them to GitHub.\n\n\nfuimus::git_commit\n\nfunction (msg) \n{\n    files &lt;- gert::git_status()\n    files_to_stage &lt;- dplyr::pull(dplyr::filter(files, !staged), \n        file)\n    if (fs::file_exists(here::here(\".git/index.lock\"))) {\n        fs::file_delete(here::here(\".git/index.lock\"))\n    }\n    gert::git_add(files_to_stage)\n    gert::git_commit_all(message = msg)\n    fledge::bump_version()\n}\n&lt;bytecode: 0x0000027ed969c9a8&gt;\n&lt;environment: namespace:fuimus&gt;"
   },
   {
     "objectID": "posts/packaging/packaging.html#session-information",
     "href": "posts/packaging/packaging.html#session-information",
-    "title": "R Packaging Workflow",
+    "title": "Tips & Tricks: R Package Creation/Maintenance",
     "section": "\n6.1 Session Information",
-    "text": "6.1 Session Information\n\n\nR version 4.4.2 (2024-10-31 ucrt)\nPlatform: x86_64-w64-mingw32/x64\nlocale: LC_COLLATE=English_United States.utf8, LC_CTYPE=English_United States.utf8, LC_MONETARY=English_United States.utf8, LC_NUMERIC=C and LC_TIME=English_United States.utf8\nattached base packages: stats, graphics, grDevices, utils, datasets, methods and base\nloaded via a namespace (and not attached): digest(v.0.6.37), fastmap(v.1.2.0), xfun(v.0.49), knitr(v.1.49), htmltools(v.0.5.8.1), rmarkdown(v.2.29), lifecycle(v.1.0.4), cli(v.3.6.3), pander(v.0.6.5), textshaping(v.0.4.1), systemfonts(v.1.1.0), compiler(v.4.4.2), rstudioapi(v.0.17.1), tools(v.4.4.2), ragg(v.1.3.3), evaluate(v.1.0.1), Rcpp(v.1.0.13-1), yaml(v.2.3.10), rlang(v.1.1.4), jsonlite(v.1.8.9) and htmlwidgets(v.1.6.4)"
+    "text": "6.1 Session Information\n\n\nR version 4.4.2 (2024-10-31 ucrt)\nPlatform: x86_64-w64-mingw32/x64\nlocale: LC_COLLATE=English_United States.utf8, LC_CTYPE=English_United States.utf8, LC_MONETARY=English_United States.utf8, LC_NUMERIC=C and LC_TIME=English_United States.utf8\nattached base packages: stats, graphics, grDevices, utils, datasets, methods and base\nloaded via a namespace (and not attached): digest(v.0.6.37), fastmap(v.1.2.0), xfun(v.0.50), glue(v.1.8.0), knitr(v.1.49), htmltools(v.0.5.8.1), rmarkdown(v.2.29), lifecycle(v.1.0.4), cli(v.3.6.3.9001), pander(v.0.6.5), fuimus(v.0.0.5.9009), textshaping(v.0.4.1), systemfonts(v.1.1.0), compiler(v.4.4.2), rstudioapi(v.0.17.1), tools(v.4.4.2), ragg(v.1.3.3), evaluate(v.1.0.1), Rcpp(v.1.0.13-1), yaml(v.2.3.10), crayon(v.1.5.3), rlang(v.1.1.4), jsonlite(v.1.8.9) and htmlwidgets(v.1.6.4)"
   },
   {
     "objectID": "posts/npi/npi_constructor.html",
@@ -291,7 +319,7 @@
     "href": "index.html",
     "title": "Learning for Getting A Head",
     "section": "",
-    "text": "Order By\n      Default\n      \n        Date - Oldest\n      \n      \n        Date - Newest\n      \n      \n        Title\n      \n    \n  \n    \n      \n      \n    \n\n\n\n\n\n\nDate\n\n\n\nTitle\n\n\n\nReading Time\n\n\n\n\n\n\n\n\n2024-12-17\n\n\nprovider: Metadata Caching\n\n\n7 min\n\n\n\n\n\n\n2024-12-16\n\n\ncrule: Healthcare Claims Rules\n\n\n19 min\n\n\n\n\n\n\n2024-12-15\n\n\narkrvu: Medicare Physician Fee Schedule\n\n\n38 min\n\n\n\n\n\n\n2024-12-14\n\n\nnorthstar: Audit Workflow\n\n\n14 min\n\n\n\n\n\n\n2024-12-14\n\n\nforager: The Art of DAR\n\n\n8 min\n\n\n\n\n\n\n2024-12-14\n\n\nprovider: Luhn’s Algorithm\n\n\n14 min\n\n\n\n\n\n\n2024-12-14\n\n\narknpi: NPPES Registry Archive\n\n\n7 min\n\n\n\n\n\n\n2024-12-14\n\n\narktax: Provider Taxonomy Codeset\n\n\n5 min\n\n\n\n\n\n\n2024-12-14\n\n\ncodex: Medical Code Regex Builder\n\n\n27 min\n\n\n\n\n\n\n2024-12-13\n\n\nprovider: Comprehensive Search\n\n\n7 min\n\n\n\n\n\n\n2024-12-13\n\n\nR Packaging Workflow\n\n\n7 min\n\n\n\n\n\n\n2024-11-16\n\n\nMedical Codes as Matrices\n\n\n3 min\n\n\n\n\n\n\n2024-11-04\n\n\n100%\n\n\n8 min\n\n\n\n\n\n\nNo matching items\n Back to top"
+    "text": "Order By\n      Default\n      \n        Date - Oldest\n      \n      \n        Date - Newest\n      \n      \n        Title\n      \n    \n  \n    \n      \n      \n    \n\n\n\n\n\n\nDate\n\n\n\nTitle\n\n\n\nReading Time\n\n\n\n\n\n\n\n\n2025-01-10\n\n\nTips & Tricks: R Package Creation/Maintenance\n\n\n6 min\n\n\n\n\n\n\n2024-12-17\n\n\nprovider: Metadata Caching\n\n\n7 min\n\n\n\n\n\n\n2024-12-16\n\n\ncrule: Healthcare Claims Rules\n\n\n19 min\n\n\n\n\n\n\n2024-12-15\n\n\narkrvu: Medicare Physician Fee Schedule\n\n\n38 min\n\n\n\n\n\n\n2024-12-14\n\n\nnorthstar: Audit Workflow\n\n\n14 min\n\n\n\n\n\n\n2024-12-14\n\n\nforager: The Art of DAR\n\n\n8 min\n\n\n\n\n\n\n2024-12-14\n\n\nprovider: Luhn’s Algorithm\n\n\n14 min\n\n\n\n\n\n\n2024-12-14\n\n\narknpi: NPPES Registry Archive\n\n\n7 min\n\n\n\n\n\n\n2024-12-14\n\n\narktax: Provider Taxonomy Codeset\n\n\n5 min\n\n\n\n\n\n\n2024-12-14\n\n\ncodex: Medical Code Regex Builder\n\n\n27 min\n\n\n\n\n\n\n2024-12-13\n\n\nprovider: Comprehensive Search\n\n\n7 min\n\n\n\n\n\n\n2024-11-16\n\n\nMedical Codes as Matrices\n\n\n3 min\n\n\n\n\n\n\n2024-11-04\n\n\n100%\n\n\n8 min\n\n\n\n\n\n\nNo matching items\n Back to top"
   },
   {
     "objectID": "posts/dar/art_of_dar.html",

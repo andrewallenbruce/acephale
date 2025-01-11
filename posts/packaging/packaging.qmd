@@ -1,5 +1,5 @@
 ---
-title: "R Packaging Workflow"
+title: "Tips & Tricks: R Package Creation/Maintenance"
 ---
 
 ```{r}
@@ -24,135 +24,126 @@ knitr::opts_chunk$set(
 options(scipen = 999, digits = 2)
 ```
 
-# Initialize R Package
+# Initialize New Package
 
 ```{r filename="initialize_package.R"}
 #| label: initialize_package
 #| eval: false
-
-#' Initialize a new R package
-#'
-#' @param pkgname `<chr>` name of package
-#'
-#' @returns nothing
-#'
-#' @examplesIf FALSE
-#' initialize_package("package")
-#'
-#' @autoglobal
-#'
-#' @noRd
-initialize_package <- \(pkgname) {
-  
-  local  <- "C:/Users/Andrew/Desktop/Repositories/"
-  github <- "https://github.com/andrewallenbruce/"
+initialize_package <- \(pkgname,
+                        local = "C:/Users/Andrew/Desktop/Repositories/",
+                        github = "https://github.com/andrewallenbruce/") {
   
   usethis::create_package(
-    path = glue::glue("{local}{pkgname}"),
-    fields = list(
-      Package = glue::glue("{pkgname}"),
-      "Authors@R" = utils::person(
-        given = c("Andrew", "Allen"), 
-        family = "Bruce", 
-        email = "andrewallenbruce@gmail.com", 
-        role = c("aut", "cre", "cph")),
-      Maintainer = "Andrew Allen Bruce <andrewallenbruce@gmail.com>",
-      URL = glue::glue("{github}{pkgname}"),
-      BugReports = glue::glue("{github}{pkgname}/issues"))
+    path          = glue::glue("{local}{pkgname}"),
+    fields        = list(
+    Package       = glue::glue("{pkgname}"),
+    "Authors@R"   = utils::person(
+    given         = c("Andrew", "Allen"), 
+    family        = "Bruce", 
+    email         = "andrewallenbruce@gmail.com", 
+    role          = c("aut", "cre", "cph")),
+    Maintainer    = "Andrew Allen Bruce <andrewallenbruce@gmail.com>",
+    URL           = glue::glue("{github}{pkgname}"),
+    BugReports    = glue::glue("{github}{pkgname}/issues"))
   )
 }
 ```
 
 ## Connect to Git
 
-```{r}
-#| label: connect-git
-#| eval: false
-usethis::use_git()
-```
-
 > _Will ask you to commit files to Git. Say **YES**._
 
-## Create Repository on GitHub
-
 ```{r}
-#| label: connect-github
+#| label: use_git
 #| eval: false
-usethis::use_github()
+use_git()
 ```
 
 > _Will ask you to commit files to GitHub. Say **YES**._
 
-## Add License, COC, Package Document, and News
+## Create GitHub Repository
 
 ```{r}
-#| label: add-license-coc-doc-news
+#| label: use_github
 #| eval: false
-usethis::use_mit_license(copyright_holder = "Andrew Allen Bruce")
-usethis::use_code_of_conduct(contact = "andrewallenbruce@gmail.com")
-usethis::use_package_doc()
-usethis::use_news_md()
+use_github()
 ```
 
-## Add README.Rmd
+## Add License
 
 ```{r}
-#| label: use-rmd
+#| label: use_mit_license
 #| eval: false
-usethis::use_readme_rmd()
+use_mit_license("Andrew Allen Bruce")
 ```
 
-### Add Badges to README
-
-```markdown
-<!-- badges: start -->
-
-![GitHub R package version](https://img.shields.io/github/r-package/v/andrewallenbruce/PACKAGE?style=flat-square&logo=R&label=Package&color=%23192a38)
-[![Code size](https://img.shields.io/github/languages/code-size/andrewallenbruce/PACKAGE.svg)](https://github.com/andrewallenbruce/PACKAGE)
-[![Last commit](https://img.shields.io/github/last-commit/andrewallenbruce/PACKAGE.svg)](https://github.com/andrewallenbruce/PACKAGE/commits/master)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://choosealicense.com/licenses/mit/)
-
-<!-- badges: end -->
-```
-
-## Use {roxyglobals}
+## Add Code of Conduct
 
 ```{r}
-#| label: use-roxy
+#| label: use_code_of_conduct
+#| eval: false
+use_code_of_conduct(contact = "andrewallenbruce@gmail.com")
+```
+
+## Add package-document
+
+```{r}
+#| label: use_package_doc
+#| eval: false
+use_package_doc()
+```
+
+## Add News/Changelog
+
+```{r}
+#| label: use_news_md
+#| eval: false
+use_news_md()
+```
+
+## Set Up __{roxyglobals}__
+
+```{r}
+#| label: use_roxyglobals
 #| eval: false
 roxyglobals::use_roxyglobals()
 ```
 
-In the `DESCRIPTION` file, make sure the following two fields are as follows:
+In the `DESCRIPTION` file, make sure the following two fields are filled out:
 
-```yaml
+```{.yaml}
 Config/roxyglobals/filename: generated-globals.R
 Config/roxyglobals/unique: TRUE
 ```
 
-## Use {testthat}
+## Set Up __{testthat}__
 
 ```{r}
-#| label: use-testthat
+#| label: use_testthat
 #| eval: false
-usethis::use_testthat(parallel = TRUE)
-usethis::use_test("add-test")
+use_testthat(parallel = TRUE)
 ```
 
-
-## Create {pkgdown} site
+### Add Example Test
 
 ```{r}
-#| label: use-pkgdown
+#| label: use_test
 #| eval: false
-usethis::use_pkgdown_github_pages()
-usethis::use_vignette("getting-started", "Getting Started")
+use_test("add-test")
 ```
 
-Copy and paste into `_pkgdown.yml` file:
+## Create __{pkgdown}__ Site
 
-```yaml
-url: https://andrewallenbruce.github.io/codex/
+```{r}
+#| label: use_pkgdown_github_pages
+#| eval: false
+use_pkgdown_github_pages()
+```
+
+### Use `_pkgdown.yml`
+
+```{.yaml filename="_pkgdown.yml"}
+url: https://andrewallenbruce.github.io/pkgname/
 
 template:
   bootstrap: 5
@@ -199,13 +190,13 @@ navbar:
       href: news/index.html
     github:
       icon: fab fa-github fa-lg
-      href: https://github.com/andrewallenbruce/codex/
+      href: https://github.com/andrewallenbruce/pkgname/
       aria-label: GitHub
 ```
 
-Function Reference Example:
+### Reference Example
 
-```yaml
+```{.yaml filename="_pkgdown.yml"}
 reference:
 
 - title: Classifications
@@ -230,14 +221,61 @@ reference:
   - add_counties
 ```
 
-## Run, Commit and Push
+### Optional: Vignette
 
 ```{r}
-#| label: last-steps
+#| label: use_vignette
+#| eval: false
+use_vignette("getting-started", "Getting Started")
+```
+
+## Add `README.Rmd`
+
+```{r}
+#| label: use-rmd
+#| eval: false
+use_readme_rmd()
+```
+
+### Add Badges to README
+
+```{r}
+#| label: badges-rmd
+glue::glue('
+<!-- badges: start -->
+
+![GitHub R package version](https://img.shields.io/github/r-package/v/andrewallenbruce/{PACKAGE}?style=flat-square&logo=R&label=Package&color=%23192a38)
+[![Code size](https://img.shields.io/github/languages/code-size/andrewallenbruce/{PACKAGE}.svg)](https://github.com/andrewallenbruce/{PACKAGE})
+[![Last commit](https://img.shields.io/github/last-commit/andrewallenbruce/{PACKAGE}.svg)](https://github.com/andrewallenbruce/{PACKAGE}/commits/master)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://choosealicense.com/licenses/mit/)
+
+<!-- badges: end -->
+', 
+PACKAGE = "pkgname", 
+sep = "\n")
+```
+
+### Build `README.Rmd`
+
+```{r}
+build_rmd("README.Rmd")
+```
+
+
+## Run RCMDCHK
+
+```{r}
+#| label: rcmdcheck
 #| eval: false
 devtools::check()
-devtools::build_rmd("README.Rmd")
-usethis::use_tidy_description()
+```
+
+### Correct All Errors, Warnings, Notes
+
+```{r}
+#| label: use_tidy_description
+#| eval: false
+use_tidy_description()
 ```
 
 <hr>
@@ -249,7 +287,8 @@ Call:
 ```{r}
 #| label: use-data-raw
 #| eval: false
-usethis::use_data_raw("dataset")
+use_data_raw("dataset")
+use_data_raw("pins_internal")
 ```
 
 Create `pins_internal.R` file in `data-raw` directory, the copy and paste into file:
@@ -292,9 +331,9 @@ source(here::here("data-raw", "pins_internal.R"))
 # -- Data wrangling code here -- #
 
 pin_update(
-  dataset,
-  name = "object_name",
-  title = "Short Description",
+  object_name,
+  name        = "object_name",
+  title       = "Short Description",
   description = "Long Description"
 )
 ```
@@ -304,124 +343,27 @@ Call:
 ```{r}
 #| label: pins_r
 #| eval: false
-usethis::use_r("pins")
+use_r("pins")
 ```
 
-Copy and paste the following to `pins.R` file:
+> Soon to be split off into it's own package
 
 ```{r filename="pins.R"}
-#| label: pins_functions
-#| eval: false
-
-#' Return GitHub raw url
-#'
-#' @param x `<chr>` string
-#'
-#' @returns `<chr>` GitHub raw url
-#'
-#' @examples
-#' gh_raw("andrewbruce/example/main/inst/pins/")
-#'
-#' @autoglobal
-#'
-#' @keywords internal
-#'
-#' @export
-gh_raw <- function(x) {
-  paste0("https://raw.githubusercontent.com/", x)
-}
-
-#' Mount [pins][pins::pins-package] board
-#'
-#' @param source `<chr>` `"local"` or `"remote"`
-#'
-#' @param package `<chr>` package name
-#'
-#' @returns `<pins_board_folder>` or `<pins_board_url>`
-#'
-#' @autoglobal
-#' 
-#' @importFrom pins board_folder board_url
-#' @importFrom fs path_package
-#' @importFrom glue glue
-#'
-#' @keywords internal
-#'
-#' @export
-mount_board <- function(source = c("local", "remote"), package = "<package_name>") {
-
-  source <- match.arg(source)
-
-  switch(
-    source,
-    local = board_folder(
-      path_package("extdata/pins", package = package)
-      ),
-    remote = board_url(
-      gh_raw(
-        glue("andrewallenbruce/{package}/master/inst/extdata/pins/")
-        )
-      ),
-    stop("Invalid source")
-    )
-}
-
-#' Get a pinned dataset from a [pins][pins::pins-package] board
-#'
-#' @param pin `<chr>` string name of pinned dataset
-#'
-#' @param ... additional arguments passed to `mount_board()`
-#'
-#' @returns `<tibble>` or `<data.frame>`
-#'
-#' @autoglobal
-#' 
-#' @importFrom pins pin_read
-#'
-#' @keywords internal
-#'
-#' @export
-get_pin <- function(pin, ...) {
-
-  board <- mount_board(...)
-
-  pin <- match.arg(pin, list_pins())
-
-  pin_read(board, pin)
-}
-
-#' List pins from a [pins][pins::pins-package] board
-#'
-#' @param ... arguments to pass to [mount_board()]
-#'
-#' @returns `<list>` of [pins][pins::pins-package]
-#'
-#' @autoglobal
-#' 
-#' @importFrom pins pin_list
-#'
-#' @keywords internal
-#'
-#' @export
-list_pins <- function(...) {
-
-  board <- mount_board(...)
-
-  pin_list(board)
-}
+use_standalone("andrewallenbruce/fuimus", "helpers")
 ```
 
 <hr>
 
 # Bump Package Version
 
-Run after committing changes:
+> <major>.<minor>.<patch>.<dev>
+> usethis::use_version("patch")
 
 ```{r}
 #| label: bump-version
 #| eval: false
-# <major>.<minor>.<patch>.<dev>
-usethis::use_version("patch")
+fledge::bump_version()
+fledge::finalize_version(push = TRUE)
 ```
 
 # Use {covr}
@@ -429,28 +371,22 @@ usethis::use_version("patch")
 ```{r}
 #| label: use-covr
 #| eval: false
-usethis::use_coverage("codecov")
-usethis::use_github_action("test-coverage")
+use_coverage("codecov")
+use_github_action("test-coverage")
 ```
 
 <hr>
 
-# Use {gert} 
+# Troubleshooting
+
+## Use {gert} to Force Commit/Push
 
 > When RStudio won't let you commit files & push them to GitHub.
 
 ```{r}
 #| label: gert
-#| eval: false
-files <- gert::git_status()
-
-files_to_stage <- files |>
-  dplyr::filter(!staged) |>
-  dplyr::pull(file)
-
-gert::git_add(files_to_stage)
-gert::git_commit_all(message = "COMMIT MESSAGE")
-gert::git_push()
+#| eval: true
+fuimus::git_commit
 ```
 
 # Update Personal Packages
@@ -458,42 +394,12 @@ gert::git_push()
 ```{r}
 #| label: update_packages
 #| eval: false
-#' Install/upgrade personal packages
-#'
-#' @autoglobal
-#'
-#' @keywords internal
-#'
-#' @noRd
-update_packages <- function() {
-
-  pkgs <- c(
-    "careroll",
-    "codexchain",
-    "costoffice",
-    "defogger",
-    "forager",
-    "fuimus",
-    "northstar",
-    "pathologie",
-    "procedural",
-    "provider",
-    "rbrvs", # name will change
-    "nppez",
-    "arktax",
-    "arknpi",
-    "codex"
-  )
-
-  pak::pkg_install(
-    glue::glue(
-      "andrewallenbruce/{pkgs}"
-    ),
-    upgrade = TRUE,
-    ask = FALSE)
-}
+fuimus::update_personal_packages()
 ```
 
+<hr>
+
+<br>
 
 ## Session Information 
 
