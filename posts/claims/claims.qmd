@@ -233,9 +233,9 @@ df_new |>
     geom_path(
         data = df_reg, 
         aes(y = reg_avg, group = 1),
-        size = .5, 
+        linewidth = .5, 
         color = "gold") +
-    geom_path(aes(group = dealer), size = 1) +
+    geom_path(aes(group = dealer), linewidth = 1) +
     facet_wrap(~ dealer, ncol = 5) +
     scale_x_discrete(labels = quart_lab, 
                      expand = c(0, 0)) +
@@ -245,13 +245,15 @@ df_new |>
          x = NULL, 
          y = NULL) +
     geom_text(
-        data = df_new |> filter(dealer == "Mare valley", quart == "2019 Q3") |> transmute(dealer, quart, value = 90),
+        data = df_new |> 
+          filter(dealer == "Mare valley", quart == "2019 Q3") |> 
+          transmute(dealer, quart, value = 90),
         label = "Regional average", 
         hjust = 1, 
         size = 3,
         color = "gold", 
         family = font_rc) +
-    # dark_theme_minimal(base_family = font_rc) +
+    dark_theme_minimal(base_family = font_rc) +
     theme(
         plot.title = element_text(family = "Roboto Slab", size = 20),
         panel.spacing.x =  unit(1, "lines"), 
