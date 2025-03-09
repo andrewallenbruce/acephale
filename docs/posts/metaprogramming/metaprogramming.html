@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.14">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="author" content="Andrew Allen Bruce">
+<meta name="dcterms.date" content="2025-03-09">
+<title>Metaprogramming – acéphale</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-5593775d84e4d2a8ea12ac38bba8f48d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-30dbb4ed0a726c8ad78d1859ef47b1a9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light"><script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script><style>html{ scroll-behavior: smooth; }</style>
+<meta property="og:title" content="Metaprogramming – acéphale">
+<meta property="og:description" content="Learning for Getting A Head">
+<meta property="og:site_name" content="acéphale">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:title" content="Metaprogramming – acéphale">
+<meta name="twitter:description" content="Learning for Getting A Head">
+<meta name="twitter:creator" content="@andrewallbruce">
+<meta name="twitter:card" content="summary">
+</head>
+<body class="floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner"><nav class="navbar navbar-expand-lg " data-bs-theme="dark"><div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">acéphale</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+<li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/andrewallenbruce"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/andrewallbruce"> <i class="bi bi-twitter" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/andrewallenbruce/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+</div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full"><div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <div class="quarto-title-block"><div><h1 class="title">Metaprogramming</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i></button></div></div>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p><a href="https://andrewallenbruce.github.io">Andrew Allen Bruce</a> <a href="mailto:andrewallenbruce@gmail.com" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Last updated</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">March 9, 2025</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="3"><h2 id="toc-title">Contents</h2>
+   
+  <ul>
+<li>
+<a href="#advanced-operations" id="toc-advanced-operations" class="nav-link active" data-scroll-target="#advanced-operations"><span class="header-section-number">1</span> Advanced Operations</a>
+  <ul class="collapse">
+<li><a href="#multiple-variables" id="toc-multiple-variables" class="nav-link" data-scroll-target="#multiple-variables"><span class="header-section-number">1.1</span> Multiple variables</a></li>
+  <li><a href="#multiple-queries" id="toc-multiple-queries" class="nav-link" data-scroll-target="#multiple-queries"><span class="header-section-number">1.2</span> Multiple queries</a></li>
+  <li><a href="#multiple-queries-with-an-overlapping-range" id="toc-multiple-queries-with-an-overlapping-range" class="nav-link" data-scroll-target="#multiple-queries-with-an-overlapping-range"><span class="header-section-number">1.3</span> Multiple queries with an overlapping range</a></li>
+  <li><a href="#characters-to-field-names" id="toc-characters-to-field-names" class="nav-link" data-scroll-target="#characters-to-field-names"><span class="header-section-number">1.4</span> Characters to field names</a></li>
+  </ul>
+</li>
+  </ul></nav>
+</nav><div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content"><section id="advanced-operations" class="level1" data-number="1"><h1 data-number="1">
+<span class="header-section-number">1</span> Advanced Operations</h1>
+<p>Create a new function call <code>my_mean()</code> that will take an argument, <code>x</code>, and then returns the results of <code>enquo(x)</code></p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">my_mean</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu">enquo</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Test the new function. It should return the same variable name, but inside a quosure. Use <code>order_total</code> as its argument’s value to test</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">my_mean</span><span class="op">(</span><span class="va">order_total</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Remove the last line that has <code>x</code>, add the contents of the function with the initial <code>dplyr</code> code from step Then replace <code>order_total</code> with <code>!! x</code></p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">my_mean</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">enquo</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span>  <span class="va">orders</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">summarise</span><span class="op">(</span>mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="op">!</span><span class="op">!</span><span class="va">x</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>In the <code>summarise()</code> step, replace the name <code>mean</code>, with <code>!! as_label(x)</code>, also replace the <code>=</code> sign, with <code>:=</code></p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">my_mean</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">enquo</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span>  </span>
+<span>    <span class="fu">summarise</span><span class="op">(</span></span>
+<span>      <span class="op">!</span><span class="op">!</span><span class="fu">as_label</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">:=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="op">!</span><span class="op">!</span><span class="va">x</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Run the function again, the name of the column should match the argument value</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">my_mean</span><span class="op">(</span><span class="va">order_total</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Test the function by passing a formula, such as <code>order_total / order_qty</code></p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">order_total</span> <span class="op">/</span> <span class="va">order_qty</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Make the function generic, add a new argument called: <code>.data</code>. Inisde the function, replace <code>orders</code> with <code>.data</code></p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">my_mean</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">.data</span>, <span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">enquo</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span>  <span class="va">.data</span> <span class="op">%&gt;%</span></span>
+<span>    <span class="fu">summarise</span><span class="op">(</span><span class="op">!</span><span class="op">!</span><span class="fu">as_label</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">:=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="op">!</span><span class="op">!</span><span class="va">x</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ol type="1">
+<li>The function now behaves more like a <code>dplyr</code> verb. Start with <code>orders</code> and then pipe into the function ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">orders</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">my_mean</span><span class="op">(</span><span class="va">order_total</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+<ol type="1">
+<li>Clean up the code by removing the pipe that inside the function ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">my_mean</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">.data</span>, <span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">enquo</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span>  <span class="fu">summarise</span><span class="op">(</span><span class="va">.data</span>, <span class="op">!</span><span class="op">!</span><span class="fu">as_label</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">:=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="op">!</span><span class="op">!</span><span class="va">x</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+<ol type="1">
+<li>Confirm that there is no change in the behavior of the function ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">orders</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">my_mean</span><span class="op">(</span><span class="va">order_total</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+<ol type="1">
+<li>Add a <code>show_query()</code> step to preview the resulting SQL statement ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">orders</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">my_mean</span><span class="op">(</span><span class="va">order_total</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">show_query</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+<ol type="1">
+<li>Try the function with a non-DB backed variable, such as <code>mtcars</code>. Use <code>mpg</code> as the aggregating variable ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">mtcars</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">my_mean</span><span class="op">(</span><span class="va">mpg</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+<section id="multiple-variables" class="level2" data-number="1.1"><h2 data-number="1.1" class="anchored" data-anchor-id="multiple-variables">
+<span class="header-section-number">1.1</span> Multiple variables</h2>
+<p><em>Create functions that handle a variable number of arguments. The goal of the exercise is to create an <code>anti-select()</code> function.</em></p>
+<ol type="1">
+<li>Load the <code>purrr</code> package ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://purrr.tidyverse.org/">purrr</a></span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+<ol type="1">
+<li>Use <em>…</em> as the second argument of a function called <code>de_select()</code>. Inside the function use <code>enquos()</code> to parse it ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">de_select</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">.data</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">vars</span> <span class="op">&lt;-</span> <span class="fu">enquos</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+<span>  <span class="va">vars</span></span>
+<span><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+<ol type="1">
+<li>Test the function using <em>orders</em> ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">orders</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">de_select</span><span class="op">(</span><span class="va">order_id</span>, <span class="va">date</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+<ol type="1">
+<li>Add a step to the function that iterates through each quosure and prefixes a minus sign to tell <code>select()</code> to drop that specific field. Use <code><a href="https://purrr.tidyverse.org/reference/map.html">map()</a></code> for the iteration, and <code>quo()</code> to create the prefixed expression. ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">de_select</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">.data</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">vars</span> <span class="op">&lt;-</span> <span class="fu">enquos</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+<span>  <span class="va">vars</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map</a></span><span class="op">(</span><span class="va">vars</span>, <span class="op">~</span> <span class="fu">quo</span><span class="op">(</span><span class="op">-</span><span class="op">!</span><span class="op">!</span><span class="va">.x</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">vars</span></span>
+<span><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+<ol type="1">
+<li>Run the same test to view the new results ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">orders</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">de_select</span><span class="op">(</span><span class="va">order_id</span>, <span class="va">date</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+<ol type="1">
+<li>Add the <code>select()</code> step. Use <em>!!!</em> to parse the <em>vars</em> variable inside <code>select()</code> ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">de_select</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">.data</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">vars</span> <span class="op">&lt;-</span> <span class="fu">enquos</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+<span>  <span class="va">vars</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map</a></span><span class="op">(</span><span class="va">vars</span>, <span class="op">~</span> <span class="fu">quo</span><span class="op">(</span><span class="op">-</span><span class="op">!</span><span class="op">!</span><span class="va">.x</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu">select</span><span class="op">(</span><span class="va">.data</span>, <span class="op">!</span><span class="op">!</span><span class="op">!</span><span class="va">vars</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+<ol type="1">
+<li>Run the test again, this time the operation will take place.<br>
+::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">orders</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">de_select</span><span class="op">(</span><span class="va">order_id</span>, <span class="va">date</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+<ol type="1">
+<li>Add a <code>show_query()</code> step to see the resulting SQL ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">orders</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">de_select</span><span class="op">(</span><span class="va">order_id</span>, <span class="va">date</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">show_query</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+<ol type="1">
+<li>Test the function with a different data set, such as <code>mtcars</code> ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">mtcars</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">de_select</span><span class="op">(</span><span class="va">mpg</span>, <span class="va">wt</span>, <span class="va">am</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+</section><section id="multiple-queries" class="level2" data-number="1.2"><h2 data-number="1.2" class="anchored" data-anchor-id="multiple-queries">
+<span class="header-section-number">1.2</span> Multiple queries</h2>
+<p><em>Suggested approach to avoid passing multiple, and similar, queries to the database</em></p>
+<ol type="1">
+<li>Create a simple <code>dplyr</code> piped operation that returns the mean of <em>order_total</em> for the months of January, February and March as a group ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">orders</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">date_month</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">summarise</span><span class="op">(</span>mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">order_total</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+<ol type="1">
+<li>Assign the first operation to a variable called <em>a</em>, and create copy of the operation but changing the selected months to January, March and April. Assign the second one to a variable called <em>b</em>. ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="va">orders</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">date_month</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">summarise</span><span class="op">(</span>mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">order_total</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> </span>
+<span></span>
+<span><span class="va">b</span> <span class="op">&lt;-</span> <span class="va">orders</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">date_month</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span>,<span class="fl">4</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">summarise</span><span class="op">(</span>mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">order_total</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+<ol type="1">
+<li>Use <em>union()</em> to pass <em>a</em> and <em>b</em> at the same time to the database ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/sets.html">union</a></span><span class="op">(</span><span class="va">a</span>, <span class="va">b</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+<ol type="1">
+<li>Pipe the previous instruction to <code>show_query()</code> to confirm that the resulting query is a single one ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/sets.html">union</a></span><span class="op">(</span><span class="va">a</span>, <span class="va">b</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">show_query</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+<ol type="1">
+<li>Assign to a new variable called <em>months</em> an overlapping set of months ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">months</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">3</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span>,<span class="fl">4</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">4</span>,<span class="fl">6</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+<ol type="1">
+<li>Use <code><a href="https://purrr.tidyverse.org/reference/map.html">map()</a></code> to cycle through each set of overlapping months. Notice that it returns three separate results, meaning that it went to the database three times ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">months</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map</a></span><span class="op">(</span></span>
+<span>    <span class="op">~</span> <span class="va">orders</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">date_month</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="va">.x</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>        <span class="fu">summarise</span><span class="op">(</span>mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">order_total</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> </span>
+<span>  <span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+<ol type="1">
+<li>Add a <code><a href="https://purrr.tidyverse.org/reference/reduce.html">reduce()</a></code> operation and use <code><a href="https://rdrr.io/r/base/sets.html">union()</a></code> command to create a single query ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">months</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map</a></span><span class="op">(</span></span>
+<span>    <span class="op">~</span> <span class="va">orders</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">date_month</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="va">.x</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>        <span class="fu">summarise</span><span class="op">(</span>mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">order_total</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> </span>
+<span>  <span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/reduce.html">reduce</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sets.html">union</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+<ol type="1">
+<li>Use <code>show_query()</code> to see the resulting single query sent to the database ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">months</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map</a></span><span class="op">(</span></span>
+<span>    <span class="op">~</span> <span class="va">orders</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">date_month</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="va">.x</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>        <span class="fu">summarise</span><span class="op">(</span>mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">order_total</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> </span>
+<span>  <span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/reduce.html">reduce</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sets.html">union</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">show_query</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+</section><section id="multiple-queries-with-an-overlapping-range" class="level2" data-number="1.3"><h2 data-number="1.3" class="anchored" data-anchor-id="multiple-queries-with-an-overlapping-range">
+<span class="header-section-number">1.3</span> Multiple queries with an overlapping range</h2>
+<ol type="1">
+<li>Create a table with a <em>from</em> and <em>to</em> ranges ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">ranges</span> <span class="op">&lt;-</span> <span class="fu">tribble</span><span class="op">(</span></span>
+<span>  <span class="op">~</span> <span class="va">from</span>, <span class="op">~</span><span class="va">to</span>, </span>
+<span>       <span class="fl">1</span>,   <span class="fl">4</span>,</span>
+<span>       <span class="fl">2</span>,   <span class="fl">5</span>,</span>
+<span>       <span class="fl">3</span>,   <span class="fl">7</span></span>
+<span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+<ol type="1">
+<li>See how <code><a href="https://purrr.tidyverse.org/reference/map2.html">map2()</a></code> works by passing the two variables as the <em>x</em> and <em>y</em> arguments, and adding them as the function ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map2.html">map2</a></span><span class="op">(</span><span class="va">ranges</span><span class="op">$</span><span class="va">from</span>, <span class="va">ranges</span><span class="op">$</span><span class="va">to</span>, <span class="op">~</span><span class="va">.x</span> <span class="op">+</span> <span class="va">.y</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+<ol type="1">
+<li>Replace <em>x + y</em> with the <code>dplyr</code> operation from the previous exercise. In it, re-write the filter to use <em>x</em> and <em>y</em> as the month ranges ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map2.html">map2</a></span><span class="op">(</span></span>
+<span>  <span class="va">ranges</span><span class="op">$</span><span class="va">from</span>,</span>
+<span>  <span class="va">ranges</span><span class="op">$</span><span class="va">to</span>,</span>
+<span>  <span class="op">~</span> <span class="va">orders</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">date_month</span> <span class="op">&gt;=</span> <span class="va">.x</span> <span class="op">&amp;</span> <span class="va">date_month</span> <span class="op">&lt;=</span> <span class="va">.y</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>    <span class="fu">summarise</span><span class="op">(</span>mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">order_total</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+<ol type="1">
+<li>Add the <code><a href="https://purrr.tidyverse.org/reference/reduce.html">reduce()</a></code> operation ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map2.html">map2</a></span><span class="op">(</span></span>
+<span>  <span class="va">ranges</span><span class="op">$</span><span class="va">from</span>,</span>
+<span>  <span class="va">ranges</span><span class="op">$</span><span class="va">to</span>,</span>
+<span>  <span class="op">~</span> <span class="va">orders</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">date_month</span> <span class="op">&gt;=</span> <span class="va">.x</span> <span class="op">&amp;</span> <span class="va">date_month</span> <span class="op">&lt;=</span> <span class="va">.y</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>    <span class="fu">summarise</span><span class="op">(</span>mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">order_total</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/reduce.html">reduce</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/sets.html">union</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+<ol type="1">
+<li>Add a <code>show_query()</code> step to see how the final query was constructed. ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map2.html">map2</a></span><span class="op">(</span></span>
+<span>  <span class="va">ranges</span><span class="op">$</span><span class="va">from</span>,</span>
+<span>  <span class="va">ranges</span><span class="op">$</span><span class="va">to</span>,</span>
+<span>  <span class="op">~</span> <span class="va">orders</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">date_month</span> <span class="op">&gt;=</span> <span class="va">.x</span> <span class="op">&amp;</span> <span class="va">date_month</span> <span class="op">&lt;=</span> <span class="va">.y</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>    <span class="fu">summarise</span><span class="op">(</span>mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">order_total</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/reduce.html">reduce</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/sets.html">union</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">show_query</span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+</section><section id="characters-to-field-names" class="level2" data-number="1.4"><h2 data-number="1.4" class="anchored" data-anchor-id="characters-to-field-names">
+<span class="header-section-number">1.4</span> Characters to field names</h2>
+<ol type="1">
+<li>Create two character variables. One with the name of a field in <em>flights</em> and another with a new name to be given to the field ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">my_field</span> <span class="op">&lt;-</span> <span class="st">"new"</span></span>
+<span><span class="va">orders_field</span> <span class="op">&lt;-</span> <span class="st">"order_total"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+<ol type="1">
+<li>Add a <code>mutate()</code> step that adds the new field. And then another step selecting just the new field ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">orders</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">mutate</span><span class="op">(</span>my_field <span class="op">=</span> <span class="op">!</span><span class="op">!</span> <span class="va">orders_field</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">select</span><span class="op">(</span><span class="va">my_field</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+<ol type="1">
+<li>Add a <code>mutate()</code> step that adds the new field. And then another step selecting just the new field ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">orders</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">mutate</span><span class="op">(</span><span class="op">!</span><span class="op">!</span> <span class="va">my_field</span> <span class="op">:=</span> <span class="op">!</span><span class="op">!</span> <span class="va">orders_field</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">select</span><span class="op">(</span><span class="va">my_field</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+<ol type="1">
+<li>Wrap <code>orders_field</code> inside a <code>sym()</code> function ::: {.cell layout-align=“center”}</li>
+</ol>
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">orders</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">mutate</span><span class="op">(</span><span class="op">!</span><span class="op">!</span> <span class="va">my_field</span> <span class="op">:=</span> <span class="op">!</span><span class="op">!</span> <span class="fu">sym</span><span class="op">(</span><span class="va">orders_field</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">select</span><span class="op">(</span><span class="va">my_field</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+
+
+<!-- -->
+
+</section></section><a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a><div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-reuse"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div class="quarto-appendix-contents"><div><a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></div></div></section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{allen_bruce2025,
+  author = {Allen Bruce, Andrew},
+  title = {Metaprogramming},
+  date = {2025-03-09},
+  url = {https://andrewallenbruce.github.io/acephale/posts/metaprogramming/metaprogramming.html},
+  langid = {en}
+}
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-allen_bruce2025" class="csl-entry quarto-appendix-citeas" role="listitem">
+Allen Bruce, Andrew. 2025. <span>“Metaprogramming.”</span> March 9,
+2025. <a href="https://andrewallenbruce.github.io/acephale/posts/metaprogramming/metaprogramming.html">https://andrewallenbruce.github.io/acephale/posts/metaprogramming/metaprogramming.html</a>.
+</div></div></section></div></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/andrewallenbruce\.github\.io\/acephale\/");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb39" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Metaprogramming"</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a><span class="co">    reference-location: block</span></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a><span class="an">editor_options:</span><span class="co"> </span></span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a><span class="co">  chunk_output_type: console</span></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
+<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb39-16"><a href="#cb39-16" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb39-17"><a href="#cb39-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-18"><a href="#cb39-18" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(</span>
+<span id="cb39-19"><a href="#cb39-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">eval =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb39-20"><a href="#cb39-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">dev        =</span> <span class="st">"ragg_png"</span>,</span>
+<span id="cb39-21"><a href="#cb39-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">dpi        =</span> <span class="dv">320</span>,</span>
+<span id="cb39-22"><a href="#cb39-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">out.width  =</span> <span class="st">"100%"</span>,</span>
+<span id="cb39-23"><a href="#cb39-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.width  =</span> <span class="dv">8</span>,</span>
+<span id="cb39-24"><a href="#cb39-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.asp    =</span> <span class="fl">0.818</span>,</span>
+<span id="cb39-25"><a href="#cb39-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.retina =</span> <span class="dv">2</span>,</span>
+<span id="cb39-26"><a href="#cb39-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.align  =</span> <span class="st">"center"</span>,</span>
+<span id="cb39-27"><a href="#cb39-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.show   =</span> <span class="st">"hold"</span></span>
+<span id="cb39-28"><a href="#cb39-28" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb39-29"><a href="#cb39-29" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen =</span> <span class="dv">999</span>, <span class="at">digits =</span> <span class="dv">3</span>)</span>
+<span id="cb39-30"><a href="#cb39-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-31"><a href="#cb39-31" aria-hidden="true" tabindex="-1"></a><span class="co"># https://github.com/rstudio-conf-2020/big-data/blob/master/workbook/08-advanced-operations.Rmd</span></span>
+<span id="cb39-32"><a href="#cb39-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-33"><a href="#cb39-33" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb39-34"><a href="#cb39-34" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rlang)</span>
+<span id="cb39-35"><a href="#cb39-35" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(config)</span>
+<span id="cb39-36"><a href="#cb39-36" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fuimus)</span>
+<span id="cb39-37"><a href="#cb39-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-38"><a href="#cb39-38" aria-hidden="true" tabindex="-1"></a>orders      <span class="ot">&lt;-</span> <span class="dv">25</span></span>
+<span id="cb39-39"><a href="#cb39-39" aria-hidden="true" tabindex="-1"></a>order_total <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">2002.15</span>, <span class="fl">3003.15</span>)</span>
+<span id="cb39-40"><a href="#cb39-40" aria-hidden="true" tabindex="-1"></a>order_qty   <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb39-41"><a href="#cb39-41" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-42"><a href="#cb39-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-43"><a href="#cb39-43" aria-hidden="true" tabindex="-1"></a><span class="fu"># Advanced Operations</span></span>
+<span id="cb39-44"><a href="#cb39-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-45"><a href="#cb39-45" aria-hidden="true" tabindex="-1"></a>Create a new function call <span class="in">`my_mean()`</span> that will take an argument, <span class="in">`x`</span>, and then returns the results of <span class="in">`enquo(x)`</span></span>
+<span id="cb39-46"><a href="#cb39-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-49"><a href="#cb39-49" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-50"><a href="#cb39-50" aria-hidden="true" tabindex="-1"></a>my_mean <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">enquo</span>(x)</span>
+<span id="cb39-51"><a href="#cb39-51" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-52"><a href="#cb39-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-53"><a href="#cb39-53" aria-hidden="true" tabindex="-1"></a>Test the new function. It should return the same variable name, but inside a quosure. Use <span class="in">`order_total`</span> as its argument's value to test</span>
+<span id="cb39-54"><a href="#cb39-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-57"><a href="#cb39-57" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-58"><a href="#cb39-58" aria-hidden="true" tabindex="-1"></a><span class="fu">my_mean</span>(order_total)</span>
+<span id="cb39-59"><a href="#cb39-59" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-60"><a href="#cb39-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-61"><a href="#cb39-61" aria-hidden="true" tabindex="-1"></a>Remove the last line that has <span class="in">`x`</span>,  add the contents of the function with the initial <span class="in">`dplyr`</span> code from step</span>
+<span id="cb39-62"><a href="#cb39-62" aria-hidden="true" tabindex="-1"></a>Then replace <span class="in">`order_total`</span> with <span class="in">`!! x`</span></span>
+<span id="cb39-63"><a href="#cb39-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-66"><a href="#cb39-66" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-67"><a href="#cb39-67" aria-hidden="true" tabindex="-1"></a>my_mean <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb39-68"><a href="#cb39-68" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">enquo</span>(x)</span>
+<span id="cb39-69"><a href="#cb39-69" aria-hidden="true" tabindex="-1"></a>  orders <span class="sc">|&gt;</span></span>
+<span id="cb39-70"><a href="#cb39-70" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">mean =</span> <span class="fu">mean</span>(<span class="sc">!!</span>x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb39-71"><a href="#cb39-71" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb39-72"><a href="#cb39-72" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-73"><a href="#cb39-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-74"><a href="#cb39-74" aria-hidden="true" tabindex="-1"></a>In the <span class="in">`summarise()`</span> step, replace the name <span class="in">`mean`</span>, with <span class="in">`!! as_label(x)`</span>, also replace the <span class="in">`=`</span> sign, with <span class="in">`:=`</span></span>
+<span id="cb39-75"><a href="#cb39-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-78"><a href="#cb39-78" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-79"><a href="#cb39-79" aria-hidden="true" tabindex="-1"></a>my_mean <span class="ot">&lt;-</span> <span class="cf">function</span>(x){</span>
+<span id="cb39-80"><a href="#cb39-80" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">enquo</span>(x)</span>
+<span id="cb39-81"><a href="#cb39-81" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb39-82"><a href="#cb39-82" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(</span>
+<span id="cb39-83"><a href="#cb39-83" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!!</span><span class="fu">as_label</span>(x) <span class="sc">:</span><span class="er">=</span> <span class="fu">mean</span>(<span class="sc">!!</span>x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb39-84"><a href="#cb39-84" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb39-85"><a href="#cb39-85" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-86"><a href="#cb39-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-87"><a href="#cb39-87" aria-hidden="true" tabindex="-1"></a>Run the function again, the name of the column should match the argument value</span>
+<span id="cb39-88"><a href="#cb39-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-91"><a href="#cb39-91" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-92"><a href="#cb39-92" aria-hidden="true" tabindex="-1"></a><span class="fu">my_mean</span>(order_total)</span>
+<span id="cb39-93"><a href="#cb39-93" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-94"><a href="#cb39-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-95"><a href="#cb39-95" aria-hidden="true" tabindex="-1"></a>Test the function by passing a formula, such as <span class="in">`order_total / order_qty`</span></span>
+<span id="cb39-96"><a href="#cb39-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-99"><a href="#cb39-99" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-100"><a href="#cb39-100" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(order_total <span class="sc">/</span> order_qty)</span>
+<span id="cb39-101"><a href="#cb39-101" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-102"><a href="#cb39-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-103"><a href="#cb39-103" aria-hidden="true" tabindex="-1"></a>Make the function generic, add a new argument called: <span class="in">`.data`</span>. Inisde the function, replace <span class="in">`orders`</span> with <span class="in">`.data`</span></span>
+<span id="cb39-104"><a href="#cb39-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-107"><a href="#cb39-107" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-108"><a href="#cb39-108" aria-hidden="true" tabindex="-1"></a>my_mean <span class="ot">&lt;-</span> <span class="cf">function</span>(.data, x) {</span>
+<span id="cb39-109"><a href="#cb39-109" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">enquo</span>(x)</span>
+<span id="cb39-110"><a href="#cb39-110" aria-hidden="true" tabindex="-1"></a>  .data <span class="sc">%&gt;%</span></span>
+<span id="cb39-111"><a href="#cb39-111" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="sc">!!</span><span class="fu">as_label</span>(x) <span class="sc">:</span><span class="er">=</span> <span class="fu">mean</span>(<span class="sc">!!</span>x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb39-112"><a href="#cb39-112" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb39-113"><a href="#cb39-113" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-114"><a href="#cb39-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-115"><a href="#cb39-115" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>The function now behaves more like a <span class="in">`dplyr`</span> verb. Start with <span class="in">`orders`</span> and then pipe into the function</span>
+<span id="cb39-118"><a href="#cb39-118" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-119"><a href="#cb39-119" aria-hidden="true" tabindex="-1"></a>orders <span class="sc">%&gt;%</span></span>
+<span id="cb39-120"><a href="#cb39-120" aria-hidden="true" tabindex="-1"></a>  <span class="fu">my_mean</span>(order_total)</span>
+<span id="cb39-121"><a href="#cb39-121" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-122"><a href="#cb39-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-123"><a href="#cb39-123" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Clean up the code by removing the pipe that inside the function</span>
+<span id="cb39-126"><a href="#cb39-126" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-127"><a href="#cb39-127" aria-hidden="true" tabindex="-1"></a>my_mean <span class="ot">&lt;-</span> <span class="cf">function</span>(.data, x) {</span>
+<span id="cb39-128"><a href="#cb39-128" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">enquo</span>(x)</span>
+<span id="cb39-129"><a href="#cb39-129" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(.data, <span class="sc">!!</span><span class="fu">as_label</span>(x) <span class="sc">:</span><span class="er">=</span> <span class="fu">mean</span>(<span class="sc">!!</span>x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb39-130"><a href="#cb39-130" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb39-131"><a href="#cb39-131" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-132"><a href="#cb39-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-133"><a href="#cb39-133" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Confirm that there is no change in the behavior of the function</span>
+<span id="cb39-136"><a href="#cb39-136" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-137"><a href="#cb39-137" aria-hidden="true" tabindex="-1"></a>orders <span class="sc">%&gt;%</span></span>
+<span id="cb39-138"><a href="#cb39-138" aria-hidden="true" tabindex="-1"></a>  <span class="fu">my_mean</span>(order_total)</span>
+<span id="cb39-139"><a href="#cb39-139" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-140"><a href="#cb39-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-141"><a href="#cb39-141" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Add a <span class="in">`show_query()`</span> step to preview the resulting SQL statement</span>
+<span id="cb39-144"><a href="#cb39-144" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-145"><a href="#cb39-145" aria-hidden="true" tabindex="-1"></a>orders <span class="sc">%&gt;%</span></span>
+<span id="cb39-146"><a href="#cb39-146" aria-hidden="true" tabindex="-1"></a>  <span class="fu">my_mean</span>(order_total) <span class="sc">%&gt;%</span></span>
+<span id="cb39-147"><a href="#cb39-147" aria-hidden="true" tabindex="-1"></a>  <span class="fu">show_query</span>()</span>
+<span id="cb39-148"><a href="#cb39-148" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-149"><a href="#cb39-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-150"><a href="#cb39-150" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Try the function with a non-DB backed variable, such as <span class="in">`mtcars`</span>. Use <span class="in">`mpg`</span> as the aggregating variable</span>
+<span id="cb39-153"><a href="#cb39-153" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-154"><a href="#cb39-154" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">%&gt;%</span></span>
+<span id="cb39-155"><a href="#cb39-155" aria-hidden="true" tabindex="-1"></a>  <span class="fu">my_mean</span>(mpg)</span>
+<span id="cb39-156"><a href="#cb39-156" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-157"><a href="#cb39-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-158"><a href="#cb39-158" aria-hidden="true" tabindex="-1"></a><span class="fu">## Multiple variables</span></span>
+<span id="cb39-159"><a href="#cb39-159" aria-hidden="true" tabindex="-1"></a>*Create functions that handle a variable number of arguments. The goal of the exercise is to create an `anti-select()` function.*</span>
+<span id="cb39-160"><a href="#cb39-160" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-161"><a href="#cb39-161" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Load the <span class="in">`purrr`</span> package</span>
+<span id="cb39-164"><a href="#cb39-164" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-165"><a href="#cb39-165" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(purrr)</span>
+<span id="cb39-166"><a href="#cb39-166" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-167"><a href="#cb39-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-168"><a href="#cb39-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-169"><a href="#cb39-169" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Use *...* as the second argument of a function called <span class="in">`de_select()`</span>.  Inside the function use <span class="in">`enquos()`</span> to parse it</span>
+<span id="cb39-172"><a href="#cb39-172" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-173"><a href="#cb39-173" aria-hidden="true" tabindex="-1"></a>de_select <span class="ot">&lt;-</span> <span class="cf">function</span>(.data, ...) {</span>
+<span id="cb39-174"><a href="#cb39-174" aria-hidden="true" tabindex="-1"></a>  vars <span class="ot">&lt;-</span> <span class="fu">enquos</span>(...)</span>
+<span id="cb39-175"><a href="#cb39-175" aria-hidden="true" tabindex="-1"></a>  vars</span>
+<span id="cb39-176"><a href="#cb39-176" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb39-177"><a href="#cb39-177" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-178"><a href="#cb39-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-179"><a href="#cb39-179" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Test the function using *orders*</span>
+<span id="cb39-182"><a href="#cb39-182" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-183"><a href="#cb39-183" aria-hidden="true" tabindex="-1"></a>orders <span class="sc">%&gt;%</span></span>
+<span id="cb39-184"><a href="#cb39-184" aria-hidden="true" tabindex="-1"></a>  <span class="fu">de_select</span>(order_id, date)</span>
+<span id="cb39-185"><a href="#cb39-185" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-186"><a href="#cb39-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-187"><a href="#cb39-187" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Add a step to the function that iterates through each quosure and prefixes a minus sign to tell <span class="in">`select()`</span> to drop that specific field.  Use <span class="in">`map()`</span> for the iteration, and <span class="in">`quo()`</span> to create the prefixed expression.</span>
+<span id="cb39-190"><a href="#cb39-190" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-191"><a href="#cb39-191" aria-hidden="true" tabindex="-1"></a>de_select <span class="ot">&lt;-</span> <span class="cf">function</span>(.data, ...) {</span>
+<span id="cb39-192"><a href="#cb39-192" aria-hidden="true" tabindex="-1"></a>  vars <span class="ot">&lt;-</span> <span class="fu">enquos</span>(...)</span>
+<span id="cb39-193"><a href="#cb39-193" aria-hidden="true" tabindex="-1"></a>  vars <span class="ot">&lt;-</span> <span class="fu">map</span>(vars, <span class="sc">~</span> <span class="fu">quo</span>(<span class="sc">-!!</span>.x))</span>
+<span id="cb39-194"><a href="#cb39-194" aria-hidden="true" tabindex="-1"></a>  vars</span>
+<span id="cb39-195"><a href="#cb39-195" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb39-196"><a href="#cb39-196" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-197"><a href="#cb39-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-198"><a href="#cb39-198" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Run the same test to view the new results</span>
+<span id="cb39-201"><a href="#cb39-201" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-202"><a href="#cb39-202" aria-hidden="true" tabindex="-1"></a>orders <span class="sc">%&gt;%</span></span>
+<span id="cb39-203"><a href="#cb39-203" aria-hidden="true" tabindex="-1"></a>  <span class="fu">de_select</span>(order_id, date)</span>
+<span id="cb39-204"><a href="#cb39-204" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-205"><a href="#cb39-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-206"><a href="#cb39-206" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Add the <span class="in">`select()`</span> step.  Use *!!!* to parse the *vars* variable inside <span class="in">`select()`</span></span>
+<span id="cb39-209"><a href="#cb39-209" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-210"><a href="#cb39-210" aria-hidden="true" tabindex="-1"></a>de_select <span class="ot">&lt;-</span> <span class="cf">function</span>(.data, ...) {</span>
+<span id="cb39-211"><a href="#cb39-211" aria-hidden="true" tabindex="-1"></a>  vars <span class="ot">&lt;-</span> <span class="fu">enquos</span>(...)</span>
+<span id="cb39-212"><a href="#cb39-212" aria-hidden="true" tabindex="-1"></a>  vars <span class="ot">&lt;-</span> <span class="fu">map</span>(vars, <span class="sc">~</span> <span class="fu">quo</span>(<span class="sc">-!!</span>.x))</span>
+<span id="cb39-213"><a href="#cb39-213" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(.data, <span class="sc">!!!</span>vars)</span>
+<span id="cb39-214"><a href="#cb39-214" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb39-215"><a href="#cb39-215" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-216"><a href="#cb39-216" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-217"><a href="#cb39-217" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Run the test again, this time the operation will take place.  </span>
+<span id="cb39-220"><a href="#cb39-220" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-221"><a href="#cb39-221" aria-hidden="true" tabindex="-1"></a>orders <span class="sc">%&gt;%</span></span>
+<span id="cb39-222"><a href="#cb39-222" aria-hidden="true" tabindex="-1"></a>  <span class="fu">de_select</span>(order_id, date)</span>
+<span id="cb39-223"><a href="#cb39-223" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-224"><a href="#cb39-224" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-225"><a href="#cb39-225" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Add a <span class="in">`show_query()`</span> step to see the resulting SQL</span>
+<span id="cb39-228"><a href="#cb39-228" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-229"><a href="#cb39-229" aria-hidden="true" tabindex="-1"></a>orders <span class="sc">%&gt;%</span></span>
+<span id="cb39-230"><a href="#cb39-230" aria-hidden="true" tabindex="-1"></a>  <span class="fu">de_select</span>(order_id, date) <span class="sc">%&gt;%</span></span>
+<span id="cb39-231"><a href="#cb39-231" aria-hidden="true" tabindex="-1"></a>  <span class="fu">show_query</span>()</span>
+<span id="cb39-232"><a href="#cb39-232" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-233"><a href="#cb39-233" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-234"><a href="#cb39-234" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Test the function with a different data set, such as <span class="in">`mtcars`</span></span>
+<span id="cb39-237"><a href="#cb39-237" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-238"><a href="#cb39-238" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">%&gt;%</span></span>
+<span id="cb39-239"><a href="#cb39-239" aria-hidden="true" tabindex="-1"></a>  <span class="fu">de_select</span>(mpg, wt, am)</span>
+<span id="cb39-240"><a href="#cb39-240" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-241"><a href="#cb39-241" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-242"><a href="#cb39-242" aria-hidden="true" tabindex="-1"></a><span class="fu">## Multiple queries</span></span>
+<span id="cb39-243"><a href="#cb39-243" aria-hidden="true" tabindex="-1"></a>*Suggested approach to avoid passing multiple, and similar, queries to the database*</span>
+<span id="cb39-244"><a href="#cb39-244" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-245"><a href="#cb39-245" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Create a simple <span class="in">`dplyr`</span> piped operation that returns the mean of *order_total* for the months of January, February and March as a group</span>
+<span id="cb39-248"><a href="#cb39-248" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-249"><a href="#cb39-249" aria-hidden="true" tabindex="-1"></a>orders <span class="sc">%&gt;%</span></span>
+<span id="cb39-250"><a href="#cb39-250" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(date_month <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb39-251"><a href="#cb39-251" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean =</span> <span class="fu">mean</span>(order_total, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) </span>
+<span id="cb39-252"><a href="#cb39-252" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-253"><a href="#cb39-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-254"><a href="#cb39-254" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Assign the first operation to a variable called *a*, and create copy of the operation but changing the selected months to January, March and April.  Assign the second one to a variable called *b*.</span>
+<span id="cb39-257"><a href="#cb39-257" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-258"><a href="#cb39-258" aria-hidden="true" tabindex="-1"></a>a <span class="ot">&lt;-</span> orders <span class="sc">%&gt;%</span></span>
+<span id="cb39-259"><a href="#cb39-259" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(date_month <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb39-260"><a href="#cb39-260" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean =</span> <span class="fu">mean</span>(order_total, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) </span>
+<span id="cb39-261"><a href="#cb39-261" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-262"><a href="#cb39-262" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> orders <span class="sc">%&gt;%</span></span>
+<span id="cb39-263"><a href="#cb39-263" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(date_month <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">4</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb39-264"><a href="#cb39-264" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean =</span> <span class="fu">mean</span>(order_total, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) </span>
+<span id="cb39-265"><a href="#cb39-265" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-266"><a href="#cb39-266" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-267"><a href="#cb39-267" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Use *union()* to pass *a* and *b* at the same time to the database</span>
+<span id="cb39-270"><a href="#cb39-270" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-271"><a href="#cb39-271" aria-hidden="true" tabindex="-1"></a><span class="fu">union</span>(a, b)</span>
+<span id="cb39-272"><a href="#cb39-272" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-273"><a href="#cb39-273" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-274"><a href="#cb39-274" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Pipe the previous instruction to <span class="in">`show_query()`</span> to confirm that the resulting query is a single one</span>
+<span id="cb39-277"><a href="#cb39-277" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-278"><a href="#cb39-278" aria-hidden="true" tabindex="-1"></a><span class="fu">union</span>(a, b) <span class="sc">%&gt;%</span></span>
+<span id="cb39-279"><a href="#cb39-279" aria-hidden="true" tabindex="-1"></a>  <span class="fu">show_query</span>()</span>
+<span id="cb39-280"><a href="#cb39-280" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-281"><a href="#cb39-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-282"><a href="#cb39-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-283"><a href="#cb39-283" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Assign to a new variable called *months* an overlapping set of months</span>
+<span id="cb39-286"><a href="#cb39-286" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-287"><a href="#cb39-287" aria-hidden="true" tabindex="-1"></a>months <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb39-288"><a href="#cb39-288" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>),</span>
+<span id="cb39-289"><a href="#cb39-289" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">4</span>),</span>
+<span id="cb39-290"><a href="#cb39-290" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">6</span>)</span>
+<span id="cb39-291"><a href="#cb39-291" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb39-292"><a href="#cb39-292" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-293"><a href="#cb39-293" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-294"><a href="#cb39-294" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Use <span class="in">`map()`</span> to cycle through each set of overlapping months.  Notice that it returns three separate results, meaning that it went to the database three times</span>
+<span id="cb39-297"><a href="#cb39-297" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-298"><a href="#cb39-298" aria-hidden="true" tabindex="-1"></a>months <span class="sc">%&gt;%</span></span>
+<span id="cb39-299"><a href="#cb39-299" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(</span>
+<span id="cb39-300"><a href="#cb39-300" aria-hidden="true" tabindex="-1"></a>    <span class="sc">~</span> orders <span class="sc">%&gt;%</span></span>
+<span id="cb39-301"><a href="#cb39-301" aria-hidden="true" tabindex="-1"></a>        <span class="fu">filter</span>(date_month <span class="sc">%in%</span> .x) <span class="sc">%&gt;%</span></span>
+<span id="cb39-302"><a href="#cb39-302" aria-hidden="true" tabindex="-1"></a>        <span class="fu">summarise</span>(<span class="at">mean =</span> <span class="fu">mean</span>(order_total, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) </span>
+<span id="cb39-303"><a href="#cb39-303" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb39-304"><a href="#cb39-304" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-305"><a href="#cb39-305" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-306"><a href="#cb39-306" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Add a <span class="in">`reduce()`</span> operation and use <span class="in">`union()`</span> command to create a single query</span>
+<span id="cb39-309"><a href="#cb39-309" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-310"><a href="#cb39-310" aria-hidden="true" tabindex="-1"></a>months <span class="sc">%&gt;%</span></span>
+<span id="cb39-311"><a href="#cb39-311" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(</span>
+<span id="cb39-312"><a href="#cb39-312" aria-hidden="true" tabindex="-1"></a>    <span class="sc">~</span> orders <span class="sc">%&gt;%</span></span>
+<span id="cb39-313"><a href="#cb39-313" aria-hidden="true" tabindex="-1"></a>        <span class="fu">filter</span>(date_month <span class="sc">%in%</span> .x) <span class="sc">%&gt;%</span></span>
+<span id="cb39-314"><a href="#cb39-314" aria-hidden="true" tabindex="-1"></a>        <span class="fu">summarise</span>(<span class="at">mean =</span> <span class="fu">mean</span>(order_total, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) </span>
+<span id="cb39-315"><a href="#cb39-315" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb39-316"><a href="#cb39-316" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reduce</span>(<span class="cf">function</span>(x, y) <span class="fu">union</span>(x, y))</span>
+<span id="cb39-317"><a href="#cb39-317" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-318"><a href="#cb39-318" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-319"><a href="#cb39-319" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Use <span class="in">`show_query()`</span> to see the resulting single query sent to the database</span>
+<span id="cb39-322"><a href="#cb39-322" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-323"><a href="#cb39-323" aria-hidden="true" tabindex="-1"></a>months <span class="sc">%&gt;%</span></span>
+<span id="cb39-324"><a href="#cb39-324" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(</span>
+<span id="cb39-325"><a href="#cb39-325" aria-hidden="true" tabindex="-1"></a>    <span class="sc">~</span> orders <span class="sc">%&gt;%</span></span>
+<span id="cb39-326"><a href="#cb39-326" aria-hidden="true" tabindex="-1"></a>        <span class="fu">filter</span>(date_month <span class="sc">%in%</span> .x) <span class="sc">%&gt;%</span></span>
+<span id="cb39-327"><a href="#cb39-327" aria-hidden="true" tabindex="-1"></a>        <span class="fu">summarise</span>(<span class="at">mean =</span> <span class="fu">mean</span>(order_total, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) </span>
+<span id="cb39-328"><a href="#cb39-328" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb39-329"><a href="#cb39-329" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reduce</span>(<span class="cf">function</span>(x, y) <span class="fu">union</span>(x, y)) <span class="sc">%&gt;%</span></span>
+<span id="cb39-330"><a href="#cb39-330" aria-hidden="true" tabindex="-1"></a>  <span class="fu">show_query</span>()</span>
+<span id="cb39-331"><a href="#cb39-331" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-332"><a href="#cb39-332" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-333"><a href="#cb39-333" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-334"><a href="#cb39-334" aria-hidden="true" tabindex="-1"></a><span class="fu">## Multiple queries with an overlapping range</span></span>
+<span id="cb39-335"><a href="#cb39-335" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-336"><a href="#cb39-336" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Create a table with a *from* and *to* ranges</span>
+<span id="cb39-339"><a href="#cb39-339" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-340"><a href="#cb39-340" aria-hidden="true" tabindex="-1"></a>ranges <span class="ot">&lt;-</span> <span class="fu">tribble</span>(</span>
+<span id="cb39-341"><a href="#cb39-341" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span> from, <span class="sc">~</span>to, </span>
+<span id="cb39-342"><a href="#cb39-342" aria-hidden="true" tabindex="-1"></a>       <span class="dv">1</span>,   <span class="dv">4</span>,</span>
+<span id="cb39-343"><a href="#cb39-343" aria-hidden="true" tabindex="-1"></a>       <span class="dv">2</span>,   <span class="dv">5</span>,</span>
+<span id="cb39-344"><a href="#cb39-344" aria-hidden="true" tabindex="-1"></a>       <span class="dv">3</span>,   <span class="dv">7</span></span>
+<span id="cb39-345"><a href="#cb39-345" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb39-346"><a href="#cb39-346" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-347"><a href="#cb39-347" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-348"><a href="#cb39-348" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>See how <span class="in">`map2()`</span> works by passing the two variables as the *x* and *y* arguments, and adding them as the function</span>
+<span id="cb39-351"><a href="#cb39-351" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-352"><a href="#cb39-352" aria-hidden="true" tabindex="-1"></a><span class="fu">map2</span>(ranges<span class="sc">$</span>from, ranges<span class="sc">$</span>to, <span class="sc">~</span>.x <span class="sc">+</span> .y)</span>
+<span id="cb39-353"><a href="#cb39-353" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-354"><a href="#cb39-354" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-355"><a href="#cb39-355" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Replace *x + y* with the `dplyr` operation from the previous exercise.  In it, re-write the filter to use *x* and *y* as the month ranges </span>
+<span id="cb39-358"><a href="#cb39-358" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-359"><a href="#cb39-359" aria-hidden="true" tabindex="-1"></a><span class="fu">map2</span>(</span>
+<span id="cb39-360"><a href="#cb39-360" aria-hidden="true" tabindex="-1"></a>  ranges<span class="sc">$</span>from,</span>
+<span id="cb39-361"><a href="#cb39-361" aria-hidden="true" tabindex="-1"></a>  ranges<span class="sc">$</span>to,</span>
+<span id="cb39-362"><a href="#cb39-362" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span> orders <span class="sc">%&gt;%</span></span>
+<span id="cb39-363"><a href="#cb39-363" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(date_month <span class="sc">&gt;=</span> .x <span class="sc">&amp;</span> date_month <span class="sc">&lt;=</span> .y) <span class="sc">%&gt;%</span></span>
+<span id="cb39-364"><a href="#cb39-364" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">mean =</span> <span class="fu">mean</span>(order_total, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb39-365"><a href="#cb39-365" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb39-366"><a href="#cb39-366" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-367"><a href="#cb39-367" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-368"><a href="#cb39-368" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Add the <span class="in">`reduce()`</span> operation</span>
+<span id="cb39-371"><a href="#cb39-371" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-372"><a href="#cb39-372" aria-hidden="true" tabindex="-1"></a><span class="fu">map2</span>(</span>
+<span id="cb39-373"><a href="#cb39-373" aria-hidden="true" tabindex="-1"></a>  ranges<span class="sc">$</span>from,</span>
+<span id="cb39-374"><a href="#cb39-374" aria-hidden="true" tabindex="-1"></a>  ranges<span class="sc">$</span>to,</span>
+<span id="cb39-375"><a href="#cb39-375" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span> orders <span class="sc">%&gt;%</span></span>
+<span id="cb39-376"><a href="#cb39-376" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(date_month <span class="sc">&gt;=</span> .x <span class="sc">&amp;</span> date_month <span class="sc">&lt;=</span> .y) <span class="sc">%&gt;%</span></span>
+<span id="cb39-377"><a href="#cb39-377" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">mean =</span> <span class="fu">mean</span>(order_total, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb39-378"><a href="#cb39-378" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb39-379"><a href="#cb39-379" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reduce</span>(<span class="cf">function</span>(x, y)</span>
+<span id="cb39-380"><a href="#cb39-380" aria-hidden="true" tabindex="-1"></a>    <span class="fu">union</span>(x, y))</span>
+<span id="cb39-381"><a href="#cb39-381" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-382"><a href="#cb39-382" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-383"><a href="#cb39-383" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Add a <span class="in">`show_query()`</span> step to see how the final query was constructed.</span>
+<span id="cb39-386"><a href="#cb39-386" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-387"><a href="#cb39-387" aria-hidden="true" tabindex="-1"></a><span class="fu">map2</span>(</span>
+<span id="cb39-388"><a href="#cb39-388" aria-hidden="true" tabindex="-1"></a>  ranges<span class="sc">$</span>from,</span>
+<span id="cb39-389"><a href="#cb39-389" aria-hidden="true" tabindex="-1"></a>  ranges<span class="sc">$</span>to,</span>
+<span id="cb39-390"><a href="#cb39-390" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span> orders <span class="sc">%&gt;%</span></span>
+<span id="cb39-391"><a href="#cb39-391" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(date_month <span class="sc">&gt;=</span> .x <span class="sc">&amp;</span> date_month <span class="sc">&lt;=</span> .y) <span class="sc">%&gt;%</span></span>
+<span id="cb39-392"><a href="#cb39-392" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">mean =</span> <span class="fu">mean</span>(order_total, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb39-393"><a href="#cb39-393" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb39-394"><a href="#cb39-394" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reduce</span>(<span class="cf">function</span>(x, y)</span>
+<span id="cb39-395"><a href="#cb39-395" aria-hidden="true" tabindex="-1"></a>    <span class="fu">union</span>(x, y)) <span class="sc">%&gt;%</span></span>
+<span id="cb39-396"><a href="#cb39-396" aria-hidden="true" tabindex="-1"></a>  <span class="fu">show_query</span>()</span>
+<span id="cb39-397"><a href="#cb39-397" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-398"><a href="#cb39-398" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-399"><a href="#cb39-399" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-400"><a href="#cb39-400" aria-hidden="true" tabindex="-1"></a><span class="fu">## Characters to field names</span></span>
+<span id="cb39-401"><a href="#cb39-401" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-402"><a href="#cb39-402" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Create two character variables. One with the name of a field in *flights* and another with a new name to be given to the field</span>
+<span id="cb39-405"><a href="#cb39-405" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-406"><a href="#cb39-406" aria-hidden="true" tabindex="-1"></a>my_field <span class="ot">&lt;-</span> <span class="st">"new"</span></span>
+<span id="cb39-407"><a href="#cb39-407" aria-hidden="true" tabindex="-1"></a>orders_field <span class="ot">&lt;-</span> <span class="st">"order_total"</span></span>
+<span id="cb39-408"><a href="#cb39-408" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-409"><a href="#cb39-409" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-410"><a href="#cb39-410" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Add a <span class="in">`mutate()`</span> step that adds the new field. And then another step selecting just the new field</span>
+<span id="cb39-413"><a href="#cb39-413" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-414"><a href="#cb39-414" aria-hidden="true" tabindex="-1"></a>orders <span class="sc">%&gt;%</span></span>
+<span id="cb39-415"><a href="#cb39-415" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">my_field =</span> <span class="sc">!!</span> orders_field) <span class="sc">%&gt;%</span></span>
+<span id="cb39-416"><a href="#cb39-416" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(my_field)</span>
+<span id="cb39-417"><a href="#cb39-417" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-418"><a href="#cb39-418" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-419"><a href="#cb39-419" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Add a <span class="in">`mutate()`</span> step that adds the new field. And then another step selecting just the new field</span>
+<span id="cb39-422"><a href="#cb39-422" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-423"><a href="#cb39-423" aria-hidden="true" tabindex="-1"></a>orders <span class="sc">%&gt;%</span></span>
+<span id="cb39-424"><a href="#cb39-424" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="sc">!!</span> <span class="at">my_field :=</span> <span class="sc">!!</span> orders_field) <span class="sc">%&gt;%</span></span>
+<span id="cb39-425"><a href="#cb39-425" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(my_field)</span>
+<span id="cb39-426"><a href="#cb39-426" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-427"><a href="#cb39-427" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-428"><a href="#cb39-428" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Wrap <span class="in">`orders_field`</span> inside a <span class="in">`sym()`</span> function</span>
+<span id="cb39-431"><a href="#cb39-431" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-432"><a href="#cb39-432" aria-hidden="true" tabindex="-1"></a>orders <span class="sc">%&gt;%</span></span>
+<span id="cb39-433"><a href="#cb39-433" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="sc">!!</span> <span class="at">my_field :=</span> <span class="sc">!!</span> <span class="fu">sym</span>(orders_field)) <span class="sc">%&gt;%</span></span>
+<span id="cb39-434"><a href="#cb39-434" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(my_field)</span>
+<span id="cb39-435"><a href="#cb39-435" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+<footer class="footer"><div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© Copyright 2024 Andrew Allen Bruce.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
